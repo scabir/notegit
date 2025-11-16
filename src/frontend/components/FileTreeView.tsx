@@ -20,8 +20,8 @@ import {
   Code as CodeIcon,
   TextSnippet as TextIcon,
   InsertDriveFile as FileIcon,
-  AddBox as PlusIcon,
-  IndeterminateCheckBox as MinusIcon,
+  Add as PlusIcon,
+  Remove as MinusIcon,
   CreateNewFolder as CreateFolderIcon,
   NoteAdd as NoteAddIcon,
   Delete as DeleteIcon,
@@ -73,6 +73,7 @@ export function FileTreeView({
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedNode, setSelectedNode] = useState<FileTreeNode | null>(null);
   const [draggedNode, setDraggedNode] = useState<FileTreeNode | null>(null);
+  const [expanded, setExpanded] = useState<string[]>([]);
 
   // Clear input and error when dialog opens
   const handleOpenFileDialog = () => {
@@ -262,8 +263,25 @@ export function FileTreeView({
   };
 
   const renderTree = (node: FileTreeNode) => {
-    const icon = node.type === 'folder' ? <FolderIcon fontSize="small" /> : getFileIcon(node.fileType);
     const isDragging = draggedNode?.id === node.id;
+    const isExpanded = expanded.includes(node.id);
+    
+    // Determine icon based on node type and expansion state
+    let icon;
+    if (node.type === 'folder') {
+      icon = (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          {isExpanded ? (
+            <MinusIcon fontSize="small" sx={{ color: 'primary.main' }} />
+          ) : (
+            <PlusIcon fontSize="small" sx={{ color: 'primary.main' }} />
+          )}
+          <FolderIcon fontSize="small" />
+        </Box>
+      );
+    } else {
+      icon = getFileIcon(node.fileType);
+    }
 
     return (
       <TreeItem 
@@ -330,8 +348,12 @@ export function FileTreeView({
 
       <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
         <TreeView
-          defaultCollapseIcon={<MinusIcon />}
-          defaultExpandIcon={<PlusIcon />}
+          defaultCollapseIcon={<span />}
+          defaultExpandIcon={<span />}
+          expanded={expanded}
+          onNodeToggle={(_event: React.SyntheticEvent, nodeIds: string[]) => {
+            setExpanded(nodeIds);
+          }}
           selected={selectedFile || undefined}
           onNodeSelect={handleNodeSelect}
         >
