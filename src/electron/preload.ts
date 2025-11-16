@@ -22,6 +22,7 @@ const api: NotegitApi = {
     read: (path) => ipcRenderer.invoke('files:read', path),
     save: (path, content) => ipcRenderer.invoke('files:save', path, content),
     commit: (path, message) => ipcRenderer.invoke('files:commit', path, message),
+    commitAll: (message) => ipcRenderer.invoke('files:commitAll', message),
     create: (parentPath, name) => ipcRenderer.invoke('files:create', parentPath, name),
     createFile: (parentPath, name) => ipcRenderer.invoke('files:create', parentPath, name),
     createFolder: (parentPath, name) => ipcRenderer.invoke('files:createFolder', parentPath, name),

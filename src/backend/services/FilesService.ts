@@ -131,6 +131,37 @@ export class FilesService {
   }
 
   /**
+   * Commit all changes to Git (git add . && git commit)
+   */
+  async commitAll(message: string): Promise<void> {
+    await this.ensureRepoPath();
+
+    if (!this.gitAdapter) {
+      throw this.createError(
+        ApiErrorCode.UNKNOWN_ERROR,
+        'GitAdapter not initialized',
+        null
+      );
+    }
+
+    try {
+      // Initialize Git adapter with repo path
+      await this.gitAdapter.init(this.repoPath!);
+      
+      // Stage all changes (git add .)
+      await this.gitAdapter.add('.');
+      
+      // Commit
+      await this.gitAdapter.commit(message);
+      
+      logger.info('All changes committed', { message });
+    } catch (error: any) {
+      logger.error('Failed to commit all changes', { error });
+      throw error;
+    }
+  }
+
+  /**
    * Create a new file
    */
   async createFile(parentPath: string, name: string): Promise<void> {

@@ -7,7 +7,9 @@ dist/
 
 # Build outputs
 build/
+!build/README.md
 out/
+release/
 
 # IDE
 .vscode/

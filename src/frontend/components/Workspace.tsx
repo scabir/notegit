@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip } from '@mui/material';
-import { Settings as SettingsIcon } from '@mui/icons-material';
+import { 
+  Settings as SettingsIcon,
+  Commit as CommitIcon,
+  SaveAlt as SaveAllIcon,
+} from '@mui/icons-material';
 import { FileTreeView } from './FileTreeView';
 import { MarkdownEditor } from './MarkdownEditor';
+import { TextEditor } from './TextEditor';
 import { StatusBar } from './StatusBar';
 import { SettingsDialog } from './SettingsDialog';
+import { CommitDialog } from './CommitDialog';
 import type { FileTreeNode, FileContent, RepoStatus } from '../../shared/types';
 
 interface WorkspaceProps {
@@ -18,6 +24,9 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [repoStatus, setRepoStatus] = useState<RepoStatus | null>(null);
   const [repoPath, setRepoPath] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [commitDialogOpen, setCommitDialogOpen] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [editorContent, setEditorContent] = useState<string>('');
 
   useEffect(() => {
     loadWorkspace();
@@ -257,6 +266,25 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     }
   };
 
+  const handleEditorChange = (content: string, hasChanges: boolean) => {
+    setEditorContent(content);
+    setHasUnsavedChanges(hasChanges);
+  };
+
+  const handleSaveAll = async () => {
+    if (hasUnsavedChanges && selectedFile) {
+      await handleSaveFile(editorContent);
+    }
+  };
+
+  const handleOpenCommitDialog = async () => {
+    // Auto-save before opening commit dialog
+    if (hasUnsavedChanges && selectedFile) {
+      await handleSaveFile(editorContent);
+    }
+    setCommitDialogOpen(true);
+  };
+
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Top app bar */}
@@ -265,6 +293,25 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             notegit
           </Typography>
+          
+          <Tooltip title="Save all open files">
+            <span>
+              <IconButton 
+                onClick={handleSaveAll}
+                disabled={!hasUnsavedChanges}
+                color={hasUnsavedChanges ? 'primary' : 'default'}
+              >
+                <SaveAllIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+
+          <Tooltip title="Commit all changes">
+            <IconButton onClick={handleOpenCommitDialog} color="primary">
+              <CommitIcon />
+            </IconButton>
+          </Tooltip>
+
           <Tooltip title="Settings">
             <IconButton onClick={() => setSettingsOpen(true)}>
               <SettingsIcon />
@@ -298,12 +345,20 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
         {/* Editor */}
         <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-          <MarkdownEditor
-            file={fileContent}
-            repoPath={repoPath}
-            onSave={handleSaveFile}
-            onCommit={handleCommit}
-          />
+          {fileContent?.type === 'text' ? (
+            <TextEditor
+              file={fileContent}
+              onSave={handleSaveFile}
+              onChange={handleEditorChange}
+            />
+          ) : (
+            <MarkdownEditor
+              file={fileContent}
+              repoPath={repoPath}
+              onSave={handleSaveFile}
+              onChange={handleEditorChange}
+            />
+          )}
         </Box>
       </Box>
 
@@ -315,6 +370,17 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         open={settingsOpen} 
         onClose={() => setSettingsOpen(false)}
         onThemeChange={onThemeChange}
+      />
+
+      {/* Commit dialog */}
+      <CommitDialog
+        open={commitDialogOpen}
+        filePath={null}
+        onClose={() => setCommitDialogOpen(false)}
+        onSuccess={() => {
+          handleCommit();
+          setCommitDialogOpen(false);
+        }}
       />
     </Box>
   );

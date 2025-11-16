@@ -24,14 +24,14 @@ export function CommitDialog({ open, filePath, onClose, onSuccess }: CommitDialo
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (open && filePath) {
-      const filename = filePath.split('/').pop() || filePath;
-      setMessage(`Update ${filename}`);
+    if (open) {
+      setMessage('');
+      setError(null);
     }
-  }, [open, filePath]);
+  }, [open]);
 
   const handleCommit = async () => {
-    if (!filePath || !message.trim()) {
+    if (!message.trim()) {
       setError('Please enter a commit message');
       return;
     }
@@ -40,7 +40,8 @@ export function CommitDialog({ open, filePath, onClose, onSuccess }: CommitDialo
     setError(null);
 
     try {
-      const response = await window.notegitApi.files.commit(filePath, message);
+      // Use commitAll to commit all changes (git add . && git commit)
+      const response = await window.notegitApi.files.commitAll(message);
 
       if (response.ok) {
         // Try to push after successful commit
@@ -69,14 +70,6 @@ export function CommitDialog({ open, filePath, onClose, onSuccess }: CommitDialo
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
           {error && <Alert severity="error">{error}</Alert>}
-
-          <TextField
-            label="File"
-            value={filePath || ''}
-            disabled
-            fullWidth
-            size="small"
-          />
 
           <TextField
             label="Commit Message"

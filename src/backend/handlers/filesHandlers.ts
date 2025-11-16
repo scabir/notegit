@@ -102,6 +102,30 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
   );
 
   ipcMain.handle(
+    'files:commitAll',
+    async (_event, message: string): Promise<ApiResponse<void>> => {
+      try {
+        await filesService.commitAll(message);
+        return {
+          ok: true,
+        };
+      } catch (error: any) {
+        logger.error('Failed to commit all changes', { error });
+        return {
+          ok: false,
+          error: error.code
+            ? error
+            : {
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: error.message || 'Failed to commit all changes',
+                details: error,
+              },
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
     'files:create',
     async (_event, parentPath: string, name: string): Promise<ApiResponse<void>> => {
       try {

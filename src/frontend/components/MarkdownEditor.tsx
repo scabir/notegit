@@ -3,29 +3,26 @@ import { Box, Paper, Divider, Toolbar, IconButton, Chip, Tooltip, useTheme } fro
 import {
   Save as SaveIcon,
   FiberManualRecord as UnsavedIcon,
-  Commit as CommitIcon,
 } from '@mui/icons-material';
 import CodeMirror from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { CommitDialog } from './CommitDialog';
 import type { FileContent } from '../../shared/types';
 
 interface MarkdownEditorProps {
   file: FileContent | null;
   repoPath: string | null;
   onSave: (content: string) => void;
-  onCommit: () => void;
+  onChange: (content: string, hasChanges: boolean) => void;
 }
 
-export function MarkdownEditor({ file, repoPath, onSave, onCommit }: MarkdownEditorProps) {
+export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEditorProps) {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const [content, setContent] = useState('');
   const [savedContent, setSavedContent] = useState('');
-  const [commitDialogOpen, setCommitDialogOpen] = useState(false);
 
   useEffect(() => {
     if (file) {
@@ -35,6 +32,11 @@ export function MarkdownEditor({ file, repoPath, onSave, onCommit }: MarkdownEdi
   }, [file]);
 
   const hasUnsavedChanges = content !== savedContent;
+
+  // Notify parent of content changes
+  useEffect(() => {
+    onChange(content, hasUnsavedChanges);
+  }, [content, hasUnsavedChanges]);
 
   const handleSave = () => {
     if (hasUnsavedChanges) {
@@ -97,27 +99,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onCommit }: MarkdownEdi
             <SaveIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-
-        <Tooltip title="Commit (Cmd/Ctrl+Shift+S)">
-          <IconButton
-            size="small"
-            onClick={() => setCommitDialogOpen(true)}
-            color="secondary"
-          >
-            <CommitIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
       </Toolbar>
-
-      <CommitDialog
-        open={commitDialogOpen}
-        filePath={file?.path || null}
-        onClose={() => setCommitDialogOpen(false)}
-        onSuccess={() => {
-          onCommit();
-          setCommitDialogOpen(false);
-        }}
-      />
 
       <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
         {/* Editor */}
