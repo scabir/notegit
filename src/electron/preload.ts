@@ -1,0 +1,40 @@
+import { contextBridge, ipcRenderer } from 'electron';
+import type { NotegitApi } from '../shared/types/api';
+
+// Expose protected methods that allow the renderer process to use
+// the ipcRenderer without exposing the entire object
+const api: NotegitApi = {
+  config: {
+    getFull: () => ipcRenderer.invoke('config:getFull'),
+    updateAppSettings: (settings) => ipcRenderer.invoke('config:updateAppSettings', settings),
+    updateRepoSettings: (settings) => ipcRenderer.invoke('config:updateRepoSettings', settings),
+    checkGitInstalled: () => ipcRenderer.invoke('config:checkGitInstalled'),
+  },
+  repo: {
+    openOrClone: (settings) => ipcRenderer.invoke('repo:openOrClone', settings),
+    getStatus: () => ipcRenderer.invoke('repo:getStatus'),
+    pull: () => ipcRenderer.invoke('repo:pull'),
+    push: () => ipcRenderer.invoke('repo:push'),
+    startAutoPush: () => ipcRenderer.invoke('repo:startAutoPush'),
+  },
+  files: {
+    listTree: () => ipcRenderer.invoke('files:listTree'),
+    read: (path) => ipcRenderer.invoke('files:read', path),
+    save: (path, content) => ipcRenderer.invoke('files:save', path, content),
+    commit: (path, message) => ipcRenderer.invoke('files:commit', path, message),
+    create: (parentPath, name) => ipcRenderer.invoke('files:create', parentPath, name),
+    createFile: (parentPath, name) => ipcRenderer.invoke('files:create', parentPath, name),
+    createFolder: (parentPath, name) => ipcRenderer.invoke('files:createFolder', parentPath, name),
+    delete: (path) => ipcRenderer.invoke('files:delete', path),
+    rename: (oldPath, newPath) => ipcRenderer.invoke('files:rename', oldPath, newPath),
+    saveAs: (repoPath, destPath) => ipcRenderer.invoke('files:saveAs', repoPath, destPath),
+  },
+  history: {
+    getForFile: (path) => ipcRenderer.invoke('history:getForFile', path),
+    getVersion: (commitHash, path) => ipcRenderer.invoke('history:getVersion', commitHash, path),
+    getDiff: (hash1, hash2, path) => ipcRenderer.invoke('history:getDiff', hash1, hash2, path),
+  },
+};
+
+contextBridge.exposeInMainWorld('notegitApi', api);
+
