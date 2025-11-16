@@ -10,6 +10,7 @@ import { registerConfigHandlers } from './handlers/configHandlers';
 import { registerRepoHandlers } from './handlers/repoHandlers';
 import { registerFilesHandlers } from './handlers/filesHandlers';
 import { registerHistoryHandlers } from './handlers/historyHandlers';
+import { registerDialogHandlers } from './handlers/dialogHandlers';
 import { logger } from './utils/logger';
 
 export function createBackend(ipcMain: IpcMain): void {
@@ -35,6 +36,7 @@ export function createBackend(ipcMain: IpcMain): void {
   registerRepoHandlers(ipcMain, repoService);
   registerFilesHandlers(ipcMain, filesService);
   registerHistoryHandlers(ipcMain, historyService);
+  registerDialogHandlers(ipcMain);
 
   logger.info('Backend services initialized');
 }

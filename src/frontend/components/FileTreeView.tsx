@@ -25,6 +25,7 @@ import {
   CreateNewFolder as CreateFolderIcon,
   NoteAdd as NoteAddIcon,
   Delete as DeleteIcon,
+  FileUpload as ImportIcon,
 } from '@mui/icons-material';
 import type { FileTreeNode, FileType } from '../../shared/types';
 
@@ -36,6 +37,7 @@ interface FileTreeViewProps {
   onCreateFolder: (parentPath: string, folderName: string) => Promise<void>;
   onDelete: (path: string) => Promise<void>;
   onRename: (oldPath: string, newPath: string) => Promise<void>;
+  onImport: (sourcePath: string, targetPath: string) => Promise<void>;
 }
 
 const getFileIcon = (fileType?: FileType) => {
@@ -65,6 +67,7 @@ export function FileTreeView({
   onCreateFolder,
   onDelete,
   onRename,
+  onImport,
 }: FileTreeViewProps) {
   const [createFileDialogOpen, setCreateFileDialogOpen] = useState(false);
   const [createFolderDialogOpen, setCreateFolderDialogOpen] = useState(false);
@@ -111,18 +114,35 @@ export function FileTreeView({
     try {
       // Determine parent path based on selection
       let parentPath = '';
+      let parentNodeId: string | null = null;
+      
       if (selectedNode) {
         if (selectedNode.type === 'folder') {
           // Create inside the selected folder
           parentPath = selectedNode.path;
+          parentNodeId = selectedNode.id;
         } else {
           // Create in the same folder as the selected file
           const lastSlash = selectedNode.path.lastIndexOf('/');
           parentPath = lastSlash > 0 ? selectedNode.path.substring(0, lastSlash) : '';
+          
+          // Find parent folder node ID
+          if (parentPath) {
+            const parentNode = findNodeByPath(tree, parentPath);
+            if (parentNode) {
+              parentNodeId = parentNode.id;
+            }
+          }
         }
       }
       
       await onCreateFile(parentPath, fileName);
+      
+      // Auto-expand the parent folder
+      if (parentNodeId && !expanded.includes(parentNodeId)) {
+        setExpanded([...expanded, parentNodeId]);
+      }
+      
       // Success - close dialog
       setCreateFileDialogOpen(false);
       setNewItemName('');
@@ -160,18 +180,35 @@ export function FileTreeView({
     try {
       // Determine parent path based on selection
       let parentPath = '';
+      let parentNodeId: string | null = null;
+      
       if (selectedNode) {
         if (selectedNode.type === 'folder') {
           // Create inside the selected folder
           parentPath = selectedNode.path;
+          parentNodeId = selectedNode.id;
         } else {
           // Create in the same folder as the selected file
           const lastSlash = selectedNode.path.lastIndexOf('/');
           parentPath = lastSlash > 0 ? selectedNode.path.substring(0, lastSlash) : '';
+          
+          // Find parent folder node ID
+          if (parentPath) {
+            const parentNode = findNodeByPath(tree, parentPath);
+            if (parentNode) {
+              parentNodeId = parentNode.id;
+            }
+          }
         }
       }
       
       await onCreateFolder(parentPath, trimmedName);
+      
+      // Auto-expand the parent folder
+      if (parentNodeId && !expanded.includes(parentNodeId)) {
+        setExpanded([...expanded, parentNodeId]);
+      }
+      
       // Success - close dialog
       setCreateFolderDialogOpen(false);
       setNewItemName('');
@@ -193,14 +230,64 @@ export function FileTreeView({
   };
 
   const handleDelete = async () => {
-    if (!selectedFile) return;
+    if (!selectedNode) return;
     
-    if (window.confirm(`Are you sure you want to delete ${selectedFile}?`)) {
+    const itemType = selectedNode.type === 'folder' ? 'folder' : 'file';
+    const message = `Are you sure you want to delete ${itemType} "${selectedNode.name}"?${
+      selectedNode.type === 'folder' ? ' All contents will be deleted.' : ''
+    }`;
+    
+    if (window.confirm(message)) {
       try {
-        await onDelete(selectedFile);
+        await onDelete(selectedNode.path);
+        // Clear selection after successful deletion
+        setSelectedNode(null);
       } catch (error) {
         console.error('Failed to delete:', error);
+        alert(`Failed to delete ${itemType}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
+    }
+  };
+
+  const handleImportFile = async () => {
+    try {
+      if (!window.notegitApi.dialog) {
+        alert('Dialog API not available. Please restart the app.');
+        return;
+      }
+      
+      // Open file picker dialog
+      const result = await window.notegitApi.dialog.showOpenDialog({
+        properties: ['openFile'],
+        title: 'Select file to import',
+      });
+
+      if (result.canceled || result.filePaths.length === 0) {
+        return;
+      }
+
+      const sourcePath = result.filePaths[0];
+      const fileName = sourcePath.split('/').pop() || 'imported_file';
+
+      // Determine target path based on selection
+      let targetPath = fileName;
+      if (selectedNode) {
+        if (selectedNode.type === 'folder') {
+          // Import into the selected folder
+          targetPath = `${selectedNode.path}/${fileName}`;
+        } else {
+          // Import into the same folder as the selected file
+          const lastSlash = selectedNode.path.lastIndexOf('/');
+          const parentPath = lastSlash > 0 ? selectedNode.path.substring(0, lastSlash) : '';
+          targetPath = parentPath ? `${parentPath}/${fileName}` : fileName;
+        }
+      }
+
+      // Call the import handler
+      await onImport(sourcePath, targetPath);
+    } catch (error) {
+      console.error('Failed to import file:', error);
+      alert(`Failed to import file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -210,6 +297,18 @@ export function FileTreeView({
       if (node.id === id) return node;
       if (node.children) {
         const found = findNode(node.children, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  // Helper to find a node by path
+  const findNodeByPath = (nodes: FileTreeNode[], path: string): FileTreeNode | null => {
+    for (const node of nodes) {
+      if (node.path === path) return node;
+      if (node.children) {
+        const found = findNodeByPath(node.children, path);
         if (found) return found;
       }
     }
@@ -270,7 +369,7 @@ export function FileTreeView({
     let icon;
     if (node.type === 'folder') {
       icon = (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mr: 1 }}>
           {isExpanded ? (
             <MinusIcon fontSize="small" sx={{ color: 'primary.main' }} />
           ) : (
@@ -333,12 +432,17 @@ export function FileTreeView({
             <CreateFolderIcon fontSize="small" />
           </IconButton>
         </Tooltip>
+        <Tooltip title="Import File">
+          <IconButton size="small" onClick={handleImportFile}>
+            <ImportIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
         <Tooltip title="Delete">
           <span>
             <IconButton 
               size="small" 
               onClick={handleDelete}
-              disabled={!selectedFile}
+              disabled={!selectedNode}
             >
               <DeleteIcon fontSize="small" />
             </IconButton>

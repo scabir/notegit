@@ -217,5 +217,29 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
       }
     }
   );
+
+  ipcMain.handle(
+    'files:import',
+    async (_event, sourcePath: string, targetPath: string): Promise<ApiResponse<void>> => {
+      try {
+        await filesService.importFile(sourcePath, targetPath);
+        return {
+          ok: true,
+        };
+      } catch (error: any) {
+        logger.error('Failed to import file', { sourcePath, targetPath, error });
+        return {
+          ok: false,
+          error: error.code
+            ? error
+            : {
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: error.message || 'Failed to import file',
+                details: error,
+              },
+        };
+      }
+    }
+  );
 }
 

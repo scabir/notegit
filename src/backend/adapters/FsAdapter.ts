@@ -108,6 +108,28 @@ export class FsAdapter {
     }
   }
 
+  async rmdir(dirPath: string, options?: { recursive?: boolean }): Promise<void> {
+    try {
+      await fs.rm(dirPath, { recursive: options?.recursive ?? true, force: true });
+    } catch (error: any) {
+      if (error.code === 'ENOENT') {
+        throw this.createError(ApiErrorCode.FS_NOT_FOUND, `Directory not found: ${dirPath}`, error);
+      }
+      if (error.code === 'EACCES') {
+        throw this.createError(
+          ApiErrorCode.FS_PERMISSION_DENIED,
+          `Permission denied: ${dirPath}`,
+          error
+        );
+      }
+      throw this.createError(
+        ApiErrorCode.UNKNOWN_ERROR,
+        `Failed to delete directory: ${dirPath}`,
+        error
+      );
+    }
+  }
+
   async readdir(dirPath: string): Promise<string[]> {
     try {
       return await fs.readdir(dirPath);

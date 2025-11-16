@@ -184,9 +184,8 @@ export class FilesService {
       const stats = await this.fsAdapter.stat(fullPath);
       
       if (stats.isDirectory()) {
-        // For directories, we need to recursively delete
-        // This is a simple implementation - production would need better handling
-        await this.deleteDirectory(fullPath);
+        // Use rmdir which handles recursive deletion
+        await this.fsAdapter.rmdir(fullPath, { recursive: true });
       } else {
         await this.fsAdapter.deleteFile(fullPath);
       }
@@ -234,25 +233,27 @@ export class FilesService {
   }
 
   /**
-   * Recursively delete directory
+   * Import/copy file from external location into the repository
    */
-  private async deleteDirectory(dirPath: string): Promise<void> {
-    const entries = await this.fsAdapter.readdir(dirPath);
-    
-    for (const entry of entries) {
-      const fullPath = path.join(dirPath, entry);
-      const stats = await this.fsAdapter.stat(fullPath);
-      
-      if (stats.isDirectory()) {
-        await this.deleteDirectory(fullPath);
-      } else {
-        await this.fsAdapter.deleteFile(fullPath);
-      }
+  async importFile(sourcePath: string, targetPath: string): Promise<void> {
+    await this.ensureRepoPath();
+
+    const fullTargetPath = path.join(this.repoPath!, targetPath);
+
+    try {
+      // Ensure parent directory exists
+      const parentDir = path.dirname(fullTargetPath);
+      await this.fsAdapter.mkdir(parentDir, { recursive: true });
+
+      // Copy the file
+      await this.fsAdapter.copyFile(sourcePath, fullTargetPath);
+      logger.info('File imported', { sourcePath, targetPath });
+    } catch (error: any) {
+      logger.error('Failed to import file', { sourcePath, targetPath, error });
+      throw error;
     }
-    
-    // Delete the directory itself
-    await this.fsAdapter.deleteFile(dirPath);
   }
+
 
   /**
    * Recursively build file tree

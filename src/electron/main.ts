@@ -20,12 +20,11 @@ function createWindow() {
   // In production, load from built files
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL('http://localhost:5173');
+    // Open DevTools in development only
+    mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../frontend/index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../../frontend/index.html'));
   }
-  
-  // Always open DevTools for debugging
-  mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', () => {
     mainWindow = null;

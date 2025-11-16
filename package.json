@@ -2,7 +2,7 @@
   "name": "notegit",
   "version": "1.0.0",
   "description": "A Git-backed Markdown note-taking desktop application",
-  "main": "dist/electron/main.js",
+  "main": "dist/electron/electron/main.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:electron\"",
     "dev:frontend": "vite",

@@ -232,6 +232,31 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     }
   };
 
+  const handleImport = async (sourcePath: string, targetPath: string) => {
+    try {
+      const response = await window.notegitApi.files.import(sourcePath, targetPath);
+      if (response.ok) {
+        console.log('File imported successfully');
+        // Refresh tree
+        const treeResponse = await window.notegitApi.files.listTree();
+        if (treeResponse.ok && treeResponse.data) {
+          setTree(treeResponse.data);
+        }
+        // Refresh status
+        const statusResponse = await window.notegitApi.repo.getStatus();
+        if (statusResponse.ok && statusResponse.data) {
+          setRepoStatus(statusResponse.data);
+        }
+      } else {
+        console.error('Failed to import file:', response.error);
+        throw new Error(response.error?.message || 'Failed to import file');
+      }
+    } catch (error) {
+      console.error('Failed to import file:', error);
+      throw error;
+    }
+  };
+
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Top app bar */}
@@ -267,6 +292,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             onCreateFolder={handleCreateFolder}
             onDelete={handleDelete}
             onRename={handleRename}
+            onImport={handleImport}
           />
         </Box>
 

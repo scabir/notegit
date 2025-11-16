@@ -61,6 +61,10 @@ export interface NotegitApi {
     delete: (path: string) => Promise<ApiResponse<void>>;
     rename: (oldPath: string, newPath: string) => Promise<ApiResponse<void>>;
     saveAs: (repoPath: string, destPath: string) => Promise<ApiResponse<void>>;
+    import: (sourcePath: string, targetPath: string) => Promise<ApiResponse<void>>;
+  };
+  dialog: {
+    showOpenDialog: (options: any) => Promise<{ canceled: boolean; filePaths: string[] }>;
   };
   history: {
     getForFile: (path: string) => Promise<ApiResponse<CommitEntry[]>>;

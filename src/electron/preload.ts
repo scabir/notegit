@@ -28,6 +28,10 @@ const api: NotegitApi = {
     delete: (path) => ipcRenderer.invoke('files:delete', path),
     rename: (oldPath, newPath) => ipcRenderer.invoke('files:rename', oldPath, newPath),
     saveAs: (repoPath, destPath) => ipcRenderer.invoke('files:saveAs', repoPath, destPath),
+    import: (sourcePath, targetPath) => ipcRenderer.invoke('files:import', sourcePath, targetPath),
+  },
+  dialog: {
+    showOpenDialog: (options) => ipcRenderer.invoke('dialog:showOpenDialog', options),
   },
   history: {
     getForFile: (path) => ipcRenderer.invoke('history:getForFile', path),

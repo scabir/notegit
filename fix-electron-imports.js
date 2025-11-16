@@ -12,15 +12,17 @@
 const fs = require('fs');
 const path = require('path');
 
-const mainJsPath = path.join(__dirname, 'dist', 'electron', 'main.js');
+const mainJsPath = path.join(__dirname, 'dist', 'electron', 'electron', 'main.js');
 
 try {
   let content = fs.readFileSync(mainJsPath, 'utf8');
   
   // Fix the backend import path
+  // TypeScript imports '../backend' which compiles to './backend'
+  // But we need '../backend' because main.js is in electron/ subdirectory
   content = content.replace(
-    /require\("\.\.\/backend"\)/g,
-    'require("./backend")'
+    /require\("\.\/backend"\)/g,
+    'require("../backend")'
   );
   
   fs.writeFileSync(mainJsPath, content, 'utf8');
