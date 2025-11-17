@@ -20,6 +20,9 @@ import { markdown } from '@codemirror/lang-markdown';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { EditorView } from '@codemirror/view';
+import { EditorSelection } from '@codemirror/state';
+import { FindReplaceBar } from './FindReplaceBar';
 import type { FileContent } from '../../shared/types';
 
 interface MarkdownEditorProps {
@@ -39,12 +42,22 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   const [viewMode, setViewMode] = useState<ViewMode>('split');
   const [editorWidth, setEditorWidth] = useState(50); // Percentage
   const editorRef = useRef<any>(null);
+  const editorViewRef = useRef<EditorView | null>(null);
   const isDraggingRef = useRef(false);
+  
+  // Find and replace state
+  const [findBarOpen, setFindBarOpen] = useState(false);
+  const [searchMatches, setSearchMatches] = useState<{ start: number; end: number }[]>([]);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
 
   useEffect(() => {
     if (file) {
       setContent(file.content);
       setSavedContent(file.content);
+      // Clear find state when file changes
+      setFindBarOpen(false);
+      setSearchMatches([]);
+      setCurrentMatchIndex(-1);
     }
   }, [file]);
 
@@ -54,6 +67,13 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   useEffect(() => {
     onChange(content, hasUnsavedChanges);
   }, [content, hasUnsavedChanges]);
+
+  // Capture editor view reference
+  useEffect(() => {
+    if (editorRef.current && editorRef.current.view) {
+      editorViewRef.current = editorRef.current.view;
+    }
+  }, [editorRef.current]);
 
   const handleSave = () => {
     if (hasUnsavedChanges) {
@@ -79,12 +99,134 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     }
   };
 
-  // Handle Cmd/Ctrl+S keyboard shortcut
+  // Find and replace functions
+  const findMatches = useCallback((query: string): { start: number; end: number }[] => {
+    if (!query) return [];
+    
+    const matches: { start: number; end: number }[] = [];
+    const lowerContent = content.toLowerCase();
+    const lowerQuery = query.toLowerCase();
+    let index = 0;
+    
+    while ((index = lowerContent.indexOf(lowerQuery, index)) !== -1) {
+      matches.push({ start: index, end: index + query.length });
+      index += query.length;
+    }
+    
+    return matches;
+  }, [content]);
+
+  const highlightMatch = useCallback((matchIndex: number) => {
+    if (!editorViewRef.current || matchIndex < 0 || matchIndex >= searchMatches.length) return;
+    
+    const match = searchMatches[matchIndex];
+    const view = editorViewRef.current;
+    
+    // Scroll to and select the match
+    view.dispatch({
+      selection: EditorSelection.single(match.start, match.end),
+      scrollIntoView: true,
+    });
+    
+    view.focus();
+  }, [searchMatches]);
+
+  const handleOpenFind = useCallback(() => {
+    // Get current selection to pre-fill find input
+    let initialQuery = '';
+    if (editorViewRef.current) {
+      const selection = editorViewRef.current.state.selection.main;
+      if (selection.from !== selection.to) {
+        initialQuery = editorViewRef.current.state.doc.sliceString(selection.from, selection.to);
+      }
+    }
+    
+    setFindBarOpen(true);
+    
+    // If there's an initial query, find matches immediately
+    if (initialQuery) {
+      const matches = findMatches(initialQuery);
+      setSearchMatches(matches);
+      if (matches.length > 0) {
+        setCurrentMatchIndex(0);
+        setTimeout(() => highlightMatch(0), 0);
+      }
+    }
+  }, [findMatches, highlightMatch]);
+
+  const handleFindNext = useCallback((query: string) => {
+    const matches = findMatches(query);
+    setSearchMatches(matches);
+    
+    if (matches.length === 0) {
+      setCurrentMatchIndex(-1);
+      return;
+    }
+    
+    const nextIndex = currentMatchIndex < matches.length - 1 ? currentMatchIndex + 1 : 0;
+    setCurrentMatchIndex(nextIndex);
+    highlightMatch(nextIndex);
+  }, [findMatches, highlightMatch, currentMatchIndex]);
+
+  const handleFindPrevious = useCallback((query: string) => {
+    const matches = findMatches(query);
+    setSearchMatches(matches);
+    
+    if (matches.length === 0) {
+      setCurrentMatchIndex(-1);
+      return;
+    }
+    
+    const prevIndex = currentMatchIndex > 0 ? currentMatchIndex - 1 : matches.length - 1;
+    setCurrentMatchIndex(prevIndex);
+    highlightMatch(prevIndex);
+  }, [findMatches, highlightMatch, currentMatchIndex]);
+
+  const handleReplace = useCallback((query: string, replacement: string) => {
+    if (currentMatchIndex < 0 || currentMatchIndex >= searchMatches.length) return;
+    
+    const match = searchMatches[currentMatchIndex];
+    const newContent = content.substring(0, match.start) + replacement + content.substring(match.end);
+    
+    setContent(newContent);
+    
+    // Find next match after replacement
+    setTimeout(() => {
+      const matches = findMatches(query);
+      setSearchMatches(matches);
+      if (matches.length > 0) {
+        const nextIndex = currentMatchIndex < matches.length ? currentMatchIndex : 0;
+        setCurrentMatchIndex(nextIndex);
+        highlightMatch(nextIndex);
+      } else {
+        setCurrentMatchIndex(-1);
+      }
+    }, 0);
+  }, [content, searchMatches, currentMatchIndex, findMatches, highlightMatch]);
+
+  const handleReplaceAll = useCallback((query: string, replacement: string) => {
+    if (!query) return;
+    
+    const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    const newContent = content.replace(regex, replacement);
+    
+    setContent(newContent);
+    setSearchMatches([]);
+    setCurrentMatchIndex(-1);
+  }, [content]);
+
+  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl+S to save
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
         handleSave();
+      }
+      // Cmd/Ctrl+F to open find
+      else if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+        e.preventDefault();
+        handleOpenFind();
       }
     };
 
@@ -279,6 +421,22 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
           </IconButton>
         </Tooltip>
       </Toolbar>
+
+      {/* Find and Replace Bar */}
+      {findBarOpen && (
+        <FindReplaceBar
+          onClose={() => setFindBarOpen(false)}
+          onFindNext={handleFindNext}
+          onFindPrevious={handleFindPrevious}
+          onReplace={handleReplace}
+          onReplaceAll={handleReplaceAll}
+          matchInfo={
+            searchMatches.length > 0
+              ? { current: currentMatchIndex + 1, total: searchMatches.length }
+              : null
+          }
+        />
+      )}
 
       {/* Formatting Toolbar */}
       {showEditor && (
