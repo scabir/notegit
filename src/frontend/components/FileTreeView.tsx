@@ -11,6 +11,7 @@ import {
   DialogActions,
   Button,
   TextField,
+  Typography,
 } from '@mui/material';
 import {
   Folder as FolderIcon,
@@ -27,6 +28,7 @@ import {
   Delete as DeleteIcon,
   FileUpload as ImportIcon,
   DriveFileRenameOutline as RenameIcon,
+  Clear as ClearIcon,
 } from '@mui/icons-material';
 import type { FileTreeNode, FileType } from '../../shared/types';
 
@@ -485,6 +487,38 @@ export function FileTreeView({
     }
   };
 
+  const handleClearSelection = () => {
+    setSelectedNode(null);
+  };
+
+  const handleContainerClick = (e: React.MouseEvent) => {
+    // Check if the click is directly on the container (empty space)
+    // and not on a TreeView element
+    const target = e.target as HTMLElement;
+    
+    // If clicking on the padding area or directly on the container
+    if (
+      target.classList.contains('tree-container') || 
+      target.classList.contains('MuiBox-root') ||
+      (!target.closest('.MuiTreeItem-root') && !target.closest('.MuiTreeView-root'))
+    ) {
+      setSelectedNode(null);
+    }
+  };
+
+  // Helper to get location text for create dialogs
+  const getCreationLocationText = () => {
+    if (!selectedNode) {
+      return 'Will be created in root directory';
+    }
+    if (selectedNode.type === 'folder') {
+      return `Will be created in: ${selectedNode.path || 'root'}`;
+    }
+    const lastSlash = selectedNode.path.lastIndexOf('/');
+    const parentPath = lastSlash > 0 ? selectedNode.path.substring(0, lastSlash) : '';
+    return parentPath ? `Will be created in: ${parentPath}` : 'Will be created in root directory';
+  };
+
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Toolbar variant="dense" sx={{ minHeight: '48px', borderBottom: '1px solid #e0e0e0' }}>
@@ -525,9 +559,31 @@ export function FileTreeView({
             </IconButton>
           </span>
         </Tooltip>
+        <Box sx={{ flexGrow: 1 }} />
+        <Tooltip title="Clear selection (create in root)">
+          <span>
+            <IconButton 
+              size="small" 
+              onClick={handleClearSelection}
+              disabled={!selectedNode}
+              color={selectedNode ? 'primary' : 'default'}
+            >
+              <ClearIcon fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
       </Toolbar>
 
-      <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
+      <Box 
+        className="tree-container"
+        sx={{ 
+          flex: 1, 
+          overflow: 'auto', 
+          p: 1,
+          position: 'relative',
+        }}
+        onClick={handleContainerClick}
+      >
         <TreeView
           defaultCollapseIcon={<span />}
           defaultExpandIcon={<span />}
@@ -554,6 +610,11 @@ export function FileTreeView({
       >
         <DialogTitle>Create New File</DialogTitle>
         <DialogContent>
+          <Box sx={{ mb: 2, p: 1, bgcolor: 'action.hover', borderRadius: 1 }}>
+            <Typography variant="caption" color="text.secondary">
+              {getCreationLocationText()}
+            </Typography>
+          </Box>
           <TextField
             autoFocus
             margin="dense"
@@ -610,6 +671,11 @@ export function FileTreeView({
       >
         <DialogTitle>Create New Folder</DialogTitle>
         <DialogContent>
+          <Box sx={{ mb: 2, p: 1, bgcolor: 'action.hover', borderRadius: 1 }}>
+            <Typography variant="caption" color="text.secondary">
+              {getCreationLocationText()}
+            </Typography>
+          </Box>
           <TextField
             autoFocus
             margin="dense"

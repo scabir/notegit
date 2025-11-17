@@ -5,6 +5,7 @@ import {
   Commit as CommitIcon,
   SaveAlt as SaveAllIcon,
   Search as SearchIcon,
+  History as HistoryIcon,
 } from '@mui/icons-material';
 import { FileTreeView } from './FileTreeView';
 import { MarkdownEditor } from './MarkdownEditor';
@@ -13,6 +14,8 @@ import { StatusBar } from './StatusBar';
 import { SettingsDialog } from './SettingsDialog';
 import { CommitDialog } from './CommitDialog';
 import { SearchDialog } from './SearchDialog';
+import { HistoryPanel } from './HistoryPanel';
+import { HistoryViewer } from './HistoryViewer';
 import type { FileTreeNode, FileContent, RepoStatus } from '../../shared/types';
 
 interface WorkspaceProps {
@@ -28,6 +31,10 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [commitDialogOpen, setCommitDialogOpen] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+  const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
+  const [historyViewerOpen, setHistoryViewerOpen] = useState(false);
+  const [viewingCommitHash, setViewingCommitHash] = useState<string | null>(null);
+  const [viewingCommitMessage, setViewingCommitMessage] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [editorContent, setEditorContent] = useState<string>('');
 
@@ -307,6 +314,16 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     await handleSelectFile(filePath, 'file');
   };
 
+  const handleViewVersion = (commitHash: string, commitMessage: string) => {
+    setViewingCommitHash(commitHash);
+    setViewingCommitMessage(commitMessage);
+    setHistoryViewerOpen(true);
+  };
+
+  const handleToggleHistory = () => {
+    setHistoryPanelOpen(!historyPanelOpen);
+  };
+
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Top app bar */}
@@ -319,6 +336,15 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           <Tooltip title="Search (Cmd/Ctrl+P)">
             <IconButton onClick={() => setSearchDialogOpen(true)} color="default">
               <SearchIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="File History">
+            <IconButton 
+              onClick={handleToggleHistory}
+              color={historyPanelOpen ? 'primary' : 'default'}
+            >
+              <HistoryIcon />
             </IconButton>
           </Tooltip>
 
@@ -388,6 +414,15 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             />
           )}
         </Box>
+
+        {/* History Panel */}
+        {historyPanelOpen && (
+          <HistoryPanel
+            filePath={selectedFile}
+            onViewVersion={handleViewVersion}
+            onClose={() => setHistoryPanelOpen(false)}
+          />
+        )}
       </Box>
 
       {/* Status bar */}
@@ -416,6 +451,16 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         open={searchDialogOpen}
         onClose={() => setSearchDialogOpen(false)}
         onSelectFile={handleSelectFileFromSearch}
+      />
+
+      {/* History Viewer */}
+      <HistoryViewer
+        open={historyViewerOpen}
+        filePath={selectedFile}
+        commitHash={viewingCommitHash}
+        commitMessage={viewingCommitMessage}
+        repoPath={repoPath}
+        onClose={() => setHistoryViewerOpen(false)}
       />
     </Box>
   );
