@@ -25,7 +25,22 @@ export enum ApiErrorCode {
   FS_NOT_FOUND = 'FS_NOT_FOUND',
   FS_PERMISSION_DENIED = 'FS_PERMISSION_DENIED',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
+  REPO_NOT_INITIALIZED = 'REPO_NOT_INITIALIZED',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+}
+
+// Search types
+export interface SearchResult {
+  filePath: string;
+  fileName: string;
+  matches: SearchMatch[];
+}
+
+export interface SearchMatch {
+  lineNumber: number;
+  lineContent: string;
+  contextBefore: string;
+  contextAfter: string;
 }
 
 // Response types for specific operations
@@ -71,6 +86,9 @@ export interface NotegitApi {
     getForFile: (path: string) => Promise<ApiResponse<CommitEntry[]>>;
     getVersion: (commitHash: string, path: string) => Promise<ApiResponse<string>>;
     getDiff: (hash1: string, hash2: string, path: string) => Promise<ApiResponse<DiffHunk[]>>;
+  };
+  search: {
+    query: (query: string, options?: { maxResults?: number }) => Promise<ApiResponse<SearchResult[]>>;
   };
 }
 

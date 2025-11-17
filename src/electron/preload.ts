@@ -39,6 +39,9 @@ const api: NotegitApi = {
     getVersion: (commitHash, path) => ipcRenderer.invoke('history:getVersion', commitHash, path),
     getDiff: (hash1, hash2, path) => ipcRenderer.invoke('history:getDiff', hash1, hash2, path),
   },
+  search: {
+    query: (query, options) => ipcRenderer.invoke('search:query', query, options),
+  },
 };
 
 contextBridge.exposeInMainWorld('notegitApi', api);

@@ -4,6 +4,7 @@ import {
   Settings as SettingsIcon,
   Commit as CommitIcon,
   SaveAlt as SaveAllIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material';
 import { FileTreeView } from './FileTreeView';
 import { MarkdownEditor } from './MarkdownEditor';
@@ -11,6 +12,7 @@ import { TextEditor } from './TextEditor';
 import { StatusBar } from './StatusBar';
 import { SettingsDialog } from './SettingsDialog';
 import { CommitDialog } from './CommitDialog';
+import { SearchDialog } from './SearchDialog';
 import type { FileTreeNode, FileContent, RepoStatus } from '../../shared/types';
 
 interface WorkspaceProps {
@@ -25,11 +27,26 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [repoPath, setRepoPath] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [commitDialogOpen, setCommitDialogOpen] = useState(false);
+  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [editorContent, setEditorContent] = useState<string>('');
 
   useEffect(() => {
     loadWorkspace();
+  }, []);
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl+P or Cmd/Ctrl+K to open search
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'p' || e.key === 'k')) {
+        e.preventDefault();
+        setSearchDialogOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const loadWorkspace = async () => {
@@ -285,6 +302,11 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     setCommitDialogOpen(true);
   };
 
+  const handleSelectFileFromSearch = async (filePath: string) => {
+    // Select the file and load its content
+    await handleSelectFile(filePath, 'file');
+  };
+
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Top app bar */}
@@ -294,6 +316,12 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             notegit
           </Typography>
           
+          <Tooltip title="Search (Cmd/Ctrl+P)">
+            <IconButton onClick={() => setSearchDialogOpen(true)} color="default">
+              <SearchIcon />
+            </IconButton>
+          </Tooltip>
+
           <Tooltip title="Save all open files">
             <span>
               <IconButton 
@@ -381,6 +409,13 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           handleCommit();
           setCommitDialogOpen(false);
         }}
+      />
+
+      {/* Search dialog */}
+      <SearchDialog
+        open={searchDialogOpen}
+        onClose={() => setSearchDialogOpen(false)}
+        onSelectFile={handleSelectFileFromSearch}
       />
     </Box>
   );
