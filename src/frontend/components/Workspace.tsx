@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip } from '@mui/material';
+import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Chip } from '@mui/material';
 import { 
   Settings as SettingsIcon,
   Commit as CommitIcon,
@@ -37,6 +37,9 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [viewingCommitMessage, setViewingCommitMessage] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [editorContent, setEditorContent] = useState<string>('');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [saveMessage, setSaveMessage] = useState<string>('');
+  const autosaveTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     loadWorkspace();
@@ -55,6 +58,45 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Autosave timer - triggers 5 minutes after last change
+  useEffect(() => {
+    if (hasUnsavedChanges && selectedFile && editorContent) {
+      // Clear any existing timer
+      if (autosaveTimerRef.current) {
+        clearTimeout(autosaveTimerRef.current);
+      }
+
+      // Set new timer for 5 minutes (300000 ms)
+      autosaveTimerRef.current = setTimeout(() => {
+        console.log('Autosave triggered');
+        handleSaveFile(editorContent, true);
+      }, 300000); // 5 minutes
+    }
+
+    return () => {
+      if (autosaveTimerRef.current) {
+        clearTimeout(autosaveTimerRef.current);
+      }
+    };
+  }, [hasUnsavedChanges, selectedFile, editorContent]);
+
+  // Save on app close
+  useEffect(() => {
+    const handleBeforeUnload = async (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges && selectedFile && editorContent) {
+        // Trigger autosave
+        await handleSaveFile(editorContent, true);
+        
+        // Show confirmation dialog
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges, selectedFile, editorContent]);
 
   const loadWorkspace = async () => {
     try {
@@ -97,22 +139,67 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     }
   };
 
-  const handleSaveFile = async (content: string) => {
+  const handleSaveFile = async (content: string, isAutosave: boolean = false) => {
     if (!selectedFile) return;
 
+    setSaveStatus('saving');
+    setSaveMessage('');
+
     try {
-      const response = await window.notegitApi.files.save(selectedFile, content);
+      const response = await window.notegitApi.files.saveWithGitWorkflow(
+        selectedFile,
+        content,
+        isAutosave
+      );
+
       if (response.ok) {
-        console.log('File saved successfully');
+        setSaveStatus('saved');
+        setHasUnsavedChanges(false);
+
+        // Check for pull/push warnings
+        if (response.data?.conflictDetected) {
+          setSaveStatus('error');
+          setSaveMessage(
+            'Conflict detected during sync. Your changes are saved locally. Please resolve conflicts manually.'
+          );
+        } else if (response.data?.pullFailed) {
+          setSaveStatus('saved');
+          setSaveMessage(
+            'Changes saved and committed locally, but pull from remote failed. Check your connection.'
+          );
+        } else if (response.data?.pushFailed) {
+          setSaveStatus('saved');
+          setSaveMessage(
+            'Changes saved and committed locally, but push to remote failed. Check your connection.'
+          );
+        } else {
+          // Full success
+          if (!isAutosave) {
+            setSaveMessage('Saved and synced successfully');
+          }
+        }
+
         // Refresh status
         const statusResponse = await window.notegitApi.repo.getStatus();
         if (statusResponse.ok && statusResponse.data) {
           setRepoStatus(statusResponse.data);
         }
+
+        // Clear save status after a delay
+        setTimeout(() => {
+          if (!isAutosave) {
+            setSaveStatus('idle');
+            setSaveMessage('');
+          }
+        }, 3000);
       } else {
+        setSaveStatus('error');
+        setSaveMessage(response.error?.message || 'Failed to save file');
         console.error('Failed to save file:', response.error);
       }
-    } catch (error) {
+    } catch (error: any) {
+      setSaveStatus('error');
+      setSaveMessage(error.message || 'Failed to save file');
       console.error('Failed to save file:', error);
     }
   };
@@ -329,9 +416,46 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       {/* Top app bar */}
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar variant="dense">
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div">
             notegit
           </Typography>
+
+          {/* Save Status Indicator */}
+          {saveStatus !== 'idle' && (
+            <Box sx={{ ml: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              {saveStatus === 'saving' && (
+                <Chip
+                  label="Saving..."
+                  size="small"
+                  color="info"
+                  sx={{ height: 24 }}
+                />
+              )}
+              {saveStatus === 'saved' && (
+                <Chip
+                  label="Saved"
+                  size="small"
+                  color="success"
+                  sx={{ height: 24 }}
+                />
+              )}
+              {saveStatus === 'error' && (
+                <Chip
+                  label="Error"
+                  size="small"
+                  color="error"
+                  sx={{ height: 24 }}
+                />
+              )}
+              {saveMessage && (
+                <Typography variant="caption" color="text.secondary" sx={{ maxWidth: 300 }}>
+                  {saveMessage}
+                </Typography>
+              )}
+            </Box>
+          )}
+
+          <Box sx={{ flexGrow: 1 }} />
           
           <Tooltip title="Search (Cmd/Ctrl+P)">
             <IconButton onClick={() => setSearchDialogOpen(true)} color="default">

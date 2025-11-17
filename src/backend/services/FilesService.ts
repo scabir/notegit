@@ -162,6 +162,83 @@ export class FilesService {
   }
 
   /**
+   * Save file with automatic Git workflow (save -> commit -> pull -> push)
+   * This implements the "invisible Git" workflow
+   */
+  async saveWithGitWorkflow(
+    filePath: string, 
+    content: string, 
+    isAutosave: boolean = false
+  ): Promise<{ pullFailed?: boolean; pushFailed?: boolean; conflictDetected?: boolean }> {
+    await this.ensureRepoPath();
+
+    if (!this.gitAdapter) {
+      throw this.createError(
+        ApiErrorCode.UNKNOWN_ERROR,
+        'GitAdapter not initialized',
+        null
+      );
+    }
+
+    const fileName = path.basename(filePath);
+    const commitMessage = isAutosave 
+      ? `Autosave: ${fileName}` 
+      : `Update note: ${fileName}`;
+
+    const result: { pullFailed?: boolean; pushFailed?: boolean; conflictDetected?: boolean } = {};
+
+    try {
+      // Step 1: Save file to disk
+      await this.saveFile(filePath, content);
+      logger.debug('File saved to disk', { filePath });
+
+      // Step 2: Initialize Git adapter
+      await this.gitAdapter.init(this.repoPath!);
+
+      // Step 3: Stage and commit the file
+      try {
+        await this.gitAdapter.add(filePath);
+        await this.gitAdapter.commit(commitMessage);
+        logger.info('File committed', { filePath, message: commitMessage });
+      } catch (commitError: any) {
+        // If commit fails (e.g., nothing to commit), continue
+        logger.warn('Commit failed or nothing to commit', { filePath, error: commitError });
+      }
+
+      // Step 4: Try to pull from remote
+      try {
+        await this.gitAdapter.pull();
+        logger.info('Pull successful', { filePath });
+      } catch (pullError: any) {
+        logger.error('Pull failed', { error: pullError });
+        result.pullFailed = true;
+        
+        // Check if it's a conflict
+        if (pullError.message && pullError.message.toLowerCase().includes('conflict')) {
+          result.conflictDetected = true;
+          logger.warn('Conflict detected during pull', { filePath });
+        }
+      }
+
+      // Step 5: Try to push to remote (only if pull succeeded or didn't fail due to conflict)
+      if (!result.conflictDetected) {
+        try {
+          await this.gitAdapter.push();
+          logger.info('Push successful', { filePath });
+        } catch (pushError: any) {
+          logger.error('Push failed', { error: pushError });
+          result.pushFailed = true;
+        }
+      }
+
+      return result;
+    } catch (error: any) {
+      logger.error('Save with Git workflow failed', { filePath, error });
+      throw error;
+    }
+  }
+
+  /**
    * Create a new file
    */
   async createFile(parentPath: string, name: string): Promise<void> {

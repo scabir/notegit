@@ -78,6 +78,38 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
   );
 
   ipcMain.handle(
+    'files:saveWithGitWorkflow',
+    async (
+      _event,
+      path: string,
+      content: string,
+      isAutosave: boolean = false
+    ): Promise<
+      ApiResponse<{ pullFailed?: boolean; pushFailed?: boolean; conflictDetected?: boolean }>
+    > => {
+      try {
+        const result = await filesService.saveWithGitWorkflow(path, content, isAutosave);
+        return {
+          ok: true,
+          data: result,
+        };
+      } catch (error: any) {
+        logger.error('Failed to save with Git workflow', { path, error });
+        return {
+          ok: false,
+          error: error.code
+            ? error
+            : {
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: error.message || 'Failed to save with Git workflow',
+                details: error,
+              },
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
     'files:commit',
     async (_event, path: string, message: string): Promise<ApiResponse<void>> => {
       try {

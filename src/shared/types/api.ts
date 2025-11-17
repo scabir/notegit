@@ -69,6 +69,13 @@ export interface NotegitApi {
     listTree: () => Promise<ApiResponse<FileTreeNode[]>>;
     read: (path: string) => Promise<ApiResponse<FileContent>>;
     save: (path: string, content: string) => Promise<ApiResponse<void>>;
+    saveWithGitWorkflow: (
+      path: string,
+      content: string,
+      isAutosave?: boolean
+    ) => Promise<
+      ApiResponse<{ pullFailed?: boolean; pushFailed?: boolean; conflictDetected?: boolean }>
+    >;
     commit: (path: string, message: string) => Promise<ApiResponse<void>>;
     commitAll: (message: string) => Promise<ApiResponse<void>>;
     create: (parentPath: string, name: string) => Promise<ApiResponse<void>>;

@@ -21,6 +21,8 @@ const api: NotegitApi = {
     listTree: () => ipcRenderer.invoke('files:listTree'),
     read: (path) => ipcRenderer.invoke('files:read', path),
     save: (path, content) => ipcRenderer.invoke('files:save', path, content),
+    saveWithGitWorkflow: (path, content, isAutosave) =>
+      ipcRenderer.invoke('files:saveWithGitWorkflow', path, content, isAutosave),
     commit: (path, message) => ipcRenderer.invoke('files:commit', path, message),
     commitAll: (message) => ipcRenderer.invoke('files:commitAll', message),
     create: (parentPath, name) => ipcRenderer.invoke('files:create', parentPath, name),
