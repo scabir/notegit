@@ -26,6 +26,7 @@ import {
   NoteAdd as NoteAddIcon,
   Delete as DeleteIcon,
   FileUpload as ImportIcon,
+  DriveFileRenameOutline as RenameIcon,
 } from '@mui/icons-material';
 import type { FileTreeNode, FileType } from '../../shared/types';
 
@@ -71,6 +72,7 @@ export function FileTreeView({
 }: FileTreeViewProps) {
   const [createFileDialogOpen, setCreateFileDialogOpen] = useState(false);
   const [createFolderDialogOpen, setCreateFolderDialogOpen] = useState(false);
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [creating, setCreating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -89,6 +91,16 @@ export function FileTreeView({
     setNewItemName('');
     setErrorMessage('');
     setCreateFolderDialogOpen(true);
+  };
+
+  const handleOpenRenameDialog = () => {
+    if (!selectedNode) return;
+    
+    // Set the current name (just the filename/folder name, not the full path)
+    const currentName = selectedNode.name;
+    setNewItemName(currentName);
+    setErrorMessage('');
+    setRenameDialogOpen(true);
   };
 
   const handleCreateFile = async () => {
@@ -224,6 +236,60 @@ export function FileTreeView({
         setErrorMessage(errorMsg);
       }
       console.error('Failed to create folder:', error);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleRename = async () => {
+    if (!selectedNode) return;
+    
+    const trimmedName = newItemName.trim();
+    if (!trimmedName) {
+      setErrorMessage('Name cannot be empty');
+      return;
+    }
+
+    // Validate filename
+    const invalidChars = /[<>:"/\\|?*]/;
+    if (invalidChars.test(trimmedName)) {
+      setErrorMessage('Name contains invalid characters: < > : " / \\ | ? *');
+      return;
+    }
+
+    // Check if name hasn't changed
+    if (trimmedName === selectedNode.name) {
+      setRenameDialogOpen(false);
+      return;
+    }
+
+    setCreating(true);
+    setErrorMessage('');
+
+    try {
+      // Construct the new path
+      const oldPath = selectedNode.path;
+      const lastSlash = oldPath.lastIndexOf('/');
+      const parentPath = lastSlash > 0 ? oldPath.substring(0, lastSlash) : '';
+      const newPath = parentPath ? `${parentPath}/${trimmedName}` : trimmedName;
+
+      await onRename(oldPath, newPath);
+
+      // Success - close dialog
+      setRenameDialogOpen(false);
+      setNewItemName('');
+      setErrorMessage('');
+    } catch (error: any) {
+      console.error('Failed to rename:', error);
+      
+      // Check for specific error messages
+      if (error.message && error.message.includes('already exists')) {
+        setErrorMessage(`A ${selectedNode.type === 'folder' ? 'folder' : 'file'} with that name already exists`);
+      } else if (error.message && error.message.includes('permission')) {
+        setErrorMessage('Permission denied');
+      } else {
+        setErrorMessage(error.message || 'Failed to rename');
+      }
     } finally {
       setCreating(false);
     }
@@ -437,6 +503,17 @@ export function FileTreeView({
             <ImportIcon fontSize="small" />
           </IconButton>
         </Tooltip>
+        <Tooltip title="Rename">
+          <span>
+            <IconButton 
+              size="small" 
+              onClick={handleOpenRenameDialog}
+              disabled={!selectedNode}
+            >
+              <RenameIcon fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
         <Tooltip title="Delete">
           <span>
             <IconButton 
@@ -572,6 +649,61 @@ export function FileTreeView({
             variant="contained"
           >
             {creating ? 'Creating...' : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Rename Dialog */}
+      <Dialog 
+        open={renameDialogOpen} 
+        onClose={() => {
+          setRenameDialogOpen(false);
+          setErrorMessage('');
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Rename {selectedNode?.type === 'folder' ? 'Folder' : 'File'}</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="New Name"
+            fullWidth
+            value={newItemName}
+            onChange={(e) => {
+              setNewItemName(e.target.value);
+              setErrorMessage(''); // Clear error when user types
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !creating) {
+                handleRename();
+              }
+            }}
+            placeholder={selectedNode?.name || ''}
+            error={!!errorMessage}
+          />
+          {errorMessage && (
+            <Box sx={{ mt: 1, color: 'error.main', fontSize: '0.875rem' }}>
+              {errorMessage}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => {
+              setRenameDialogOpen(false);
+              setErrorMessage('');
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleRename} 
+            disabled={creating || !newItemName.trim()}
+            variant="contained"
+          >
+            {creating ? 'Renaming...' : 'Rename'}
           </Button>
         </DialogActions>
       </Dialog>
