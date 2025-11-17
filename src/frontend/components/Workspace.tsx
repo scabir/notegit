@@ -14,6 +14,7 @@ import { StatusBar } from './StatusBar';
 import { SettingsDialog } from './SettingsDialog';
 import { CommitDialog } from './CommitDialog';
 import { SearchDialog } from './SearchDialog';
+import { RepoSearchDialog } from './RepoSearchDialog';
 import { HistoryPanel } from './HistoryPanel';
 import { HistoryViewer } from './HistoryViewer';
 import type { FileTreeNode, FileContent, RepoStatus } from '../../shared/types';
@@ -31,6 +32,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [commitDialogOpen, setCommitDialogOpen] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+  const [repoSearchDialogOpen, setRepoSearchDialogOpen] = useState(false);
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
   const [historyViewerOpen, setHistoryViewerOpen] = useState(false);
   const [viewingCommitHash, setViewingCommitHash] = useState<string | null>(null);
@@ -48,10 +50,15 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   // Global keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd/Ctrl+P or Cmd/Ctrl+K to open search
-      if ((e.metaKey || e.ctrlKey) && (e.key === 'p' || e.key === 'k')) {
+      // Cmd/Ctrl+P or Cmd/Ctrl+K to open file search
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && (e.key === 'p' || e.key === 'k')) {
         e.preventDefault();
         setSearchDialogOpen(true);
+      }
+      // Cmd/Ctrl+Shift+F to open repo-wide search
+      else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'f') {
+        e.preventDefault();
+        setRepoSearchDialogOpen(true);
       }
     };
 
@@ -401,6 +408,14 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     await handleSelectFile(filePath, 'file');
   };
 
+  const handleSelectMatchFromRepoSearch = async (filePath: string, lineNumber: number) => {
+    // Open the file and potentially scroll to the line
+    await handleSelectFile(filePath, 'file');
+    // Note: Line scrolling would require editor API integration
+    // For now, just opening the file is sufficient
+    console.log(`Opening ${filePath} at line ${lineNumber}`);
+  };
+
   const handleViewVersion = (commitHash: string, commitMessage: string) => {
     setViewingCommitHash(commitHash);
     setViewingCommitMessage(commitMessage);
@@ -577,6 +592,13 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         open={searchDialogOpen}
         onClose={() => setSearchDialogOpen(false)}
         onSelectFile={handleSelectFileFromSearch}
+      />
+
+      {/* Repo-wide search dialog */}
+      <RepoSearchDialog
+        open={repoSearchDialogOpen}
+        onClose={() => setRepoSearchDialogOpen(false)}
+        onSelectMatch={handleSelectMatchFromRepoSearch}
       />
 
       {/* History Viewer */}

@@ -97,6 +97,15 @@ export interface NotegitApi {
   };
   search: {
     query: (query: string, options?: { maxResults?: number }) => Promise<ApiResponse<SearchResult[]>>;
+    repoWide: (
+      query: string,
+      options?: { caseSensitive?: boolean; useRegex?: boolean }
+    ) => Promise<ApiResponse<any[]>>;
+    replaceInRepo: (
+      query: string,
+      replacement: string,
+      options: { caseSensitive?: boolean; useRegex?: boolean; filePaths?: string[] }
+    ) => Promise<ApiResponse<any>>;
   };
   export: {
     note: (

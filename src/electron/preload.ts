@@ -44,6 +44,9 @@ const api: NotegitApi = {
   },
   search: {
     query: (query, options) => ipcRenderer.invoke('search:query', query, options),
+    repoWide: (query, options) => ipcRenderer.invoke('search:repoWide', query, options),
+    replaceInRepo: (query, replacement, options) =>
+      ipcRenderer.invoke('search:replaceInRepo', query, replacement, options),
   },
   export: {
     note: (fileName, content, defaultExtension) =>
