@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Toolbar, IconButton, Chip, Tooltip, Typography, useTheme } from '@mui/material';
-import { Save as SaveIcon } from '@mui/icons-material';
+import { Save as SaveIcon, FileDownload as ExportIcon } from '@mui/icons-material';
 import CodeMirror from '@uiw/react-codemirror';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import type { FileContent } from '../../shared/types';
@@ -33,6 +33,23 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     if (file && hasChanges) {
       onSave(content);
       setHasChanges(false);
+    }
+  };
+
+  const handleExport = async () => {
+    if (!file) return;
+
+    try {
+      const response = await window.notegitApi.export.note(file.path, content, 'txt');
+      if (response.ok && response.data) {
+        console.log('Note exported to:', response.data);
+      } else if (response.error?.message !== 'Export cancelled') {
+        console.error('Failed to export note:', response.error);
+        alert(`Failed to export: ${response.error?.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Failed to export note');
     }
   };
 
@@ -88,6 +105,16 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
               <SaveIcon fontSize="small" />
             </IconButton>
           </span>
+        </Tooltip>
+
+        <Tooltip title="Export Note">
+          <IconButton
+            size="small"
+            onClick={handleExport}
+            color="default"
+          >
+            <ExportIcon fontSize="small" />
+          </IconButton>
         </Tooltip>
       </Toolbar>
 

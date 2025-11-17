@@ -14,5 +14,18 @@ export function registerDialogHandlers(ipcMain: IpcMain) {
       }
     }
   );
+
+  ipcMain.handle(
+    'dialog:showSaveDialog',
+    async (_event, options: any) => {
+      try {
+        const result = await dialog.showSaveDialog(options);
+        return result;
+      } catch (error: any) {
+        logger.error('Failed to show save dialog', { error });
+        return { canceled: true, filePath: undefined };
+      }
+    }
+  );
 }
 

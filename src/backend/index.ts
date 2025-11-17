@@ -7,12 +7,14 @@ import { RepoService } from './services/RepoService';
 import { FilesService } from './services/FilesService';
 import { HistoryService } from './services/HistoryService';
 import { SearchService } from './services/SearchService';
+import { ExportService } from './services/ExportService';
 import { registerConfigHandlers } from './handlers/configHandlers';
 import { registerRepoHandlers } from './handlers/repoHandlers';
 import { registerFilesHandlers } from './handlers/filesHandlers';
 import { registerHistoryHandlers } from './handlers/historyHandlers';
 import { registerDialogHandlers } from './handlers/dialogHandlers';
 import { registerSearchHandlers } from './handlers/searchHandlers';
+import { registerExportHandlers } from './handlers/exportHandlers';
 import { logger } from './utils/logger';
 
 export function createBackend(ipcMain: IpcMain): void {
@@ -29,6 +31,7 @@ export function createBackend(ipcMain: IpcMain): void {
   const filesService = new FilesService(fsAdapter, configService);
   const historyService = new HistoryService(gitAdapter, configService);
   const searchService = new SearchService(fsAdapter);
+  const exportService = new ExportService(fsAdapter, configService);
 
   // Set circular dependencies
   repoService.setFilesService(filesService);
@@ -48,6 +51,7 @@ export function createBackend(ipcMain: IpcMain): void {
   registerHistoryHandlers(ipcMain, historyService);
   registerDialogHandlers(ipcMain);
   registerSearchHandlers(ipcMain, searchService);
+  registerExportHandlers(ipcMain, exportService);
 
   logger.info('Backend services initialized');
 }

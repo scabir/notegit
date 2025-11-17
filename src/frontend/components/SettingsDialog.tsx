@@ -45,9 +45,17 @@ interface SettingsDialogProps {
   open: boolean;
   onClose: () => void;
   onThemeChange?: (theme: 'light' | 'dark' | 'system') => void;
+  currentNoteContent?: string;
+  currentNotePath?: string;
 }
 
-export function SettingsDialog({ open, onClose, onThemeChange }: SettingsDialogProps) {
+export function SettingsDialog({
+  open,
+  onClose,
+  onThemeChange,
+  currentNoteContent,
+  currentNotePath,
+}: SettingsDialogProps) {
   const [tabValue, setTabValue] = useState(0);
   const [config, setConfig] = useState<FullConfig | null>(null);
   const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
@@ -55,6 +63,7 @@ export function SettingsDialog({ open, onClose, onThemeChange }: SettingsDialogP
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -142,6 +151,57 @@ export function SettingsDialog({ open, onClose, onThemeChange }: SettingsDialogP
     setSuccess(null);
   };
 
+  const handleExportNote = async (format: 'md' | 'txt') => {
+    if (!currentNoteContent || !currentNotePath) {
+      setError('No note is currently open');
+      return;
+    }
+
+    setExporting(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      // Export note - dialog is shown by the backend
+      const response = await window.notegitApi.export.note(
+        currentNotePath,
+        currentNoteContent,
+        format
+      );
+
+      if (response.ok && response.data) {
+        setSuccess(`Note exported successfully to ${response.data}`);
+      } else if (response.error?.message !== 'Export cancelled') {
+        setError(response.error?.message || 'Failed to export note');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to export note');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleExportRepoAsZip = async () => {
+    setExporting(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      // Export repo - dialog is shown by the backend
+      const response = await window.notegitApi.export.repoZip();
+
+      if (response.ok && response.data) {
+        setSuccess(`Repository exported successfully to ${response.data}`);
+      } else if (response.error?.message !== 'Export cancelled') {
+        setError(response.error?.message || 'Failed to export repository');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to export repository');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Settings</DialogTitle>
@@ -150,6 +210,7 @@ export function SettingsDialog({ open, onClose, onThemeChange }: SettingsDialogP
           <Tabs value={tabValue} onChange={handleTabChange}>
             <Tab label="App Settings" />
             <Tab label="Repository" />
+            <Tab label="Export" />
           </Tabs>
         </Box>
 
@@ -369,6 +430,61 @@ export function SettingsDialog({ open, onClose, onThemeChange }: SettingsDialogP
             >
               Save Repository Settings
             </Button>
+          </Box>
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={2}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Typography variant="h6">Export Current Note</Typography>
+            <Typography variant="body2" color="text.secondary">
+              Export the currently open note (including unsaved changes) as a standalone file.
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant="contained"
+                onClick={() => handleExportNote('md')}
+                disabled={exporting || !currentNoteContent}
+                fullWidth
+              >
+                Export as Markdown (.md)
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => handleExportNote('txt')}
+                disabled={exporting || !currentNoteContent}
+                fullWidth
+              >
+                Export as Text (.txt)
+              </Button>
+            </Box>
+            {!currentNoteContent && (
+              <Alert severity="info">
+                Open a note in the editor to export it.
+              </Alert>
+            )}
+
+            <Typography variant="h6" sx={{ mt: 3 }}>
+              Export Repository
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Export the entire repository as a ZIP archive for backup or sharing. This includes
+              all files and folders (excluding .git).
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={handleExportRepoAsZip}
+              disabled={exporting}
+              fullWidth
+            >
+              {exporting ? 'Exporting...' : 'Export Repository as ZIP'}
+            </Button>
+
+            <Alert severity="info">
+              <Typography variant="body2">
+                Export operations do not modify your repository or trigger any Git commands.
+                Your work remains safely in the repository.
+              </Typography>
+            </Alert>
           </Box>
         </TabPanel>
       </DialogContent>

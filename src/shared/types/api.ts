@@ -88,6 +88,7 @@ export interface NotegitApi {
   };
   dialog: {
     showOpenDialog: (options: any) => Promise<{ canceled: boolean; filePaths: string[] }>;
+    showSaveDialog: (options: any) => Promise<{ canceled: boolean; filePath?: string }>;
   };
   history: {
     getForFile: (path: string) => Promise<ApiResponse<CommitEntry[]>>;
@@ -96,6 +97,14 @@ export interface NotegitApi {
   };
   search: {
     query: (query: string, options?: { maxResults?: number }) => Promise<ApiResponse<SearchResult[]>>;
+  };
+  export: {
+    note: (
+      fileName: string,
+      content: string,
+      defaultExtension?: 'md' | 'txt'
+    ) => Promise<ApiResponse<string>>;
+    repoZip: () => Promise<ApiResponse<string>>;
   };
 }
 

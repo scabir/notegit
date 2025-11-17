@@ -13,6 +13,7 @@ import {
   Title as HeadingIcon,
   FormatQuote as QuoteIcon,
   Link as LinkIcon,
+  FileDownload as ExportIcon,
 } from '@mui/icons-material';
 import CodeMirror from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
@@ -58,6 +59,23 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     if (hasUnsavedChanges) {
       onSave(content);
       setSavedContent(content);
+    }
+  };
+
+  const handleExport = async () => {
+    if (!file) return;
+
+    try {
+      const response = await window.notegitApi.export.note(file.path, content, 'md');
+      if (response.ok && response.data) {
+        console.log('Note exported to:', response.data);
+      } else if (response.error?.message !== 'Export cancelled') {
+        console.error('Failed to export note:', response.error);
+        alert(`Failed to export: ${response.error?.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Failed to export note');
     }
   };
 
@@ -248,6 +266,16 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
             color="primary"
           >
             <SaveIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Export Note">
+          <IconButton
+            size="small"
+            onClick={handleExport}
+            color="default"
+          >
+            <ExportIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       </Toolbar>

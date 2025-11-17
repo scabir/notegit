@@ -557,6 +557,8 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         open={settingsOpen} 
         onClose={() => setSettingsOpen(false)}
         onThemeChange={onThemeChange}
+        currentNoteContent={editorContent}
+        currentNotePath={selectedFile || undefined}
       />
 
       {/* Commit dialog */}

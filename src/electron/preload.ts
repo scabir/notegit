@@ -35,6 +35,7 @@ const api: NotegitApi = {
   },
   dialog: {
     showOpenDialog: (options) => ipcRenderer.invoke('dialog:showOpenDialog', options),
+    showSaveDialog: (options) => ipcRenderer.invoke('dialog:showSaveDialog', options),
   },
   history: {
     getForFile: (path) => ipcRenderer.invoke('history:getForFile', path),
@@ -43,6 +44,11 @@ const api: NotegitApi = {
   },
   search: {
     query: (query, options) => ipcRenderer.invoke('search:query', query, options),
+  },
+  export: {
+    note: (fileName, content, defaultExtension) =>
+      ipcRenderer.invoke('export:note', fileName, content, defaultExtension),
+    repoZip: () => ipcRenderer.invoke('export:repoZip'),
   },
 };
 
