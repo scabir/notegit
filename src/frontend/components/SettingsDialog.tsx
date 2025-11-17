@@ -18,6 +18,8 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
+import { Info as InfoIcon } from '@mui/icons-material';
+import { AboutDialog } from './AboutDialog';
 import type { FullConfig, AppSettings, RepoSettings, AuthMethod } from '../../shared/types';
 
 interface TabPanelProps {
@@ -64,6 +66,7 @@ export function SettingsDialog({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -488,9 +491,24 @@ export function SettingsDialog({
           </Box>
         </TabPanel>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+      <DialogActions sx={{ justifyContent: 'space-between', px: 3 }}>
+        <Button
+          onClick={() => setAboutDialogOpen(true)}
+          startIcon={<InfoIcon />}
+          color="inherit"
+        >
+          About
+        </Button>
+        <Button onClick={onClose} variant="contained">
+          Close
+        </Button>
       </DialogActions>
+
+      {/* About Dialog */}
+      <AboutDialog
+        open={aboutDialogOpen}
+        onClose={() => setAboutDialogOpen(false)}
+      />
     </Dialog>
   );
 }

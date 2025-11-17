@@ -334,11 +334,43 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const response = await window.notegitApi.files.rename(oldPath, newPath);
       if (response.ok) {
         console.log('Renamed/moved successfully');
-        // Clear selection if renamed file was selected
+        
+        // If the moved file was selected, update its path
         if (selectedFile === oldPath) {
-          setSelectedFile(null);
-          setFileContent(null);
+          setSelectedFile(newPath);
+          // Update file content with new path
+          if (fileContent) {
+            setFileContent({
+              ...fileContent,
+              path: newPath,
+            });
+          }
+        } 
+        // If a file inside a moved folder was selected, update its path
+        else if (selectedFile && selectedFile.startsWith(oldPath + '/')) {
+          const newSelectedPath = selectedFile.replace(oldPath + '/', newPath + '/');
+          setSelectedFile(newSelectedPath);
+          // Update file content with new path
+          if (fileContent) {
+            setFileContent({
+              ...fileContent,
+              path: newSelectedPath,
+            });
+          }
         }
+        
+        // Commit the move operation automatically
+        try {
+          // Stage all changes (the move will show as delete + add)
+          await window.notegitApi.files.commitAll(
+            `Move: ${oldPath} -> ${newPath}`
+          );
+          console.log('Move committed successfully');
+        } catch (commitError) {
+          console.warn('Failed to auto-commit move:', commitError);
+          // Continue even if commit fails - the changes are on disk
+        }
+        
         // Refresh tree
         const treeResponse = await window.notegitApi.files.listTree();
         if (treeResponse.ok && treeResponse.data) {

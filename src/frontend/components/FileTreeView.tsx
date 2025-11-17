@@ -29,7 +29,11 @@ import {
   FileUpload as ImportIcon,
   DriveFileRenameOutline as RenameIcon,
   Clear as ClearIcon,
+  ArrowUpward as ArrowUpIcon,
+  ArrowDownward as ArrowDownIcon,
+  DriveFileMove as MoveIcon,
 } from '@mui/icons-material';
+import { MoveToFolderDialog } from './MoveToFolderDialog';
 import type { FileTreeNode, FileType } from '../../shared/types';
 
 interface FileTreeViewProps {
@@ -75,12 +79,16 @@ export function FileTreeView({
   const [createFileDialogOpen, setCreateFileDialogOpen] = useState(false);
   const [createFolderDialogOpen, setCreateFolderDialogOpen] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [moveDialogOpen, setMoveDialogOpen] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [creating, setCreating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedNode, setSelectedNode] = useState<FileTreeNode | null>(null);
-  const [draggedNode, setDraggedNode] = useState<FileTreeNode | null>(null);
   const [expanded, setExpanded] = useState<string[]>([]);
+  
+  // State for custom ordering (per-folder ordering)
+  // Key is parent path (empty string for root), value is array of node IDs in order
+  const [customOrder, setCustomOrder] = useState<Record<string, string[]>>({});
 
   // Clear input and error when dialog opens
   const handleOpenFileDialog = () => {
@@ -383,55 +391,121 @@ export function FileTreeView({
     return null;
   };
 
-  const handleDragStart = (node: FileTreeNode) => (e: React.DragEvent) => {
-    setDraggedNode(node);
-    e.dataTransfer.effectAllowed = 'move';
+  // Helper to get siblings and parent path
+  const getSiblingsAndParent = (node: FileTreeNode): { siblings: FileTreeNode[]; parentPath: string } => {
+    const parentPath = node.path.includes('/')
+      ? node.path.substring(0, node.path.lastIndexOf('/'))
+      : '';
+    
+    // Find siblings
+    const findSiblings = (nodes: FileTreeNode[], targetParentPath: string): FileTreeNode[] | null => {
+      if (targetParentPath === '') {
+        // Root level
+        return nodes;
+      }
+      
+      for (const n of nodes) {
+        if (n.path === targetParentPath && n.children) {
+          return n.children;
+        }
+        if (n.children) {
+          const found = findSiblings(n.children, targetParentPath);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    
+    const siblings = findSiblings(tree, parentPath) || [];
+    return { siblings, parentPath };
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+  // Apply custom ordering to a list of nodes
+  const applyCustomOrder = (nodes: FileTreeNode[], parentPath: string): FileTreeNode[] => {
+    const order = customOrder[parentPath];
+    if (!order) return nodes;
+    
+    // Sort nodes according to custom order
+    const ordered = [...nodes].sort((a, b) => {
+      const indexA = order.indexOf(a.id);
+      const indexB = order.indexOf(b.id);
+      
+      // If both in order, use order
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+      // If only one in order, prioritize it
+      if (indexA !== -1) return -1;
+      if (indexB !== -1) return 1;
+      // Otherwise maintain original order
+      return 0;
+    });
+    
+    return ordered;
   };
 
-  const handleDrop = (targetNode: FileTreeNode) => async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Move item up in its folder
+  const handleMoveUp = (node: FileTreeNode) => {
+    const { siblings, parentPath } = getSiblingsAndParent(node);
+    const orderedSiblings = applyCustomOrder(siblings, parentPath);
+    const currentIndex = orderedSiblings.findIndex(n => n.id === node.id);
+    
+    if (currentIndex <= 0) return; // Already at top
+    
+    // Swap with previous
+    const newOrder = orderedSiblings.map(n => n.id);
+    [newOrder[currentIndex - 1], newOrder[currentIndex]] = [newOrder[currentIndex], newOrder[currentIndex - 1]];
+    
+    setCustomOrder(prev => ({
+      ...prev,
+      [parentPath]: newOrder,
+    }));
+  };
 
-    if (!draggedNode || draggedNode.id === targetNode.id) {
-      setDraggedNode(null);
-      return;
-    }
+  // Move item down in its folder
+  const handleMoveDown = (node: FileTreeNode) => {
+    const { siblings, parentPath } = getSiblingsAndParent(node);
+    const orderedSiblings = applyCustomOrder(siblings, parentPath);
+    const currentIndex = orderedSiblings.findIndex(n => n.id === node.id);
+    
+    if (currentIndex === -1 || currentIndex >= orderedSiblings.length - 1) return; // Already at bottom
+    
+    // Swap with next
+    const newOrder = orderedSiblings.map(n => n.id);
+    [newOrder[currentIndex], newOrder[currentIndex + 1]] = [newOrder[currentIndex + 1], newOrder[currentIndex]];
+    
+    setCustomOrder(prev => ({
+      ...prev,
+      [parentPath]: newOrder,
+    }));
+  };
 
-    // Only allow dropping into folders
-    if (targetNode.type !== 'folder') {
-      setDraggedNode(null);
-      return;
-    }
-
-    // Check if trying to drop a folder into itself or its children
-    if (draggedNode.type === 'folder' && targetNode.path.startsWith(draggedNode.path)) {
-      console.warn('Cannot move a folder into itself or its children');
-      setDraggedNode(null);
-      return;
-    }
-
+  // Handle move to folder via dialog
+  const handleMoveToFolder = async (destinationPath: string) => {
+    if (!selectedNode) return;
+    
     try {
       // Calculate new path
-      const newPath = `${targetNode.path}/${draggedNode.name}`;
+      const newPath = destinationPath ? `${destinationPath}/${selectedNode.name}` : selectedNode.name;
       
-      // Call the parent's rename handler
-      await onRename(draggedNode.path, newPath);
+      // Call the rename handler (which moves the item)
+      await onRename(selectedNode.path, newPath);
+      
+      // Close dialog
+      setMoveDialogOpen(false);
     } catch (error: any) {
       console.error('Failed to move:', error);
       alert(`Failed to move: ${error.message || 'Unknown error'}`);
-    } finally {
-      setDraggedNode(null);
     }
   };
 
-  const renderTree = (node: FileTreeNode) => {
-    const isDragging = draggedNode?.id === node.id;
+  const renderTree = (node: FileTreeNode, parentPath: string = '') => {
     const isExpanded = expanded.includes(node.id);
+    const { siblings } = getSiblingsAndParent(node);
+    const orderedSiblings = applyCustomOrder(siblings, parentPath);
+    const currentIndex = orderedSiblings.findIndex(n => n.id === node.id);
+    const isFirst = currentIndex === 0;
+    const isLast = currentIndex === orderedSiblings.length - 1;
     
     // Determine icon based on node type and expansion state
     let icon;
@@ -450,28 +524,83 @@ export function FileTreeView({
       icon = getFileIcon(node.fileType);
     }
 
+    // Apply ordering to children if folder
+    const children = node.children ? applyCustomOrder(node.children, node.path) : [];
+
     return (
       <TreeItem 
         key={node.id} 
         nodeId={node.id} 
         label={
           <Box
-            draggable
-            onDragStart={handleDragStart(node)}
-            onDragOver={node.type === 'folder' ? handleDragOver : undefined}
-            onDrop={node.type === 'folder' ? handleDrop(node) : undefined}
             sx={{
-              opacity: isDragging ? 0.5 : 1,
-              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              pr: 1,
               userSelect: 'none',
             }}
           >
-            {node.name}
+            <span style={{ flex: 1 }}>{node.name}</span>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 0.5,
+                opacity: 0,
+                '.MuiTreeItem-content:hover &': {
+                  opacity: 1,
+                },
+              }}
+            >
+              <Tooltip title="Move up">
+                <span>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMoveUp(node);
+                    }}
+                    disabled={isFirst}
+                    sx={{ padding: '2px' }}
+                  >
+                    <ArrowUpIcon sx={{ fontSize: '14px' }} />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title="Move down">
+                <span>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMoveDown(node);
+                    }}
+                    disabled={isLast}
+                    sx={{ padding: '2px' }}
+                  >
+                    <ArrowDownIcon sx={{ fontSize: '14px' }} />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title="Move to folder">
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedNode(node);
+                    setMoveDialogOpen(true);
+                  }}
+                  sx={{ padding: '2px' }}
+                >
+                  <MoveIcon sx={{ fontSize: '14px' }} />
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Box>
         }
         icon={icon}
       >
-        {node.children && node.children.map((child) => renderTree(child))}
+        {children.map((child) => renderTree(child, node.path))}
       </TreeItem>
     );
   };
@@ -594,7 +723,7 @@ export function FileTreeView({
           selected={selectedFile || undefined}
           onNodeSelect={handleNodeSelect}
         >
-          {tree.map((node) => renderTree(node))}
+          {applyCustomOrder(tree, '').map((node) => renderTree(node, ''))}
         </TreeView>
       </Box>
 
@@ -773,6 +902,15 @@ export function FileTreeView({
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Move to Folder Dialog */}
+      <MoveToFolderDialog
+        open={moveDialogOpen}
+        onClose={() => setMoveDialogOpen(false)}
+        onConfirm={handleMoveToFolder}
+        itemToMove={selectedNode}
+        tree={tree}
+      />
     </Box>
   );
 }
