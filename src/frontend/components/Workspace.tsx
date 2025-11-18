@@ -268,11 +268,18 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const response = await window.notegitApi.files.create(parentPath, fileName);
       if (response.ok) {
         console.log('File created successfully');
+        
+        // Construct the full path of the newly created file
+        const newFilePath = parentPath ? `${parentPath}/${fileName}` : fileName;
+        
         // Refresh tree
         const treeResponse = await window.notegitApi.files.listTree();
         if (treeResponse.ok && treeResponse.data) {
           setTree(treeResponse.data);
         }
+        
+        // Automatically select and open the newly created file
+        await handleSelectFile(newFilePath, 'file');
       } else {
         console.error('Failed to create file:', response.error);
         throw new Error(response.error?.message || 'Failed to create file');

@@ -90,6 +90,28 @@ export function FileTreeView({
   // Key is parent path (empty string for root), value is array of node IDs in order
   const [customOrder, setCustomOrder] = useState<Record<string, string[]>>({});
 
+  // Auto-expand parent folders when a file is selected
+  React.useEffect(() => {
+    if (selectedFile) {
+      const pathParts = selectedFile.split('/');
+      const foldersToExpand: string[] = [];
+      
+      // Build all parent paths
+      for (let i = 0; i < pathParts.length - 1; i++) {
+        const folderPath = pathParts.slice(0, i + 1).join('/');
+        foldersToExpand.push(folderPath);
+      }
+      
+      // Expand all parent folders
+      if (foldersToExpand.length > 0) {
+        setExpanded((prev) => {
+          const newExpanded = new Set([...prev, ...foldersToExpand]);
+          return Array.from(newExpanded);
+        });
+      }
+    }
+  }, [selectedFile]);
+
   // Clear input and error when dialog opens
   const handleOpenFileDialog = () => {
     setNewItemName('');
