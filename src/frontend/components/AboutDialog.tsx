@@ -24,7 +24,7 @@ interface AboutDialogProps {
 
 export function AboutDialog({ open, onClose }: AboutDialogProps) {
   const APP_NAME = 'notegit';
-  const APP_VERSION = '1.2.0';
+  const APP_VERSION = '1.2.1';
   const APP_DESCRIPTION = 'A Git-backed Markdown note-taking desktop application built with Electron';
   const AUTHOR_NAME = 'Suleyman Cabir Ataman, PhD';
   const GITHUB_URL = 'https://github.com/scabir';

@@ -42,6 +42,10 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveMessage, setSaveMessage] = useState<string>('');
   const autosaveTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const [sidebarWidth, setSidebarWidth] = useState(300);
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeStartX = React.useRef(0);
+  const resizeStartWidth = React.useRef(0);
 
   useEffect(() => {
     loadWorkspace();
@@ -458,6 +462,41 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     setHistoryPanelOpen(!historyPanelOpen);
   };
 
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    resizeStartX.current = e.clientX;
+    resizeStartWidth.current = sidebarWidth;
+  };
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const delta = e.clientX - resizeStartX.current;
+      const newWidth = resizeStartWidth.current + delta;
+      
+      // Constrain width between 200px and 600px
+      const MIN_WIDTH = 200;
+      const MAX_WIDTH = 600;
+      const constrainedWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
+      
+      setSidebarWidth(constrainedWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
+
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Top app bar */}
@@ -550,7 +589,10 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         {/* File tree sidebar */}
         <Box
           sx={{
-            width: 300,
+            width: sidebarWidth,
+            minWidth: sidebarWidth,
+            maxWidth: sidebarWidth,
+            flexShrink: 0,
             borderRight: 1,
             borderColor: 'divider',
             overflow: 'auto',
@@ -568,8 +610,23 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           />
         </Box>
 
+        {/* Resize handle */}
+        <Box
+          onMouseDown={handleResizeStart}
+          sx={{
+            width: '4px',
+            cursor: 'col-resize',
+            bgcolor: isResizing ? 'primary.main' : 'transparent',
+            '&:hover': {
+              bgcolor: 'primary.light',
+            },
+            transition: 'background-color 0.2s',
+            flexShrink: 0,
+          }}
+        />
+
         {/* Editor */}
-        <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+        <Box sx={{ flexGrow: 1, overflow: 'hidden', minWidth: 0 }}>
           {fileContent?.type === 'text' ? (
             <TextEditor
               file={fileContent}
