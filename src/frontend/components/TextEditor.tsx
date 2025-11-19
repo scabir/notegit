@@ -6,7 +6,7 @@ import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import { EditorView } from '@codemirror/view';
 import { EditorSelection } from '@codemirror/state';
 import { FindReplaceBar } from './FindReplaceBar';
-import type { FileContent } from '../../shared/types';
+import type { FileContent, AppSettings } from '../../shared/types';
 
 interface TextEditorProps {
   file: FileContent | null;
@@ -26,6 +26,19 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
   const [findBarOpen, setFindBarOpen] = useState(false);
   const [searchMatches, setSearchMatches] = useState<{ start: number; end: number }[]>([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
+
+  // Load app settings for editor preferences
+  const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      const response = await window.notegitApi.config.getAppSettings();
+      if (response.ok && response.data) {
+        setAppSettings(response.data);
+      }
+    };
+    loadSettings();
+  }, []);
 
   useEffect(() => {
     if (file) {
@@ -299,10 +312,13 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
           ref={editorRef}
           value={content}
           height="100%"
+          extensions={[
+            EditorView.lineWrapping,
+          ]}
           theme={isDark ? githubDark : githubLight}
           onChange={handleChange}
           basicSetup={{
-            lineNumbers: true,
+            lineNumbers: appSettings?.editorPrefs.lineNumbers ?? true,
             highlightActiveLineGutter: true,
             highlightActiveLine: true,
             foldGutter: true,

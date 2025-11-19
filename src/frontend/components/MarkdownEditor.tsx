@@ -23,7 +23,7 @@ import remarkGfm from 'remark-gfm';
 import { EditorView } from '@codemirror/view';
 import { EditorSelection } from '@codemirror/state';
 import { FindReplaceBar } from './FindReplaceBar';
-import type { FileContent } from '../../shared/types';
+import type { FileContent, AppSettings } from '../../shared/types';
 
 interface MarkdownEditorProps {
   file: FileContent | null;
@@ -49,6 +49,19 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   const [findBarOpen, setFindBarOpen] = useState(false);
   const [searchMatches, setSearchMatches] = useState<{ start: number; end: number }[]>([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
+
+  // Load app settings for editor preferences
+  const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      const response = await window.notegitApi.config.getAppSettings();
+      if (response.ok && response.data) {
+        setAppSettings(response.data);
+      }
+    };
+    loadSettings();
+  }, []);
 
   useEffect(() => {
     if (file) {
@@ -264,50 +277,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   const formatNumberedList = () => insertMarkdown('1. ', '', 'list item');
   const formatLink = () => insertMarkdown('[', '](url)', 'link text');
 
-  // Handle preview content editing (WYSIWYG)
-  const handlePreviewEdit = useCallback((e: React.FormEvent<HTMLDivElement>) => {
-    const target = e.currentTarget;
-    
-    // Convert HTML back to markdown (simplified approach)
-    const htmlToMarkdown = (html: string): string => {
-      let md = html;
-      
-      // Convert HTML tags back to markdown
-      md = md.replace(/<strong>(.*?)<\/strong>/g, '**$1**');
-      md = md.replace(/<em>(.*?)<\/em>/g, '*$1*');
-      md = md.replace(/<code>(.*?)<\/code>/g, '`$1`');
-      md = md.replace(/<h1>(.*?)<\/h1>/g, '# $1\n');
-      md = md.replace(/<h2>(.*?)<\/h2>/g, '## $1\n');
-      md = md.replace(/<h3>(.*?)<\/h3>/g, '### $1\n');
-      md = md.replace(/<h4>(.*?)<\/h4>/g, '#### $1\n');
-      md = md.replace(/<h5>(.*?)<\/h5>/g, '##### $1\n');
-      md = md.replace(/<h6>(.*?)<\/h6>/g, '###### $1\n');
-      md = md.replace(/<p>(.*?)<\/p>/g, '$1\n\n');
-      md = md.replace(/<br\s*\/?>/g, '\n');
-      md = md.replace(/<a href="(.*?)">(.*?)<\/a>/g, '[$2]($1)');
-      md = md.replace(/<ul><li>(.*?)<\/li><\/ul>/g, '- $1\n');
-      md = md.replace(/<li>(.*?)<\/li>/g, '- $1\n');
-      
-      // Remove remaining HTML tags
-      md = md.replace(/<[^>]+>/g, '');
-      
-      // Decode HTML entities
-      const textarea = document.createElement('textarea');
-      textarea.innerHTML = md;
-      md = textarea.value;
-      
-      return md.trim();
-    };
-
-    const innerHTML = target.innerHTML;
-    const newMarkdown = htmlToMarkdown(innerHTML);
-    
-    // Only update if content actually changed
-    if (newMarkdown !== content) {
-      setContent(newMarkdown);
-    }
-  }, [content]);
-
   // Resizable divider
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -515,11 +484,14 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
               ref={editorRef}
               value={content}
               height="100%"
-              extensions={[markdown()]}
+              extensions={[
+                markdown(),
+                EditorView.lineWrapping,
+              ]}
               onChange={(value) => setContent(value)}
               theme={isDark ? githubDark : githubLight}
               basicSetup={{
-                lineNumbers: true,
+                lineNumbers: appSettings?.editorPrefs.lineNumbers ?? true,
                 highlightActiveLineGutter: true,
                 highlightActiveLine: true,
                 foldGutter: true,

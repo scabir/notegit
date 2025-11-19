@@ -331,24 +331,6 @@ export function SettingsDialog({
               <FormControlLabel
                 control={
                   <Switch
-                    checked={appSettings.editorPrefs.wordWrap}
-                    onChange={(e) =>
-                      setAppSettings({
-                        ...appSettings,
-                        editorPrefs: {
-                          ...appSettings.editorPrefs,
-                          wordWrap: e.target.checked,
-                        },
-                      })
-                    }
-                  />
-                }
-                label="Word Wrap"
-              />
-
-              <FormControlLabel
-                control={
-                  <Switch
                     checked={appSettings.editorPrefs.showPreview}
                     onChange={(e) =>
                       setAppSettings({

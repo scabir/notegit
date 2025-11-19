@@ -10,7 +10,6 @@ export interface AppSettings {
 export interface EditorPreferences {
   fontSize: number;
   lineNumbers: boolean;
-  wordWrap: boolean;
   tabSize: number;
   showPreview: boolean;
 }
@@ -51,7 +50,6 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   editorPrefs: {
     fontSize: 14,
     lineNumbers: true,
-    wordWrap: true,
     tabSize: 2,
     showPreview: true,
   },
