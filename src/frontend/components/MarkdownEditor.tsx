@@ -531,17 +531,10 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
             }}
           >
             <Paper 
-              contentEditable={viewMode === 'preview'}
-              suppressContentEditableWarning
-              onInput={viewMode === 'preview' ? handlePreviewEdit : undefined}
               sx={{ 
                 p: 3, 
                 bgcolor: 'transparent',
                 color: 'inherit',
-                outline: viewMode === 'preview' ? `2px solid ${isDark ? '#58a6ff' : '#1976d2'}` : 'none',
-                '&:focus': {
-                  outline: viewMode === 'preview' ? `2px solid ${isDark ? '#58a6ff' : '#1976d2'}` : 'none',
-                },
                 '& code': {
                   bgcolor: isDark ? 'rgba(110, 118, 129, 0.4)' : 'rgba(175, 184, 193, 0.2)',
                   padding: '0.2em 0.4em',
