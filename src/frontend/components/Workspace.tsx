@@ -46,6 +46,9 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [isResizing, setIsResizing] = useState(false);
   const resizeStartX = React.useRef(0);
   const resizeStartWidth = React.useRef(0);
+  
+  // Cache for unsaved file content (per-session)
+  const fileContentCacheRef = React.useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
     loadWorkspace();
@@ -136,14 +139,40 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const handleSelectFile = async (path: string, type: 'file' | 'folder') => {
     if (type === 'folder') return;
 
+    // Save current file's content to cache before switching
+    if (selectedFile && editorContent) {
+      fileContentCacheRef.current.set(selectedFile, editorContent);
+    }
+
     setSelectedFile(path);
 
     try {
-      const response = await window.notegitApi.files.read(path);
-      if (response.ok && response.data) {
-        setFileContent(response.data);
+      // Check if we have cached content for this file
+      const cachedContent = fileContentCacheRef.current.get(path);
+      
+      if (cachedContent !== undefined) {
+        // Use cached content
+        const response = await window.notegitApi.files.read(path);
+        if (response.ok && response.data) {
+          // Keep the file metadata but use cached content
+          setFileContent({
+            ...response.data,
+            content: cachedContent,
+          });
+          setEditorContent(cachedContent);
+          // Mark as having unsaved changes since we're restoring cached content
+          setHasUnsavedChanges(true);
+        }
       } else {
-        console.error('Failed to read file:', response.error);
+        // Load from disk
+        const response = await window.notegitApi.files.read(path);
+        if (response.ok && response.data) {
+          setFileContent(response.data);
+          setEditorContent(response.data.content);
+          setHasUnsavedChanges(false);
+        } else {
+          console.error('Failed to read file:', response.error);
+        }
       }
     } catch (error) {
       console.error('Failed to read file:', error);
@@ -166,6 +195,11 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       if (response.ok) {
         setSaveStatus('saved');
         setHasUnsavedChanges(false);
+        
+        // Clear cached content for this file after successful save
+        if (selectedFile) {
+          fileContentCacheRef.current.delete(selectedFile);
+        }
 
         // Check for pull/push warnings
         if (response.data?.conflictDetected) {
@@ -592,7 +626,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       </AppBar>
 
       {/* Main content */}
-      <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
+      <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden', pb: '40px' }}>
         {/* File tree sidebar */}
         <Box
           sx={{

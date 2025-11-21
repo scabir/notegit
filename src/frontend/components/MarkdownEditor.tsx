@@ -20,7 +20,7 @@ import { markdown } from '@codemirror/lang-markdown';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { EditorView } from '@codemirror/view';
+import { EditorView, keymap } from '@codemirror/view';
 import { EditorSelection } from '@codemirror/state';
 import { FindReplaceBar } from './FindReplaceBar';
 import type { FileContent, AppSettings } from '../../shared/types';
@@ -277,6 +277,21 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   const formatNumberedList = () => insertMarkdown('1. ', '', 'list item');
   const formatLink = () => insertMarkdown('[', '](url)', 'link text');
 
+  // Custom keymap for Ctrl+Enter
+  const customKeymap = keymap.of([
+    {
+      key: 'Ctrl-Enter',
+      run: (view) => {
+        const { from } = view.state.selection.main;
+        view.dispatch({
+          changes: { from, insert: '\r' },
+          selection: { anchor: from + 1 }
+        });
+        return true;
+      }
+    }
+  ]);
+
   // Resizable divider
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -487,6 +502,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
               extensions={[
                 markdown(),
                 EditorView.lineWrapping,
+                customKeymap,
               ]}
               onChange={(value) => setContent(value)}
               theme={isDark ? githubDark : githubLight}

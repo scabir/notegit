@@ -3,7 +3,7 @@ import { Box, Toolbar, IconButton, Chip, Tooltip, Typography, useTheme } from '@
 import { Save as SaveIcon, FileDownload as ExportIcon } from '@mui/icons-material';
 import CodeMirror from '@uiw/react-codemirror';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
-import { EditorView } from '@codemirror/view';
+import { EditorView, keymap } from '@codemirror/view';
 import { EditorSelection } from '@codemirror/state';
 import { FindReplaceBar } from './FindReplaceBar';
 import type { FileContent, AppSettings } from '../../shared/types';
@@ -219,6 +219,21 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleOpenFind]);
 
+  // Custom keymap for Ctrl+Enter
+  const customKeymap = keymap.of([
+    {
+      key: 'Ctrl-Enter',
+      run: (view) => {
+        const { from } = view.state.selection.main;
+        view.dispatch({
+          changes: { from, insert: '\r' },
+          selection: { anchor: from + 1 }
+        });
+        return true;
+      }
+    }
+  ]);
+
   const handleChange = (value: string) => {
     setContent(value);
     setHasChanges(value !== file?.content);
@@ -314,6 +329,7 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
           height="100%"
           extensions={[
             EditorView.lineWrapping,
+            customKeymap,
           ]}
           theme={isDark ? githubDark : githubLight}
           onChange={handleChange}
