@@ -4,6 +4,7 @@ import {
   FullConfig,
   AppSettings,
   RepoSettings,
+  Profile,
   ApiErrorCode,
 } from '../../shared/types';
 import { ConfigService } from '../services/ConfigService';
@@ -94,5 +95,114 @@ export function registerConfigHandlers(
       };
     }
   });
+
+  // Profile management handlers
+
+  ipcMain.handle('config:getProfiles', async (): Promise<ApiResponse<Profile[]>> => {
+    try {
+      const profiles = await configService.getProfiles();
+      return {
+        ok: true,
+        data: profiles,
+      };
+    } catch (error: any) {
+      logger.error('Failed to get profiles', { error });
+      return {
+        ok: false,
+        error: {
+          code: ApiErrorCode.UNKNOWN_ERROR,
+          message: 'Failed to load profiles',
+          details: error,
+        },
+      };
+    }
+  });
+
+  ipcMain.handle('config:getActiveProfileId', async (): Promise<ApiResponse<string | null>> => {
+    try {
+      const profileId = await configService.getActiveProfileId();
+      return {
+        ok: true,
+        data: profileId,
+      };
+    } catch (error: any) {
+      logger.error('Failed to get active profile ID', { error });
+      return {
+        ok: false,
+        error: {
+          code: ApiErrorCode.UNKNOWN_ERROR,
+          message: 'Failed to load active profile ID',
+          details: error,
+        },
+      };
+    }
+  });
+
+  ipcMain.handle(
+    'config:createProfile',
+    async (_event, name: string, repoSettings: RepoSettings): Promise<ApiResponse<Profile>> => {
+      try {
+        const profile = await configService.createProfile(name, repoSettings);
+        return {
+          ok: true,
+          data: profile,
+        };
+      } catch (error: any) {
+        logger.error('Failed to create profile', { error });
+        return {
+          ok: false,
+          error: {
+            code: ApiErrorCode.UNKNOWN_ERROR,
+            message: 'Failed to create profile',
+            details: error,
+          },
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    'config:deleteProfile',
+    async (_event, profileId: string): Promise<ApiResponse<void>> => {
+      try {
+        await configService.deleteProfile(profileId);
+        return {
+          ok: true,
+        };
+      } catch (error: any) {
+        logger.error('Failed to delete profile', { error });
+        return {
+          ok: false,
+          error: {
+            code: ApiErrorCode.UNKNOWN_ERROR,
+            message: 'Failed to delete profile',
+            details: error,
+          },
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    'config:setActiveProfile',
+    async (_event, profileId: string): Promise<ApiResponse<void>> => {
+      try {
+        await configService.setActiveProfileId(profileId);
+        return {
+          ok: true,
+        };
+      } catch (error: any) {
+        logger.error('Failed to set active profile', { error });
+        return {
+          ok: false,
+          error: {
+            code: ApiErrorCode.UNKNOWN_ERROR,
+            message: 'Failed to set active profile',
+            details: error,
+          },
+        };
+      }
+    }
+  );
 }
 

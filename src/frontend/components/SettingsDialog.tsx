@@ -17,10 +17,22 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton,
+  IconButton,
+  Divider,
+  Chip,
 } from '@mui/material';
-import { Info as InfoIcon } from '@mui/icons-material';
+import { 
+  Info as InfoIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
+  Check as CheckIcon,
+} from '@mui/icons-material';
 import { AboutDialog } from './AboutDialog';
-import type { FullConfig, AppSettings, RepoSettings, AuthMethod } from '../../shared/types';
+import type { FullConfig, AppSettings, RepoSettings, AuthMethod, Profile } from '../../shared/types';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -67,6 +79,13 @@ export function SettingsDialog({
   const [success, setSuccess] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
+  
+  // Profile management state
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
+  const [creatingProfile, setCreatingProfile] = useState(false);
+  const [newProfileName, setNewProfileName] = useState('');
+  const [newProfileRepo, setNewProfileRepo] = useState<Partial<RepoSettings>>({ authMethod: 'pat' as AuthMethod });
 
   useEffect(() => {
     if (open) {
@@ -85,6 +104,8 @@ export function SettingsDialog({
         setConfig(response.data);
         setAppSettings(response.data.appSettings);
         setRepoSettings(response.data.repoSettings || {});
+        setProfiles(response.data.profiles || []);
+        setActiveProfileId(response.data.activeProfileId || null);
       } else {
         setError(response.error?.message || 'Failed to load configuration');
       }
@@ -154,6 +175,96 @@ export function SettingsDialog({
     setSuccess(null);
   };
 
+  // Profile management handlers
+  const handleSelectProfile = async (profileId: string) => {
+    if (profileId === activeProfileId) {
+      return; // Already active
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await window.notegitApi.config.setActiveProfile(profileId);
+      
+      if (response.ok) {
+        setSuccess('Profile switched successfully. App will restart...');
+        setTimeout(async () => {
+          await window.notegitApi.config.restartApp();
+        }, 1500);
+      } else {
+        setError(response.error?.message || 'Failed to switch profile');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to switch profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateProfile = async () => {
+    if (!newProfileName.trim()) {
+      setError('Profile name is required');
+      return;
+    }
+
+    if (!newProfileRepo.remoteUrl || !newProfileRepo.branch || !newProfileRepo.localPath || !newProfileRepo.pat || !newProfileRepo.authMethod) {
+      setError('All repository fields are required');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await window.notegitApi.config.createProfile(
+        newProfileName.trim(),
+        newProfileRepo as RepoSettings
+      );
+      
+      if (response.ok && response.data) {
+        setSuccess('Profile created successfully');
+        setProfiles([...profiles, response.data]);
+        setCreatingProfile(false);
+        setNewProfileName('');
+        setNewProfileRepo({ authMethod: 'pat' as AuthMethod });
+      } else {
+        setError(response.error?.message || 'Failed to create profile');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to create profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteProfile = async (profileId: string) => {
+    if (!confirm('Are you sure you want to delete this profile? This will not delete the remote repository.')) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await window.notegitApi.config.deleteProfile(profileId);
+      
+      if (response.ok) {
+        setSuccess('Profile deleted successfully');
+        setProfiles(profiles.filter(p => p.id !== profileId));
+        if (activeProfileId === profileId) {
+          setActiveProfileId(null);
+        }
+      } else {
+        setError(response.error?.message || 'Failed to delete profile');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleExportNote = async (format: 'md' | 'txt') => {
     if (!currentNoteContent || !currentNotePath) {
       setError('No note is currently open');
@@ -213,6 +324,7 @@ export function SettingsDialog({
           <Tabs value={tabValue} onChange={handleTabChange}>
             <Tab label="App Settings" />
             <Tab label="Repository" />
+            <Tab label="Profiles" />
             <Tab label="Export" />
           </Tabs>
         </Box>
@@ -419,6 +531,135 @@ export function SettingsDialog({
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="h6">Profile Management</Typography>
+            <Alert severity="info">
+              Profiles allow you to work with multiple repositories. Only one profile is active at a time. 
+              Switching profiles will restart the app with a clean state.
+            </Alert>
+
+            <Typography variant="subtitle1" sx={{ mt: 2 }}>Active Profile</Typography>
+            <List>
+              {profiles.map((profile) => (
+                <ListItem
+                  key={profile.id}
+                  secondaryAction={
+                    profiles.length > 1 && profile.id !== activeProfileId && (
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleDeleteProfile(profile.id)}
+                        disabled={loading}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )
+                  }
+                  disablePadding
+                >
+                  <ListItemButton
+                    selected={profile.id === activeProfileId}
+                    onClick={() => handleSelectProfile(profile.id)}
+                    disabled={loading || profile.id === activeProfileId}
+                  >
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          {profile.name}
+                          {profile.id === activeProfileId && (
+                            <Chip label="Active" size="small" color="primary" icon={<CheckIcon />} />
+                          )}
+                        </Box>
+                      }
+                      secondary={profile.repoSettings.remoteUrl}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+
+            {!creatingProfile ? (
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={() => setCreatingProfile(true)}
+                disabled={loading}
+                sx={{ mt: 2 }}
+              >
+                Create New Profile
+              </Button>
+            ) : (
+              <Box sx={{ mt: 2, p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
+                <Typography variant="subtitle2" sx={{ mb: 2 }}>New Profile</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <TextField
+                    label="Profile Name"
+                    value={newProfileName}
+                    onChange={(e) => setNewProfileName(e.target.value)}
+                    placeholder="My New Repo"
+                    fullWidth
+                    required
+                  />
+                  <TextField
+                    label="Remote URL"
+                    value={newProfileRepo.remoteUrl || ''}
+                    onChange={(e) => setNewProfileRepo({ ...newProfileRepo, remoteUrl: e.target.value })}
+                    placeholder="https://github.com/user/repo.git"
+                    fullWidth
+                    required
+                  />
+                  <TextField
+                    label="Branch"
+                    value={newProfileRepo.branch || ''}
+                    onChange={(e) => setNewProfileRepo({ ...newProfileRepo, branch: e.target.value })}
+                    placeholder="main"
+                    fullWidth
+                    required
+                  />
+                  <TextField
+                    label="Local Path"
+                    value={newProfileRepo.localPath || ''}
+                    onChange={(e) => setNewProfileRepo({ ...newProfileRepo, localPath: e.target.value })}
+                    placeholder="/path/to/local/repo"
+                    fullWidth
+                    required
+                  />
+                  <TextField
+                    label="Personal Access Token"
+                    type="password"
+                    value={newProfileRepo.pat || ''}
+                    onChange={(e) => setNewProfileRepo({ ...newProfileRepo, pat: e.target.value, authMethod: 'pat' as AuthMethod })}
+                    placeholder="ghp_..."
+                    fullWidth
+                    required
+                  />
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                      variant="contained"
+                      onClick={handleCreateProfile}
+                      disabled={loading}
+                    >
+                      Create Profile
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        setCreatingProfile(false);
+                        setNewProfileName('');
+                        setNewProfileRepo({ authMethod: 'pat' as AuthMethod });
+                      }}
+                      disabled={loading}
+                    >
+                      Cancel
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={3}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <Typography variant="h6">Export Current Note</Typography>
             <Typography variant="body2" color="text.secondary">

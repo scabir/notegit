@@ -27,9 +27,19 @@ export enum AuthMethod {
   SSH = 'ssh',
 }
 
+export interface Profile {
+  id: string;
+  name: string;
+  repoSettings: RepoSettings;
+  createdAt: number;
+  lastUsedAt: number;
+}
+
 export interface FullConfig {
   appSettings: AppSettings;
-  repoSettings: RepoSettings | null;
+  repoSettings: RepoSettings | null; // Legacy field for migration
+  profiles: Profile[];
+  activeProfileId: string | null;
   appStateSnapshot?: AppStateSnapshot;
 }
 
