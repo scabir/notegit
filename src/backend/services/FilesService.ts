@@ -162,6 +162,37 @@ export class FilesService {
   }
 
   /**
+   * Get git status with lists of changed files
+   */
+  async getGitStatus(): Promise<{ modified: string[]; added: string[]; deleted: string[] }> {
+    await this.ensureRepoPath();
+
+    if (!this.gitAdapter) {
+      throw this.createError(
+        ApiErrorCode.UNKNOWN_ERROR,
+        'GitAdapter not initialized',
+        null
+      );
+    }
+
+    try {
+      // Initialize Git adapter with repo path
+      await this.gitAdapter.init(this.repoPath!);
+      
+      const status = await this.gitAdapter.status();
+      
+      return {
+        modified: status.modified || [],
+        added: status.created || [],
+        deleted: status.deleted || [],
+      };
+    } catch (error: any) {
+      logger.error('Failed to get git status', { error });
+      throw error;
+    }
+  }
+
+  /**
    * Save file with automatic Git workflow (save -> commit -> pull -> push)
    * This implements the "invisible Git" workflow
    */

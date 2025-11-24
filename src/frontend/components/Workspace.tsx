@@ -6,6 +6,7 @@ import {
   SaveAlt as SaveAllIcon,
   Search as SearchIcon,
   History as HistoryIcon,
+  CloudUpload as CloudUploadIcon,
 } from '@mui/icons-material';
 import { FileTreeView } from './FileTreeView';
 import { MarkdownEditor } from './MarkdownEditor';
@@ -226,10 +227,9 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     setSaveMessage('');
 
     try {
-      const response = await window.notegitApi.files.saveWithGitWorkflow(
+      const response = await window.notegitApi.files.save(
         selectedFile,
-        content,
-        isAutosave
+        content
       );
 
       if (response.ok) {
@@ -241,30 +241,12 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           fileContentCacheRef.current.delete(selectedFile);
         }
 
-        // Check for pull/push warnings
-        if (response.data?.conflictDetected) {
-          setSaveStatus('error');
-          setSaveMessage(
-            'Conflict detected during sync. Your changes are saved locally. Please resolve conflicts manually.'
-          );
-        } else if (response.data?.pullFailed) {
-          setSaveStatus('saved');
-          setSaveMessage(
-            'Changes saved and committed locally, but pull from remote failed. Check your connection.'
-          );
-        } else if (response.data?.pushFailed) {
-          setSaveStatus('saved');
-          setSaveMessage(
-            'Changes saved and committed locally, but push to remote failed. Check your connection.'
-          );
-        } else {
-          // Full success
-          if (!isAutosave) {
-            setSaveMessage('Saved and synced successfully');
-          }
+        // Show success message
+        if (!isAutosave) {
+          setSaveMessage('Saved locally');
         }
 
-        // Refresh status
+        // Refresh status to show uncommitted changes
         const statusResponse = await window.notegitApi.repo.getStatus();
         if (statusResponse.ok && statusResponse.data) {
           setRepoStatus(statusResponse.data);
@@ -276,7 +258,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             setSaveStatus('idle');
             setSaveMessage('');
           }
-        }, 3000);
+        }, 2000);
       } else {
         setSaveStatus('error');
         setSaveMessage(response.error?.message || 'Failed to save file');
@@ -520,6 +502,63 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     setCommitDialogOpen(true);
   };
 
+  const handleCommitAndPush = async () => {
+    // Auto-save before committing
+    if (hasUnsavedChanges && selectedFile) {
+      await handleSaveFile(editorContent);
+      // Wait a bit for save to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    setSaveStatus('saving');
+    setSaveMessage('Committing and pushing...');
+
+    try {
+      const response = await window.notegitApi.files.commitAndPushAll();
+
+      if (response.ok) {
+        if (response.data?.message === 'Nothing to commit') {
+          setSaveStatus('idle');
+          setSaveMessage('Nothing to commit');
+        } else {
+          setSaveStatus('saved');
+          setSaveMessage('Committed and pushed successfully');
+        }
+
+        // Refresh status
+        const statusResponse = await window.notegitApi.repo.getStatus();
+        if (statusResponse.ok && statusResponse.data) {
+          setRepoStatus(statusResponse.data);
+        }
+
+        // Clear status after a delay
+        setTimeout(() => {
+          setSaveStatus('idle');
+          setSaveMessage('');
+        }, 3000);
+      } else {
+        setSaveStatus('error');
+        setSaveMessage(response.error?.message || 'Failed to commit and push');
+        console.error('Failed to commit and push:', response.error);
+
+        // Clear error after a delay
+        setTimeout(() => {
+          setSaveStatus('idle');
+          setSaveMessage('');
+        }, 5000);
+      }
+    } catch (error: any) {
+      setSaveStatus('error');
+      setSaveMessage(error.message || 'Failed to commit and push');
+      console.error('Failed to commit and push:', error);
+
+      setTimeout(() => {
+        setSaveStatus('idle');
+        setSaveMessage('');
+      }, 5000);
+    }
+  };
+
   const handleSelectFileFromSearch = async (filePath: string) => {
     // Select the file and load its content
     await handleSelectFile(filePath, 'file');
@@ -651,9 +690,9 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             </span>
           </Tooltip>
 
-          <Tooltip title="Commit all changes">
-            <IconButton onClick={handleOpenCommitDialog} color="primary">
-              <CommitIcon />
+          <Tooltip title="Commit and Push">
+            <IconButton onClick={handleCommitAndPush} color="primary">
+              <CloudUploadIcon />
             </IconButton>
           </Tooltip>
 

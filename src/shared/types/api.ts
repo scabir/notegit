@@ -84,6 +84,7 @@ export interface NotegitApi {
     >;
     commit: (path: string, message: string) => Promise<ApiResponse<void>>;
     commitAll: (message: string) => Promise<ApiResponse<void>>;
+    commitAndPushAll: () => Promise<ApiResponse<{ message: string }>>;
     create: (parentPath: string, name: string) => Promise<ApiResponse<void>>;
     createFile: (parentPath: string, name: string) => Promise<ApiResponse<void>>;
     createFolder: (parentPath: string, name: string) => Promise<ApiResponse<void>>;

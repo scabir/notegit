@@ -7,8 +7,9 @@ import {
 } from '../../shared/types';
 import { FilesService } from '../services/FilesService';
 import { logger } from '../utils/logger';
+import { RepoService } from '../services/RepoService';
 
-export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesService): void {
+export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesService, repoService: RepoService): void {
   ipcMain.handle('files:listTree', async (): Promise<ApiResponse<FileTreeNode[]>> => {
     try {
       const tree = await filesService.listTree();
@@ -150,6 +151,66 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
                 message: error.message || 'Failed to commit all changes',
+                details: error,
+              },
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    'files:commitAndPushAll',
+    async (): Promise<ApiResponse<{ message: string }>> => {
+      try {
+        // Get repo status to check for changes
+        const statusResponse = await repoService.getStatus();
+        
+        // Check if there are any changes
+        if (!statusResponse.hasUncommitted) {
+          return {
+            ok: true,
+            data: { message: 'Nothing to commit' },
+          };
+        }
+
+        // Get list of changed files for commit message
+        const gitStatus = await filesService.getGitStatus();
+        const changedFiles = [
+          ...gitStatus.modified,
+          ...gitStatus.added,
+          ...gitStatus.deleted,
+        ].slice(0, 5); // Limit to first 5 files for message
+        
+        // Generate auto commit message
+        let commitMessage = 'Update: ';
+        if (changedFiles.length > 0) {
+          commitMessage += changedFiles.join(', ');
+          if (gitStatus.modified.length + gitStatus.added.length + gitStatus.deleted.length > 5) {
+            commitMessage += ` and ${gitStatus.modified.length + gitStatus.added.length + gitStatus.deleted.length - 5} more`;
+          }
+        } else {
+          commitMessage += 'multiple files';
+        }
+
+        // Commit all changes
+        await filesService.commitAll(commitMessage);
+        
+        // Push to remote
+        await repoService.push();
+
+        return {
+          ok: true,
+          data: { message: 'Changes committed and pushed successfully' },
+        };
+      } catch (error: any) {
+        logger.error('Failed to commit and push all changes', { error });
+        return {
+          ok: false,
+          error: error.code
+            ? error
+            : {
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: error.message || 'Failed to commit and push changes',
                 details: error,
               },
         };

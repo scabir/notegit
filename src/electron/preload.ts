@@ -31,6 +31,7 @@ const api: NotegitApi = {
       ipcRenderer.invoke('files:saveWithGitWorkflow', path, content, isAutosave),
     commit: (path, message) => ipcRenderer.invoke('files:commit', path, message),
     commitAll: (message) => ipcRenderer.invoke('files:commitAll', message),
+    commitAndPushAll: () => ipcRenderer.invoke('files:commitAndPushAll'),
     create: (parentPath, name) => ipcRenderer.invoke('files:create', parentPath, name),
     createFile: (parentPath, name) => ipcRenderer.invoke('files:create', parentPath, name),
     createFolder: (parentPath, name) => ipcRenderer.invoke('files:createFolder', parentPath, name),
