@@ -18,6 +18,7 @@ import { RepoSearchDialog } from './RepoSearchDialog';
 import { HistoryPanel } from './HistoryPanel';
 import { HistoryViewer } from './HistoryViewer';
 import type { FileTreeNode, FileContent, RepoStatus } from '../../shared/types';
+import packageJson from '../../../package.json';
 
 interface WorkspaceProps {
   onThemeChange: (theme: 'light' | 'dark' | 'system') => void;
@@ -49,6 +50,30 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   
   // Cache for unsaved file content (per-session)
   const fileContentCacheRef = React.useRef<Map<string, string>>(new Map());
+  
+  // Header display info
+  const [activeProfileName, setActiveProfileName] = useState<string>('');
+  const [appVersion, setAppVersion] = useState<string>('');
+  
+  // Helper function to truncate profile name
+  const getTruncatedProfileName = (name: string): string => {
+    if (name.length <= 20) {
+      return name;
+    }
+    return name.substring(0, 20) + '...';
+  };
+  
+  // Compute header title
+  const getHeaderTitle = (): string => {
+    let title = 'notegit';
+    if (activeProfileName) {
+      title += ` - ${getTruncatedProfileName(activeProfileName)}`;
+    }
+    if (appVersion) {
+      title += ` - ${appVersion}`;
+    }
+    return title;
+  };
 
   useEffect(() => {
     loadWorkspace();
@@ -126,11 +151,26 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         setRepoStatus(statusResponse.data);
       }
 
-      // Get repo path from config
+      // Get repo path and profile info from config
       const configResponse = await window.notegitApi.config.getFull();
-      if (configResponse.ok && configResponse.data?.repoSettings?.localPath) {
-        setRepoPath(configResponse.data.repoSettings.localPath);
+      if (configResponse.ok && configResponse.data) {
+        if (configResponse.data.repoSettings?.localPath) {
+          setRepoPath(configResponse.data.repoSettings.localPath);
+        }
+        
+        // Get active profile name
+        if (configResponse.data.activeProfileId && configResponse.data.profiles) {
+          const activeProfile = configResponse.data.profiles.find(
+            p => p.id === configResponse.data.activeProfileId
+          );
+          if (activeProfile) {
+            setActiveProfileName(activeProfile.name);
+          }
+        }
       }
+      
+      // Set app version from package.json
+      setAppVersion(packageJson.version);
     } catch (error) {
       console.error('Failed to load workspace:', error);
     }
@@ -544,7 +584,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar variant="dense">
           <Typography variant="h6" component="div">
-            notegit
+            {getHeaderTitle()}
           </Typography>
 
           {/* Save Status Indicator */}

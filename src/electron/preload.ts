@@ -9,6 +9,12 @@ const api: NotegitApi = {
     updateAppSettings: (settings) => ipcRenderer.invoke('config:updateAppSettings', settings),
     updateRepoSettings: (settings) => ipcRenderer.invoke('config:updateRepoSettings', settings),
     checkGitInstalled: () => ipcRenderer.invoke('config:checkGitInstalled'),
+    getProfiles: () => ipcRenderer.invoke('config:getProfiles'),
+    getActiveProfileId: () => ipcRenderer.invoke('config:getActiveProfileId'),
+    createProfile: (name, repoSettings) => ipcRenderer.invoke('config:createProfile', name, repoSettings),
+    deleteProfile: (profileId) => ipcRenderer.invoke('config:deleteProfile', profileId),
+    setActiveProfile: (profileId) => ipcRenderer.invoke('config:setActiveProfile', profileId),
+    restartApp: () => ipcRenderer.invoke('app:restart'),
   },
   repo: {
     openOrClone: (settings) => ipcRenderer.invoke('repo:openOrClone', settings),

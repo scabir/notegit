@@ -45,7 +45,7 @@ export function createBackend(ipcMain: IpcMain): void {
   });
 
   // Register all IPC handlers with dependencies
-  registerConfigHandlers(ipcMain, configService, gitAdapter);
+  registerConfigHandlers(ipcMain, configService, gitAdapter, fsAdapter);
   registerRepoHandlers(ipcMain, repoService);
   registerFilesHandlers(ipcMain, filesService);
   registerHistoryHandlers(ipcMain, historyService);

@@ -1,5 +1,5 @@
 import type { FileTreeNode, FileContent } from './domain';
-import type { RepoSettings, FullConfig, AppSettings } from './config';
+import type { RepoSettings, FullConfig, AppSettings, Profile } from './config';
 import type { RepoStatus, CommitEntry, DiffHunk } from './git';
 
 // API Response types
@@ -57,6 +57,12 @@ export interface NotegitApi {
     updateAppSettings: (settings: Partial<AppSettings>) => Promise<ApiResponse<void>>;
     updateRepoSettings: (settings: RepoSettings) => Promise<ApiResponse<void>>;
     checkGitInstalled: () => Promise<ApiResponse<boolean>>;
+    getProfiles: () => Promise<ApiResponse<Profile[]>>;
+    getActiveProfileId: () => Promise<ApiResponse<string | null>>;
+    createProfile: (name: string, repoSettings: Partial<RepoSettings>) => Promise<ApiResponse<Profile>>;
+    deleteProfile: (profileId: string) => Promise<ApiResponse<void>>;
+    setActiveProfile: (profileId: string) => Promise<ApiResponse<void>>;
+    restartApp: () => Promise<void>;
   };
   repo: {
     openOrClone: (settings: RepoSettings) => Promise<ApiResponse<OpenOrCloneRepoResponse>>;
