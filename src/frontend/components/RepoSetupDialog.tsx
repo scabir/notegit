@@ -111,11 +111,25 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
             <Typography variant="body2" component="div" sx={{ mt: 1 }}>
               1. Go to GitHub Settings → Developer settings
               <br />
-              2. Click Personal access tokens → Tokens (classic)
+              2. Click Personal access tokens → Fine Grained Tokens
               <br />
-              3. Generate new token with <strong>repo</strong> scope
+              3. Click Generate new token
               <br />
-              4. Copy and paste the token above
+              4. Give Token Name
+              <br />
+              5. Set the expirationn
+              <br />
+              6. Select "Only select repositories" option
+              <br />
+              7. Selec the repository you wat to Use
+              <br />
+              8. CLick on "Add Permission"
+              <br />
+              9. Select "Ccontent" amd make sure you gave "Reand and Write" permissions
+              <br />
+              10. Hit Generate Token
+              <br />
+              11. Copy and paste the token above
             </Typography>
           </Alert>
         </Box>
