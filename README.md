@@ -2,7 +2,7 @@
 
 A Git-backed Markdown note-taking desktop application built with Electron, React, and TypeScript.
 
-**Version**: 1.2.0  
+**Version**: 1.3.0  
 **License**: MIT
 
 ---
@@ -12,7 +12,6 @@ A Git-backed Markdown note-taking desktop application built with Electron, React
 - [Features](#features)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
-  - [Download](#download)
   - [Building from Source](#building-from-source)
   - [Running the Application](#running-the-application)
 - [User Guide](#user-guide)
