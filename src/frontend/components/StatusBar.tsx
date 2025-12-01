@@ -5,16 +5,18 @@ import {
   CloudDownload as CloudDownloadIcon,
   CloudOff as CloudOffIcon,
   CloudDone as CloudDoneIcon,
+  CloudSync as CloudSyncIcon,
 } from '@mui/icons-material';
 import type { RepoStatus } from '../../shared/types';
 
 interface StatusBarProps {
   status: RepoStatus | null;
+  onFetch: () => void;
   onPull: () => void;
   onPush: () => void;
 }
 
-export function StatusBar({ status, onPull, onPush }: StatusBarProps) {
+export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
   if (!status) {
     return null;
   }
@@ -27,7 +29,7 @@ export function StatusBar({ status, onPull, onPush }: StatusBarProps) {
         color: 'warning' as const,
       };
     }
-    
+
     if (status.ahead > 0) {
       return {
         icon: <CloudUploadIcon fontSize="small" />,
@@ -35,7 +37,7 @@ export function StatusBar({ status, onPull, onPush }: StatusBarProps) {
         color: 'info' as const,
       };
     }
-    
+
     if (status.behind > 0) {
       return {
         icon: <CloudDownloadIcon fontSize="small" />,
@@ -43,7 +45,7 @@ export function StatusBar({ status, onPull, onPush }: StatusBarProps) {
         color: 'warning' as const,
       };
     }
-    
+
     if (status.hasUncommitted) {
       return {
         icon: <CloudOffIcon fontSize="small" />,
@@ -51,7 +53,7 @@ export function StatusBar({ status, onPull, onPush }: StatusBarProps) {
         color: 'default' as const,
       };
     }
-    
+
     return {
       icon: <CloudDoneIcon fontSize="small" />,
       label: 'Synced',
@@ -96,8 +98,14 @@ export function StatusBar({ status, onPull, onPush }: StatusBarProps) {
         </Box>
 
         <Box sx={{ display: 'flex', gap: 1 }}>
+          <Tooltip title="Fetch from remote">
+            <IconButton size="small" onClick={onFetch}>
+              <CloudSyncIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
           <Tooltip title="Pull from remote">
-            <IconButton size="small" onClick={onPull} disabled={status.behind === 0}>
+            <IconButton size="small" onClick={onPull} disabled={!status.needsPull}>
               <CloudDownloadIcon fontSize="small" />
             </IconButton>
           </Tooltip>

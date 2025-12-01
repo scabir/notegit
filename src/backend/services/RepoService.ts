@@ -24,7 +24,7 @@ export class RepoService {
     private gitAdapter: GitAdapter,
     private fsAdapter: FsAdapter,
     private configService: ConfigService
-  ) {}
+  ) { }
 
   /**
    * Set FilesService (to avoid circular dependency)
@@ -57,33 +57,33 @@ export class RepoService {
       if (!exists) {
         // Clone the repository
         logger.info('Repository not found locally, cloning...', { localPath });
-        
+
         try {
           await this.gitAdapter.clone(settings.remoteUrl, localPath, settings.branch, settings.pat);
         } catch (cloneError: any) {
           // Handle empty repository (no branches exist yet)
           if (cloneError.message?.includes('Remote branch') && cloneError.message?.includes('not found')) {
             logger.info('Empty repository detected, initializing locally...', { localPath });
-            
+
             // Create directory and initialize git
             await this.fsAdapter.mkdir(localPath, { recursive: true });
             await this.gitAdapter.init(localPath);
-            
+
             // Create initial README
             const readmePath = path.join(localPath, 'README.md');
             await this.fsAdapter.writeFile(readmePath, `# ${repoName}\n\nThis repository was initialized by notegit.\n`);
-            
+
             // Configure remote
             await this.gitAdapter.addRemote(settings.remoteUrl);
-            
+
             // Create initial commit
             await this.gitAdapter.add('README.md');
             await this.gitAdapter.commit('Initial commit from notegit');
-            
+
             // Push to create the branch
             logger.info('Pushing initial commit to create remote branch...', { branch: settings.branch });
             await this.gitAdapter.push(settings.pat);
-            
+
             logger.info('Successfully initialized empty repository');
           } else {
             throw cloneError;
@@ -154,12 +154,38 @@ export class RepoService {
         behind,
         hasUncommitted: gitStatus.files.length > 0,
         pendingPushCount: ahead,
+        needsPull: behind > 0,
       };
 
       logger.debug('Repository status', { status });
       return status;
     } catch (error: any) {
       logger.error('Failed to get repository status', { error });
+      throw error;
+    }
+  }
+
+  /**
+   * Fetch from remote and return updated status
+   */
+  async fetch(): Promise<RepoStatus> {
+    if (!this.currentRepoPath) {
+      throw this.createError(
+        ApiErrorCode.VALIDATION_ERROR,
+        'No repository configured',
+        null
+      );
+    }
+
+    try {
+      logger.info('Fetching from remote');
+      await this.gitAdapter.fetch();
+      logger.info('Fetch completed successfully');
+
+      // Return updated status with needsPull flag
+      return await this.getStatus();
+    } catch (error: any) {
+      logger.error('Failed to fetch', { error });
       throw error;
     }
   }
@@ -196,9 +222,17 @@ export class RepoService {
   }
 
   /**
-   * Push to remote
+   * Push to remote (with pull-then-push pattern)
    */
   async push(): Promise<void> {
+    await this.performPullThenPush();
+  }
+
+  /**
+   * Perform pull-then-push operation
+   * Ensures remote changes are merged before pushing
+   */
+  private async performPullThenPush(): Promise<void> {
     if (!this.currentRepoPath) {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
@@ -217,12 +251,47 @@ export class RepoService {
         );
       }
 
+      logger.info('Performing pull-then-push sync');
+
+      // 1. Fetch to update remote refs
+      await this.gitAdapter.fetch();
+
+      // 2. Check if behind
+      const { ahead, behind } = await this.gitAdapter.getAheadBehind();
+
+      // 3. Pull if remote has changes
+      if (behind > 0) {
+        logger.info('Remote has changes, pulling', { behind });
+        try {
+          await this.gitAdapter.pull(repoSettings.pat);
+        } catch (error: any) {
+          // Check if it's a merge conflict
+          if (error.code === ApiErrorCode.GIT_CONFLICT ||
+            error.message?.includes('CONFLICT') ||
+            error.message?.includes('Automatic merge failed')) {
+            logger.warn('Merge conflict detected, committing conflicted state');
+
+            // Stage all files (including conflicted ones)
+            await this.gitAdapter.add('.');
+
+            // Commit with conflict markers preserved
+            await this.gitAdapter.commit('Merge remote changes - conflicts present');
+
+            logger.info('Conflicts committed with markers');
+          } else {
+            // Other error, rethrow
+            throw error;
+          }
+        }
+      }
+
+      // 4. Push
       logger.info('Pushing to remote');
       await this.gitAdapter.push(repoSettings.pat);
       logger.info('Push completed successfully');
+
     } catch (error: any) {
-      logger.error('Failed to push', { error });
-      // Don't throw - let auto-push handle it
+      logger.error('Pull-then-push failed', { error });
       throw error;
     }
   }
@@ -289,12 +358,9 @@ export class RepoService {
 
       await this.gitAdapter.fetch();
 
-      // If fetch succeeded, try to push
-      logger.info('Auto-push: connection available, pushing...', {
-        commitsCount: status.ahead,
-      });
-
-      await this.push();
+      // If fetch succeeded, use performPullThenPush
+      logger.info('Auto-push: connection available, syncing');
+      await this.performPullThenPush();
 
       logger.info('Auto-push: push successful', {
         commitsCount: status.ahead,

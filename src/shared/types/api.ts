@@ -67,6 +67,7 @@ export interface NotegitApi {
   repo: {
     openOrClone: (settings: RepoSettings) => Promise<ApiResponse<OpenOrCloneRepoResponse>>;
     getStatus: () => Promise<ApiResponse<RepoStatus>>;
+    fetch: () => Promise<ApiResponse<RepoStatus>>;
     pull: () => Promise<ApiResponse<void>>;
     push: () => Promise<ApiResponse<void>>;
     startAutoPush: () => Promise<ApiResponse<void>>;
@@ -124,6 +125,7 @@ export interface NotegitApi {
   };
   logs: {
     getContent: (logType: 'combined' | 'error') => Promise<ApiResponse<string>>;
+    export: (logType: 'combined' | 'error', destPath: string) => Promise<ApiResponse<void>>;
   };
 }
 

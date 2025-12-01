@@ -6,6 +6,7 @@ export interface RepoStatus {
   behind: number;
   hasUncommitted: boolean;
   pendingPushCount: number;
+  needsPull: boolean;
   isConnected?: boolean;
   lastSyncTime?: Date;
 }

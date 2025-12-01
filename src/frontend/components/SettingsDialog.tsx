@@ -383,6 +383,39 @@ export function SettingsDialog({
     }
   };
 
+  const handleExportLogs = async () => {
+    setError(null);
+    setSuccess(null);
+
+    try {
+      // Show save dialog
+      const result = await window.notegitApi.dialog.showSaveDialog({
+        title: 'Export Logs',
+        defaultPath: `notegit-${logType}-logs.log`,
+        filters: [
+          { name: 'Log Files', extensions: ['log'] },
+          { name: 'Text Files', extensions: ['txt'] },
+          { name: 'All Files', extensions: ['*'] },
+        ],
+      });
+
+      if (result.canceled || !result.filePath) {
+        return;
+      }
+
+      // Export logs to chosen file
+      const response = await window.notegitApi.logs.export(logType, result.filePath);
+
+      if (response.ok) {
+        setSuccess(`Logs exported successfully to ${result.filePath}`);
+      } else {
+        setError(response.error?.message || 'Failed to export logs');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to export logs');
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Settings</DialogTitle>
@@ -862,6 +895,15 @@ export function SettingsDialog({
                 size="small"
               >
                 Copy to Clipboard
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<ContentCopyIcon />}
+                onClick={handleExportLogs}
+                disabled={!logContent || loadingLogs}
+                size="small"
+              >
+                Export Logs
               </Button>
             </Box>
 

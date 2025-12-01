@@ -21,4 +21,22 @@ export function registerLogsHandlers(ipcMain: IpcMain, logsService: LogsService)
             };
         }
     });
+
+    // Export logs
+    ipcMain.handle('logs:export', async (_, logType: 'combined' | 'error', destPath: string): Promise<ApiResponse<void>> => {
+        try {
+            await logsService.exportLogs(logType, destPath);
+            return { ok: true };
+        } catch (error: any) {
+            logger.error('Failed to export logs', { error });
+            return {
+                ok: false,
+                error: {
+                    code: error.code || 'UNKNOWN_ERROR',
+                    message: error.message || 'Failed to export logs',
+                    details: error,
+                },
+            };
+        }
+    });
 }

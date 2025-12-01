@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Chip } from '@mui/material';
-import { 
+import {
   Settings as SettingsIcon,
   Commit as CommitIcon,
   SaveAlt as SaveAllIcon,
@@ -48,14 +48,14 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [isResizing, setIsResizing] = useState(false);
   const resizeStartX = React.useRef(0);
   const resizeStartWidth = React.useRef(0);
-  
+
   // Cache for unsaved file content (per-session)
   const fileContentCacheRef = React.useRef<Map<string, string>>(new Map());
-  
+
   // Header display info
   const [activeProfileName, setActiveProfileName] = useState<string>('');
   const [appVersion, setAppVersion] = useState<string>('');
-  
+
   // Helper function to truncate profile name
   const getTruncatedProfileName = (name: string): string => {
     if (name.length <= 20) {
@@ -63,7 +63,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     }
     return name.substring(0, 20) + '...';
   };
-  
+
   // Compute header title
   const getHeaderTitle = (): string => {
     let title = 'notegit';
@@ -127,7 +127,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       if (hasUnsavedChanges && selectedFile && editorContent) {
         // Trigger autosave
         await handleSaveFile(editorContent, true);
-        
+
         // Show confirmation dialog
         e.preventDefault();
         e.returnValue = '';
@@ -158,7 +158,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         if (configResponse.data.repoSettings?.localPath) {
           setRepoPath(configResponse.data.repoSettings.localPath);
         }
-        
+
         // Get active profile name
         if (configResponse.data.activeProfileId && configResponse.data.profiles) {
           const activeProfile = configResponse.data.profiles.find(
@@ -169,7 +169,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           }
         }
       }
-      
+
       // Set app version from package.json
       setAppVersion(packageJson.version);
     } catch (error) {
@@ -190,7 +190,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     try {
       // Check if we have cached content for this file
       const cachedContent = fileContentCacheRef.current.get(path);
-      
+
       if (cachedContent !== undefined) {
         // Use cached content
         const response = await window.notegitApi.files.read(path);
@@ -235,7 +235,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       if (response.ok) {
         setSaveStatus('saved');
         setHasUnsavedChanges(false);
-        
+
         // Clear cached content for this file after successful save
         if (selectedFile) {
           fileContentCacheRef.current.delete(selectedFile);
@@ -301,6 +301,20 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     }
   };
 
+  const handleFetch = async () => {
+    try {
+      const response = await window.notegitApi.repo.fetch();
+      if (response.ok && response.data) {
+        setRepoStatus(response.data);
+        console.log('Fetch successful', response.data);
+      } else {
+        console.error('Failed to fetch:', response.error);
+      }
+    } catch (error) {
+      console.error('Failed to fetch:', error);
+    }
+  };
+
   const handlePush = async () => {
     try {
       const response = await window.notegitApi.repo.push();
@@ -324,16 +338,16 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const response = await window.notegitApi.files.create(parentPath, fileName);
       if (response.ok) {
         console.log('File created successfully');
-        
+
         // Construct the full path of the newly created file
         const newFilePath = parentPath ? `${parentPath}/${fileName}` : fileName;
-        
+
         // Refresh tree
         const treeResponse = await window.notegitApi.files.listTree();
         if (treeResponse.ok && treeResponse.data) {
           setTree(treeResponse.data);
         }
-        
+
         // Automatically select and open the newly created file
         await handleSelectFile(newFilePath, 'file');
       } else {
@@ -401,7 +415,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const response = await window.notegitApi.files.rename(oldPath, newPath);
       if (response.ok) {
         console.log('Renamed/moved successfully');
-        
+
         // If the moved file was selected, update its path
         if (selectedFile === oldPath) {
           setSelectedFile(newPath);
@@ -412,7 +426,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
               path: newPath,
             });
           }
-        } 
+        }
         // If a file inside a moved folder was selected, update its path
         else if (selectedFile && selectedFile.startsWith(oldPath + '/')) {
           const newSelectedPath = selectedFile.replace(oldPath + '/', newPath + '/');
@@ -425,7 +439,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             });
           }
         }
-        
+
         // Commit the move operation automatically
         try {
           // Stage all changes (the move will show as delete + add)
@@ -437,7 +451,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           console.warn('Failed to auto-commit move:', commitError);
           // Continue even if commit fails - the changes are on disk
         }
-        
+
         // Refresh tree
         const treeResponse = await window.notegitApi.files.listTree();
         if (treeResponse.ok && treeResponse.data) {
@@ -595,12 +609,12 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     const handleMouseMove = (e: MouseEvent) => {
       const delta = e.clientX - resizeStartX.current;
       const newWidth = resizeStartWidth.current + delta;
-      
+
       // Constrain width between 200px and 600px
       const MIN_WIDTH = 200;
       const MAX_WIDTH = 600;
       const constrainedWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
-      
+
       setSidebarWidth(constrainedWidth);
     };
 
@@ -662,7 +676,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           )}
 
           <Box sx={{ flexGrow: 1 }} />
-          
+
           <Tooltip title="Search (Cmd/Ctrl+P)">
             <IconButton onClick={() => setSearchDialogOpen(true)} color="default">
               <SearchIcon />
@@ -670,7 +684,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           </Tooltip>
 
           <Tooltip title="File History">
-            <IconButton 
+            <IconButton
               onClick={handleToggleHistory}
               color={historyPanelOpen ? 'primary' : 'default'}
             >
@@ -680,7 +694,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
           <Tooltip title="Save all open files">
             <span>
-              <IconButton 
+              <IconButton
                 onClick={handleSaveAll}
                 disabled={!hasUnsavedChanges}
                 color={hasUnsavedChanges ? 'primary' : 'default'}
@@ -774,11 +788,11 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       </Box>
 
       {/* Status bar */}
-      <StatusBar status={repoStatus} onPull={handlePull} onPush={handlePush} />
+      <StatusBar status={repoStatus} onFetch={handleFetch} onPull={handlePull} onPush={handlePush} />
 
       {/* Settings dialog */}
-      <SettingsDialog 
-        open={settingsOpen} 
+      <SettingsDialog
+        open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         onThemeChange={onThemeChange}
         currentNoteContent={editorContent}

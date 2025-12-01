@@ -26,10 +26,10 @@ export function registerRepoHandlers(ipcMain: IpcMain, repoService: RepoService)
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to open or clone repository',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to open or clone repository',
+              details: error,
+            },
         };
       }
     }
@@ -49,10 +49,32 @@ export function registerRepoHandlers(ipcMain: IpcMain, repoService: RepoService)
         error: error.code
           ? error
           : {
-              code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || 'Failed to get repository status',
-              details: error,
-            },
+            code: ApiErrorCode.UNKNOWN_ERROR,
+            message: error.message || 'Failed to get repository status',
+            details: error,
+          },
+      };
+    }
+  });
+
+  ipcMain.handle('repo:fetch', async (): Promise<ApiResponse<RepoStatus>> => {
+    try {
+      const status = await repoService.fetch();
+      return {
+        ok: true,
+        data: status,
+      };
+    } catch (error: any) {
+      logger.error('Failed to fetch', { error });
+      return {
+        ok: false,
+        error: error.code
+          ? error
+          : {
+            code: ApiErrorCode.UNKNOWN_ERROR,
+            message: error.message || 'Failed to fetch from remote',
+            details: error,
+          },
       };
     }
   });
@@ -70,10 +92,10 @@ export function registerRepoHandlers(ipcMain: IpcMain, repoService: RepoService)
         error: error.code
           ? error
           : {
-              code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || 'Failed to pull from remote',
-              details: error,
-            },
+            code: ApiErrorCode.UNKNOWN_ERROR,
+            message: error.message || 'Failed to pull from remote',
+            details: error,
+          },
       };
     }
   });
@@ -91,10 +113,10 @@ export function registerRepoHandlers(ipcMain: IpcMain, repoService: RepoService)
         error: error.code
           ? error
           : {
-              code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || 'Failed to push to remote',
-              details: error,
-            },
+            code: ApiErrorCode.UNKNOWN_ERROR,
+            message: error.message || 'Failed to push to remote',
+            details: error,
+          },
       };
     }
   });

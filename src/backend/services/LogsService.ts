@@ -49,6 +49,38 @@ export class LogsService {
         return path.join(this.logsDir, fileName);
     }
 
+    /**
+     * Export log file to a specified destination
+     */
+    async exportLogs(logType: 'combined' | 'error', destPath: string): Promise<void> {
+        try {
+            const logFilePath = this.getLogFilePath(logType);
+
+            // Check if source log file exists
+            try {
+                await fs.access(logFilePath);
+            } catch {
+                throw this.createError(
+                    ApiErrorCode.FS_NOT_FOUND,
+                    `Log file not found: ${logType}`,
+                    null
+                );
+            }
+
+            // Copy log file to destination
+            await fs.copyFile(logFilePath, destPath);
+
+            logger.info('Logs exported successfully', { logType, destPath });
+        } catch (error: any) {
+            logger.error('Failed to export logs', { logType, destPath, error });
+            throw this.createError(
+                ApiErrorCode.UNKNOWN_ERROR,
+                `Failed to export ${logType} log: ${error.message}`,
+                error
+            );
+        }
+    }
+
     private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
         return {
             code,

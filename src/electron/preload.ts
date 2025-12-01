@@ -19,6 +19,7 @@ const api: NotegitApi = {
   repo: {
     openOrClone: (settings) => ipcRenderer.invoke('repo:openOrClone', settings),
     getStatus: () => ipcRenderer.invoke('repo:getStatus'),
+    fetch: () => ipcRenderer.invoke('repo:fetch'),
     pull: () => ipcRenderer.invoke('repo:pull'),
     push: () => ipcRenderer.invoke('repo:push'),
     startAutoPush: () => ipcRenderer.invoke('repo:startAutoPush'),
@@ -62,6 +63,7 @@ const api: NotegitApi = {
   },
   logs: {
     getContent: (logType) => ipcRenderer.invoke('logs:getContent', logType),
+    export: (logType, destPath) => ipcRenderer.invoke('logs:export', logType, destPath),
   },
 };
 
