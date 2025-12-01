@@ -763,4 +763,4 @@ Built with:
 
 **For questions or support, open an [Issue](https://github.com/scabir/notegit/issues).**
 
-Built with ❤️ by [Suleyman Cabir Ataman](https://github.com/scabir)
+Built by [Suleyman Cabir Ataman](https://github.com/scabir)

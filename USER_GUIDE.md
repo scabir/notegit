@@ -275,15 +275,6 @@ To include images:
 
 ### Moving Files and Folders
 
-#### Move Up/Down (Reorder)
-
-1. **Hover** over file/folder in tree
-2. **Arrow** buttons appear
-3. Click ↑ or ↓ to reorder within current folder
-4. Order is preserved during session
-
-#### Move to Another Folder
-
 1. Select file/folder to move
 2. Click **Move** icon
 3. Dialog opens with folder tree
