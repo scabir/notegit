@@ -122,6 +122,9 @@ export interface NotegitApi {
     ) => Promise<ApiResponse<string>>;
     repoZip: () => Promise<ApiResponse<string>>;
   };
+  logs: {
+    getContent: (logType: 'combined' | 'error') => Promise<ApiResponse<string>>;
+  };
 }
 
 // Extend Window interface to include our API

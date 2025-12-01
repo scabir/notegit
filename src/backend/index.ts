@@ -8,6 +8,7 @@ import { FilesService } from './services/FilesService';
 import { HistoryService } from './services/HistoryService';
 import { SearchService } from './services/SearchService';
 import { ExportService } from './services/ExportService';
+import { LogsService } from './services/LogsService';
 import { registerConfigHandlers } from './handlers/configHandlers';
 import { registerRepoHandlers } from './handlers/repoHandlers';
 import { registerFilesHandlers } from './handlers/filesHandlers';
@@ -15,6 +16,7 @@ import { registerHistoryHandlers } from './handlers/historyHandlers';
 import { registerDialogHandlers } from './handlers/dialogHandlers';
 import { registerSearchHandlers } from './handlers/searchHandlers';
 import { registerExportHandlers } from './handlers/exportHandlers';
+import { registerLogsHandlers } from './handlers/logsHandlers';
 import { logger } from './utils/logger';
 
 export function createBackend(ipcMain: IpcMain): void {
@@ -32,11 +34,12 @@ export function createBackend(ipcMain: IpcMain): void {
   const historyService = new HistoryService(gitAdapter, configService);
   const searchService = new SearchService(fsAdapter);
   const exportService = new ExportService(fsAdapter, configService);
+  const logsService = new LogsService();
 
   // Set circular dependencies
   repoService.setFilesService(filesService);
   filesService.setGitAdapter(gitAdapter);
-  
+
   // Initialize search service with repo path from config
   configService.getFull().then((config) => {
     if (config?.repoSettings?.localPath) {
@@ -52,6 +55,7 @@ export function createBackend(ipcMain: IpcMain): void {
   registerDialogHandlers(ipcMain);
   registerSearchHandlers(ipcMain, searchService);
   registerExportHandlers(ipcMain, exportService);
+  registerLogsHandlers(ipcMain, logsService);
 
   logger.info('Backend services initialized');
 }

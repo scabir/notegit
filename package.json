@@ -1,6 +1,6 @@
 {
   "name": "notegit",
-  "version": "1.3.0",
+  "version": "1.3.2",
   "description": "A Git-backed Markdown note-taking desktop application",
   "main": "dist/electron/electron/main.js",
   "author": {

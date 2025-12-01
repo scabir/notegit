@@ -24,12 +24,19 @@ import {
   IconButton,
   Chip,
   CircularProgress,
+  Snackbar,
+  ToggleButtonGroup,
+  ToggleButton,
+  Paper,
 } from '@mui/material';
-import { 
+import {
   Info as InfoIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
   Check as CheckIcon,
+  ContentCopy as ContentCopyIcon,
+  FolderOpen as FolderOpenIcon,
+  Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { AboutDialog } from './AboutDialog';
 import type { FullConfig, AppSettings, RepoSettings, AuthMethod, Profile } from '../../shared/types';
@@ -79,7 +86,7 @@ export function SettingsDialog({
   const [success, setSuccess] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
-  
+
   // Profile management state
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
@@ -90,6 +97,12 @@ export function SettingsDialog({
   const [newProfilePat, setNewProfilePat] = useState('');
   const [profileCreating, setProfileCreating] = useState(false);
 
+  // Logs state
+  const [logType, setLogType] = useState<'combined' | 'error'>('combined');
+  const [logContent, setLogContent] = useState<string>('');
+  const [loadingLogs, setLoadingLogs] = useState(false);
+  const [copySnackbarOpen, setCopySnackbarOpen] = useState(false);
+
   useEffect(() => {
     if (open) {
       loadConfig();
@@ -99,10 +112,10 @@ export function SettingsDialog({
   const loadConfig = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await window.notegitApi.config.getFull();
-      
+
       if (response.ok && response.data) {
         setConfig(response.data);
         setAppSettings(response.data.appSettings);
@@ -128,7 +141,7 @@ export function SettingsDialog({
 
     try {
       const response = await window.notegitApi.config.updateAppSettings(appSettings);
-      
+
       if (response.ok) {
         setSuccess('App settings saved successfully');
         // Notify parent about theme change
@@ -159,7 +172,7 @@ export function SettingsDialog({
       }
 
       const response = await window.notegitApi.config.updateRepoSettings(repoSettings as RepoSettings);
-      
+
       if (response.ok) {
         setSuccess('Repository settings saved successfully');
       } else {
@@ -240,7 +253,7 @@ export function SettingsDialog({
 
     try {
       const response = await window.notegitApi.config.setActiveProfile(profileId);
-      
+
       if (response.ok) {
         setSuccess('Profile switched successfully. App will restart...');
         setTimeout(async () => {
@@ -280,7 +293,7 @@ export function SettingsDialog({
           authMethod: 'pat',
         }
       );
-      
+
       if (response.ok && response.data) {
         setSuccess('Profile created and repository cloned successfully!');
         setProfiles([...profiles, response.data]);
@@ -309,7 +322,7 @@ export function SettingsDialog({
 
     try {
       const response = await window.notegitApi.config.deleteProfile(profileId);
-      
+
       if (response.ok) {
         setSuccess('Profile deleted successfully');
         setProfiles(profiles.filter(p => p.id !== profileId));
@@ -326,6 +339,50 @@ export function SettingsDialog({
     }
   };
 
+  // Load logs
+  const loadLogs = async () => {
+    setLoadingLogs(true);
+    try {
+      const response = await window.notegitApi.logs.getContent(logType);
+      if (response.ok && response.data) {
+        setLogContent(response.data);
+      } else {
+        setLogContent(`Error loading logs: ${response.error?.message || 'Unknown error'}`);
+      }
+    } catch (err: any) {
+      setLogContent(`Error loading logs: ${err.message}`);
+    } finally {
+      setLoadingLogs(false);
+    }
+  };
+
+  // Load logs when tab is opened or log type changes
+  useEffect(() => {
+    if (open && tabValue === 4) { // Logs tab
+      loadLogs();
+    }
+  }, [open, tabValue, logType]);
+
+  // Copy to clipboard handlers
+  const handleCopyLogs = () => {
+    navigator.clipboard.writeText(logContent);
+    setCopySnackbarOpen(true);
+  };
+
+  const handleCopyRepoPath = () => {
+    if (repoSettings.localPath) {
+      navigator.clipboard.writeText(repoSettings.localPath);
+      setCopySnackbarOpen(true);
+    }
+  };
+
+  const handleOpenRepoFolder = async () => {
+    if (repoSettings.localPath) {
+      const { shell } = window.require('electron');
+      await shell.openPath(repoSettings.localPath);
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Settings</DialogTitle>
@@ -336,6 +393,7 @@ export function SettingsDialog({
             <Tab label="Repository" />
             <Tab label="Profiles" />
             <Tab label="Export" />
+            <Tab label="Logs" />
           </Tabs>
         </Box>
 
@@ -537,6 +595,42 @@ export function SettingsDialog({
             >
               Save Repository Settings
             </Button>
+
+            {repoSettings.localPath && (
+              <>
+                <Typography variant="h6" sx={{ mt: 4 }}>
+                  Local Repository Path
+                </Typography>
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  This is where your repository is stored locally on your computer.
+                </Alert>
+                <TextField
+                  label="Local Path"
+                  value={repoSettings.localPath}
+                  fullWidth
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  variant="filled"
+                />
+                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<ContentCopyIcon />}
+                    onClick={handleCopyRepoPath}
+                  >
+                    Copy Path
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<FolderOpenIcon />}
+                    onClick={handleOpenRepoFolder}
+                  >
+                    Open Folder
+                  </Button>
+                </Box>
+              </>
+            )}
           </Box>
         </TabPanel>
 
@@ -544,7 +638,7 @@ export function SettingsDialog({
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography variant="h6">Profile Management</Typography>
             <Alert severity="info">
-              Profiles allow you to work with multiple repositories. Only one profile is active at a time. 
+              Profiles allow you to work with multiple repositories. Only one profile is active at a time.
               When creating a new profile, the app will automatically clone the repository. Switching profiles will restart the app.
             </Alert>
 
@@ -733,6 +827,74 @@ export function SettingsDialog({
             </Alert>
           </Box>
         </TabPanel>
+
+        <TabPanel value={tabValue} index={4}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="h6">Application Logs</Typography>
+            <Alert severity="info">
+              View application logs for troubleshooting. Logs are stored locally and include Git operations, errors, and sync events.
+            </Alert>
+
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <ToggleButtonGroup
+                value={logType}
+                exclusive
+                onChange={(_, newValue) => newValue && setLogType(newValue)}
+                size="small"
+              >
+                <ToggleButton value="combined">Combined Logs</ToggleButton>
+                <ToggleButton value="error">Error Logs</ToggleButton>
+              </ToggleButtonGroup>
+              <Button
+                variant="outlined"
+                startIcon={<RefreshIcon />}
+                onClick={loadLogs}
+                disabled={loadingLogs}
+                size="small"
+              >
+                Refresh
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<ContentCopyIcon />}
+                onClick={handleCopyLogs}
+                disabled={!logContent || loadingLogs}
+                size="small"
+              >
+                Copy to Clipboard
+              </Button>
+            </Box>
+
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 2,
+                maxHeight: '400px',
+                overflow: 'auto',
+                backgroundColor: 'background.default',
+              }}
+            >
+              {loadingLogs ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <Typography
+                  component="pre"
+                  sx={{
+                    fontFamily: 'monospace',
+                    fontSize: '12px',
+                    margin: 0,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {logContent || 'No logs available'}
+                </Typography>
+              )}
+            </Paper>
+          </Box>
+        </TabPanel>
       </DialogContent>
       <DialogActions sx={{ justifyContent: 'space-between', px: 3 }}>
         <Button
@@ -751,6 +913,15 @@ export function SettingsDialog({
       <AboutDialog
         open={aboutDialogOpen}
         onClose={() => setAboutDialogOpen(false)}
+      />
+
+      {/* Copy Snackbar */}
+      <Snackbar
+        open={copySnackbarOpen}
+        autoHideDuration={2000}
+        onClose={() => setCopySnackbarOpen(false)}
+        message="Copied to clipboard"
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </Dialog>
   );

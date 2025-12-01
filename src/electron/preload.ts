@@ -60,6 +60,9 @@ const api: NotegitApi = {
       ipcRenderer.invoke('export:note', fileName, content, defaultExtension),
     repoZip: () => ipcRenderer.invoke('export:repoZip'),
   },
+  logs: {
+    getContent: (logType) => ipcRenderer.invoke('logs:getContent', logType),
+  },
 };
 
 contextBridge.exposeInMainWorld('notegitApi', api);
