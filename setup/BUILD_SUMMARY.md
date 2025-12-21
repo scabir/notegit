@@ -1,6 +1,6 @@
 # Build Setup Summary
 
-✅ **notegit v1.0.0** is ready to be packaged for distribution!
+✅ **notegit v1.3.4** is ready to be packaged for distribution!
 
 ## What Was Set Up
 
@@ -40,8 +40,8 @@ cd setup
 ```
 
 This will create:
-- `release/notegit-1.0.0.dmg` (DMG installer)
-- `release/notegit-1.0.0-mac.zip` (ZIP archive)
+- `release/notegit-1.3.4.dmg` (DMG installer)
+- `release/notegit-1.3.4-mac.zip` (ZIP archive)
 
 ### What Happens During Build
 
@@ -173,6 +173,5 @@ For build issues:
 ---
 
 **Status**: ✅ Ready to build  
-**Version**: 1.0.0  
+**Version**: 1.3.4  
 **Last Updated**: November 16, 2025
-

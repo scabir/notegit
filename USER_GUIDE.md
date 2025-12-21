@@ -2,7 +2,7 @@
 
 Complete guide to using notegit - your Git-backed markdown note-taking application.
 
-**Version**: 1.2.0  
+**Version**: 1.3.4  
 **Last Updated**: November 17, 2025
 
 ---
@@ -844,7 +844,7 @@ function example() {
 
 ## About notegit
 
-**Version**: 1.2.0  
+**Version**: 1.3.4  
 **Author**: Suleyman Cabir Ataman, PhD  
 **GitHub**: [github.com/scabir/notegit](https://github.com/scabir/notegit)  
 **License**: MIT
@@ -864,4 +864,3 @@ Built with:
 **Need more help?** Check the [main README](./README.md) for technical details or open an issue on [GitHub](https://github.com/scabir/notegit/issues).
 
 Happy note-taking! 📝
-

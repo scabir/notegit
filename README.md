@@ -2,7 +2,7 @@
 
 A Git-backed Markdown note-taking desktop application built with Electron, React, and TypeScript.
 
-**Version**: 1.3.0  
+**Version**: 1.3.4  
 **License**: MIT
 
 ---
@@ -109,21 +109,21 @@ Use the provided scripts in the `setup/` folder:
 cd setup
 ./build-mac.sh
 ```
-Output: `dist/notegit-1.2.0.dmg` and `dist/notegit-1.2.0-mac.zip`
+Output: `release/notegit-1.3.4.dmg` and `release/notegit-1.3.4-mac.zip`
 
 **Windows** (run on Windows or use cross-compilation):
 ```bash
 cd setup
 ./build-windows.sh
 ```
-Output: `dist/notegit-Setup-1.2.0.exe`
+Output: `release/notegit-Setup-1.3.4.exe`
 
 **Linux**:
 ```bash
 cd setup
 ./build-linux.sh
 ```
-Output: `dist/notegit-1.2.0.AppImage` and `dist/notegit-1.2.0.deb`
+Output: `release/notegit-1.3.4.AppImage` and `release/notegit_1.3.4_amd64.deb`
 
 **All Platforms** (requires cross-compilation setup):
 ```bash
@@ -549,24 +549,41 @@ The build process consists of three main steps:
     "appId": "com.notegit.app",
     "productName": "notegit",
     "directories": {
-      "output": "dist"
+      "output": "release"
     },
     "files": [
-      "dist/electron/**/*",
-      "dist/frontend/**/*",
-      "dist/backend/**/*",
+      "dist/**/*",
       "package.json"
     ],
     "mac": {
-      "target": ["dmg", "zip"],
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] },
+        { "target": "zip", "arch": ["x64", "arm64"] }
+      ],
+      "icon": "build/icon.icns"
     },
     "win": {
-      "target": ["nsis", "portable"]
+      "target": [
+        { "target": "nsis", "arch": ["x64", "ia32"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "build/icon.ico"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
-      "category": "Office"
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] },
+        { "target": "rpm", "arch": ["x64"] }
+      ],
+      "category": "Office",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   }
 }
