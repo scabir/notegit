@@ -125,7 +125,7 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
               <br />
               8. CLick on "Add Permission"
               <br />
-              9. Select "Ccontent" amd make sure you gave "Reand and Write" permissions
+              9. Select "Ccontent" amd make sure you gave "Read and and Write" permissions
               <br />
               10. Hit Generate Token
               <br />
