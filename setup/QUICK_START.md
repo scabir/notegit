@@ -46,19 +46,19 @@ cd setup && ./build-all.sh
 After running a build script, you'll find installers in the `release/` folder:
 
 ### macOS
-- `notegit-1.3.4.dmg` - Drag-and-drop installer
-- `notegit-1.3.4-mac.zip` - Portable archive
+- `notegit-1.3.5.dmg` - Drag-and-drop installer
+- `notegit-1.3.5-mac.zip` - Portable archive
 - Universal build (works on Intel and Apple Silicon)
 
 ### Windows
-- `notegit Setup 1.3.4.exe` - Full installer
-- `notegit 1.3.4.exe` - Portable executable
+- `notegit Setup 1.3.5.exe` - Full installer
+- `notegit 1.3.5.exe` - Portable executable
 - Both 32-bit and 64-bit versions
 
 ### Linux
-- `notegit-1.3.4.AppImage` - Universal Linux package
-- `notegit_1.3.4_amd64.deb` - Debian/Ubuntu package
-- `notegit-1.3.4.x86_64.rpm` - Red Hat/Fedora package
+- `notegit-1.3.5.AppImage` - Universal Linux package
+- `notegit_1.3.5_amd64.deb` - Debian/Ubuntu package
+- `notegit-1.3.5.x86_64.rpm` - Red Hat/Fedora package
 
 ## Distribution
 

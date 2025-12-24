@@ -603,20 +603,31 @@ export function SettingsDialog({
             />
 
             <Alert severity="info">
-              <Typography variant="body2">
-                To generate a GitHub Personal Access Token:
+              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                How to create a GitHub Personal Access Token:
               </Typography>
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                1. Go to GitHub Settings → Developer settings → Personal access tokens
-              </Typography>
-              <Typography variant="body2">
-                2. Click "Generate new token"
-              </Typography>
-              <Typography variant="body2">
-                3. Select scopes: repo (full control)
-              </Typography>
-              <Typography variant="body2">
-                4. Copy the token and paste it above
+              <Typography variant="body2" component="div" sx={{ mt: 1 }}>
+                1. Go to GitHub Settings → Developer settings
+                <br />
+                2. Click Personal access tokens → Fine Grained Tokens
+                <br />
+                3. Click Generate new token
+                <br />
+                4. Give Token Name
+                <br />
+                5. Set the expirationn
+                <br />
+                6. Select "Only select repositories" option
+                <br />
+                7. Selec the repository you wat to Use
+                <br />
+                8. CLick on "Add Permission"
+                <br />
+                9. Select "Ccontent" amd make sure you gave "Reand and Write" permissions
+                <br />
+                10. Hit Generate Token
+                <br />
+                11. Copy and paste the token above
               </Typography>
             </Alert>
 
@@ -968,4 +979,3 @@ export function SettingsDialog({
     </Dialog>
   );
 }
-
