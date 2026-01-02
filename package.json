@@ -1,6 +1,6 @@
 {
   "name": "notegit",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "description": "A Git-backed Markdown note-taking desktop application",
   "main": "dist/electron/electron/main.js",
   "author": {
@@ -101,7 +101,7 @@
           ]
         }
       ],
-      "icon": "build/icon.icns"
+      "icon": "src/electron/resources/notegit.png"
     },
     "win": {
       "target": [
@@ -119,7 +119,7 @@
           ]
         }
       ],
-      "icon": "build/icon.ico"
+      "icon": "src/electron/resources/notegit.png"
     },
     "linux": {
       "target": [
@@ -143,7 +143,7 @@
         }
       ],
       "category": "Office",
-      "icon": "build/icon.png"
+      "icon": "src/electron/resources/notegit.png"
     },
     "nsis": {
       "oneClick": false,

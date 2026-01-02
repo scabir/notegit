@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, nativeImage } from 'electron';
 import * as path from 'path';
 import { createBackend } from '../backend';
 
@@ -43,6 +43,14 @@ if (!gotTheLock) {
   });
 
   app.on('ready', () => {
+    if (process.platform === 'darwin' && !app.isPackaged) {
+      const iconPath = path.join(app.getAppPath(), 'src', 'electron', 'resources', 'notegit.png');
+      const icon = nativeImage.createFromPath(iconPath);
+      if (!icon.isEmpty()) {
+        app.dock.setIcon(icon);
+      }
+    }
+
     createBackend(ipcMain);
     
     ipcMain.handle('app:restart', () => {
