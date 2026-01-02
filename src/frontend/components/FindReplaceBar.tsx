@@ -39,7 +39,6 @@ export function FindReplaceBar({
   const [replaceText, setReplaceText] = useState('');
   const findInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus find input when component mounts
   useEffect(() => {
     findInputRef.current?.focus();
     findInputRef.current?.select();
@@ -94,7 +93,6 @@ export function FindReplaceBar({
         bgcolor: 'background.paper',
       }}
     >
-      {/* Find Input */}
       <TextField
         inputRef={findInputRef}
         size="small"
@@ -112,7 +110,6 @@ export function FindReplaceBar({
         }}
       />
 
-      {/* Find Navigation */}
       <Box sx={{ display: 'flex', gap: 0.5 }}>
         <Tooltip title="Find previous (Shift+Enter)">
           <span>
@@ -138,7 +135,6 @@ export function FindReplaceBar({
         </Tooltip>
       </Box>
 
-      {/* No matches indicator */}
       {findQuery.trim() && matchInfo && matchInfo.total === 0 && (
         <Typography variant="caption" color="warning.main" sx={{ ml: 1 }}>
           No matches
@@ -147,7 +143,6 @@ export function FindReplaceBar({
 
       <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
 
-      {/* Replace Input */}
       <TextField
         size="small"
         placeholder="Replace"
@@ -157,7 +152,6 @@ export function FindReplaceBar({
         sx={{ width: 200 }}
       />
 
-      {/* Replace Actions */}
       <Box sx={{ display: 'flex', gap: 0.5 }}>
         <Tooltip title="Replace current match">
           <span>
@@ -183,10 +177,8 @@ export function FindReplaceBar({
         </Tooltip>
       </Box>
 
-      {/* Spacer */}
       <Box sx={{ flexGrow: 1 }} />
 
-      {/* Close Button */}
       <Tooltip title="Close (Esc)">
         <IconButton size="small" onClick={onClose}>
           <CloseIcon fontSize="small" />

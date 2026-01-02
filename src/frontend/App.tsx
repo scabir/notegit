@@ -11,10 +11,8 @@ function App() {
   const [hasRepo, setHasRepo] = useState(false);
   const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('system');
   
-  // Detect system theme preference
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   
-  // Create theme based on mode
   const theme = useMemo(() => {
     const mode = themeMode === 'system' 
       ? (prefersDarkMode ? 'dark' : 'light')
@@ -35,13 +33,11 @@ function App() {
     setLoading(true);
 
     try {
-      // Check if Git is installed
       const gitResponse = await window.notegitApi.config.checkGitInstalled();
       if (gitResponse.ok && gitResponse.data !== undefined) {
         setGitInstalled(gitResponse.data);
       }
 
-      // Check if repo is configured
       const configResponse = await window.notegitApi.config.getFull();
       if (configResponse.ok && configResponse.data?.repoSettings) {
         setHasRepo(true);
@@ -49,7 +45,6 @@ function App() {
         setHasRepo(false);
       }
       
-      // Load theme preference
       if (configResponse.ok && configResponse.data?.appSettings?.theme) {
         setThemeMode(configResponse.data.appSettings.theme as 'light' | 'dark' | 'system');
       }

@@ -25,7 +25,6 @@ export class FsAdapter {
 
   async writeFile(filePath: string, content: string): Promise<void> {
     try {
-      // Ensure directory exists
       const dir = path.dirname(filePath);
       await this.mkdir(dir, { recursive: true });
       await fs.writeFile(filePath, content, 'utf-8');
@@ -90,7 +89,6 @@ export class FsAdapter {
       await fs.mkdir(dirPath, options);
     } catch (error: any) {
       if (error.code === 'EEXIST') {
-        // Directory already exists, that's fine
         return;
       }
       if (error.code === 'EACCES') {

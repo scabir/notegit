@@ -22,12 +22,10 @@ import { logger } from './utils/logger';
 export function createBackend(ipcMain: IpcMain): void {
   logger.info('Initializing backend services');
 
-  // Initialize adapters
   const fsAdapter = new FsAdapter();
   const cryptoAdapter = new CryptoAdapter();
   const gitAdapter = new GitAdapter();
 
-  // Initialize services
   const configService = new ConfigService(fsAdapter, cryptoAdapter);
   const repoService = new RepoService(gitAdapter, fsAdapter, configService);
   const filesService = new FilesService(fsAdapter, configService);
@@ -36,18 +34,15 @@ export function createBackend(ipcMain: IpcMain): void {
   const exportService = new ExportService(fsAdapter, configService);
   const logsService = new LogsService();
 
-  // Set circular dependencies
   repoService.setFilesService(filesService);
   filesService.setGitAdapter(gitAdapter);
 
-  // Initialize search service with repo path from config
   configService.getFull().then((config) => {
     if (config?.repoSettings?.localPath) {
       searchService.setRepoPath(config.repoSettings.localPath);
     }
   });
 
-  // Register all IPC handlers with dependencies
   registerConfigHandlers(ipcMain, configService, gitAdapter, fsAdapter);
   registerRepoHandlers(ipcMain, repoService);
   registerFilesHandlers(ipcMain, filesService, repoService);

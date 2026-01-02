@@ -35,7 +35,6 @@ export function MoveToFolderDialog({
   const [selectedFolderPath, setSelectedFolderPath] = useState<string>('');
   const [error, setError] = useState<string>('');
 
-  // Reset state when dialog opens
   React.useEffect(() => {
     if (open) {
       setSelectedFolderPath('');
@@ -43,14 +42,12 @@ export function MoveToFolderDialog({
     }
   }, [open]);
 
-  // Helper to check if a path is a descendant of another
   const isDescendant = (ancestorPath: string, descendantPath: string): boolean => {
     if (!descendantPath) return false;
     if (!ancestorPath) return false;
     return descendantPath === ancestorPath || descendantPath.startsWith(ancestorPath + '/');
   };
 
-  // Get all folders from tree (recursively)
   const getFolders = (nodes: FileTreeNode[], parentPath: string = ''): FileTreeNode[] => {
     const folders: FileTreeNode[] = [];
     
@@ -68,14 +65,12 @@ export function MoveToFolderDialog({
 
   const allFolders = getFolders(tree);
 
-  // Render folder tree for selection
   const renderFolderTree = (node: FileTreeNode): React.ReactNode => {
     if (node.type !== 'folder') return null;
 
-    // Check if this folder is invalid as a destination
     const isInvalid = itemToMove && (
-      node.id === itemToMove.id || // Can't move into itself
-      (itemToMove.type === 'folder' && isDescendant(itemToMove.path, node.path)) // Can't move folder into descendant
+      node.id === itemToMove.id ||
+      (itemToMove.type === 'folder' && isDescendant(itemToMove.path, node.path))
     );
 
     return (
@@ -106,13 +101,11 @@ export function MoveToFolderDialog({
   const handleConfirm = () => {
     if (!itemToMove) return;
 
-    // Validate selection
     if (!selectedFolderPath && selectedFolderPath !== '') {
       setError('Please select a destination folder');
       return;
     }
 
-    // Check if moving to the same location
     const currentParentPath = itemToMove.path.includes('/')
       ? itemToMove.path.substring(0, itemToMove.path.lastIndexOf('/'))
       : '';
@@ -122,7 +115,6 @@ export function MoveToFolderDialog({
       return;
     }
 
-    // Check if item with same name exists in destination
     const destinationFolder = allFolders.find(f => f.path === selectedFolderPath);
     if (destinationFolder?.children?.some(child => child.name === itemToMove.name)) {
       setError(`An item named "${itemToMove.name}" already exists in the destination folder`);
@@ -161,7 +153,6 @@ export function MoveToFolderDialog({
           Select destination folder:
         </Typography>
 
-        {/* Root option */}
         <Box
           onClick={() => {
             setSelectedFolderPath('');
@@ -184,7 +175,6 @@ export function MoveToFolderDialog({
           </Box>
         </Box>
 
-        {/* Folder tree */}
         <Box sx={{ maxHeight: 300, overflow: 'auto', border: 1, borderColor: 'divider', borderRadius: 1, p: 1 }}>
           {allFolders.length === 0 ? (
             <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
@@ -198,7 +188,6 @@ export function MoveToFolderDialog({
               onNodeSelect={(_event: React.SyntheticEvent, nodeId: string) => {
                 const folder = allFolders.find(f => f.id === nodeId);
                 if (folder) {
-                  // Check if it's a valid selection
                   const isInvalid = itemToMove && (
                     folder.id === itemToMove.id ||
                     (itemToMove.type === 'folder' && isDescendant(itemToMove.path, folder.path))
@@ -229,4 +218,3 @@ export function MoveToFolderDialog({
     </Dialog>
   );
 }
-

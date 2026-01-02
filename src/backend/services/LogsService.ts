@@ -12,22 +12,16 @@ export class LogsService {
         this.logsDir = path.join(userDataPath, 'logs');
     }
 
-    /**
-     * Get the content of a log file
-     */
     async getLogContent(logType: 'combined' | 'error'): Promise<string> {
         try {
             const logFilePath = this.getLogFilePath(logType);
 
-            // Check if file exists
             try {
                 await fs.access(logFilePath);
             } catch {
-                // File doesn't exist yet, return empty
                 return `No ${logType} logs yet.`;
             }
 
-            // Read the log file
             const content = await fs.readFile(logFilePath, 'utf-8');
 
             return content || `Log file is empty.`;
@@ -41,22 +35,15 @@ export class LogsService {
         }
     }
 
-    /**
-     * Get the path to a log file
-     */
     getLogFilePath(logType: 'combined' | 'error'): string {
         const fileName = logType === 'combined' ? 'combined.log' : 'error.log';
         return path.join(this.logsDir, fileName);
     }
 
-    /**
-     * Export log file to a specified destination
-     */
     async exportLogs(logType: 'combined' | 'error', destPath: string): Promise<void> {
         try {
             const logFilePath = this.getLogFilePath(logType);
 
-            // Check if source log file exists
             try {
                 await fs.access(logFilePath);
             } catch {
@@ -67,7 +54,6 @@ export class LogsService {
                 );
             }
 
-            // Copy log file to destination
             await fs.copyFile(logFilePath, destPath);
 
             logger.info('Logs exported successfully', { logType, destPath });

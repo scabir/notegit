@@ -17,9 +17,6 @@ export class HistoryService {
     private configService: ConfigService
   ) {}
 
-  /**
-   * Initialize with repository path
-   */
   async init(): Promise<void> {
     const repoSettings = await this.configService.getRepoSettings();
     if (repoSettings?.localPath) {
@@ -29,9 +26,6 @@ export class HistoryService {
     }
   }
 
-  /**
-   * Get commit history for a specific file
-   */
   async getForFile(filePath: string): Promise<CommitEntry[]> {
     await this.ensureRepoPath();
 
@@ -52,9 +46,6 @@ export class HistoryService {
     }
   }
 
-  /**
-   * Get file content at a specific commit
-   */
   async getVersion(commitHash: string, filePath: string): Promise<string> {
     await this.ensureRepoPath();
 
@@ -67,26 +58,21 @@ export class HistoryService {
     }
   }
 
-  /**
-   * Get diff between two commits for a file
-   */
   async getDiff(hash1: string, hash2: string, filePath: string): Promise<DiffHunk[]> {
     await this.ensureRepoPath();
 
     try {
       const diffText = await this.gitAdapter.diff(hash1, hash2, filePath);
       
-      // Parse diff text into structured format (simplified)
       const hunks: DiffHunk[] = [];
       const lines = diffText.split('\n');
       
       let currentHunk: DiffHunk | null = null;
       
-      for (const line of lines) {
-        // Match hunk header: @@ -oldStart,oldLines +newStart,newLines @@
+    for (const line of lines) {
         const hunkMatch = line.match(/^@@ -(\d+),(\d+) \+(\d+),(\d+) @@/);
-        if (hunkMatch) {
-          if (currentHunk) {
+    if (hunkMatch) {
+    if (currentHunk) {
             hunks.push(currentHunk);
           }
           currentHunk = {
@@ -99,9 +85,9 @@ export class HistoryService {
           continue;
         }
         
-        if (currentHunk) {
+    if (currentHunk) {
           let type: 'add' | 'remove' | 'context';
-          if (line.startsWith('+')) {
+    if (line.startsWith('+')) {
             type = 'add';
           } else if (line.startsWith('-')) {
             type = 'remove';
@@ -111,12 +97,12 @@ export class HistoryService {
           
           currentHunk.lines.push({
             type,
-            content: line.substring(1), // Remove prefix character
+            content: line.substring(1),
           });
         }
       }
       
-      if (currentHunk) {
+    if (currentHunk) {
         hunks.push(currentHunk);
       }
       
@@ -149,4 +135,3 @@ export class HistoryService {
     };
   }
 }
-

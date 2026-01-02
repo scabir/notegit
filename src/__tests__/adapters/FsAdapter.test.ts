@@ -3,7 +3,6 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ApiErrorCode } from '../../shared/types';
 
-// Mock fs module
 jest.mock('fs/promises');
 jest.mock('fs');
 

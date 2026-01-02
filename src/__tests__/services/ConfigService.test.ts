@@ -3,7 +3,6 @@ import { FsAdapter } from '../../backend/adapters/FsAdapter';
 import { CryptoAdapter } from '../../backend/adapters/CryptoAdapter';
 import { DEFAULT_APP_SETTINGS, AuthMethod } from '../../shared/types';
 
-// Mock adapters
 jest.mock('../../backend/adapters/FsAdapter');
 jest.mock('../../backend/adapters/CryptoAdapter');
 
@@ -57,7 +56,6 @@ describe('ConfigService', () => {
         return path.includes('app-settings.json');
       });
 
-      // Partial settings (missing some fields)
       mockFsAdapter.readFile.mockResolvedValue(
         JSON.stringify({
           autoSaveEnabled: true,
@@ -109,8 +107,8 @@ describe('ConfigService', () => {
       await configService.updateAppSettings({ autoSaveIntervalSec: 120 });
 
       const savedData = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
-      expect(savedData.autoSaveEnabled).toBe(false); // Kept from existing
-      expect(savedData.autoSaveIntervalSec).toBe(120); // New value
+      expect(savedData.autoSaveEnabled).toBe(false);
+      expect(savedData.autoSaveIntervalSec).toBe(120);
     });
   });
 
@@ -195,4 +193,3 @@ describe('ConfigService', () => {
     });
   });
 });
-

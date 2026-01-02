@@ -110,7 +110,6 @@ export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelP
         bgcolor: isDark ? '#0d1117' : 'background.paper',
       }}
     >
-      {/* Header */}
       <Box
         sx={{
           p: 2,
@@ -139,7 +138,6 @@ export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelP
         </Tooltip>
       </Box>
 
-      {/* Content */}
       <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
         {loading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
@@ -230,7 +228,6 @@ export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelP
         )}
       </Box>
 
-      {/* Footer */}
       {history.length > 0 && (
         <Box
           sx={{

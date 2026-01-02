@@ -98,7 +98,6 @@ export function registerConfigHandlers(
     }
   });
 
-  // Profile management handlers
 
   ipcMain.handle('config:getProfiles', async (): Promise<ApiResponse<Profile[]>> => {
     try {
@@ -144,7 +143,6 @@ export function registerConfigHandlers(
     'config:createProfile',
     async (_event, name: string, repoSettings: Partial<RepoSettings>): Promise<ApiResponse<Profile>> => {
       try {
-        // Create the profile with auto-generated local path
         const profile = await configService.createProfile(name, repoSettings);
         
         logger.info('Profile created, starting clone/pull', { 
@@ -152,11 +150,9 @@ export function registerConfigHandlers(
           localPath: profile.repoSettings.localPath 
         });
         
-        // Check if local path exists
         const localExists = await fsAdapter.exists(profile.repoSettings.localPath);
         
         if (!localExists) {
-          // Clone the repo
           logger.info('Local repo does not exist, cloning...', { 
             remoteUrl: profile.repoSettings.remoteUrl,
             localPath: profile.repoSettings.localPath
@@ -172,7 +168,6 @@ export function registerConfigHandlers(
             logger.info('Repository cloned successfully');
           } catch (cloneError: any) {
             logger.error('Failed to clone repository', { error: cloneError });
-            // Delete the failed profile
             await configService.deleteProfile(profile.id);
             return {
               ok: false,
@@ -184,19 +179,16 @@ export function registerConfigHandlers(
             };
           }
         } else {
-          // Pull from remote to sync
           logger.info('Local repo exists, pulling to sync...', { 
             localPath: profile.repoSettings.localPath 
           });
           
           try {
-            // Initialize GitAdapter with the repo path
             gitAdapter.init(profile.repoSettings.localPath);
             await gitAdapter.pull(profile.repoSettings.pat);
             logger.info('Repository pulled successfully');
           } catch (pullError: any) {
             logger.warn('Failed to pull repository, continuing anyway', { error: pullError });
-            // Don't fail on pull error, just warn
           }
         }
         

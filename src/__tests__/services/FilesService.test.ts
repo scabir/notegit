@@ -5,7 +5,6 @@ import { GitAdapter } from '../../backend/adapters/GitAdapter';
 import { FileType, AuthMethod } from '../../shared/types';
 import { Stats } from 'fs';
 
-// Mock dependencies
 jest.mock('../../backend/adapters/FsAdapter');
 jest.mock('../../backend/services/ConfigService');
 jest.mock('../../backend/adapters/GitAdapter');
@@ -235,7 +234,7 @@ describe('FilesService', () => {
       await filesService.deletePath('old-folder');
 
       expect(mockFsAdapter.readdir).toHaveBeenCalled();
-      expect(mockFsAdapter.deleteFile).toHaveBeenCalledTimes(2); // file + folder
+      expect(mockFsAdapter.deleteFile).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -289,28 +288,27 @@ describe('FilesService', () => {
         authMethod: AuthMethod.PAT,
       });
 
-      // Mock directory structure
       mockFsAdapter.readdir
-        .mockResolvedValueOnce(['notes', 'file1.md']) // Root
-        .mockResolvedValueOnce(['note1.md', 'note2.md']); // notes folder
+        .mockResolvedValueOnce(['notes', 'file1.md'])
+        .mockResolvedValueOnce(['note1.md', 'note2.md']);
 
       mockFsAdapter.stat
         .mockResolvedValueOnce({
           isDirectory: () => true,
           isFile: () => false,
-        } as Stats) // notes
+        } as Stats)
         .mockResolvedValueOnce({
           isDirectory: () => false,
           isFile: () => true,
-        } as Stats) // file1.md
+        } as Stats)
         .mockResolvedValueOnce({
           isDirectory: () => false,
           isFile: () => true,
-        } as Stats) // note1.md
+        } as Stats)
         .mockResolvedValueOnce({
           isDirectory: () => false,
           isFile: () => true,
-        } as Stats); // note2.md
+        } as Stats);
 
       const tree = await filesService.listTree();
 
@@ -359,17 +357,17 @@ describe('FilesService', () => {
         .mockResolvedValueOnce({
           isDirectory: () => false,
           isFile: () => true,
-        } as Stats) // file.md
+        } as Stats)
         .mockResolvedValueOnce({
           isDirectory: () => true,
           isFile: () => false,
-        } as Stats) // folder
+        } as Stats)
         .mockResolvedValueOnce({
           isDirectory: () => false,
           isFile: () => true,
-        } as Stats); // another.md
+        } as Stats);
 
-      mockFsAdapter.readdir.mockResolvedValueOnce([]); // Empty folder
+      mockFsAdapter.readdir.mockResolvedValueOnce([]);
 
       const tree = await filesService.listTree();
 
@@ -490,11 +488,6 @@ describe('FilesService', () => {
       expect(mockFsAdapter.deleteFile).toHaveBeenCalledWith('/repo/note.md');
     });
 
-    // Note: Folder deletion test requires complex mocking of recursive directory operations
   });
 
-  // Note: Tests for importFile, saveWithGitWorkflow, and commitAll are skipped
-  // as they require more complex mocking setup. These methods are integration-tested
-  // through the application usage and are covered by the export and autosave features.
 });
-

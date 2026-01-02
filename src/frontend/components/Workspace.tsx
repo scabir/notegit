@@ -49,14 +49,11 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const resizeStartX = React.useRef(0);
   const resizeStartWidth = React.useRef(0);
 
-  // Cache for unsaved file content (per-session)
   const fileContentCacheRef = React.useRef<Map<string, string>>(new Map());
 
-  // Header display info
   const [activeProfileName, setActiveProfileName] = useState<string>('');
   const [appVersion, setAppVersion] = useState<string>('');
 
-  // Helper function to truncate profile name
   const getTruncatedProfileName = (name: string): string => {
     if (name.length <= 20) {
       return name;
@@ -64,7 +61,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     return name.substring(0, 20) + '...';
   };
 
-  // Compute header title
   const getHeaderTitle = (): string => {
     let title = 'notegit';
     if (activeProfileName) {
@@ -80,7 +76,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     loadWorkspace();
   }, []);
 
-  // Global keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd/Ctrl+P or Cmd/Ctrl+K to open file search
@@ -99,15 +94,12 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Autosave timer - triggers 5 minutes after last change
   useEffect(() => {
     if (hasUnsavedChanges && selectedFile && editorContent) {
-      // Clear any existing timer
       if (autosaveTimerRef.current) {
         clearTimeout(autosaveTimerRef.current);
       }
 
-      // Set new timer for 5 minutes (300000 ms)
       autosaveTimerRef.current = setTimeout(() => {
         console.log('Autosave triggered');
         handleSaveFile(editorContent, true);
@@ -125,10 +117,8 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   useEffect(() => {
     const handleBeforeUnload = async (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges && selectedFile && editorContent) {
-        // Trigger autosave
         await handleSaveFile(editorContent, true);
 
-        // Show confirmation dialog
         e.preventDefault();
         e.returnValue = '';
       }
@@ -180,7 +170,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const handleSelectFile = async (path: string, type: 'file' | 'folder') => {
     if (type === 'folder') return;
 
-    // Save current file's content to cache before switching
     if (selectedFile && editorContent) {
       fileContentCacheRef.current.set(selectedFile, editorContent);
     }
@@ -188,24 +177,19 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     setSelectedFile(path);
 
     try {
-      // Check if we have cached content for this file
       const cachedContent = fileContentCacheRef.current.get(path);
 
       if (cachedContent !== undefined) {
-        // Use cached content
         const response = await window.notegitApi.files.read(path);
         if (response.ok && response.data) {
-          // Keep the file metadata but use cached content
           setFileContent({
             ...response.data,
             content: cachedContent,
           });
           setEditorContent(cachedContent);
-          // Mark as having unsaved changes since we're restoring cached content
           setHasUnsavedChanges(true);
         }
       } else {
-        // Load from disk
         const response = await window.notegitApi.files.read(path);
         if (response.ok && response.data) {
           setFileContent(response.data);
@@ -236,23 +220,19 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         setSaveStatus('saved');
         setHasUnsavedChanges(false);
 
-        // Clear cached content for this file after successful save
         if (selectedFile) {
           fileContentCacheRef.current.delete(selectedFile);
         }
 
-        // Show success message
         if (!isAutosave) {
           setSaveMessage('Saved locally');
         }
 
-        // Refresh status to show uncommitted changes
         const statusResponse = await window.notegitApi.repo.getStatus();
         if (statusResponse.ok && statusResponse.data) {
           setRepoStatus(statusResponse.data);
         }
 
-        // Clear save status after a delay
         setTimeout(() => {
           if (!isAutosave) {
             setSaveStatus('idle');
@@ -272,7 +252,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   };
 
   const handleCommit = async () => {
-    // Refresh status after commit
     const statusResponse = await window.notegitApi.repo.getStatus();
     if (statusResponse.ok && statusResponse.data) {
       setRepoStatus(statusResponse.data);
@@ -284,9 +263,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const response = await window.notegitApi.repo.pull();
       if (response.ok) {
         console.log('Pull successful');
-        // Refresh tree and status
         await loadWorkspace();
-        // Reload current file if open
         if (selectedFile) {
           const fileResponse = await window.notegitApi.files.read(selectedFile);
           if (fileResponse.ok && fileResponse.data) {
@@ -320,7 +297,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const response = await window.notegitApi.repo.push();
       if (response.ok) {
         console.log('Push successful');
-        // Refresh status
         const statusResponse = await window.notegitApi.repo.getStatus();
         if (statusResponse.ok && statusResponse.data) {
           setRepoStatus(statusResponse.data);
@@ -339,16 +315,13 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       if (response.ok) {
         console.log('File created successfully');
 
-        // Construct the full path of the newly created file
         const newFilePath = parentPath ? `${parentPath}/${fileName}` : fileName;
 
-        // Refresh tree
         const treeResponse = await window.notegitApi.files.listTree();
         if (treeResponse.ok && treeResponse.data) {
           setTree(treeResponse.data);
         }
 
-        // Automatically select and open the newly created file
         await handleSelectFile(newFilePath, 'file');
       } else {
         console.error('Failed to create file:', response.error);
@@ -365,7 +338,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const response = await window.notegitApi.files.createFolder(parentPath, folderName);
       if (response.ok) {
         console.log('Folder created successfully');
-        // Refresh tree
         const treeResponse = await window.notegitApi.files.listTree();
         if (treeResponse.ok && treeResponse.data) {
           setTree(treeResponse.data);
@@ -385,17 +357,14 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const response = await window.notegitApi.files.delete(path);
       if (response.ok) {
         console.log('Deleted successfully');
-        // Clear selection if deleted file was selected
         if (selectedFile === path) {
           setSelectedFile(null);
           setFileContent(null);
         }
-        // Refresh tree
         const treeResponse = await window.notegitApi.files.listTree();
         if (treeResponse.ok && treeResponse.data) {
           setTree(treeResponse.data);
         }
-        // Refresh status
         const statusResponse = await window.notegitApi.repo.getStatus();
         if (statusResponse.ok && statusResponse.data) {
           setRepoStatus(statusResponse.data);
@@ -416,10 +385,8 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       if (response.ok) {
         console.log('Renamed/moved successfully');
 
-        // If the moved file was selected, update its path
         if (selectedFile === oldPath) {
           setSelectedFile(newPath);
-          // Update file content with new path
           if (fileContent) {
             setFileContent({
               ...fileContent,
@@ -427,11 +394,9 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             });
           }
         }
-        // If a file inside a moved folder was selected, update its path
         else if (selectedFile && selectedFile.startsWith(oldPath + '/')) {
           const newSelectedPath = selectedFile.replace(oldPath + '/', newPath + '/');
           setSelectedFile(newSelectedPath);
-          // Update file content with new path
           if (fileContent) {
             setFileContent({
               ...fileContent,
@@ -440,24 +405,19 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           }
         }
 
-        // Commit the move operation automatically
         try {
-          // Stage all changes (the move will show as delete + add)
           await window.notegitApi.files.commitAll(
             `Move: ${oldPath} -> ${newPath}`
           );
           console.log('Move committed successfully');
         } catch (commitError) {
           console.warn('Failed to auto-commit move:', commitError);
-          // Continue even if commit fails - the changes are on disk
         }
 
-        // Refresh tree
         const treeResponse = await window.notegitApi.files.listTree();
         if (treeResponse.ok && treeResponse.data) {
           setTree(treeResponse.data);
         }
-        // Refresh status
         const statusResponse = await window.notegitApi.repo.getStatus();
         if (statusResponse.ok && statusResponse.data) {
           setRepoStatus(statusResponse.data);
@@ -477,12 +437,10 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const response = await window.notegitApi.files.import(sourcePath, targetPath);
       if (response.ok) {
         console.log('File imported successfully');
-        // Refresh tree
         const treeResponse = await window.notegitApi.files.listTree();
         if (treeResponse.ok && treeResponse.data) {
           setTree(treeResponse.data);
         }
-        // Refresh status
         const statusResponse = await window.notegitApi.repo.getStatus();
         if (statusResponse.ok && statusResponse.data) {
           setRepoStatus(statusResponse.data);
@@ -509,7 +467,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   };
 
   const handleOpenCommitDialog = async () => {
-    // Auto-save before opening commit dialog
     if (hasUnsavedChanges && selectedFile) {
       await handleSaveFile(editorContent);
     }
@@ -517,10 +474,8 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   };
 
   const handleCommitAndPush = async () => {
-    // Auto-save before committing
     if (hasUnsavedChanges && selectedFile) {
       await handleSaveFile(editorContent);
-      // Wait a bit for save to complete
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
@@ -539,13 +494,11 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           setSaveMessage('Committed and pushed successfully');
         }
 
-        // Refresh status
         const statusResponse = await window.notegitApi.repo.getStatus();
         if (statusResponse.ok && statusResponse.data) {
           setRepoStatus(statusResponse.data);
         }
 
-        // Clear status after a delay
         setTimeout(() => {
           setSaveStatus('idle');
           setSaveMessage('');
@@ -555,7 +508,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         setSaveMessage(response.error?.message || 'Failed to commit and push');
         console.error('Failed to commit and push:', response.error);
 
-        // Clear error after a delay
         setTimeout(() => {
           setSaveStatus('idle');
           setSaveMessage('');
@@ -574,15 +526,11 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   };
 
   const handleSelectFileFromSearch = async (filePath: string) => {
-    // Select the file and load its content
     await handleSelectFile(filePath, 'file');
   };
 
   const handleSelectMatchFromRepoSearch = async (filePath: string, lineNumber: number) => {
-    // Open the file and potentially scroll to the line
     await handleSelectFile(filePath, 'file');
-    // Note: Line scrolling would require editor API integration
-    // For now, just opening the file is sufficient
     console.log(`Opening ${filePath} at line ${lineNumber}`);
   };
 
@@ -610,7 +558,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const delta = e.clientX - resizeStartX.current;
       const newWidth = resizeStartWidth.current + delta;
 
-      // Constrain width between 200px and 600px
       const MIN_WIDTH = 200;
       const MAX_WIDTH = 600;
       const constrainedWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
@@ -633,14 +580,12 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Top app bar */}
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar variant="dense">
           <Typography variant="h6" component="div">
             {getHeaderTitle()}
           </Typography>
 
-          {/* Save Status Indicator */}
           {saveStatus !== 'idle' && (
             <Box sx={{ ml: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
               {saveStatus === 'saving' && (
@@ -718,9 +663,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         </Toolbar>
       </AppBar>
 
-      {/* Main content */}
       <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden', pb: '40px' }}>
-        {/* File tree sidebar */}
         <Box
           sx={{
             width: sidebarWidth,
@@ -744,7 +687,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           />
         </Box>
 
-        {/* Resize handle */}
         <Box
           onMouseDown={handleResizeStart}
           sx={{
@@ -759,7 +701,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           }}
         />
 
-        {/* Editor */}
         <Box sx={{ flexGrow: 1, overflow: 'hidden', minWidth: 0 }}>
           {fileContent?.type === 'text' ? (
             <TextEditor
@@ -777,7 +718,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           )}
         </Box>
 
-        {/* History Panel */}
         {historyPanelOpen && (
           <HistoryPanel
             filePath={selectedFile}
@@ -787,10 +727,8 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         )}
       </Box>
 
-      {/* Status bar */}
       <StatusBar status={repoStatus} onFetch={handleFetch} onPull={handlePull} onPush={handlePush} />
 
-      {/* Settings dialog */}
       <SettingsDialog
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
@@ -799,7 +737,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         currentNotePath={selectedFile || undefined}
       />
 
-      {/* Commit dialog */}
       <CommitDialog
         open={commitDialogOpen}
         filePath={null}
@@ -810,21 +747,18 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         }}
       />
 
-      {/* Search dialog */}
       <SearchDialog
         open={searchDialogOpen}
         onClose={() => setSearchDialogOpen(false)}
         onSelectFile={handleSelectFileFromSearch}
       />
 
-      {/* Repo-wide search dialog */}
       <RepoSearchDialog
         open={repoSearchDialogOpen}
         onClose={() => setRepoSearchDialogOpen(false)}
         onSelectMatch={handleSelectMatchFromRepoSearch}
       />
 
-      {/* History Viewer */}
       <HistoryViewer
         open={historyViewerOpen}
         filePath={selectedFile}
@@ -836,4 +770,3 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     </Box>
   );
 }
-

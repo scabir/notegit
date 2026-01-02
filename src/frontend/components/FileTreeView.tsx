@@ -84,19 +84,16 @@ export function FileTreeView({
   const [selectedNode, setSelectedNode] = useState<FileTreeNode | null>(null);
   const [expanded, setExpanded] = useState<string[]>([]);
 
-  // Auto-expand parent folders when a file is selected
   React.useEffect(() => {
     if (selectedFile) {
       const pathParts = selectedFile.split('/');
       const foldersToExpand: string[] = [];
       
-      // Build all parent paths
       for (let i = 0; i < pathParts.length - 1; i++) {
         const folderPath = pathParts.slice(0, i + 1).join('/');
         foldersToExpand.push(folderPath);
       }
       
-      // Expand all parent folders
       if (foldersToExpand.length > 0) {
         setExpanded((prev) => {
           const newExpanded = new Set([...prev, ...foldersToExpand]);
@@ -106,7 +103,6 @@ export function FileTreeView({
     }
   }, [selectedFile]);
 
-  // Clear input and error when dialog opens
   const handleOpenFileDialog = () => {
     setNewItemName('');
     setErrorMessage('');
@@ -122,7 +118,6 @@ export function FileTreeView({
   const handleOpenRenameDialog = () => {
     if (!selectedNode) return;
     
-    // Set the current name (just the filename/folder name, not the full path)
     const currentName = selectedNode.name;
     setNewItemName(currentName);
     setErrorMessage('');
@@ -133,13 +128,11 @@ export function FileTreeView({
     const trimmedName = newItemName.trim();
     if (!trimmedName) return;
     
-    // Auto-add .md extension if no extension is present
     let fileName = trimmedName;
     if (!fileName.includes('.')) {
       fileName = `${fileName}.md`;
     }
 
-    // Validate filename
     const invalidChars = /[<>:"/\\|?*]/;
     if (invalidChars.test(fileName)) {
       setErrorMessage('File name contains invalid characters: < > : " / \\ | ? *');
@@ -150,21 +143,17 @@ export function FileTreeView({
     setErrorMessage('');
     
     try {
-      // Determine parent path based on selection
       let parentPath = '';
       let parentNodeId: string | null = null;
       
       if (selectedNode) {
         if (selectedNode.type === 'folder') {
-          // Create inside the selected folder
           parentPath = selectedNode.path;
           parentNodeId = selectedNode.id;
         } else {
-          // Create in the same folder as the selected file
           const lastSlash = selectedNode.path.lastIndexOf('/');
           parentPath = lastSlash > 0 ? selectedNode.path.substring(0, lastSlash) : '';
           
-          // Find parent folder node ID
           if (parentPath) {
             const parentNode = findNodeByPath(tree, parentPath);
             if (parentNode) {
@@ -176,17 +165,14 @@ export function FileTreeView({
       
       await onCreateFile(parentPath, fileName);
       
-      // Auto-expand the parent folder
       if (parentNodeId && !expanded.includes(parentNodeId)) {
         setExpanded([...expanded, parentNodeId]);
       }
       
-      // Success - close dialog
       setCreateFileDialogOpen(false);
       setNewItemName('');
       setErrorMessage('');
     } catch (error: any) {
-      // Show error to user
       const errorMsg = error.message || 'Failed to create file';
       if (errorMsg.includes('exists') || errorMsg.includes('EEXIST')) {
         setErrorMessage(`File "${fileName}" already exists`);
@@ -205,7 +191,6 @@ export function FileTreeView({
     const trimmedName = newItemName.trim();
     if (!trimmedName) return;
 
-    // Validate folder name
     const invalidChars = /[<>:"/\\|?*]/;
     if (invalidChars.test(trimmedName)) {
       setErrorMessage('Folder name contains invalid characters: < > : " / \\ | ? *');
@@ -216,21 +201,17 @@ export function FileTreeView({
     setErrorMessage('');
     
     try {
-      // Determine parent path based on selection
       let parentPath = '';
       let parentNodeId: string | null = null;
       
       if (selectedNode) {
         if (selectedNode.type === 'folder') {
-          // Create inside the selected folder
           parentPath = selectedNode.path;
           parentNodeId = selectedNode.id;
         } else {
-          // Create in the same folder as the selected file
           const lastSlash = selectedNode.path.lastIndexOf('/');
           parentPath = lastSlash > 0 ? selectedNode.path.substring(0, lastSlash) : '';
           
-          // Find parent folder node ID
           if (parentPath) {
             const parentNode = findNodeByPath(tree, parentPath);
             if (parentNode) {
@@ -242,17 +223,14 @@ export function FileTreeView({
       
       await onCreateFolder(parentPath, trimmedName);
       
-      // Auto-expand the parent folder
       if (parentNodeId && !expanded.includes(parentNodeId)) {
         setExpanded([...expanded, parentNodeId]);
       }
       
-      // Success - close dialog
       setCreateFolderDialogOpen(false);
       setNewItemName('');
       setErrorMessage('');
     } catch (error: any) {
-      // Show error to user
       const errorMsg = error.message || 'Failed to create folder';
       if (errorMsg.includes('exists') || errorMsg.includes('EEXIST')) {
         setErrorMessage(`Folder "${trimmedName}" already exists`);
@@ -276,14 +254,12 @@ export function FileTreeView({
       return;
     }
 
-    // Validate filename
     const invalidChars = /[<>:"/\\|?*]/;
     if (invalidChars.test(trimmedName)) {
       setErrorMessage('Name contains invalid characters: < > : " / \\ | ? *');
       return;
     }
 
-    // Check if name hasn't changed
     if (trimmedName === selectedNode.name) {
       setRenameDialogOpen(false);
       return;
@@ -293,7 +269,6 @@ export function FileTreeView({
     setErrorMessage('');
 
     try {
-      // Construct the new path
       const oldPath = selectedNode.path;
       const lastSlash = oldPath.lastIndexOf('/');
       const parentPath = lastSlash > 0 ? oldPath.substring(0, lastSlash) : '';
@@ -301,14 +276,12 @@ export function FileTreeView({
 
       await onRename(oldPath, newPath);
 
-      // Success - close dialog
       setRenameDialogOpen(false);
       setNewItemName('');
       setErrorMessage('');
     } catch (error: any) {
       console.error('Failed to rename:', error);
       
-      // Check for specific error messages
       if (error.message && error.message.includes('already exists')) {
         setErrorMessage(`A ${selectedNode.type === 'folder' ? 'folder' : 'file'} with that name already exists`);
       } else if (error.message && error.message.includes('permission')) {
@@ -332,7 +305,6 @@ export function FileTreeView({
     if (window.confirm(message)) {
       try {
         await onDelete(selectedNode.path);
-        // Clear selection after successful deletion
         setSelectedNode(null);
       } catch (error) {
         console.error('Failed to delete:', error);
@@ -348,7 +320,6 @@ export function FileTreeView({
         return;
       }
       
-      // Open file picker dialog
       const result = await window.notegitApi.dialog.showOpenDialog({
         properties: ['openFile'],
         title: 'Select file to import',
@@ -361,21 +332,17 @@ export function FileTreeView({
       const sourcePath = result.filePaths[0];
       const fileName = sourcePath.split('/').pop() || 'imported_file';
 
-      // Determine target path based on selection
       let targetPath = fileName;
       if (selectedNode) {
         if (selectedNode.type === 'folder') {
-          // Import into the selected folder
           targetPath = `${selectedNode.path}/${fileName}`;
         } else {
-          // Import into the same folder as the selected file
           const lastSlash = selectedNode.path.lastIndexOf('/');
           const parentPath = lastSlash > 0 ? selectedNode.path.substring(0, lastSlash) : '';
           targetPath = parentPath ? `${parentPath}/${fileName}` : fileName;
         }
       }
 
-      // Call the import handler
       await onImport(sourcePath, targetPath);
     } catch (error) {
       console.error('Failed to import file:', error);
@@ -383,7 +350,6 @@ export function FileTreeView({
     }
   };
 
-  // Helper to find a node by ID
   const findNode = (nodes: FileTreeNode[], id: string): FileTreeNode | null => {
     for (const node of nodes) {
       if (node.id === id) return node;
@@ -395,7 +361,6 @@ export function FileTreeView({
     return null;
   };
 
-  // Helper to find a node by path
   const findNodeByPath = (nodes: FileTreeNode[], path: string): FileTreeNode | null => {
     for (const node of nodes) {
       if (node.path === path) return node;
@@ -408,18 +373,14 @@ export function FileTreeView({
   };
 
 
-  // Handle move to folder via dialog
   const handleMoveToFolder = async (destinationPath: string) => {
     if (!selectedNode) return;
     
     try {
-      // Calculate new path
       const newPath = destinationPath ? `${destinationPath}/${selectedNode.name}` : selectedNode.name;
       
-      // Call the rename handler (which moves the item)
       await onRename(selectedNode.path, newPath);
       
-      // Close dialog
       setMoveDialogOpen(false);
     } catch (error: any) {
       console.error('Failed to move:', error);
@@ -430,7 +391,6 @@ export function FileTreeView({
   const renderTree = (node: FileTreeNode, parentPath: string = '') => {
     const isExpanded = expanded.includes(node.id);
     
-    // Determine icon based on node type and expansion state
     let icon;
     if (node.type === 'folder') {
       icon = (
@@ -501,7 +461,6 @@ export function FileTreeView({
     const node = findNode(tree, nodeId);
     if (node) {
       setSelectedNode(node);
-      // Only open files in the editor, not folders
       if (node.type === 'file') {
         onSelectFile(node.path, node.type);
       }
@@ -513,11 +472,8 @@ export function FileTreeView({
   };
 
   const handleContainerClick = (e: React.MouseEvent) => {
-    // Check if the click is directly on the container (empty space)
-    // and not on a TreeView element
     const target = e.target as HTMLElement;
     
-    // If clicking on the padding area or directly on the container
     if (
       target.classList.contains('tree-container') || 
       target.classList.contains('MuiBox-root') ||
@@ -527,7 +483,6 @@ export function FileTreeView({
     }
   };
 
-  // Helper to get location text for create dialogs
   const getCreationLocationText = () => {
     if (!selectedNode) {
       return 'Will be created in root directory';
@@ -619,7 +574,6 @@ export function FileTreeView({
         </TreeView>
       </Box>
 
-      {/* Create File Dialog */}
       <Dialog 
         open={createFileDialogOpen} 
         onClose={() => {
@@ -644,7 +598,7 @@ export function FileTreeView({
             value={newItemName}
             onChange={(e) => {
               setNewItemName(e.target.value);
-              setErrorMessage(''); // Clear error when user types
+              setErrorMessage('');
             }}
             onKeyPress={(e) => {
               if (e.key === 'Enter' && !creating) {
@@ -680,7 +634,6 @@ export function FileTreeView({
         </DialogActions>
       </Dialog>
 
-      {/* Create Folder Dialog */}
       <Dialog 
         open={createFolderDialogOpen} 
         onClose={() => {
@@ -705,7 +658,7 @@ export function FileTreeView({
             value={newItemName}
             onChange={(e) => {
               setNewItemName(e.target.value);
-              setErrorMessage(''); // Clear error when user types
+              setErrorMessage('');
             }}
             onKeyPress={(e) => {
               if (e.key === 'Enter' && !creating) {
@@ -740,7 +693,6 @@ export function FileTreeView({
         </DialogActions>
       </Dialog>
 
-      {/* Rename Dialog */}
       <Dialog 
         open={renameDialogOpen} 
         onClose={() => {
@@ -760,7 +712,7 @@ export function FileTreeView({
             value={newItemName}
             onChange={(e) => {
               setNewItemName(e.target.value);
-              setErrorMessage(''); // Clear error when user types
+              setErrorMessage('');
             }}
             onKeyPress={(e) => {
               if (e.key === 'Enter' && !creating) {
@@ -795,7 +747,6 @@ export function FileTreeView({
         </DialogActions>
       </Dialog>
 
-      {/* Move to Folder Dialog */}
       <MoveToFolderDialog
         open={moveDialogOpen}
         onClose={() => setMoveDialogOpen(false)}
@@ -806,4 +757,3 @@ export function FileTreeView({
     </Box>
   );
 }
-

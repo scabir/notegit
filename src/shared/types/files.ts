@@ -1,5 +1,3 @@
-// File operation request/response types
-
 export interface SaveNoteRequest {
   path: string;
   content: string;
@@ -38,4 +36,3 @@ export interface SaveAsRequest {
   repoPath: string;
   destinationPath: string;
 }
-

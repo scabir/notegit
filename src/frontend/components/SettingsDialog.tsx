@@ -87,7 +87,6 @@ export function SettingsDialog({
   const [exporting, setExporting] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
 
-  // Profile management state
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
   const [creatingProfile, setCreatingProfile] = useState(false);
@@ -97,7 +96,6 @@ export function SettingsDialog({
   const [newProfilePat, setNewProfilePat] = useState('');
   const [profileCreating, setProfileCreating] = useState(false);
 
-  // Logs state
   const [logType, setLogType] = useState<'combined' | 'error'>('combined');
   const [logContent, setLogContent] = useState<string>('');
   const [loadingLogs, setLoadingLogs] = useState(false);
@@ -144,7 +142,6 @@ export function SettingsDialog({
 
       if (response.ok) {
         setSuccess('App settings saved successfully');
-        // Notify parent about theme change
         if (onThemeChange) {
           onThemeChange(appSettings.theme);
         }
@@ -164,7 +161,6 @@ export function SettingsDialog({
     setSuccess(null);
 
     try {
-      // Validate required fields
       if (!repoSettings.remoteUrl || !repoSettings.branch || !repoSettings.pat) {
         setError('Please fill in all required fields');
         setLoading(false);
@@ -202,7 +198,6 @@ export function SettingsDialog({
     setSuccess(null);
 
     try {
-      // Export note - dialog is shown by the backend
       const response = await window.notegitApi.export.note(
         currentNotePath,
         currentNoteContent,
@@ -227,7 +222,6 @@ export function SettingsDialog({
     setSuccess(null);
 
     try {
-      // Export repo - dialog is shown by the backend
       const response = await window.notegitApi.export.repoZip();
 
       if (response.ok && response.data) {
@@ -242,10 +236,9 @@ export function SettingsDialog({
     }
   };
 
-  // Profile management handlers
   const handleSelectProfile = async (profileId: string) => {
     if (profileId === activeProfileId) {
-      return; // Already active
+      return;
     }
 
     setLoading(true);
@@ -339,7 +332,6 @@ export function SettingsDialog({
     }
   };
 
-  // Load logs
   const loadLogs = async () => {
     setLoadingLogs(true);
     try {
@@ -356,14 +348,12 @@ export function SettingsDialog({
     }
   };
 
-  // Load logs when tab is opened or log type changes
   useEffect(() => {
-    if (open && tabValue === 4) { // Logs tab
+    if (open && tabValue === 4) {
       loadLogs();
     }
   }, [open, tabValue, logType]);
 
-  // Copy to clipboard handlers
   const handleCopyLogs = () => {
     navigator.clipboard.writeText(logContent);
     setCopySnackbarOpen(true);
@@ -388,7 +378,6 @@ export function SettingsDialog({
     setSuccess(null);
 
     try {
-      // Show save dialog
       const result = await window.notegitApi.dialog.showSaveDialog({
         title: 'Export Logs',
         defaultPath: `notegit-${logType}-logs.log`,
@@ -403,7 +392,6 @@ export function SettingsDialog({
         return;
       }
 
-      // Export logs to chosen file
       const response = await window.notegitApi.logs.export(logType, result.filePath);
 
       if (response.ok) {
@@ -962,13 +950,11 @@ export function SettingsDialog({
         </Button>
       </DialogActions>
 
-      {/* About Dialog */}
       <AboutDialog
         open={aboutDialogOpen}
         onClose={() => setAboutDialogOpen(false)}
       />
 
-      {/* Copy Snackbar */}
       <Snackbar
         open={copySnackbarOpen}
         autoHideDuration={2000}

@@ -67,18 +67,16 @@ export class ConfigService {
 
   async getAppSettings(): Promise<AppSettings> {
     try {
-      if (await this.fsAdapter.exists(this.appSettingsPath)) {
+    if (await this.fsAdapter.exists(this.appSettingsPath)) {
         const content = await this.fsAdapter.readFile(this.appSettingsPath);
         const settings = JSON.parse(content);
         logger.debug('Loaded app settings', { settings });
-        // Merge with defaults to handle missing fields
         return { ...DEFAULT_APP_SETTINGS, ...settings };
       }
     } catch (error) {
       logger.error('Failed to load app settings, using defaults', { error });
     }
 
-    // Return defaults if file doesn't exist or failed to load
     return DEFAULT_APP_SETTINGS;
   }
 
@@ -95,25 +93,22 @@ export class ConfigService {
   }
 
   async getRepoSettings(): Promise<RepoSettings | null> {
-    // First check if we're using profiles
     const activeProfileId = await this.getActiveProfileId();
     if (activeProfileId) {
       const profiles = await this.getProfiles();
       const activeProfile = profiles.find(p => p.id === activeProfileId);
-      if (activeProfile) {
+    if (activeProfile) {
         logger.debug('Loaded repo settings from active profile');
         return activeProfile.repoSettings;
       }
     }
 
-    // Fall back to legacy repo settings file
     try {
-      if (await this.fsAdapter.exists(this.repoSettingsPath)) {
+    if (await this.fsAdapter.exists(this.repoSettingsPath)) {
         const content = await this.fsAdapter.readFile(this.repoSettingsPath);
         const settings = JSON.parse(content);
         
-        // Decrypt PAT
-        if (settings.pat) {
+    if (settings.pat) {
           settings.pat = this.cryptoAdapter.decrypt(settings.pat);
         }
         
@@ -136,7 +131,6 @@ export class ConfigService {
     
     await this.ensureConfigDir();
 
-    // Encrypt PAT before saving
     const toSave = { ...settings };
     if (toSave.pat) {
       toSave.pat = this.cryptoAdapter.encrypt(toSave.pat);
@@ -148,7 +142,7 @@ export class ConfigService {
 
   async getAppState(): Promise<AppStateSnapshot> {
     try {
-      if (await this.fsAdapter.exists(this.appStatePath)) {
+    if (await this.fsAdapter.exists(this.appStatePath)) {
         const content = await this.fsAdapter.readFile(this.appStatePath);
         const state = JSON.parse(content);
         logger.debug('Loaded app state', { state });
@@ -179,17 +173,15 @@ export class ConfigService {
     }
   }
 
-  // Profile management methods
 
   async getProfiles(): Promise<Profile[]> {
     try {
-      if (await this.fsAdapter.exists(this.profilesPath)) {
+    if (await this.fsAdapter.exists(this.profilesPath)) {
         const content = await this.fsAdapter.readFile(this.profilesPath);
         const profiles = JSON.parse(content);
         
-        // Decrypt PATs for all profiles
-        for (const profile of profiles) {
-          if (profile.repoSettings.pat) {
+    for (const profile of profiles) {
+    if (profile.repoSettings.pat) {
             profile.repoSettings.pat = this.cryptoAdapter.decrypt(profile.repoSettings.pat);
           }
         }
@@ -209,7 +201,6 @@ export class ConfigService {
     
     await this.ensureConfigDir();
 
-    // Encrypt PATs before saving
     const toSave = profiles.map(profile => ({
       ...profile,
       repoSettings: {
@@ -226,7 +217,7 @@ export class ConfigService {
 
   async getActiveProfileId(): Promise<string | null> {
     try {
-      if (await this.fsAdapter.exists(this.activeProfilePath)) {
+    if (await this.fsAdapter.exists(this.activeProfilePath)) {
         const content = await this.fsAdapter.readFile(this.activeProfilePath);
         const data = JSON.parse(content);
         logger.debug('Loaded active profile ID', { id: data.activeProfileId });
@@ -257,20 +248,16 @@ export class ConfigService {
     
     const profiles = await this.getProfiles();
     
-    // Generate a safe folder name from the profile name
     const baseName = slugifyProfileName(name);
     const baseDir = getDefaultReposBaseDir();
     
-    // Ensure base directory exists
     await this.fsAdapter.mkdir(baseDir, { recursive: true });
     
-    // Find a unique folder name
     const folderName = await findUniqueFolderName(baseDir, baseName, this.fsAdapter);
     const localPath = path.join(baseDir, folderName);
     
     logger.info('Assigned local path for profile', { name, localPath });
     
-    // Create the full repo settings with the auto-generated local path
     const fullRepoSettings: RepoSettings = {
       remoteUrl: repoSettings.remoteUrl || '',
       branch: repoSettings.branch || 'main',
@@ -325,7 +312,6 @@ export class ConfigService {
 
     await this.saveProfiles(filtered);
     
-    // If this was the active profile, clear it
     const activeId = await this.getActiveProfileId();
     if (activeId === profileId) {
       await this.setActiveProfileId(null);
@@ -335,42 +321,34 @@ export class ConfigService {
   }
 
   async migrateToProfiles(): Promise<void> {
-    // Check if migration is needed
     const profiles = await this.getProfiles();
     const activeProfileId = await this.getActiveProfileId();
     
-    // If we already have profiles, no migration needed
     if (profiles.length > 0 || activeProfileId) {
       return;
     }
 
-    // Check if we have legacy repo settings
     try {
-      if (await this.fsAdapter.exists(this.repoSettingsPath)) {
+    if (await this.fsAdapter.exists(this.repoSettingsPath)) {
         logger.info('Migrating legacy repo settings to first profile');
         
         const content = await this.fsAdapter.readFile(this.repoSettingsPath);
         const repoSettings = JSON.parse(content);
         
-        // Decrypt PAT
-        if (repoSettings.pat) {
+    if (repoSettings.pat) {
           repoSettings.pat = this.cryptoAdapter.decrypt(repoSettings.pat);
         }
 
-        // Derive profile name from repo
         let profileName = 'Default Profile';
         
-        if (repoSettings.remoteUrl) {
-          // Extract repo name from remote URL
+    if (repoSettings.remoteUrl) {
           profileName = extractRepoNameFromUrl(repoSettings.remoteUrl);
         } else if (repoSettings.localPath) {
-          // Use the local folder name as fallback
           profileName = path.basename(repoSettings.localPath);
         }
         
         logger.info('Derived profile name for migration', { profileName });
 
-        // Create first profile from legacy settings
         const firstProfile: Profile = {
           id: 'profile-default',
           name: profileName,

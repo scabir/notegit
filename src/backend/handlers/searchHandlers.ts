@@ -4,7 +4,6 @@ import { ApiResponse, ApiErrorCode } from '../../shared/types/api';
 import { logger } from '../utils/logger';
 
 export function registerSearchHandlers(ipcMain: IpcMain, searchService: SearchService) {
-  // Search across files
   ipcMain.handle(
     'search:query',
     async (_event, query: string, options?: { maxResults?: number }): Promise<ApiResponse<any>> => {
@@ -30,7 +29,6 @@ export function registerSearchHandlers(ipcMain: IpcMain, searchService: SearchSe
     }
   );
 
-  // Repo-wide search
   ipcMain.handle(
     'search:repoWide',
     async (
@@ -57,7 +55,6 @@ export function registerSearchHandlers(ipcMain: IpcMain, searchService: SearchSe
     }
   );
 
-  // Repo-wide replace
   ipcMain.handle(
     'search:replaceInRepo',
     async (

@@ -18,32 +18,20 @@ export class CryptoAdapter {
     this.salt = `notegit-${machineId}`;
   }
 
-  /**
-   * Encrypts a string value
-   * @param plaintext The text to encrypt
-   * @returns Base64 encoded encrypted data with IV and auth tag
-   */
   encrypt(plaintext: string): string {
-    // Generate a random salt for this encryption
     const salt = crypto.randomBytes(SALT_LENGTH);
     
-    // Derive key from password (machine-specific salt)
     const key = crypto.pbkdf2Sync(this.salt, salt, ITERATIONS, KEY_LENGTH, 'sha512');
     
-    // Generate random IV
     const iv = crypto.randomBytes(IV_LENGTH);
     
-    // Create cipher
     const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
     
-    // Encrypt
     let encrypted = cipher.update(plaintext, 'utf8', 'base64');
     encrypted += cipher.final('base64');
     
-    // Get auth tag
     const authTag = cipher.getAuthTag();
     
-    // Combine salt + iv + authTag + encrypted data
     const result = Buffer.concat([
       salt,
       iv,
@@ -54,16 +42,9 @@ export class CryptoAdapter {
     return result.toString('base64');
   }
 
-  /**
-   * Decrypts an encrypted string
-   * @param ciphertext Base64 encoded encrypted data
-   * @returns Decrypted plaintext
-   */
   decrypt(ciphertext: string): string {
-    // Decode from base64
     const buffer = Buffer.from(ciphertext, 'base64');
     
-    // Extract components
     const salt = buffer.subarray(0, SALT_LENGTH);
     const iv = buffer.subarray(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
     const authTag = buffer.subarray(
@@ -72,18 +53,14 @@ export class CryptoAdapter {
     );
     const encrypted = buffer.subarray(SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
     
-    // Derive key from password (machine-specific salt)
     const key = crypto.pbkdf2Sync(this.salt, salt, ITERATIONS, KEY_LENGTH, 'sha512');
     
-    // Create decipher
     const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
     decipher.setAuthTag(authTag);
     
-    // Decrypt
     let decrypted = decipher.update(encrypted.toString('base64'), 'base64', 'utf8');
     decrypted += decipher.final('utf8');
     
     return decrypted;
   }
 }
-

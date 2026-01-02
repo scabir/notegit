@@ -1,5 +1,3 @@
-// Configuration types
-
 export interface AppSettings {
   autoSaveEnabled: boolean;
   autoSaveIntervalSec: number;
@@ -52,7 +50,6 @@ export interface AppStateSnapshot {
   };
 }
 
-// Default values
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   autoSaveEnabled: false,
   autoSaveIntervalSec: 30,
@@ -68,4 +65,3 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
 export const DEFAULT_APP_STATE: AppStateSnapshot = {
   expandedFolders: [],
 };
-

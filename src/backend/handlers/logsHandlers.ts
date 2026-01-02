@@ -4,7 +4,6 @@ import { ApiResponse } from '../../shared/types';
 import { logger } from '../utils/logger';
 
 export function registerLogsHandlers(ipcMain: IpcMain, logsService: LogsService): void {
-    // Get log content
     ipcMain.handle('logs:getContent', async (_, logType: 'combined' | 'error'): Promise<ApiResponse<string>> => {
         try {
             const content = await logsService.getLogContent(logType);
@@ -22,7 +21,6 @@ export function registerLogsHandlers(ipcMain: IpcMain, logsService: LogsService)
         }
     });
 
-    // Export logs
     ipcMain.handle('logs:export', async (_, logType: 'combined' | 'error', destPath: string): Promise<ApiResponse<void>> => {
         try {
             await logsService.exportLogs(logType, destPath);

@@ -39,14 +39,12 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Focus input when dialog opens
   useEffect(() => {
     if (open && inputRef.current) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [open]);
 
-  // Reset state when dialog closes
   useEffect(() => {
     if (!open) {
       setQuery('');
@@ -56,7 +54,6 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
     }
   }, [open]);
 
-  // Perform search with debouncing
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
@@ -64,12 +61,10 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
       return;
     }
 
-    // Clear previous timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
-    // Set new timeout for debounced search
     searchTimeoutRef.current = setTimeout(async () => {
       setLoading(true);
       setError(null);
@@ -90,7 +85,7 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
       } finally {
         setLoading(false);
       }
-    }, 300); // 300ms debounce
+    }, 300);
 
     return () => {
       if (searchTimeoutRef.current) {
@@ -99,7 +94,6 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
     };
   }, [query]);
 
-  // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -175,7 +169,6 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
       </DialogTitle>
 
       <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
-        {/* Search Input */}
         <Box sx={{ px: 3, pt: 1, pb: 2 }}>
           <TextField
             inputRef={inputRef}
@@ -201,7 +194,6 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
           />
         </Box>
 
-        {/* Results List */}
         <Box sx={{ flexGrow: 1, overflow: 'auto', px: 1 }}>
           {error && (
             <Box sx={{ p: 3, textAlign: 'center' }}>
@@ -246,17 +238,13 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
                     sx={{ py: 1.5 }}
                   >
                     <Box sx={{ display: 'flex', gap: 2, width: '100%', alignItems: 'flex-start' }}>
-                      {/* File Icon */}
                       <Box sx={{ mt: 0.5 }}>{getFileIcon(result.fileName)}</Box>
 
-                      {/* File Info */}
                       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                        {/* File Name */}
                         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
                           {highlightMatch(result.fileName, query)}
                         </Typography>
 
-                        {/* File Path */}
                         <Typography
                           variant="caption"
                           color="text.secondary"
@@ -265,7 +253,6 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
                           {result.filePath}
                         </Typography>
 
-                        {/* Content Matches */}
                         {result.matches.length > 0 && (
                           <Box>
                             {result.matches.slice(0, 2).map((match, idx) => (
@@ -321,4 +308,3 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
     </Dialog>
   );
 }
-

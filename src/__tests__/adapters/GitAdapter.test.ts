@@ -2,7 +2,6 @@ import { GitAdapter } from '../../backend/adapters/GitAdapter';
 import { ApiErrorCode } from '../../shared/types';
 import simpleGit, { SimpleGit } from 'simple-git';
 
-// Mock simple-git
 jest.mock('simple-git');
 
 describe('GitAdapter', () => {

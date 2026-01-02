@@ -22,12 +22,10 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
   const editorRef = useRef<any>(null);
   const editorViewRef = useRef<EditorView | null>(null);
   
-  // Find and replace state
   const [findBarOpen, setFindBarOpen] = useState(false);
   const [searchMatches, setSearchMatches] = useState<{ start: number; end: number }[]>([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
 
-  // Load app settings for editor preferences
   const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
 
   useEffect(() => {
@@ -44,19 +42,16 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     if (file) {
       setContent(file.content);
       setHasChanges(false);
-      // Clear find state when file changes
       setFindBarOpen(false);
       setSearchMatches([]);
       setCurrentMatchIndex(-1);
     }
   }, [file]);
 
-  // Notify parent of content changes
   useEffect(() => {
     onChange(content, hasChanges);
   }, [content, hasChanges]);
 
-  // Capture editor view reference
   useEffect(() => {
     if (editorRef.current && editorRef.current.view) {
       editorViewRef.current = editorRef.current.view;
@@ -87,7 +82,6 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     }
   };
 
-  // Find and replace functions
   const findMatches = useCallback((query: string): { start: number; end: number }[] => {
     if (!query) return [];
     
@@ -110,7 +104,6 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     const match = searchMatches[matchIndex];
     const view = editorViewRef.current;
     
-    // Scroll to and select the match
     view.dispatch({
       selection: EditorSelection.single(match.start, match.end),
       scrollIntoView: true,
@@ -120,7 +113,6 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
   }, [searchMatches]);
 
   const handleOpenFind = useCallback(() => {
-    // Get current selection to pre-fill find input
     let initialQuery = '';
     if (editorViewRef.current) {
       const selection = editorViewRef.current.state.selection.main;
@@ -131,7 +123,6 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     
     setFindBarOpen(true);
     
-    // If there's an initial query, find matches immediately
     if (initialQuery) {
       const matches = findMatches(initialQuery);
       setSearchMatches(matches);
@@ -179,7 +170,6 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     setContent(newContent);
     setHasChanges(true);
     
-    // Find next match after replacement
     setTimeout(() => {
       const matches = findMatches(query);
       setSearchMatches(matches);
@@ -205,10 +195,8 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     setCurrentMatchIndex(-1);
   }, [content]);
 
-  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd/Ctrl+F to open find
       if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         handleOpenFind();
@@ -219,7 +207,6 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleOpenFind]);
 
-  // Custom keymap for Ctrl+Enter
   const customKeymap = keymap.of([
     {
       key: 'Ctrl-Enter',
@@ -257,7 +244,6 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Toolbar */}
       <Toolbar
         variant="dense"
         sx={{
@@ -299,7 +285,6 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
         </Tooltip>
       </Toolbar>
 
-      {/* Find and Replace Bar */}
       {findBarOpen && (
         <FindReplaceBar
           onClose={() => setFindBarOpen(false)}
@@ -315,7 +300,6 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
         />
       )}
 
-      {/* Editor */}
       <Box
         sx={{
           flexGrow: 1,

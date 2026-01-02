@@ -40,11 +40,9 @@ export function CommitDialog({ open, filePath, onClose, onSuccess }: CommitDialo
     setError(null);
 
     try {
-      // Use commitAll to commit all changes (git add . && git commit)
       const response = await window.notegitApi.files.commitAll(message);
 
       if (response.ok) {
-        // Try to push after successful commit
         await window.notegitApi.repo.push();
         onSuccess();
         onClose();

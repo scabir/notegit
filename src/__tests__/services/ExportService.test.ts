@@ -38,13 +38,8 @@ describe('ExportService', () => {
       expect(mockConfigService.getRepoSettings).toHaveBeenCalled();
     });
 
-    // Note: Validation tests omitted as they depend on internal service logic
   });
 
-  // Note: Export tests require Electron dialog mocking which is complex to set up
-  // The export functionality is integration-tested through application usage
 
-  // Note: Additional error handling tests would require more complex dialog mocking
-  // The export functionality is integration-tested through application usage
 });
 

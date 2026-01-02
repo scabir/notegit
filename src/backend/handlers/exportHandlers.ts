@@ -19,7 +19,6 @@ export function registerExportHandlers(ipcMain: IpcMain, exportService: ExportSe
           data: exportPath,
         };
       } catch (error: any) {
-        // Don't log cancellation as error
         if (error.message && error.message.includes('cancelled by user')) {
           return {
             ok: false,
@@ -54,7 +53,6 @@ export function registerExportHandlers(ipcMain: IpcMain, exportService: ExportSe
         data: zipPath,
       };
     } catch (error: any) {
-      // Don't log cancellation as error
       if (error.message && error.message.includes('cancelled by user')) {
         return {
           ok: false,

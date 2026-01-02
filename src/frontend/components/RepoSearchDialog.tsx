@@ -48,7 +48,6 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
   const [selectedFileIndex, setSelectedFileIndex] = useState(-1);
   const queryInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus query input when dialog opens
   useEffect(() => {
     if (open) {
       setTimeout(() => queryInputRef.current?.focus(), 100);
@@ -106,7 +105,6 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
 
       if (response.ok && response.data) {
         setReplaceResult(response.data);
-        // Refresh search results
         await handleSearch();
       } else {
         setError(response.error?.message || 'Replace failed');
@@ -142,7 +140,6 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
 
       if (response.ok && response.data) {
         setReplaceResult(response.data);
-        // Clear results after replace all
         setResults([]);
         setQuery('');
         setReplacement('');
@@ -185,7 +182,6 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
       </DialogTitle>
 
       <DialogContent>
-        {/* Search Inputs */}
         <Box sx={{ mb: 2 }}>
           <TextField
             inputRef={queryInputRef}
@@ -210,7 +206,6 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
           />
         </Box>
 
-        {/* Options */}
         <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
           <FormControlLabel
             control={
@@ -234,7 +229,6 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
           />
         </Box>
 
-        {/* Search Button */}
         <Button
           variant="contained"
           startIcon={searching ? <CircularProgress size={20} /> : <SearchIcon />}
@@ -246,7 +240,6 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
           {searching ? 'Searching...' : 'Search Repository'}
         </Button>
 
-        {/* Replace Result */}
         {replaceResult && (
           <Alert severity="success" sx={{ mb: 2 }} onClose={() => setReplaceResult(null)}>
             <Typography variant="body2">
@@ -261,14 +254,12 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
           </Alert>
         )}
 
-        {/* Error */}
         {error && (
           <Alert severity={results.length === 0 && error === 'No matches found' ? 'info' : 'error'} sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
-        {/* Results */}
         {results.length > 0 && (
           <>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
@@ -297,7 +288,6 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
                   <React.Fragment key={fileResult.filePath}>
                     {fileIndex > 0 && <Divider />}
                     
-                    {/* File Header */}
                     <ListItem
                       sx={{
                         bgcolor: 'action.hover',
@@ -338,7 +328,6 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
                       />
                     </ListItem>
 
-                    {/* Match Items */}
                     {fileResult.matches.slice(0, 5).map((match, matchIndex) => (
                       <ListItemButton
                         key={`${fileIndex}-${matchIndex}`}
@@ -376,7 +365,6 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
                       </ListItemButton>
                     ))}
 
-                    {/* Show more indicator */}
                     {fileResult.matches.length > 5 && (
                       <ListItem sx={{ pl: 4 }}>
                         <Typography variant="caption" color="text.secondary">

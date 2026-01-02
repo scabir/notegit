@@ -40,17 +40,15 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   const [content, setContent] = useState('');
   const [savedContent, setSavedContent] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('split');
-  const [editorWidth, setEditorWidth] = useState(50); // Percentage
+  const [editorWidth, setEditorWidth] = useState(50);
   const editorRef = useRef<any>(null);
   const editorViewRef = useRef<EditorView | null>(null);
   const isDraggingRef = useRef(false);
   
-  // Find and replace state
   const [findBarOpen, setFindBarOpen] = useState(false);
   const [searchMatches, setSearchMatches] = useState<{ start: number; end: number }[]>([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
 
-  // Load app settings for editor preferences
   const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
 
   useEffect(() => {
@@ -67,7 +65,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     if (file) {
       setContent(file.content);
       setSavedContent(file.content);
-      // Clear find state when file changes
       setFindBarOpen(false);
       setSearchMatches([]);
       setCurrentMatchIndex(-1);
@@ -76,12 +73,10 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
 
   const hasUnsavedChanges = content !== savedContent;
 
-  // Notify parent of content changes
   useEffect(() => {
     onChange(content, hasUnsavedChanges);
   }, [content, hasUnsavedChanges]);
 
-  // Capture editor view reference
   useEffect(() => {
     if (editorRef.current && editorRef.current.view) {
       editorViewRef.current = editorRef.current.view;
@@ -112,7 +107,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     }
   };
 
-  // Find and replace functions
   const findMatches = useCallback((query: string): { start: number; end: number }[] => {
     if (!query) return [];
     
@@ -135,7 +129,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     const match = searchMatches[matchIndex];
     const view = editorViewRef.current;
     
-    // Scroll to and select the match
     view.dispatch({
       selection: EditorSelection.single(match.start, match.end),
       scrollIntoView: true,
@@ -145,7 +138,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   }, [searchMatches]);
 
   const handleOpenFind = useCallback(() => {
-    // Get current selection to pre-fill find input
     let initialQuery = '';
     if (editorViewRef.current) {
       const selection = editorViewRef.current.state.selection.main;
@@ -156,7 +148,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     
     setFindBarOpen(true);
     
-    // If there's an initial query, find matches immediately
     if (initialQuery) {
       const matches = findMatches(initialQuery);
       setSearchMatches(matches);
@@ -203,7 +194,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     
     setContent(newContent);
     
-    // Find next match after replacement
     setTimeout(() => {
       const matches = findMatches(query);
       setSearchMatches(matches);
@@ -228,15 +218,12 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     setCurrentMatchIndex(-1);
   }, [content]);
 
-  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd/Ctrl+S to save
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
         handleSave();
       }
-      // Cmd/Ctrl+F to open find
       else if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         handleOpenFind();
@@ -247,7 +234,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [hasUnsavedChanges, content]);
 
-  // Markdown formatting functions
   const insertMarkdown = useCallback((before: string, after: string = '', defaultText: string = '') => {
     if (!editorRef.current) return;
 
@@ -277,7 +263,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   const formatNumberedList = () => insertMarkdown('1. ', '', 'list item');
   const formatLink = () => insertMarkdown('[', '](url)', 'link text');
 
-  // Custom keymap for Ctrl+Enter
   const customKeymap = keymap.of([
     {
       key: 'Ctrl-Enter',
@@ -292,7 +277,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     }
   ]);
 
-  // Resizable divider
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     isDraggingRef.current = true;
@@ -306,7 +290,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
       const containerRect = container.getBoundingClientRect();
       const newWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
 
-      // Limit width between 20% and 80%
       if (newWidth >= 20 && newWidth <= 80) {
         setEditorWidth(newWidth);
       }
@@ -343,7 +326,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Top Toolbar */}
       <Toolbar variant="dense" sx={{ borderBottom: 1, borderColor: 'divider', gap: 1, minHeight: '48px' }}>
         <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
           <span>{file.path}</span>
@@ -357,7 +339,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
           )}
         </Box>
 
-        {/* View Mode Toggle */}
         <ToggleButtonGroup
           value={viewMode}
           exclusive
@@ -406,7 +387,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
         </Tooltip>
       </Toolbar>
 
-      {/* Find and Replace Bar */}
       {findBarOpen && (
         <FindReplaceBar
           onClose={() => setFindBarOpen(false)}
@@ -422,7 +402,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
         />
       )}
 
-      {/* Formatting Toolbar */}
       {showEditor && (
         <Toolbar variant="dense" sx={{ borderBottom: 1, borderColor: 'divider', minHeight: '40px', gap: 0.5 }}>
           <Tooltip title="Bold (Ctrl+B)">
@@ -475,7 +454,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
         </Toolbar>
       )}
 
-      {/* Editor and Preview Container */}
       <Box 
         id="editor-container"
         sx={{ 
@@ -485,7 +463,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
           position: 'relative',
         }}
       >
-        {/* Editor */}
         {showEditor && (
           <Box 
             sx={{ 
@@ -516,7 +493,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
           </Box>
         )}
 
-        {/* Resizable Divider */}
         {viewMode === 'split' && (
           <Box
             onMouseDown={handleMouseDown}
@@ -534,7 +510,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
           />
         )}
 
-        {/* Preview */}
         {showPreview && (
           <Box
             sx={{
@@ -597,10 +572,8 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
                 remarkPlugins={[remarkGfm]}
                 components={{
                   img: ({ node, ...props }) => {
-                    // Resolve relative image paths
                     let src = props.src || '';
                     if (repoPath && src && !src.startsWith('http') && !src.startsWith('data:')) {
-                      // Convert file:// path for local images
                       src = `file://${repoPath}/${src}`;
                     }
                     return (

@@ -1,8 +1,6 @@
 import type { FileTreeNode, FileContent } from './domain';
 import type { RepoSettings, FullConfig, AppSettings, Profile } from './config';
 import type { RepoStatus, CommitEntry, DiffHunk } from './git';
-
-// API Response types
 export interface ApiResponse<T> {
   ok: boolean;
   data?: T;
@@ -29,7 +27,6 @@ export enum ApiErrorCode {
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 
-// Search types
 export interface SearchResult {
   filePath: string;
   fileName: string;
@@ -43,14 +40,12 @@ export interface SearchMatch {
   contextAfter: string;
 }
 
-// Response types for specific operations
 export interface OpenOrCloneRepoResponse {
   localPath: string;
   tree: FileTreeNode[];
   status: RepoStatus;
 }
 
-// Complete API interface with proper types
 export interface NotegitApi {
   config: {
     getFull: () => Promise<ApiResponse<FullConfig>>;
@@ -129,10 +124,8 @@ export interface NotegitApi {
   };
 }
 
-// Extend Window interface to include our API
 declare global {
   interface Window {
     notegitApi: NotegitApi;
   }
 }
-
