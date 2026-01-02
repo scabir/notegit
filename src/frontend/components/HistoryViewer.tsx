@@ -129,7 +129,6 @@ export function HistoryViewer({
       </DialogTitle>
 
       <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
-        {/* View Mode Toggle */}
         {isMarkdown() && !loading && !error && (
           <Box
             sx={{
@@ -158,7 +157,6 @@ export function HistoryViewer({
           </Box>
         )}
 
-        {/* Content */}
         <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
           {loading && (
             <Box
@@ -292,6 +290,5 @@ export function HistoryViewer({
   );
 }
 
-// Add Tooltip import
 import { Tooltip } from '@mui/material';
 

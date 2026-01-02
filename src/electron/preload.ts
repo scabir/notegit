@@ -1,8 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type { NotegitApi } from '../shared/types/api';
 
-// Expose protected methods that allow the renderer process to use
-// the ipcRenderer without exposing the entire object
 const api: NotegitApi = {
   config: {
     getFull: () => ipcRenderer.invoke('config:getFull'),
@@ -68,4 +66,3 @@ const api: NotegitApi = {
 };
 
 contextBridge.exposeInMainWorld('notegitApi', api);
-

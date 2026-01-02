@@ -20,16 +20,10 @@ export class FilesService {
     private configService: ConfigService
   ) {}
 
-  /**
-   * Set GitAdapter (to avoid circular dependency)
-   */
   setGitAdapter(gitAdapter: GitAdapter): void {
     this.gitAdapter = gitAdapter;
   }
 
-  /**
-   * Initialize with repository path
-   */
   async init(): Promise<void> {
     const repoSettings = await this.configService.getRepoSettings();
     if (repoSettings?.localPath) {
@@ -38,9 +32,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * List complete file tree
-   */
   async listTree(): Promise<FileTreeNode[]> {
     await this.ensureRepoPath();
 
@@ -56,9 +47,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * Read file content
-   */
   async readFile(filePath: string): Promise<FileContent> {
     await this.ensureRepoPath();
 
@@ -82,9 +70,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * Save file content (no Git operations)
-   */
   async saveFile(filePath: string, content: string): Promise<void> {
     await this.ensureRepoPath();
 
@@ -99,9 +84,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * Commit file changes to Git
-   */
   async commitFile(filePath: string, message: string): Promise<void> {
     await this.ensureRepoPath();
 
@@ -114,13 +96,10 @@ export class FilesService {
     }
 
     try {
-      // Initialize Git adapter with repo path
       await this.gitAdapter.init(this.repoPath!);
       
-      // Stage the file
       await this.gitAdapter.add(filePath);
       
-      // Commit
       await this.gitAdapter.commit(message);
       
       logger.info('File committed', { filePath, message });
@@ -130,9 +109,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * Commit all changes to Git (git add . && git commit)
-   */
   async commitAll(message: string): Promise<void> {
     await this.ensureRepoPath();
 
@@ -145,13 +121,10 @@ export class FilesService {
     }
 
     try {
-      // Initialize Git adapter with repo path
       await this.gitAdapter.init(this.repoPath!);
       
-      // Stage all changes (git add .)
       await this.gitAdapter.add('.');
       
-      // Commit
       await this.gitAdapter.commit(message);
       
       logger.info('All changes committed', { message });
@@ -161,9 +134,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * Get git status with lists of changed files
-   */
   async getGitStatus(): Promise<{ modified: string[]; added: string[]; deleted: string[] }> {
     await this.ensureRepoPath();
 
@@ -176,7 +146,6 @@ export class FilesService {
     }
 
     try {
-      // Initialize Git adapter with repo path
       await this.gitAdapter.init(this.repoPath!);
       
       const status = await this.gitAdapter.status();
@@ -192,10 +161,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * Save file with automatic Git workflow (save -> commit -> pull -> push)
-   * This implements the "invisible Git" workflow
-   */
   async saveWithGitWorkflow(
     filePath: string, 
     content: string, 
@@ -219,24 +184,19 @@ export class FilesService {
     const result: { pullFailed?: boolean; pushFailed?: boolean; conflictDetected?: boolean } = {};
 
     try {
-      // Step 1: Save file to disk
       await this.saveFile(filePath, content);
       logger.debug('File saved to disk', { filePath });
 
-      // Step 2: Initialize Git adapter
       await this.gitAdapter.init(this.repoPath!);
 
-      // Step 3: Stage and commit the file
       try {
         await this.gitAdapter.add(filePath);
         await this.gitAdapter.commit(commitMessage);
         logger.info('File committed', { filePath, message: commitMessage });
       } catch (commitError: any) {
-        // If commit fails (e.g., nothing to commit), continue
         logger.warn('Commit failed or nothing to commit', { filePath, error: commitError });
       }
 
-      // Step 4: Try to pull from remote
       try {
         await this.gitAdapter.pull();
         logger.info('Pull successful', { filePath });
@@ -244,15 +204,13 @@ export class FilesService {
         logger.error('Pull failed', { error: pullError });
         result.pullFailed = true;
         
-        // Check if it's a conflict
-        if (pullError.message && pullError.message.toLowerCase().includes('conflict')) {
+    if (pullError.message && pullError.message.toLowerCase().includes('conflict')) {
           result.conflictDetected = true;
           logger.warn('Conflict detected during pull', { filePath });
         }
       }
 
-      // Step 5: Try to push to remote (only if pull succeeded or didn't fail due to conflict)
-      if (!result.conflictDetected) {
+    if (!result.conflictDetected) {
         try {
           await this.gitAdapter.push();
           logger.info('Push successful', { filePath });
@@ -269,9 +227,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * Create a new file
-   */
   async createFile(parentPath: string, name: string): Promise<void> {
     await this.ensureRepoPath();
 
@@ -279,9 +234,8 @@ export class FilesService {
     const fullPath = path.join(this.repoPath!, filePath);
 
     try {
-      // Create with default content based on file type
       let content = '';
-      if (name.endsWith('.md')) {
+    if (name.endsWith('.md')) {
         content = `# ${name.replace('.md', '')}\n\n`;
       }
 
@@ -293,9 +247,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * Create a new folder
-   */
   async createFolder(parentPath: string, name: string): Promise<void> {
     await this.ensureRepoPath();
 
@@ -311,9 +262,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * Delete a file or folder
-   */
   async deletePath(filePath: string): Promise<void> {
     await this.ensureRepoPath();
 
@@ -322,8 +270,7 @@ export class FilesService {
     try {
       const stats = await this.fsAdapter.stat(fullPath);
       
-      if (stats.isDirectory()) {
-        // Use rmdir which handles recursive deletion
+    if (stats.isDirectory()) {
         await this.fsAdapter.rmdir(fullPath, { recursive: true });
       } else {
         await this.fsAdapter.deleteFile(fullPath);
@@ -336,9 +283,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * Rename a file or folder
-   */
   async renamePath(oldPath: string, newPath: string): Promise<void> {
     await this.ensureRepoPath();
 
@@ -354,9 +298,6 @@ export class FilesService {
     }
   }
 
-  /**
-   * Copy file to external location (for saveAs)
-   */
   async saveFileAs(repoPath: string, destPath: string): Promise<void> {
     await this.ensureRepoPath();
 
@@ -371,20 +312,15 @@ export class FilesService {
     }
   }
 
-  /**
-   * Import/copy file from external location into the repository
-   */
   async importFile(sourcePath: string, targetPath: string): Promise<void> {
     await this.ensureRepoPath();
 
     const fullTargetPath = path.join(this.repoPath!, targetPath);
 
     try {
-      // Ensure parent directory exists
       const parentDir = path.dirname(fullTargetPath);
       await this.fsAdapter.mkdir(parentDir, { recursive: true });
 
-      // Copy the file
       await this.fsAdapter.copyFile(sourcePath, fullTargetPath);
       logger.info('File imported', { sourcePath, targetPath });
     } catch (error: any) {
@@ -394,16 +330,12 @@ export class FilesService {
   }
 
 
-  /**
-   * Recursively build file tree
-   */
   private async buildTree(dirPath: string, relativePath: string = ''): Promise<FileTreeNode[]> {
     const entries = await this.fsAdapter.readdir(dirPath);
     const nodes: FileTreeNode[] = [];
 
     for (const entry of entries) {
-      // Skip hidden files and .git directory
-      if (entry.startsWith('.')) {
+    if (entry.startsWith('.')) {
         continue;
       }
 
@@ -413,8 +345,7 @@ export class FilesService {
       try {
         const stats = await this.fsAdapter.stat(fullPath);
 
-        if (stats.isDirectory()) {
-          // Recursively build subtree
+    if (stats.isDirectory()) {
           const children = await this.buildTree(fullPath, entryRelativePath);
 
           nodes.push({
@@ -426,7 +357,6 @@ export class FilesService {
             isExpanded: false,
           });
         } else {
-          // It's a file
           const fileType = this.getFileType(entry);
 
           nodes.push({
@@ -442,9 +372,8 @@ export class FilesService {
       }
     }
 
-    // Sort: folders first, then files, both alphabetically
     nodes.sort((a, b) => {
-      if (a.type !== b.type) {
+    if (a.type !== b.type) {
         return a.type === 'folder' ? -1 : 1;
       }
       return a.name.localeCompare(b.name);
@@ -453,33 +382,25 @@ export class FilesService {
     return nodes;
   }
 
-  /**
-   * Determine file type from extension
-   */
   getFileType(filename: string): FileType {
     const ext = path.extname(filename).toLowerCase();
 
-    // Markdown
     if (ext === '.md' || ext === '.markdown') {
       return FileType.MARKDOWN;
     }
 
-    // Images
     if (['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp'].includes(ext)) {
       return FileType.IMAGE;
     }
 
-    // PDF
     if (ext === '.pdf') {
       return FileType.PDF;
     }
 
-    // JSON
     if (ext === '.json') {
       return FileType.JSON;
     }
 
-    // Code files
     if (
       [
         '.js',
@@ -506,7 +427,6 @@ export class FilesService {
       return FileType.CODE;
     }
 
-    // Text files
     if (['.txt', '.log', '.csv', '.xml', '.yml', '.yaml', '.toml', '.ini'].includes(ext)) {
       return FileType.TEXT;
     }
@@ -514,22 +434,16 @@ export class FilesService {
     return FileType.OTHER;
   }
 
-  /**
-   * Count total nodes in tree (for debugging)
-   */
   private countNodes(nodes: FileTreeNode[]): number {
     let count = nodes.length;
     for (const node of nodes) {
-      if (node.children) {
+    if (node.children) {
         count += this.countNodes(node.children);
       }
     }
     return count;
   }
 
-  /**
-   * Ensure repo path is set
-   */
   private async ensureRepoPath(): Promise<void> {
     if (!this.repoPath) {
       await this.init();

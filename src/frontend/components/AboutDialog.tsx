@@ -28,7 +28,7 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
   const APP_DESCRIPTION = 'A Git-backed Markdown note-taking desktop application built with Electron';
   const AUTHOR_NAME = 'Suleyman Cabir Ataman';
   const GITHUB_URL = 'https://github.com/scabir';
-  const WEBSITE_URL = ''; // TODO: Add your website URL (optional)
+  const WEBSITE_URL = '';
   const LICENSE = 'MIT License';
   const YEAR = new Date().getFullYear();
 
@@ -225,4 +225,3 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
     </Dialog>
   );
 }
-

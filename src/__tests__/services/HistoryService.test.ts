@@ -3,7 +3,6 @@ import { GitAdapter } from '../../backend/adapters/GitAdapter';
 import { ConfigService } from '../../backend/services/ConfigService';
 import { AuthMethod } from '../../shared/types';
 
-// Mock dependencies
 jest.mock('../../backend/adapters/GitAdapter');
 jest.mock('../../backend/services/ConfigService');
 

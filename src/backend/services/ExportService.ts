@@ -16,9 +16,6 @@ export class ExportService {
     private configService: ConfigService
   ) {}
 
-  /**
-   * Initialize with repository path
-   */
   async init(): Promise<void> {
     const repoSettings = await this.configService.getRepoSettings();
     if (repoSettings?.localPath) {
@@ -27,17 +24,12 @@ export class ExportService {
     }
   }
 
-  /**
-   * Export current note to .md or .txt file
-   * Shows save dialog and writes content to selected file
-   */
   async exportNote(
     fileName: string,
     content: string,
     defaultExtension: 'md' | 'txt' = 'md'
   ): Promise<string> {
     try {
-      // Show save dialog
       const result = await dialog.showSaveDialog({
         title: 'Export Note',
         defaultPath: fileName.replace(/\.(md|txt)$/, '') + `.${defaultExtension}`,
@@ -49,7 +41,7 @@ export class ExportService {
         properties: ['createDirectory', 'showOverwriteConfirmation'],
       });
 
-      if (result.canceled || !result.filePath) {
+    if (result.canceled || !result.filePath) {
         throw this.createError(
           ApiErrorCode.VALIDATION_ERROR,
           'Export cancelled by user',
@@ -59,13 +51,12 @@ export class ExportService {
 
       const exportPath = result.filePath;
 
-      // Write content to file
       await fs.writeFile(exportPath, content, 'utf-8');
 
       logger.info('Note exported successfully', { exportPath });
       return exportPath;
     } catch (error: any) {
-      if (error.code === ApiErrorCode.VALIDATION_ERROR) {
+    if (error.code === ApiErrorCode.VALIDATION_ERROR) {
         throw error;
       }
       logger.error('Failed to export note', { fileName, error });
@@ -77,15 +68,10 @@ export class ExportService {
     }
   }
 
-  /**
-   * Export entire repository as a zip archive
-   * Shows save dialog and creates zip of repo (excluding .git)
-   */
   async exportRepoAsZip(): Promise<string> {
     await this.ensureRepoPath();
 
     try {
-      // Show save dialog
       const repoName = path.basename(this.repoPath!);
       const result = await dialog.showSaveDialog({
         title: 'Export Repository as Zip',
@@ -97,7 +83,7 @@ export class ExportService {
         properties: ['createDirectory', 'showOverwriteConfirmation'],
       });
 
-      if (result.canceled || !result.filePath) {
+    if (result.canceled || !result.filePath) {
         throw this.createError(
           ApiErrorCode.VALIDATION_ERROR,
           'Export cancelled by user',
@@ -107,13 +93,12 @@ export class ExportService {
 
       const zipPath = result.filePath;
 
-      // Create zip archive
       await this.createZipArchive(this.repoPath!, zipPath);
 
       logger.info('Repository exported as zip', { zipPath });
       return zipPath;
     } catch (error: any) {
-      if (error.code === ApiErrorCode.VALIDATION_ERROR) {
+    if (error.code === ApiErrorCode.VALIDATION_ERROR) {
         throw error;
       }
       logger.error('Failed to export repository as zip', { error });
@@ -125,49 +110,42 @@ export class ExportService {
     }
   }
 
-  /**
-   * Create a zip archive of the repository
-   */
   private async createZipArchive(sourcePath: string, zipPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const output = createWriteStream(zipPath);
       const archive = archiver('zip', {
-        zlib: { level: 9 }, // Maximum compression
+        zlib: { level: 9 },
       });
 
-      // Handle stream events
       output.on('close', () => {
         logger.debug('Zip archive created', {
           zipPath,
           bytes: archive.pointer(),
         });
-        resolve();
+  resolve();
       });
 
       archive.on('error', (err) => {
         logger.error('Zip archive error', { err });
-        reject(err);
+  reject(err);
       });
 
       archive.on('warning', (err) => {
-        if (err.code === 'ENOENT') {
+    if (err.code === 'ENOENT') {
           logger.warn('Zip archive warning', { err });
         } else {
-          reject(err);
+  reject(err);
         }
       });
 
-      // Pipe archive data to the file
       archive.pipe(output);
 
-      // Add files to archive, excluding .git directory
       archive.glob('**/*', {
         cwd: sourcePath,
         ignore: ['.git/**', 'node_modules/**'],
         dot: true,
       });
 
-      // Finalize the archive
       archive.finalize();
     });
   }

@@ -1,5 +1,3 @@
-// Types for repo-wide search and replace
-
 export interface RepoWideSearchResult {
   filePath: string; // Relative path
   fileName: string;
@@ -22,4 +20,3 @@ export interface ReplaceResult {
   totalReplacements: number;
   errors: { filePath: string; error: string }[];
 }
-

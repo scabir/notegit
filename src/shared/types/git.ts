@@ -1,5 +1,3 @@
-// Git-related types
-
 export interface RepoStatus {
   branch: string;
   ahead: number;
@@ -46,4 +44,3 @@ export interface GitStatusInfo {
   renamed: { from: string; to: string }[];
   untracked: string[];
 }
-

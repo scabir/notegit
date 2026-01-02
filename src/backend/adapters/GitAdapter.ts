@@ -10,9 +10,6 @@ export class GitAdapter {
   private git: SimpleGit | null = null;
   private repoPath: string | null = null;
 
-  /**
-   * Check if Git CLI is installed on the system
-   */
   async checkGitInstalled(): Promise<boolean> {
     try {
       const { stdout } = await execAsync('git --version');
@@ -24,32 +21,23 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Initialize Git adapter for a specific repository
-   */
   async init(repoPath: string): Promise<void> {
     this.repoPath = repoPath;
     this.git = simpleGit(repoPath);
     logger.debug('GitAdapter initialized', { repoPath });
   }
 
-  /**
-   * Clone a repository
-   */
   async clone(remoteUrl: string, localPath: string, branch: string, pat?: string): Promise<void> {
     try {
       logger.info('Cloning repository', { remoteUrl, localPath, branch });
 
-      // If PAT is provided, inject it into the URL for HTTPS auth
       let authUrl = remoteUrl;
       if (pat && remoteUrl.startsWith('https://')) {
-        // Format: https://PAT@github.com/user/repo.git
         authUrl = remoteUrl.replace('https://', `https://${pat}@`);
       }
 
       await simpleGit().clone(authUrl, localPath, ['--branch', branch]);
       
-      // Initialize for this repo
       await this.init(localPath);
       
       logger.info('Repository cloned successfully');
@@ -72,9 +60,6 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Get repository status
-   */
   async status(): Promise<any> {
     this.ensureInitialized();
     
@@ -92,16 +77,12 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Pull from remote
-   */
   async pull(pat?: string): Promise<void> {
     this.ensureInitialized();
     
     try {
       logger.info('Pulling from remote');
       
-      // Set up credentials if PAT provided
       if (pat) {
         await this.configureAuth(pat);
       }
@@ -135,16 +116,12 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Push to remote
-   */
   async push(pat?: string): Promise<void> {
     this.ensureInitialized();
     
     try {
       logger.info('Pushing to remote');
       
-      // Set up credentials if PAT provided
       if (pat) {
         await this.configureAuth(pat);
       }
@@ -170,9 +147,6 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Fetch from remote (used for connection check)
-   */
   async fetch(): Promise<void> {
     this.ensureInitialized();
     
@@ -185,9 +159,6 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Add file to staging
-   */
   async add(filePath: string): Promise<void> {
     this.ensureInitialized();
     
@@ -204,9 +175,6 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Commit staged changes
-   */
   async commit(message: string): Promise<void> {
     this.ensureInitialized();
     
@@ -223,9 +191,6 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Add remote repository
-   */
   async addRemote(remoteUrl: string, name: string = 'origin'): Promise<void> {
     this.ensureInitialized();
     
@@ -242,21 +207,18 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Get commit log for a file
-   */
   async log(filePath?: string): Promise<any[]> {
     this.ensureInitialized();
     
     try {
       const options: any = {
         file: filePath,
-        maxCount: 100, // Limit to last 100 commits
+        maxCount: 100,
       };
       
       const log = await this.git!.log(options);
       logger.debug('Retrieved git log', { fileCount: log.all.length });
-      return [...log.all]; // Create mutable copy
+      return [...log.all];
     } catch (error: any) {
       logger.error('Failed to get git log', { error });
       throw this.createError(
@@ -267,9 +229,6 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Show file content at specific commit
-   */
   async show(commitHash: string, filePath: string): Promise<string> {
     this.ensureInitialized();
     
@@ -287,9 +246,6 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Get diff between commits
-   */
   async diff(commit1: string, commit2: string, filePath?: string): Promise<string> {
     this.ensureInitialized();
     
@@ -312,9 +268,6 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Get count of commits ahead/behind remote
-   */
   async getAheadBehind(): Promise<{ ahead: number; behind: number }> {
     this.ensureInitialized();
     
@@ -330,9 +283,6 @@ export class GitAdapter {
     }
   }
 
-  /**
-   * Get current branch name
-   */
   async getCurrentBranch(): Promise<string> {
     this.ensureInitialized();
     
@@ -346,8 +296,6 @@ export class GitAdapter {
   }
 
   private async configureAuth(pat: string): Promise<void> {
-    // Configure git credential helper to use PAT
-    // This is a simple approach - for production, might want credential caching
     await this.git!.addConfig('credential.helper', 'store');
   }
 
@@ -369,4 +317,3 @@ export class GitAdapter {
     };
   }
 }
-

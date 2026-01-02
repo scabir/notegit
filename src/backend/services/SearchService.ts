@@ -47,9 +47,6 @@ export class SearchService {
     }
   }
 
-  /**
-   * Search for files and content matching the query
-   */
   async search(query: string, options?: { maxResults?: number }): Promise<SearchResult[]> {
     await this.ensureRepoPath();
 
@@ -64,16 +61,14 @@ export class SearchService {
     try {
       const files = await this.getAllSearchableFiles(this.repoPath!);
 
-      for (const filePath of files) {
-        if (results.length >= maxResults) break;
+    for (const filePath of files) {
+    if (results.length >= maxResults) break;
 
         const fileName = path.basename(filePath);
         const fileNameLower = fileName.toLowerCase();
 
-        // Check if filename matches
         const fileNameMatches = fileNameLower.includes(queryLower);
 
-        // Read file content
         let content = '';
         try {
           content = await this.fsAdapter.readFile(filePath);
@@ -84,15 +79,13 @@ export class SearchService {
 
         const matches: SearchMatch[] = [];
 
-        // Search in content
         const lines = content.split('\n');
         const contentLower = content.toLowerCase();
 
-        if (contentLower.includes(queryLower)) {
-          // Find all lines containing the query
-          for (let i = 0; i < lines.length; i++) {
+    if (contentLower.includes(queryLower)) {
+    for (let i = 0; i < lines.length; i++) {
             const lineLower = lines[i].toLowerCase();
-            if (lineLower.includes(queryLower)) {
+    if (lineLower.includes(queryLower)) {
               matches.push({
                 lineNumber: i + 1,
                 lineContent: lines[i],
@@ -100,14 +93,12 @@ export class SearchService {
                 contextAfter: i < lines.length - 1 ? lines[i + 1] : '',
               });
 
-              // Limit matches per file
-              if (matches.length >= 5) break;
+    if (matches.length >= 5) break;
             }
           }
         }
 
-        // Add result if there are content matches or filename matches
-        if (matches.length > 0 || fileNameMatches) {
+    if (matches.length > 0 || fileNameMatches) {
           const relativePath = path.relative(this.repoPath!, filePath);
           results.push({
             filePath: relativePath,
@@ -129,9 +120,6 @@ export class SearchService {
     }
   }
 
-  /**
-   * Get all searchable files (.md and .txt) in the repository
-   */
   private async getAllSearchableFiles(dirPath: string): Promise<string[]> {
     const files: string[] = [];
 
@@ -139,34 +127,29 @@ export class SearchService {
       try {
         const entries = await this.fsAdapter.readdir(currentPath);
 
-        for (const entryName of entries) {
+    for (const entryName of entries) {
           const fullPath = path.join(currentPath, entryName);
 
-          // Skip hidden files and directories
-          if (entryName.startsWith('.')) {
+    if (entryName.startsWith('.')) {
             continue;
           }
 
-          // Skip node_modules and other common directories
-          if (entryName === 'node_modules' || entryName === 'dist' || entryName === 'build') {
+    if (entryName === 'node_modules' || entryName === 'dist' || entryName === 'build') {
             continue;
           }
 
-          // Check if it's a directory or file
           try {
             const stats = await this.fsAdapter.stat(fullPath);
             
-            if (stats.isDirectory()) {
+    if (stats.isDirectory()) {
               await processDirectory(fullPath);
             } else {
-              // Only include .md and .txt files
               const ext = path.extname(entryName).toLowerCase();
-              if (ext === '.md' || ext === '.txt' || ext === '.markdown') {
+    if (ext === '.md' || ext === '.txt' || ext === '.markdown') {
                 files.push(fullPath);
               }
             }
           } catch (error: any) {
-            // Skip files we can't stat
             logger.warn('Failed to stat file for search', { fullPath, error });
             continue;
           }
@@ -180,10 +163,6 @@ export class SearchService {
     return files;
   }
 
-  /**
-   * Search for text across all markdown files in the repo
-   * Returns detailed match information for find and replace
-   */
   async searchRepoWide(
     query: string,
     options?: { caseSensitive?: boolean; useRegex?: boolean }
@@ -199,10 +178,9 @@ export class SearchService {
     const useRegex = options?.useRegex || false;
 
     try {
-      // Get all markdown files
       const files = await this.getAllMarkdownFiles(this.repoPath!);
 
-      for (const filePath of files) {
+    for (const filePath of files) {
         const relativePath = path.relative(this.repoPath!, filePath);
         const fileMatches: RepoWideMatch[] = [];
 
@@ -210,12 +188,11 @@ export class SearchService {
           const content = await this.fsAdapter.readFile(filePath);
           const lines = content.split('\n');
 
-          // Search each line
-          for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
             const line = lines[lineIndex];
             const matches = this.findMatchesInLine(line, query, caseSensitive, useRegex);
 
-            for (const match of matches) {
+    for (const match of matches) {
               fileMatches.push({
                 lineNumber: lineIndex + 1,
                 lineContent: line,
@@ -227,7 +204,7 @@ export class SearchService {
             }
           }
 
-          if (fileMatches.length > 0) {
+    if (fileMatches.length > 0) {
             results.push({
               filePath: relativePath,
               fileName: path.basename(filePath),
@@ -259,16 +236,13 @@ export class SearchService {
     }
   }
 
-  /**
-   * Replace text across multiple files in the repo
-   */
   async replaceInRepo(
     query: string,
     replacement: string,
     options: {
       caseSensitive?: boolean;
       useRegex?: boolean;
-      filePaths?: string[]; // If provided, only replace in these files
+      filePaths?: string[];
     }
   ): Promise<ReplaceResult> {
     await this.ensureRepoPath();
@@ -278,14 +252,11 @@ export class SearchService {
     let filesToProcess: string[] = [];
 
     try {
-      // Determine which files to process
-      if (options.filePaths && options.filePaths.length > 0) {
-        // Convert relative paths to full paths
+    if (options.filePaths && options.filePaths.length > 0) {
         filesToProcess = options.filePaths.map((relPath) =>
           path.join(this.repoPath!, relPath)
         );
       } else {
-        // Process all markdown files
         filesToProcess = await this.getAllMarkdownFiles(this.repoPath!);
       }
 
@@ -296,19 +267,17 @@ export class SearchService {
         errors: [],
       };
 
-      for (const filePath of filesToProcess) {
+    for (const filePath of filesToProcess) {
         result.filesProcessed++;
 
         try {
           const content = await this.fsAdapter.readFile(filePath);
           const newContent = this.replaceInContent(content, query, replacement, caseSensitive, useRegex);
 
-          // Check if content changed
-          if (newContent !== content) {
+    if (newContent !== content) {
             await this.fsAdapter.writeFile(filePath, newContent);
             result.filesModified++;
 
-            // Count replacements
             const matches = this.findMatchesInContent(content, query, caseSensitive, useRegex);
             result.totalReplacements += matches.length;
 
@@ -339,9 +308,6 @@ export class SearchService {
     }
   }
 
-  /**
-   * Get all markdown files in the repo
-   */
   private async getAllMarkdownFiles(dirPath: string): Promise<string[]> {
     const files: string[] = [];
 
@@ -349,28 +315,25 @@ export class SearchService {
       try {
         const entries = await this.fsAdapter.readdir(currentPath);
 
-        for (const entryName of entries) {
+    for (const entryName of entries) {
           const fullPath = path.join(currentPath, entryName);
 
-          // Skip hidden files and directories
-          if (entryName.startsWith('.')) {
+    if (entryName.startsWith('.')) {
             continue;
           }
 
-          // Skip node_modules and other common directories
-          if (entryName === 'node_modules' || entryName === 'dist' || entryName === 'build') {
+    if (entryName === 'node_modules' || entryName === 'dist' || entryName === 'build') {
             continue;
           }
 
           try {
             const stats = await this.fsAdapter.stat(fullPath);
 
-            if (stats.isDirectory()) {
+    if (stats.isDirectory()) {
               await processDirectory(fullPath);
             } else {
-              // Only include .md files for repo-wide operations
               const ext = path.extname(entryName).toLowerCase();
-              if (ext === '.md' || ext === '.markdown') {
+    if (ext === '.md' || ext === '.markdown') {
                 files.push(fullPath);
               }
             }
@@ -388,9 +351,6 @@ export class SearchService {
     return files;
   }
 
-  /**
-   * Find all matches of a query in a single line
-   */
   private findMatchesInLine(
     line: string,
     query: string,
@@ -405,14 +365,13 @@ export class SearchService {
         const regex = new RegExp(query, flags);
         let match;
 
-        while ((match = regex.exec(line)) !== null) {
+    while ((match = regex.exec(line)) !== null) {
           matches.push({
             start: match.index,
             end: match.index + match[0].length,
           });
         }
       } catch (error) {
-        // Invalid regex, fall back to literal search
         return this.findMatchesInLine(line, query, caseSensitive, false);
       }
     } else {
@@ -420,7 +379,7 @@ export class SearchService {
       const searchQuery = caseSensitive ? query : query.toLowerCase();
       let index = 0;
 
-      while ((index = searchLine.indexOf(searchQuery, index)) !== -1) {
+    while ((index = searchLine.indexOf(searchQuery, index)) !== -1) {
         matches.push({
           start: index,
           end: index + query.length,
@@ -432,9 +391,6 @@ export class SearchService {
     return matches;
   }
 
-  /**
-   * Find all matches in content
-   */
   private findMatchesInContent(
     content: string,
     query: string,
@@ -449,7 +405,7 @@ export class SearchService {
         const regex = new RegExp(query, flags);
         let match;
 
-        while ((match = regex.exec(content)) !== null) {
+    while ((match = regex.exec(content)) !== null) {
           matches.push({
             start: match.index,
             end: match.index + match[0].length,
@@ -463,7 +419,7 @@ export class SearchService {
       const searchQuery = caseSensitive ? query : query.toLowerCase();
       let index = 0;
 
-      while ((index = searchContent.indexOf(searchQuery, index)) !== -1) {
+    while ((index = searchContent.indexOf(searchQuery, index)) !== -1) {
         matches.push({
           start: index,
           end: index + query.length,
@@ -475,9 +431,6 @@ export class SearchService {
     return matches;
   }
 
-  /**
-   * Replace text in content
-   */
   private replaceInContent(
     content: string,
     query: string,
@@ -491,11 +444,10 @@ export class SearchService {
         const regex = new RegExp(query, flags);
         return content.replace(regex, replacement);
       } catch (error) {
-        // Invalid regex, fall back to literal replacement
         return this.replaceInContent(content, query, replacement, caseSensitive, false);
       }
     } else {
-      if (caseSensitive) {
+    if (caseSensitive) {
         return content.split(query).join(replacement);
       } else {
         const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
@@ -505,19 +457,18 @@ export class SearchService {
   }
 }
 
-// Type definitions for repo-wide search
 export interface RepoWideSearchResult {
-  filePath: string; // Relative path
+  filePath: string;
   fileName: string;
-  fullPath: string; // Absolute path
+  fullPath: string;
   matches: RepoWideMatch[];
 }
 
 export interface RepoWideMatch {
   lineNumber: number;
   lineContent: string;
-  matchStart: number; // Character position in line
-  matchEnd: number; // Character position in line
+  matchStart: number;
+  matchEnd: number;
   contextBefore: string;
   contextAfter: string;
 }
@@ -528,4 +479,3 @@ export interface ReplaceResult {
   totalReplacements: number;
   errors: { filePath: string; error: string }[];
 }
-

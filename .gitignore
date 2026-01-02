@@ -5,6 +5,12 @@ dist/
 .env
 *.env.local
 
+# Generated artifacts accidentally emitted into src
+src/backend/**/*.js
+src/backend/**/*.d.ts
+src/shared/types/**/*.js
+src/shared/types/**/*.d.ts
+
 # Build outputs
 build/
 !build/README.md

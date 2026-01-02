@@ -31,7 +31,6 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
     setError(null);
 
     try {
-      // Validate inputs
       if (!remoteUrl || !branch || !pat) {
         setError('Please fill in all fields');
         setLoading(false);
@@ -42,7 +41,7 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
         remoteUrl,
         branch,
         pat,
-        localPath: '', // Will be set by backend
+        localPath: '',
         authMethod: 'pat' as AuthMethod,
       };
 
@@ -150,4 +149,3 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
     </Dialog>
   );
 }
-

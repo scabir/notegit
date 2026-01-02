@@ -162,10 +162,8 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
     'files:commitAndPushAll',
     async (): Promise<ApiResponse<{ message: string }>> => {
       try {
-        // Get repo status to check for changes
         const statusResponse = await repoService.getStatus();
         
-        // Check if there are any changes
         if (!statusResponse.hasUncommitted) {
           return {
             ok: true,
@@ -173,15 +171,13 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           };
         }
 
-        // Get list of changed files for commit message
         const gitStatus = await filesService.getGitStatus();
         const changedFiles = [
           ...gitStatus.modified,
           ...gitStatus.added,
           ...gitStatus.deleted,
-        ].slice(0, 5); // Limit to first 5 files for message
+        ].slice(0, 5);
         
-        // Generate auto commit message
         let commitMessage = 'Update: ';
         if (changedFiles.length > 0) {
           commitMessage += changedFiles.join(', ');
@@ -192,10 +188,8 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           commitMessage += 'multiple files';
         }
 
-        // Commit all changes
         await filesService.commitAll(commitMessage);
         
-        // Push to remote
         await repoService.push();
 
         return {
@@ -359,4 +353,3 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
     }
   );
 }
-

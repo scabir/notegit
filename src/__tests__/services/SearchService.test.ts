@@ -14,7 +14,6 @@ describe('SearchService', () => {
     mockFsAdapter = new FsAdapter() as jest.Mocked<FsAdapter>;
     searchService = new SearchService(mockFsAdapter);
 
-    // Mock that the service has a repo path initialized
     (searchService as any).repoPath = '/test/repo';
   });
 
@@ -49,7 +48,7 @@ describe('SearchService', () => {
 
       expect(result.filesProcessed).toBe(1);
       expect(result.filesModified).toBe(1);
-      expect(result.totalReplacements).toBe(2); // Both "Hello" and "hello"
+      expect(result.totalReplacements).toBe(2);
       expect(mockFsAdapter.writeFile).toHaveBeenCalled();
     });
 
@@ -83,4 +82,3 @@ describe('SearchService', () => {
   // Note: Additional SearchService tests would require complex file system mocking
   // The search functionality is integration-tested through application usage
 });
-

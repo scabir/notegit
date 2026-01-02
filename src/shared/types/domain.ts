@@ -1,5 +1,3 @@
-// Core domain types
-
 export interface FileTreeNode {
   id: string;
   name: string;
@@ -31,4 +29,3 @@ export interface FileContent {
 export interface NoteContent extends FileContent {
   type: FileType.MARKDOWN;
 }
-
