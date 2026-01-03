@@ -1,7 +1,7 @@
 import { ConfigService } from '../../backend/services/ConfigService';
 import { FsAdapter } from '../../backend/adapters/FsAdapter';
 import { CryptoAdapter } from '../../backend/adapters/CryptoAdapter';
-import { DEFAULT_APP_SETTINGS, AuthMethod } from '../../shared/types';
+import { DEFAULT_APP_SETTINGS, AuthMethod, RepoSettings, GitRepoSettings } from '../../shared/types';
 
 jest.mock('../../backend/adapters/FsAdapter');
 jest.mock('../../backend/adapters/CryptoAdapter');
@@ -129,6 +129,7 @@ describe('ConfigService', () => {
 
       mockFsAdapter.readFile.mockResolvedValue(
         JSON.stringify({
+          provider: 'git',
           remoteUrl: 'https://github.com/user/repo.git',
           branch: 'main',
           localPath: '/path/to/repo',
@@ -142,7 +143,7 @@ describe('ConfigService', () => {
       const settings = await configService.getRepoSettings();
 
       expect(mockCryptoAdapter.decrypt).toHaveBeenCalledWith(encryptedPat);
-      expect(settings?.pat).toBe(decryptedPat);
+      expect((settings as GitRepoSettings | null)?.pat).toBe(decryptedPat);
     });
   });
 
@@ -156,7 +157,8 @@ describe('ConfigService', () => {
 
       mockCryptoAdapter.encrypt.mockReturnValue(encryptedPat);
 
-      const settings = {
+      const settings: RepoSettings = {
+        provider: 'git',
         remoteUrl: 'https://github.com/user/repo.git',
         branch: 'main',
         localPath: '/path/to/repo',

@@ -8,15 +8,15 @@ import {
   ApiErrorCode,
 } from '../../shared/types';
 import { ConfigService } from '../services/ConfigService';
+import { RepoService } from '../services/RepoService';
 import { GitAdapter } from '../adapters/GitAdapter';
-import { FsAdapter } from '../adapters/FsAdapter';
 import { logger } from '../utils/logger';
 
 export function registerConfigHandlers(
   ipcMain: IpcMain,
   configService: ConfigService,
-  gitAdapter: GitAdapter,
-  fsAdapter: FsAdapter
+  repoService: RepoService,
+  gitAdapter: GitAdapter
 ): void {
   ipcMain.handle('config:getFull', async (): Promise<ApiResponse<FullConfig>> => {
     try {
@@ -72,11 +72,13 @@ export function registerConfigHandlers(
         logger.error('Failed to update repo settings', { error });
         return {
           ok: false,
-          error: {
-            code: ApiErrorCode.UNKNOWN_ERROR,
-            message: 'Failed to update repository settings',
-            details: error,
-          },
+          error: error.code
+            ? error
+            : {
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: 'Failed to update repository settings',
+                details: error,
+              },
         };
       }
     }
@@ -144,54 +146,30 @@ export function registerConfigHandlers(
     async (_event, name: string, repoSettings: Partial<RepoSettings>): Promise<ApiResponse<Profile>> => {
       try {
         const profile = await configService.createProfile(name, repoSettings);
-        
-        logger.info('Profile created, starting clone/pull', { 
-          profileId: profile.id, 
-          localPath: profile.repoSettings.localPath 
+
+        logger.info('Profile created, preparing repository', {
+          profileId: profile.id,
+          localPath: profile.repoSettings.localPath,
+          provider: profile.repoSettings.provider,
         });
-        
-        const localExists = await fsAdapter.exists(profile.repoSettings.localPath);
-        
-        if (!localExists) {
-          logger.info('Local repo does not exist, cloning...', { 
-            remoteUrl: profile.repoSettings.remoteUrl,
-            localPath: profile.repoSettings.localPath
-          });
-          
-          try {
-            await gitAdapter.clone(
-              profile.repoSettings.remoteUrl,
-              profile.repoSettings.localPath,
-              profile.repoSettings.branch,
-              profile.repoSettings.pat
-            );
-            logger.info('Repository cloned successfully');
-          } catch (cloneError: any) {
-            logger.error('Failed to clone repository', { error: cloneError });
-            await configService.deleteProfile(profile.id);
-            return {
-              ok: false,
-              error: {
-                code: ApiErrorCode.GIT_CLONE_FAILED,
-                message: `Failed to clone repository: ${cloneError.message || 'Unknown error'}`,
-                details: cloneError,
-              },
-            };
-          }
-        } else {
-          logger.info('Local repo exists, pulling to sync...', { 
-            localPath: profile.repoSettings.localPath 
-          });
-          
-          try {
-            gitAdapter.init(profile.repoSettings.localPath);
-            await gitAdapter.pull(profile.repoSettings.pat);
-            logger.info('Repository pulled successfully');
-          } catch (pullError: any) {
-            logger.warn('Failed to pull repository, continuing anyway', { error: pullError });
-          }
+
+        try {
+          await repoService.prepareRepo(profile.repoSettings);
+        } catch (prepareError: any) {
+          logger.error('Failed to prepare repository for profile', { error: prepareError });
+          await configService.deleteProfile(profile.id);
+          return {
+            ok: false,
+            error: prepareError.code
+              ? prepareError
+              : {
+                  code: ApiErrorCode.UNKNOWN_ERROR,
+                  message: `Failed to prepare repository: ${prepareError.message || 'Unknown error'}`,
+                  details: prepareError,
+                },
+          };
         }
-        
+
         return {
           ok: true,
           data: profile,
@@ -200,11 +178,13 @@ export function registerConfigHandlers(
         logger.error('Failed to create profile', { error });
         return {
           ok: false,
-          error: {
-            code: ApiErrorCode.UNKNOWN_ERROR,
-            message: `Failed to create profile: ${error.message || 'Unknown error'}`,
-            details: error,
-          },
+          error: error.code
+            ? error
+            : {
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: `Failed to create profile: ${error.message || 'Unknown error'}`,
+                details: error,
+              },
         };
       }
     }
@@ -254,4 +234,3 @@ export function registerConfigHandlers(
     }
   );
 }
-

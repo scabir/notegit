@@ -163,6 +163,14 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
     async (): Promise<ApiResponse<{ message: string }>> => {
       try {
         const statusResponse = await repoService.getStatus();
+
+        if (statusResponse.provider !== 'git') {
+          await repoService.push();
+          return {
+            ok: true,
+            data: { message: 'Synced successfully' },
+          };
+        }
         
         if (!statusResponse.hasUncommitted) {
           return {

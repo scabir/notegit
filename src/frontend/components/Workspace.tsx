@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Chip } from '@mui/material';
 import {
   Settings as SettingsIcon,
-  Commit as CommitIcon,
   SaveAlt as SaveAllIcon,
   Search as SearchIcon,
   History as HistoryIcon,
   CloudUpload as CloudUploadIcon,
+  CloudSync as CloudSyncIcon,
 } from '@mui/icons-material';
 import { FileTreeView } from './FileTreeView';
 import { MarkdownEditor } from './MarkdownEditor';
@@ -53,6 +53,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
   const [activeProfileName, setActiveProfileName] = useState<string>('');
   const [appVersion, setAppVersion] = useState<string>('');
+  const isS3Repo = repoStatus?.provider === 's3';
 
   const getTruncatedProfileName = (name: string): string => {
     if (name.length <= 20) {
@@ -405,13 +406,15 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           }
         }
 
-        try {
-          await window.notegitApi.files.commitAll(
-            `Move: ${oldPath} -> ${newPath}`
-          );
-          console.log('Move committed successfully');
-        } catch (commitError) {
-          console.warn('Failed to auto-commit move:', commitError);
+        if (!isS3Repo) {
+          try {
+            await window.notegitApi.files.commitAll(
+              `Move: ${oldPath} -> ${newPath}`
+            );
+            console.log('Move committed successfully');
+          } catch (commitError) {
+            console.warn('Failed to auto-commit move:', commitError);
+          }
         }
 
         const treeResponse = await window.notegitApi.files.listTree();
@@ -480,43 +483,50 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     }
 
     setSaveStatus('saving');
-    setSaveMessage('Committing and pushing...');
+    setSaveMessage(isS3Repo ? 'Syncing...' : 'Committing and pushing...');
 
     try {
-      const response = await window.notegitApi.files.commitAndPushAll();
-
-      if (response.ok) {
-        if (response.data?.message === 'Nothing to commit') {
-          setSaveStatus('idle');
-          setSaveMessage('Nothing to commit');
-        } else {
+      if (isS3Repo) {
+        const response = await window.notegitApi.repo.push();
+        if (response.ok) {
           setSaveStatus('saved');
-          setSaveMessage('Committed and pushed successfully');
+          setSaveMessage('Synced successfully');
+        } else {
+          setSaveStatus('error');
+          setSaveMessage(response.error?.message || 'Failed to sync');
+          console.error('Failed to sync:', response.error);
         }
-
-        const statusResponse = await window.notegitApi.repo.getStatus();
-        if (statusResponse.ok && statusResponse.data) {
-          setRepoStatus(statusResponse.data);
-        }
-
-        setTimeout(() => {
-          setSaveStatus('idle');
-          setSaveMessage('');
-        }, 3000);
       } else {
-        setSaveStatus('error');
-        setSaveMessage(response.error?.message || 'Failed to commit and push');
-        console.error('Failed to commit and push:', response.error);
+        const response = await window.notegitApi.files.commitAndPushAll();
 
-        setTimeout(() => {
-          setSaveStatus('idle');
-          setSaveMessage('');
-        }, 5000);
+        if (response.ok) {
+          if (response.data?.message === 'Nothing to commit') {
+            setSaveStatus('idle');
+            setSaveMessage('Nothing to commit');
+          } else {
+            setSaveStatus('saved');
+            setSaveMessage('Committed and pushed successfully');
+          }
+        } else {
+          setSaveStatus('error');
+          setSaveMessage(response.error?.message || 'Failed to commit and push');
+          console.error('Failed to commit and push:', response.error);
+        }
       }
+
+      const statusResponse = await window.notegitApi.repo.getStatus();
+      if (statusResponse.ok && statusResponse.data) {
+        setRepoStatus(statusResponse.data);
+      }
+
+      setTimeout(() => {
+        setSaveStatus('idle');
+        setSaveMessage('');
+      }, isS3Repo ? 2000 : 3000);
     } catch (error: any) {
       setSaveStatus('error');
-      setSaveMessage(error.message || 'Failed to commit and push');
-      console.error('Failed to commit and push:', error);
+      setSaveMessage(error.message || (isS3Repo ? 'Failed to sync' : 'Failed to commit and push'));
+      console.error(isS3Repo ? 'Failed to sync:' : 'Failed to commit and push:', error);
 
       setTimeout(() => {
         setSaveStatus('idle');
@@ -649,9 +659,9 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             </span>
           </Tooltip>
 
-          <Tooltip title="Commit and Push">
+          <Tooltip title={isS3Repo ? 'Sync' : 'Commit and Push'}>
             <IconButton onClick={handleCommitAndPush} color="primary">
-              <CloudUploadIcon />
+              {isS3Repo ? <CloudSyncIcon /> : <CloudUploadIcon />}
             </IconButton>
           </Tooltip>
 

@@ -86,6 +86,7 @@ export class FilesService {
 
   async commitFile(filePath: string, message: string): Promise<void> {
     await this.ensureRepoPath();
+    await this.ensureGitRepo();
 
     if (!this.gitAdapter) {
       throw this.createError(
@@ -111,6 +112,7 @@ export class FilesService {
 
   async commitAll(message: string): Promise<void> {
     await this.ensureRepoPath();
+    await this.ensureGitRepo();
 
     if (!this.gitAdapter) {
       throw this.createError(
@@ -136,6 +138,7 @@ export class FilesService {
 
   async getGitStatus(): Promise<{ modified: string[]; added: string[]; deleted: string[] }> {
     await this.ensureRepoPath();
+    await this.ensureGitRepo();
 
     if (!this.gitAdapter) {
       throw this.createError(
@@ -167,6 +170,7 @@ export class FilesService {
     isAutosave: boolean = false
   ): Promise<{ pullFailed?: boolean; pushFailed?: boolean; conflictDetected?: boolean }> {
     await this.ensureRepoPath();
+    await this.ensureGitRepo();
 
     if (!this.gitAdapter) {
       throw this.createError(
@@ -458,6 +462,17 @@ export class FilesService {
     }
   }
 
+  private async ensureGitRepo(): Promise<void> {
+    const repoSettings = await this.configService.getRepoSettings();
+    if (repoSettings?.provider && repoSettings.provider !== 'git') {
+      throw this.createError(
+        ApiErrorCode.REPO_PROVIDER_MISMATCH,
+        'Git operations are only available for Git repositories',
+        { provider: repoSettings.provider }
+      );
+    }
+  }
+
   private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
     return {
       code,
@@ -466,4 +481,3 @@ export class FilesService {
     };
   }
 }
-

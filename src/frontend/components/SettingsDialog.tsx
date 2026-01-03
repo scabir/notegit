@@ -39,7 +39,15 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { AboutDialog } from './AboutDialog';
-import type { FullConfig, AppSettings, RepoSettings, AuthMethod, Profile } from '../../shared/types';
+import type {
+  FullConfig,
+  AppSettings,
+  RepoSettings,
+  Profile,
+  RepoProviderType,
+  GitRepoSettings,
+  S3RepoSettings,
+} from '../../shared/types';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -91,15 +99,25 @@ export function SettingsDialog({
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
   const [creatingProfile, setCreatingProfile] = useState(false);
   const [newProfileName, setNewProfileName] = useState('');
+  const [newProfileProvider, setNewProfileProvider] = useState<RepoProviderType>('git');
   const [newProfileRemoteUrl, setNewProfileRemoteUrl] = useState('');
   const [newProfileBranch, setNewProfileBranch] = useState('main');
   const [newProfilePat, setNewProfilePat] = useState('');
+  const [newProfileBucket, setNewProfileBucket] = useState('');
+  const [newProfileRegion, setNewProfileRegion] = useState('');
+  const [newProfilePrefix, setNewProfilePrefix] = useState('');
+  const [newProfileAccessKeyId, setNewProfileAccessKeyId] = useState('');
+  const [newProfileSecretAccessKey, setNewProfileSecretAccessKey] = useState('');
+  const [newProfileSessionToken, setNewProfileSessionToken] = useState('');
   const [profileCreating, setProfileCreating] = useState(false);
 
   const [logType, setLogType] = useState<'combined' | 'error'>('combined');
   const [logContent, setLogContent] = useState<string>('');
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [copySnackbarOpen, setCopySnackbarOpen] = useState(false);
+  const repoProvider: RepoProviderType = (repoSettings.provider as RepoProviderType) || 'git';
+  const gitRepoSettings = repoSettings as Partial<GitRepoSettings>;
+  const s3RepoSettings = repoSettings as Partial<S3RepoSettings>;
 
   useEffect(() => {
     if (open) {
@@ -161,13 +179,35 @@ export function SettingsDialog({
     setSuccess(null);
 
     try {
-      if (!repoSettings.remoteUrl || !repoSettings.branch || !repoSettings.pat) {
-        setError('Please fill in all required fields');
-        setLoading(false);
-        return;
+      let settingsToSave: RepoSettings;
+
+      if (repoProvider === 'git') {
+        const gitSettings = repoSettings as Partial<GitRepoSettings>;
+        if (!gitSettings.remoteUrl || !gitSettings.branch || !gitSettings.pat) {
+          setError('Please fill in all required Git fields');
+          setLoading(false);
+          return;
+        }
+
+        settingsToSave = {
+          ...(repoSettings as RepoSettings),
+          provider: 'git',
+        };
+      } else {
+        const s3Settings = repoSettings as Partial<S3RepoSettings>;
+        if (!s3Settings.bucket || !s3Settings.region || !s3Settings.accessKeyId || !s3Settings.secretAccessKey) {
+          setError('Please fill in all required S3 fields');
+          setLoading(false);
+          return;
+        }
+
+        settingsToSave = {
+          ...(repoSettings as RepoSettings),
+          provider: 's3',
+        };
       }
 
-      const response = await window.notegitApi.config.updateRepoSettings(repoSettings as RepoSettings);
+      const response = await window.notegitApi.config.updateRepoSettings(settingsToSave);
 
       if (response.ok) {
         setSuccess('Repository settings saved successfully');
@@ -268,33 +308,61 @@ export function SettingsDialog({
       return;
     }
 
-    if (!newProfileRemoteUrl || !newProfileBranch || !newProfilePat) {
-      setError('All repository fields are required');
-      return;
+    if (newProfileProvider === 'git') {
+      if (!newProfileRemoteUrl || !newProfileBranch || !newProfilePat) {
+        setError('All Git repository fields are required');
+        return;
+      }
+    } else {
+      if (!newProfileBucket || !newProfileRegion || !newProfileAccessKeyId || !newProfileSecretAccessKey) {
+        setError('All S3 repository fields are required');
+        return;
+      }
     }
 
     setProfileCreating(true);
     setError(null);
 
     try {
+      const repoSettings: Partial<RepoSettings> =
+        newProfileProvider === 'git'
+          ? {
+              provider: 'git',
+              remoteUrl: newProfileRemoteUrl,
+              branch: newProfileBranch,
+              pat: newProfilePat,
+              authMethod: 'pat',
+            }
+          : {
+              provider: 's3',
+              bucket: newProfileBucket,
+              region: newProfileRegion,
+              prefix: newProfilePrefix,
+              accessKeyId: newProfileAccessKeyId,
+              secretAccessKey: newProfileSecretAccessKey,
+              sessionToken: newProfileSessionToken,
+            };
+
       const response = await window.notegitApi.config.createProfile(
         newProfileName.trim(),
-        {
-          remoteUrl: newProfileRemoteUrl,
-          branch: newProfileBranch,
-          pat: newProfilePat,
-          authMethod: 'pat',
-        }
+        repoSettings
       );
 
       if (response.ok && response.data) {
-        setSuccess('Profile created and repository cloned successfully!');
+        setSuccess('Profile created successfully');
         setProfiles([...profiles, response.data]);
         setCreatingProfile(false);
         setNewProfileName('');
+        setNewProfileProvider('git');
         setNewProfileRemoteUrl('');
         setNewProfileBranch('main');
         setNewProfilePat('');
+        setNewProfileBucket('');
+        setNewProfileRegion('');
+        setNewProfilePrefix('');
+        setNewProfileAccessKeyId('');
+        setNewProfileSecretAccessKey('');
+        setNewProfileSessionToken('');
       } else {
         setError(response.error?.message || 'Failed to create profile');
       }
@@ -402,6 +470,15 @@ export function SettingsDialog({
     } catch (err: any) {
       setError(err.message || 'Failed to export logs');
     }
+  };
+
+  const getProfileSecondary = (profile: Profile): string => {
+    if (profile.repoSettings.provider === 's3') {
+      const prefix = profile.repoSettings.prefix ? `/${profile.repoSettings.prefix}` : '';
+      return `s3://${profile.repoSettings.bucket}${prefix}`;
+    }
+
+    return profile.repoSettings.remoteUrl;
   };
 
   return (
@@ -562,62 +639,190 @@ export function SettingsDialog({
         <TabPanel value={tabValue} index={1}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
-              label="Remote URL"
-              value={repoSettings.remoteUrl || ''}
-              onChange={(e) => setRepoSettings({ ...repoSettings, remoteUrl: e.target.value })}
-              placeholder="https://github.com/user/repo.git"
+              label="Repository Type"
+              value={repoProvider === 'git' ? 'Git' : 'S3'}
               fullWidth
-              required
+              InputProps={{
+                readOnly: true,
+              }}
+              variant="filled"
             />
 
-            <TextField
-              label="Branch"
-              value={repoSettings.branch || ''}
-              onChange={(e) => setRepoSettings({ ...repoSettings, branch: e.target.value })}
-              placeholder="main"
-              fullWidth
-              required
-            />
+            {repoProvider === 'git' ? (
+              <>
+                <TextField
+                  label="Remote URL"
+                  value={gitRepoSettings.remoteUrl || ''}
+                  onChange={(e) =>
+                    setRepoSettings({
+                      ...repoSettings,
+                      provider: 'git',
+                      remoteUrl: e.target.value,
+                    })
+                  }
+                  placeholder="https://github.com/user/repo.git"
+                  fullWidth
+                  required
+                />
 
-            <TextField
-              label="Personal Access Token"
-              type="password"
-              value={repoSettings.pat || ''}
-              onChange={(e) => setRepoSettings({ ...repoSettings, pat: e.target.value })}
-              placeholder="ghp_..."
-              fullWidth
-              required
-              helperText="Your Personal Access Token is stored encrypted in the app's data directory, not in your operating system's keychain."
-            />
+                <TextField
+                  label="Branch"
+                  value={gitRepoSettings.branch || ''}
+                  onChange={(e) =>
+                    setRepoSettings({
+                      ...repoSettings,
+                      provider: 'git',
+                      branch: e.target.value,
+                    })
+                  }
+                  placeholder="main"
+                  fullWidth
+                  required
+                />
 
-            <Alert severity="info">
-              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                How to create a GitHub Personal Access Token:
-              </Typography>
-              <Typography variant="body2" component="div" sx={{ mt: 1 }}>
-                1. Go to GitHub Settings → Developer settings
-                <br />
-                2. Click Personal access tokens → Fine Grained Tokens
-                <br />
-                3. Click Generate new token
-                <br />
-                4. Give Token Name
-                <br />
-                5. Set the expirationn
-                <br />
-                6. Select "Only select repositories" option
-                <br />
-                7. Selec the repository you wat to Use
-                <br />
-                8. CLick on "Add Permission"
-                <br />
-                9. Select "Ccontent" amd make sure you gave "Reand and Write" permissions
-                <br />
-                10. Hit Generate Token
-                <br />
-                11. Copy and paste the token above
-              </Typography>
-            </Alert>
+                <TextField
+                  label="Personal Access Token"
+                  type="password"
+                  value={gitRepoSettings.pat || ''}
+                  onChange={(e) =>
+                    setRepoSettings({
+                      ...repoSettings,
+                      provider: 'git',
+                      pat: e.target.value,
+                    })
+                  }
+                  placeholder="ghp_..."
+                  fullWidth
+                  required
+                  helperText="Your Personal Access Token is stored encrypted in the app's data directory, not in your operating system's keychain."
+                />
+
+                <Alert severity="info">
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    How to create a GitHub Personal Access Token:
+                  </Typography>
+                  <Typography variant="body2" component="div" sx={{ mt: 1 }}>
+                    1. Go to GitHub Settings → Developer settings
+                    <br />
+                    2. Click Personal access tokens → Fine Grained Tokens
+                    <br />
+                    3. Click Generate new token
+                    <br />
+                    4. Give Token Name
+                    <br />
+                    5. Set the expirationn
+                    <br />
+                    6. Select "Only select repositories" option
+                    <br />
+                    7. Selec the repository you wat to Use
+                    <br />
+                    8. CLick on "Add Permission"
+                    <br />
+                    9. Select "Ccontent" amd make sure you gave "Reand and Write" permissions
+                    <br />
+                    10. Hit Generate Token
+                    <br />
+                    11. Copy and paste the token above
+                  </Typography>
+                </Alert>
+              </>
+            ) : (
+              <>
+                <TextField
+                  label="Bucket"
+                  value={s3RepoSettings.bucket || ''}
+                  onChange={(e) =>
+                    setRepoSettings({
+                      ...repoSettings,
+                      provider: 's3',
+                      bucket: e.target.value,
+                    })
+                  }
+                  placeholder="my-notes-bucket"
+                  fullWidth
+                  required
+                />
+
+                <TextField
+                  label="Region"
+                  value={s3RepoSettings.region || ''}
+                  onChange={(e) =>
+                    setRepoSettings({
+                      ...repoSettings,
+                      provider: 's3',
+                      region: e.target.value,
+                    })
+                  }
+                  placeholder="us-east-1"
+                  fullWidth
+                  required
+                />
+
+                <TextField
+                  label="Prefix (optional)"
+                  value={s3RepoSettings.prefix || ''}
+                  onChange={(e) =>
+                    setRepoSettings({
+                      ...repoSettings,
+                      provider: 's3',
+                      prefix: e.target.value,
+                    })
+                  }
+                  placeholder="notes/"
+                  fullWidth
+                />
+
+                <TextField
+                  label="Access Key ID"
+                  value={s3RepoSettings.accessKeyId || ''}
+                  onChange={(e) =>
+                    setRepoSettings({
+                      ...repoSettings,
+                      provider: 's3',
+                      accessKeyId: e.target.value,
+                    })
+                  }
+                  fullWidth
+                  required
+                />
+
+                <TextField
+                  label="Secret Access Key"
+                  type="password"
+                  value={s3RepoSettings.secretAccessKey || ''}
+                  onChange={(e) =>
+                    setRepoSettings({
+                      ...repoSettings,
+                      provider: 's3',
+                      secretAccessKey: e.target.value,
+                    })
+                  }
+                  fullWidth
+                  required
+                  helperText="Stored encrypted in the app's data directory."
+                />
+
+                <TextField
+                  label="Session Token (optional)"
+                  type="password"
+                  value={s3RepoSettings.sessionToken || ''}
+                  onChange={(e) =>
+                    setRepoSettings({
+                      ...repoSettings,
+                      provider: 's3',
+                      sessionToken: e.target.value,
+                    })
+                  }
+                  fullWidth
+                />
+
+                <Alert severity="info">
+                  <Typography variant="body2">
+                    The S3 bucket must have versioning enabled to support history.
+                  </Typography>
+                </Alert>
+              </>
+            )}
 
             <Button
               variant="contained"
@@ -671,7 +876,7 @@ export function SettingsDialog({
             <Typography variant="h6">Profile Management</Typography>
             <Alert severity="info">
               Profiles allow you to work with multiple repositories. Only one profile is active at a time.
-              When creating a new profile, the app will automatically clone the repository. Switching profiles will restart the app.
+              When creating a new profile, the app will automatically sync the repository. Switching profiles will restart the app.
             </Alert>
 
             <Typography variant="subtitle1" sx={{ mt: 2 }}>Active Profile</Typography>
@@ -707,7 +912,7 @@ export function SettingsDialog({
                           )}
                         </Box>
                       }
-                      secondary={profile.repoSettings.remoteUrl}
+                      secondary={getProfileSecondary(profile)}
                     />
                   </ListItemButton>
                 </ListItem>
@@ -732,7 +937,7 @@ export function SettingsDialog({
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <CircularProgress size={20} />
                       <Typography variant="body2">
-                        Creating profile and cloning repository... This may take a few moments.
+                        Creating profile and syncing repository... This may take a few moments.
                       </Typography>
                     </Box>
                   </Alert>
@@ -748,35 +953,109 @@ export function SettingsDialog({
                     disabled={profileCreating}
                     helperText="A local folder will be automatically created based on this name"
                   />
-                  <TextField
-                    label="Remote URL"
-                    value={newProfileRemoteUrl}
-                    onChange={(e) => setNewProfileRemoteUrl(e.target.value)}
-                    placeholder="https://github.com/user/repo.git"
-                    fullWidth
-                    required
-                    disabled={profileCreating}
-                  />
-                  <TextField
-                    label="Branch"
-                    value={newProfileBranch}
-                    onChange={(e) => setNewProfileBranch(e.target.value)}
-                    placeholder="main"
-                    fullWidth
-                    required
-                    disabled={profileCreating}
-                  />
-                  <TextField
-                    label="Personal Access Token"
-                    type="password"
-                    value={newProfilePat}
-                    onChange={(e) => setNewProfilePat(e.target.value)}
-                    placeholder="ghp_..."
-                    fullWidth
-                    required
-                    disabled={profileCreating}
-                    helperText="Your Personal Access Token is stored encrypted"
-                  />
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Repository type
+                    </Typography>
+                    <ToggleButtonGroup
+                      exclusive
+                      value={newProfileProvider}
+                      onChange={(_, value) => value && setNewProfileProvider(value)}
+                      size="small"
+                    >
+                      <ToggleButton value="git">Git</ToggleButton>
+                      <ToggleButton value="s3">S3</ToggleButton>
+                    </ToggleButtonGroup>
+                  </Box>
+
+                  {newProfileProvider === 'git' ? (
+                    <>
+                      <TextField
+                        label="Remote URL"
+                        value={newProfileRemoteUrl}
+                        onChange={(e) => setNewProfileRemoteUrl(e.target.value)}
+                        placeholder="https://github.com/user/repo.git"
+                        fullWidth
+                        required
+                        disabled={profileCreating}
+                      />
+                      <TextField
+                        label="Branch"
+                        value={newProfileBranch}
+                        onChange={(e) => setNewProfileBranch(e.target.value)}
+                        placeholder="main"
+                        fullWidth
+                        required
+                        disabled={profileCreating}
+                      />
+                      <TextField
+                        label="Personal Access Token"
+                        type="password"
+                        value={newProfilePat}
+                        onChange={(e) => setNewProfilePat(e.target.value)}
+                        placeholder="ghp_..."
+                        fullWidth
+                        required
+                        disabled={profileCreating}
+                        helperText="Your Personal Access Token is stored encrypted"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <TextField
+                        label="Bucket"
+                        value={newProfileBucket}
+                        onChange={(e) => setNewProfileBucket(e.target.value)}
+                        placeholder="my-notes-bucket"
+                        fullWidth
+                        required
+                        disabled={profileCreating}
+                      />
+                      <TextField
+                        label="Region"
+                        value={newProfileRegion}
+                        onChange={(e) => setNewProfileRegion(e.target.value)}
+                        placeholder="us-east-1"
+                        fullWidth
+                        required
+                        disabled={profileCreating}
+                      />
+                      <TextField
+                        label="Prefix (optional)"
+                        value={newProfilePrefix}
+                        onChange={(e) => setNewProfilePrefix(e.target.value)}
+                        placeholder="notes/"
+                        fullWidth
+                        disabled={profileCreating}
+                      />
+                      <TextField
+                        label="Access Key ID"
+                        value={newProfileAccessKeyId}
+                        onChange={(e) => setNewProfileAccessKeyId(e.target.value)}
+                        fullWidth
+                        required
+                        disabled={profileCreating}
+                      />
+                      <TextField
+                        label="Secret Access Key"
+                        type="password"
+                        value={newProfileSecretAccessKey}
+                        onChange={(e) => setNewProfileSecretAccessKey(e.target.value)}
+                        fullWidth
+                        required
+                        disabled={profileCreating}
+                        helperText="Stored encrypted in the app's data directory."
+                      />
+                      <TextField
+                        label="Session Token (optional)"
+                        type="password"
+                        value={newProfileSessionToken}
+                        onChange={(e) => setNewProfileSessionToken(e.target.value)}
+                        fullWidth
+                        disabled={profileCreating}
+                      />
+                    </>
+                  )}
                   <Box sx={{ display: 'flex', gap: 1 }}>
                     <Button
                       variant="contained"
@@ -790,9 +1069,16 @@ export function SettingsDialog({
                       onClick={() => {
                         setCreatingProfile(false);
                         setNewProfileName('');
+                        setNewProfileProvider('git');
                         setNewProfileRemoteUrl('');
                         setNewProfileBranch('main');
                         setNewProfilePat('');
+                        setNewProfileBucket('');
+                        setNewProfileRegion('');
+                        setNewProfilePrefix('');
+                        setNewProfileAccessKeyId('');
+                        setNewProfileSecretAccessKey('');
+                        setNewProfileSessionToken('');
                       }}
                       disabled={profileCreating}
                     >
@@ -864,7 +1150,7 @@ export function SettingsDialog({
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography variant="h6">Application Logs</Typography>
             <Alert severity="info">
-              View application logs for troubleshooting. Logs are stored locally and include Git operations, errors, and sync events.
+              View application logs for troubleshooting. Logs are stored locally and include Git/S3 operations, errors, and sync events.
             </Alert>
 
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>

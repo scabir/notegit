@@ -21,6 +21,7 @@ describe('ExportService', () => {
     exportService = new ExportService(mockFsAdapter, mockConfigService);
 
     mockConfigService.getRepoSettings.mockResolvedValue({
+      provider: 'git',
       localPath: '/test/repo',
       remoteUrl: 'https://github.com/test/repo.git',
       branch: 'main',
@@ -42,4 +43,3 @@ describe('ExportService', () => {
 
 
 });
-

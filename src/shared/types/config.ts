@@ -12,13 +12,29 @@ export interface EditorPreferences {
   showPreview: boolean;
 }
 
-export interface RepoSettings {
+export type RepoProviderType = 'git' | 's3';
+
+export interface GitRepoSettings {
+  provider: 'git';
   remoteUrl: string;
   branch: string;
   localPath: string;
   pat: string; // Personal Access Token (encrypted in storage)
   authMethod: AuthMethod;
 }
+
+export interface S3RepoSettings {
+  provider: 's3';
+  bucket: string;
+  region: string;
+  prefix?: string;
+  localPath: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  sessionToken?: string;
+}
+
+export type RepoSettings = GitRepoSettings | S3RepoSettings;
 
 export enum AuthMethod {
   PAT = 'pat',

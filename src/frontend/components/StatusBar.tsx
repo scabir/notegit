@@ -21,11 +21,15 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
     return null;
   }
 
+  const isS3 = status.provider === 's3';
+
   const getSyncStatus = () => {
     if (status.pendingPushCount > 0) {
       return {
         icon: <CloudOffIcon fontSize="small" />,
-        label: `${status.pendingPushCount} commits waiting`,
+        label: isS3
+          ? `${status.pendingPushCount} changes waiting`
+          : `${status.pendingPushCount} commits waiting`,
         color: 'warning' as const,
       };
     }
@@ -33,7 +37,7 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
     if (status.ahead > 0) {
       return {
         icon: <CloudUploadIcon fontSize="small" />,
-        label: `${status.ahead} ahead`,
+        label: isS3 ? `${status.ahead} local changes` : `${status.ahead} ahead`,
         color: 'info' as const,
       };
     }
@@ -41,7 +45,7 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
     if (status.behind > 0) {
       return {
         icon: <CloudDownloadIcon fontSize="small" />,
-        label: `${status.behind} behind`,
+        label: isS3 ? `${status.behind} remote changes` : `${status.behind} behind`,
         color: 'warning' as const,
       };
     }
@@ -49,7 +53,7 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
     if (status.hasUncommitted) {
       return {
         icon: <CloudOffIcon fontSize="small" />,
-        label: 'Uncommitted changes',
+        label: isS3 ? 'Unsynced changes' : 'Uncommitted changes',
         color: 'default' as const,
       };
     }
@@ -77,7 +81,7 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
       <Toolbar variant="dense" sx={{ minHeight: 40 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1 }}>
           <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            Branch: <strong>{status.branch}</strong>
+            {isS3 ? 'Bucket' : 'Branch'}: <strong>{status.branch}</strong>
           </Typography>
 
           <Chip
@@ -89,7 +93,7 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
 
           {status.hasUncommitted && (
             <Chip
-              label="Uncommitted changes"
+              label={isS3 ? 'Unsynced changes' : 'Uncommitted changes'}
               size="small"
               color="default"
               variant="outlined"
@@ -111,7 +115,7 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
           </Tooltip>
 
           <Tooltip title="Push to remote">
-            <IconButton size="small" onClick={onPush} disabled={status.ahead === 0}>
+            <IconButton size="small" onClick={onPush} disabled={status.pendingPushCount === 0}>
               <CloudUploadIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -120,4 +124,3 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
     </AppBar>
   );
 }
-

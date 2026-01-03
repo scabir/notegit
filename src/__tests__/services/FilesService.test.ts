@@ -2,7 +2,7 @@ import { FilesService } from '../../backend/services/FilesService';
 import { FsAdapter } from '../../backend/adapters/FsAdapter';
 import { ConfigService } from '../../backend/services/ConfigService';
 import { GitAdapter } from '../../backend/adapters/GitAdapter';
-import { FileType, AuthMethod } from '../../shared/types';
+import { FileType, AuthMethod, ApiErrorCode } from '../../shared/types';
 import { Stats } from 'fs';
 
 jest.mock('../../backend/adapters/FsAdapter');
@@ -33,6 +33,7 @@ describe('FilesService', () => {
   describe('init', () => {
     it('should initialize with repo path from config', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/path/to/repo',
         remoteUrl: 'https://github.com/user/repo.git',
         branch: 'main',
@@ -89,6 +90,7 @@ describe('FilesService', () => {
   describe('readFile', () => {
     it('should read file content', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -116,6 +118,7 @@ describe('FilesService', () => {
   describe('saveFile', () => {
     it('should save file content', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -134,6 +137,7 @@ describe('FilesService', () => {
   describe('createFile', () => {
     it('should create markdown file with default content', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -152,6 +156,7 @@ describe('FilesService', () => {
 
     it('should create empty file for non-markdown files', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -172,6 +177,7 @@ describe('FilesService', () => {
   describe('createFolder', () => {
     it('should create a folder', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -190,6 +196,7 @@ describe('FilesService', () => {
   describe('deletePath', () => {
     it('should delete a file', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -211,6 +218,7 @@ describe('FilesService', () => {
 
     it('should recursively delete a directory', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -222,25 +230,20 @@ describe('FilesService', () => {
         .mockResolvedValueOnce({
           isDirectory: () => true,
           isFile: () => false,
-        } as Stats)
-        .mockResolvedValueOnce({
-          isDirectory: () => false,
-          isFile: () => true,
         } as Stats);
 
-      mockFsAdapter.readdir.mockResolvedValue(['file1.txt']);
-      mockFsAdapter.deleteFile.mockResolvedValue(undefined);
+      mockFsAdapter.rmdir.mockResolvedValue(undefined);
 
       await filesService.deletePath('old-folder');
 
-      expect(mockFsAdapter.readdir).toHaveBeenCalled();
-      expect(mockFsAdapter.deleteFile).toHaveBeenCalledTimes(2);
+      expect(mockFsAdapter.rmdir).toHaveBeenCalledWith('/repo/old-folder', { recursive: true });
     });
   });
 
   describe('renamePath', () => {
     it('should rename a file', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -259,6 +262,7 @@ describe('FilesService', () => {
   describe('commitFile', () => {
     it('should stage and commit a file', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -278,9 +282,50 @@ describe('FilesService', () => {
     });
   });
 
+  describe('commitAll', () => {
+    it('should stage and commit all changes', async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
+        localPath: '/repo',
+        remoteUrl: 'url',
+        branch: 'main',
+        pat: 'token',
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockGitAdapter.init.mockResolvedValue(undefined);
+      mockGitAdapter.add.mockResolvedValue(undefined);
+      mockGitAdapter.commit.mockResolvedValue(undefined);
+
+      await filesService.commitAll('Update notes');
+
+      expect(mockGitAdapter.init).toHaveBeenCalled();
+      expect(mockGitAdapter.add).toHaveBeenCalledWith('.');
+      expect(mockGitAdapter.commit).toHaveBeenCalledWith('Update notes');
+    });
+
+    it('should reject commit operations for S3 repositories', async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 's3',
+        localPath: '/repo',
+        bucket: 'notes-bucket',
+        region: 'us-east-1',
+        prefix: '',
+        accessKeyId: 'access-key',
+        secretAccessKey: 'secret-key',
+        sessionToken: '',
+      });
+
+      await expect(filesService.commitAll('Update notes')).rejects.toMatchObject({
+        code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
+      });
+    });
+  });
+
   describe('listTree', () => {
     it('should build file tree structure', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -322,6 +367,7 @@ describe('FilesService', () => {
 
     it('should filter hidden files', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -344,6 +390,7 @@ describe('FilesService', () => {
 
     it('should sort folders before files', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -380,6 +427,7 @@ describe('FilesService', () => {
   describe('renamePath', () => {
     beforeEach(async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -467,6 +515,7 @@ describe('FilesService', () => {
   describe('deletePath', () => {
     beforeEach(async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
