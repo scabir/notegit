@@ -48,6 +48,7 @@ import type {
   GitRepoSettings,
   S3RepoSettings,
 } from '../../shared/types';
+import { confirmProfileSwitch } from '../utils/profileSwitch';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -276,8 +277,12 @@ export function SettingsDialog({
     }
   };
 
-  const handleSelectProfile = async (profileId: string) => {
+  const handleSelectProfile = async (profileId: string, profileName: string) => {
     if (profileId === activeProfileId) {
+      return;
+    }
+
+    if (!confirmProfileSwitch(profileName, window.confirm)) {
       return;
     }
 
@@ -900,7 +905,7 @@ export function SettingsDialog({
                 >
                   <ListItemButton
                     selected={profile.id === activeProfileId}
-                    onClick={() => handleSelectProfile(profile.id)}
+                    onClick={() => handleSelectProfile(profile.id, profile.name)}
                     disabled={loading || profile.id === activeProfileId}
                   >
                     <ListItemText
