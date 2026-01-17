@@ -298,6 +298,15 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const response = await window.notegitApi.repo.push();
       if (response.ok) {
         console.log('Push successful');
+        if (isS3Repo) {
+          await loadWorkspace();
+          if (selectedFile) {
+            const fileResponse = await window.notegitApi.files.read(selectedFile);
+            if (fileResponse.ok && fileResponse.data) {
+              setFileContent(fileResponse.data);
+            }
+          }
+        }
         const statusResponse = await window.notegitApi.repo.getStatus();
         if (statusResponse.ok && statusResponse.data) {
           setRepoStatus(statusResponse.data);
@@ -491,6 +500,13 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         if (response.ok) {
           setSaveStatus('saved');
           setSaveMessage('Synced successfully');
+          await loadWorkspace();
+          if (selectedFile) {
+            const fileResponse = await window.notegitApi.files.read(selectedFile);
+            if (fileResponse.ok && fileResponse.data) {
+              setFileContent(fileResponse.data);
+            }
+          }
         } else {
           setSaveStatus('error');
           setSaveMessage(response.error?.message || 'Failed to sync');
@@ -694,6 +710,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             onDelete={handleDelete}
             onRename={handleRename}
             onImport={handleImport}
+            isS3Repo={isS3Repo}
           />
         </Box>
 

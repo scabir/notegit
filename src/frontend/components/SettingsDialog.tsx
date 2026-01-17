@@ -943,16 +943,6 @@ export function SettingsDialog({
                   </Alert>
                 )}
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <TextField
-                    label="Profile Name"
-                    value={newProfileName}
-                    onChange={(e) => setNewProfileName(e.target.value)}
-                    placeholder="My Notes Repo"
-                    fullWidth
-                    required
-                    disabled={profileCreating}
-                    helperText="A local folder will be automatically created based on this name"
-                  />
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Typography variant="body2" color="text.secondary">
                       Repository type
@@ -967,6 +957,16 @@ export function SettingsDialog({
                       <ToggleButton value="s3">S3</ToggleButton>
                     </ToggleButtonGroup>
                   </Box>
+                  <TextField
+                    label="Profile Name"
+                    value={newProfileName}
+                    onChange={(e) => setNewProfileName(e.target.value)}
+                    placeholder="My Notes Repo"
+                    fullWidth
+                    required
+                    disabled={profileCreating}
+                    helperText="A local folder will be automatically created based on this name"
+                  />
 
                   {newProfileProvider === 'git' ? (
                     <>

@@ -3,6 +3,7 @@ import { FsAdapter } from '../adapters/FsAdapter';
 import { ConfigService } from './ConfigService';
 import type { FilesService } from './FilesService';
 import type { RepoProvider } from '../providers/types';
+import type { S3RepoProvider } from '../providers/S3RepoProvider';
 import {
   RepoProviderType,
   RepoSettings,
@@ -273,5 +274,37 @@ export class RepoService {
 
   destroy(): void {
     this.stopAutoPush();
+  }
+
+  async queueS3Delete(path: string): Promise<void> {
+    const provider = await this.ensureActiveProvider();
+    if (provider.type !== 's3') {
+      return;
+    }
+
+    const s3Provider = provider as S3RepoProvider;
+    await s3Provider.queueDelete(path);
+  }
+
+  async queueS3Move(oldPath: string, newPath: string): Promise<void> {
+    const provider = await this.ensureActiveProvider();
+    if (provider.type !== 's3') {
+      return;
+    }
+
+    const s3Provider = provider as S3RepoProvider;
+    const normalizedNewPath = this.normalizeS3Path(newPath);
+    await s3Provider.queueMove(oldPath, normalizedNewPath);
+  }
+
+  private normalizeS3Path(newPath: string): string {
+    const lastSlash = newPath.lastIndexOf('/');
+    if (lastSlash === -1) {
+      return newPath.replace(/ /g, '-');
+    }
+
+    const parentPath = newPath.slice(0, lastSlash);
+    const name = newPath.slice(lastSlash + 1).replace(/ /g, '-');
+    return parentPath ? `${parentPath}/${name}` : name;
   }
 }

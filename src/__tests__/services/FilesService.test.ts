@@ -172,6 +172,28 @@ describe('FilesService', () => {
       const savedContent = mockFsAdapter.writeFile.mock.calls[0][1];
       expect(savedContent).toBe('');
     });
+
+    it('should replace spaces in S3 file names', async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 's3',
+        localPath: '/repo',
+        bucket: 'notes-bucket',
+        region: 'us-east-1',
+        prefix: '',
+        accessKeyId: 'access-key',
+        secretAccessKey: 'secret-key',
+        sessionToken: '',
+      });
+
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+
+      await filesService.createFile('notes', 'my note.md');
+
+      expect(mockFsAdapter.writeFile).toHaveBeenCalledWith(
+        '/repo/notes/my-note.md',
+        expect.any(String)
+      );
+    });
   });
 
   describe('createFolder', () => {
@@ -190,6 +212,25 @@ describe('FilesService', () => {
       await filesService.createFolder('notes', 'subfolder');
 
       expect(mockFsAdapter.mkdir).toHaveBeenCalled();
+    });
+
+    it('should replace spaces in S3 folder names', async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 's3',
+        localPath: '/repo',
+        bucket: 'notes-bucket',
+        region: 'us-east-1',
+        prefix: '',
+        accessKeyId: 'access-key',
+        secretAccessKey: 'secret-key',
+        sessionToken: '',
+      });
+
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+
+      await filesService.createFolder('notes', 'my folder');
+
+      expect(mockFsAdapter.mkdir).toHaveBeenCalledWith('/repo/notes/my-folder', { recursive: false });
     });
   });
 
@@ -256,6 +297,28 @@ describe('FilesService', () => {
       await filesService.renamePath('old.md', 'new.md');
 
       expect(mockFsAdapter.rename).toHaveBeenCalled();
+    });
+
+    it('should replace spaces in S3 rename targets', async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 's3',
+        localPath: '/repo',
+        bucket: 'notes-bucket',
+        region: 'us-east-1',
+        prefix: '',
+        accessKeyId: 'access-key',
+        secretAccessKey: 'secret-key',
+        sessionToken: '',
+      });
+
+      mockFsAdapter.rename.mockResolvedValue(undefined);
+
+      await filesService.renamePath('old.md', 'new name.md');
+
+      expect(mockFsAdapter.rename).toHaveBeenCalledWith(
+        '/repo/old.md',
+        '/repo/new-name.md'
+      );
     });
   });
 

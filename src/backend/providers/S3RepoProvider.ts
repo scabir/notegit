@@ -11,6 +11,10 @@ import {
 import { logger } from '../utils/logger';
 import type { RepoProvider } from './types';
 
+type PendingS3Operation =
+  | { type: 'delete'; path: string }
+  | { type: 'move'; from: string; to: string };
+
 export class S3RepoProvider implements RepoProvider {
   type: 's3' = 's3';
   private settings: S3RepoSettings | null = null;
@@ -19,6 +23,8 @@ export class S3RepoProvider implements RepoProvider {
   private readonly AUTO_SYNC_INTERVAL = 30000;
   private lastSyncTime: Date | null = null;
   private syncInProgress = false;
+  private pendingOperations: PendingS3Operation[] = [];
+  private pendingSyncTimer: NodeJS.Timeout | null = null;
 
   constructor(private s3Adapter: S3Adapter) {}
 
@@ -128,13 +134,7 @@ export class S3RepoProvider implements RepoProvider {
         continue;
       }
 
-      const content = await this.s3Adapter.getObject(object.key);
-      await fs.mkdir(path.dirname(localFilePath), { recursive: true });
-      await fs.writeFile(localFilePath, content);
-
-      if (object.lastModified) {
-        await fs.utimes(localFilePath, object.lastModified, object.lastModified);
-      }
+      await this.downloadObjectToLocal(object.key, relativePath, object.lastModified);
     }
 
     this.lastSyncTime = new Date();
@@ -143,6 +143,16 @@ export class S3RepoProvider implements RepoProvider {
 
   async push(): Promise<void> {
     await this.sync();
+  }
+
+  async queueDelete(path: string): Promise<void> {
+    const operation: PendingS3Operation = { type: 'delete', path };
+    await this.applyOrQueueOperation(operation);
+  }
+
+  async queueMove(oldPath: string, newPath: string): Promise<void> {
+    const operation: PendingS3Operation = { type: 'move', from: oldPath, to: newPath };
+    await this.applyOrQueueOperation(operation);
   }
 
   startAutoSync(): void {
@@ -180,39 +190,192 @@ export class S3RepoProvider implements RepoProvider {
     this.syncInProgress = true;
 
     try {
-      await this.pull();
-      await this.pushLocalChanges();
+      await this.ensureRepoReady();
+      await this.applyPendingOperations();
+
+      const lastSync = this.lastSyncTime?.getTime() || 0;
+      const localFiles = await this.listLocalFiles(this.repoPath!);
+      const localStats = new Map<string, Awaited<ReturnType<typeof fs.stat>>>();
+
+      for (const relativePath of localFiles) {
+        const fullPath = path.join(this.repoPath!, relativePath);
+        localStats.set(relativePath, await fs.stat(fullPath));
+      }
+
+      const remoteObjects = await this.s3Adapter.listObjects(this.normalizedPrefix());
+      const remoteByRelative = new Map<string, typeof remoteObjects[number]>();
+
+      for (const object of remoteObjects) {
+        const relativePath = this.fromS3Key(object.key);
+        if (!relativePath || relativePath.endsWith('/')) {
+          continue;
+        }
+        remoteByRelative.set(relativePath, object);
+      }
+
+      for (const [relativePath, remoteObject] of remoteByRelative.entries()) {
+        const localStat = localStats.get(relativePath);
+        const remoteMtime = remoteObject.lastModified?.getTime() || 0;
+
+        if (localStat) {
+          const localMtime = localStat.mtime.getTime();
+          if (remoteMtime > localMtime) {
+            await this.downloadObjectToLocal(
+              remoteObject.key,
+              relativePath,
+              remoteObject.lastModified
+            );
+          } else if (localMtime > remoteMtime) {
+            await this.uploadLocalFile(relativePath);
+          }
+          continue;
+        }
+
+        if (lastSync && remoteMtime <= lastSync) {
+          await this.s3Adapter.deleteObject(remoteObject.key);
+          continue;
+        }
+
+        await this.downloadObjectToLocal(
+          remoteObject.key,
+          relativePath,
+          remoteObject.lastModified
+        );
+      }
+
+      for (const relativePath of localStats.keys()) {
+        if (remoteByRelative.has(relativePath)) {
+          continue;
+        }
+        await this.uploadLocalFile(relativePath);
+      }
+
+      this.lastSyncTime = new Date();
+      logger.info('S3 sync completed', { updatedAt: this.lastSyncTime });
     } finally {
       this.syncInProgress = false;
     }
   }
 
-  private async pushLocalChanges(): Promise<void> {
-    await this.ensureRepoReady();
+  private async uploadLocalFile(relativePath: string): Promise<void> {
+    const fullPath = path.join(this.repoPath!, relativePath);
+    const body = await fs.readFile(fullPath);
+    await this.s3Adapter.putObject(this.toS3Key(relativePath), body);
+  }
 
-    const localFiles = await this.listLocalFiles(this.repoPath!);
-    const prefix = this.normalizedPrefix();
-    const remoteObjects = await this.s3Adapter.listObjects(prefix);
-    const remoteMap = new Map(
-      remoteObjects.map((obj) => [obj.key, obj.lastModified?.getTime() || 0])
-    );
+  private async downloadObjectToLocal(
+    key: string,
+    relativePath: string,
+    lastModified?: Date
+  ): Promise<void> {
+    const localFilePath = path.join(this.repoPath!, relativePath);
+    const content = await this.s3Adapter.getObject(key);
+    await fs.mkdir(path.dirname(localFilePath), { recursive: true });
+    await fs.writeFile(localFilePath, content);
 
-    for (const relativePath of localFiles) {
-      const fullPath = path.join(this.repoPath!, relativePath);
-      const stats = await fs.stat(fullPath);
-      const key = this.toS3Key(relativePath);
-      const remoteMtime = remoteMap.get(key) || 0;
+    if (lastModified) {
+      await fs.utimes(localFilePath, lastModified, lastModified);
+    }
+  }
 
-      if (stats.mtime.getTime() <= remoteMtime) {
-        continue;
-      }
-
-      const body = await fs.readFile(fullPath);
-      await this.s3Adapter.putObject(key, body);
+  private async applyOrQueueOperation(operation: PendingS3Operation): Promise<void> {
+    if (this.syncInProgress) {
+      this.pendingOperations.push(operation);
+      return;
     }
 
-    this.lastSyncTime = new Date();
-    logger.info('S3 push completed', { updatedAt: this.lastSyncTime });
+    this.syncInProgress = true;
+
+    try {
+      await this.applyOperation(operation);
+    } catch (error) {
+      this.pendingOperations.push(operation);
+      this.schedulePendingSync();
+      throw error;
+    } finally {
+      this.syncInProgress = false;
+    }
+  }
+
+  private async applyPendingOperations(): Promise<void> {
+    if (this.pendingOperations.length === 0) {
+      return;
+    }
+
+    const pending = [...this.pendingOperations];
+    this.pendingOperations = [];
+
+    for (let index = 0; index < pending.length; index += 1) {
+      const operation = pending[index];
+      try {
+        await this.applyOperation(operation);
+      } catch (error) {
+        logger.warn('Failed to apply pending S3 operation', { operation, error });
+        this.pendingOperations = pending.slice(index);
+        return;
+      }
+    }
+  }
+
+  private async applyOperation(operation: PendingS3Operation): Promise<void> {
+    if (operation.type === 'delete') {
+      await this.deleteRemotePath(operation.path);
+      return;
+    }
+
+    await this.moveRemotePath(operation.from, operation.to);
+  }
+
+  private async deleteRemotePath(relativePath: string): Promise<void> {
+    await this.ensureRepoReady();
+
+    const key = this.toS3Key(relativePath);
+    await this.s3Adapter.deleteObject(key);
+
+    const prefix = this.ensureTrailingSlash(key);
+    const objects = await this.s3Adapter.listObjects(prefix);
+    for (const object of objects) {
+      await this.s3Adapter.deleteObject(object.key);
+    }
+  }
+
+  private async moveRemotePath(oldPath: string, newPath: string): Promise<void> {
+    await this.ensureRepoReady();
+
+    const newLocalPath = path.join(this.repoPath!, newPath);
+    const stats = await fs.stat(newLocalPath);
+
+    if (stats.isDirectory()) {
+      const basePath = path.join(this.repoPath!, newPath);
+      const localFiles = await this.listLocalFiles(basePath);
+      for (const relativePath of localFiles) {
+        const fullRelativePath = path.join(newPath, relativePath);
+        await this.uploadLocalFile(fullRelativePath);
+      }
+
+      await this.deleteRemotePath(oldPath);
+      return;
+    }
+
+    await this.uploadLocalFile(newPath);
+    await this.deleteRemotePath(oldPath);
+  }
+
+  private ensureTrailingSlash(value: string): string {
+    return value.endsWith('/') ? value : `${value}/`;
+  }
+
+  private schedulePendingSync(): void {
+    if (this.pendingSyncTimer || this.syncInProgress) {
+      return;
+    }
+
+    this.pendingSyncTimer = setTimeout(() => {
+      this.pendingSyncTimer = null;
+      void this.sync().catch((error) => {
+        logger.debug('Deferred S3 sync failed', { error });
+      });
+    }, 1000);
   }
 
   private async countLocalChanges(): Promise<number> {

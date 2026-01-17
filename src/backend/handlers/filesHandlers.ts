@@ -271,6 +271,9 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
   ipcMain.handle('files:delete', async (_event, path: string): Promise<ApiResponse<void>> => {
     try {
       await filesService.deletePath(path);
+      void repoService.queueS3Delete(path).catch((error) => {
+        logger.warn('Failed to queue S3 delete operation', { path, error });
+      });
       return {
         ok: true,
       };
@@ -294,6 +297,9 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
     async (_event, oldPath: string, newPath: string): Promise<ApiResponse<void>> => {
       try {
         await filesService.renamePath(oldPath, newPath);
+        void repoService.queueS3Move(oldPath, newPath).catch((error) => {
+          logger.warn('Failed to queue S3 move operation', { oldPath, newPath, error });
+        });
         return {
           ok: true,
         };

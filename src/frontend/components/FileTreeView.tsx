@@ -43,6 +43,7 @@ interface FileTreeViewProps {
   onDelete: (path: string) => Promise<void>;
   onRename: (oldPath: string, newPath: string) => Promise<void>;
   onImport: (sourcePath: string, targetPath: string) => Promise<void>;
+  isS3Repo: boolean;
 }
 
 const getFileIcon = (fileType?: FileType) => {
@@ -73,6 +74,7 @@ export function FileTreeView({
   onDelete,
   onRename,
   onImport,
+  isS3Repo,
 }: FileTreeViewProps) {
   const [createFileDialogOpen, setCreateFileDialogOpen] = useState(false);
   const [createFolderDialogOpen, setCreateFolderDialogOpen] = useState(false);
@@ -83,6 +85,9 @@ export function FileTreeView({
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedNode, setSelectedNode] = useState<FileTreeNode | null>(null);
   const [expanded, setExpanded] = useState<string[]>([]);
+
+  const normalizeName = (value: string): string =>
+    isS3Repo ? value.replace(/ /g, '-') : value;
 
   React.useEffect(() => {
     if (selectedFile) {
@@ -128,7 +133,7 @@ export function FileTreeView({
     const trimmedName = newItemName.trim();
     if (!trimmedName) return;
     
-    let fileName = trimmedName;
+    let fileName = normalizeName(trimmedName);
     if (!fileName.includes('.')) {
       fileName = `${fileName}.md`;
     }
@@ -191,8 +196,9 @@ export function FileTreeView({
     const trimmedName = newItemName.trim();
     if (!trimmedName) return;
 
+    const folderName = normalizeName(trimmedName);
     const invalidChars = /[<>:"/\\|?*]/;
-    if (invalidChars.test(trimmedName)) {
+    if (invalidChars.test(folderName)) {
       setErrorMessage('Folder name contains invalid characters: < > : " / \\ | ? *');
       return;
     }
@@ -221,7 +227,7 @@ export function FileTreeView({
         }
       }
       
-      await onCreateFolder(parentPath, trimmedName);
+      await onCreateFolder(parentPath, folderName);
       
       if (parentNodeId && !expanded.includes(parentNodeId)) {
         setExpanded([...expanded, parentNodeId]);
@@ -233,7 +239,7 @@ export function FileTreeView({
     } catch (error: any) {
       const errorMsg = error.message || 'Failed to create folder';
       if (errorMsg.includes('exists') || errorMsg.includes('EEXIST')) {
-        setErrorMessage(`Folder "${trimmedName}" already exists`);
+        setErrorMessage(`Folder "${folderName}" already exists`);
       } else if (errorMsg.includes('permission') || errorMsg.includes('EACCES')) {
         setErrorMessage('Permission denied to create folder');
       } else {
@@ -254,13 +260,14 @@ export function FileTreeView({
       return;
     }
 
+    const normalizedName = normalizeName(trimmedName);
     const invalidChars = /[<>:"/\\|?*]/;
-    if (invalidChars.test(trimmedName)) {
+    if (invalidChars.test(normalizedName)) {
       setErrorMessage('Name contains invalid characters: < > : " / \\ | ? *');
       return;
     }
 
-    if (trimmedName === selectedNode.name) {
+    if (normalizedName === selectedNode.name) {
       setRenameDialogOpen(false);
       return;
     }
@@ -272,7 +279,7 @@ export function FileTreeView({
       const oldPath = selectedNode.path;
       const lastSlash = oldPath.lastIndexOf('/');
       const parentPath = lastSlash > 0 ? oldPath.substring(0, lastSlash) : '';
-      const newPath = parentPath ? `${parentPath}/${trimmedName}` : trimmedName;
+      const newPath = parentPath ? `${parentPath}/${normalizedName}` : normalizedName;
 
       await onRename(oldPath, newPath);
 
@@ -330,7 +337,8 @@ export function FileTreeView({
       }
 
       const sourcePath = result.filePaths[0];
-      const fileName = sourcePath.split('/').pop() || 'imported_file';
+      const rawFileName = sourcePath.split('/').pop() || 'imported_file';
+      const fileName = normalizeName(rawFileName);
 
       let targetPath = fileName;
       if (selectedNode) {
