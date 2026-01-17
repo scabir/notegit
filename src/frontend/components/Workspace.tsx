@@ -18,8 +18,9 @@ import { SearchDialog } from './SearchDialog';
 import { RepoSearchDialog } from './RepoSearchDialog';
 import { HistoryPanel } from './HistoryPanel';
 import { HistoryViewer } from './HistoryViewer';
-import type { FileTreeNode, FileContent, RepoStatus } from '../../shared/types';
+import type { AppSettings, FileTreeNode, FileContent, RepoStatus } from '../../shared/types';
 import packageJson from '../../../package.json';
+import { startS3AutoSync } from '../utils/s3AutoSync';
 
 interface WorkspaceProps {
   onThemeChange: (theme: 'light' | 'dark' | 'system') => void;
@@ -31,6 +32,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [fileContent, setFileContent] = useState<FileContent | null>(null);
   const [repoStatus, setRepoStatus] = useState<RepoStatus | null>(null);
   const [repoPath, setRepoPath] = useState<string | null>(null);
+  const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [commitDialogOpen, setCommitDialogOpen] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
@@ -44,6 +46,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveMessage, setSaveMessage] = useState<string>('');
   const autosaveTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const s3AutoSyncCleanupRef = React.useRef<(() => void) | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(300);
   const [isResizing, setIsResizing] = useState(false);
   const resizeStartX = React.useRef(0);
@@ -76,6 +79,40 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   useEffect(() => {
     loadWorkspace();
   }, []);
+
+  useEffect(() => {
+    if (!isS3Repo || !appSettings) {
+      if (s3AutoSyncCleanupRef.current) {
+        s3AutoSyncCleanupRef.current();
+        s3AutoSyncCleanupRef.current = null;
+      }
+      return;
+    }
+
+    if (s3AutoSyncCleanupRef.current) {
+      s3AutoSyncCleanupRef.current();
+      s3AutoSyncCleanupRef.current = null;
+    }
+
+    s3AutoSyncCleanupRef.current = startS3AutoSync(
+      appSettings.s3AutoSyncEnabled,
+      appSettings.s3AutoSyncIntervalSec,
+      {
+        startAutoPush: window.notegitApi.repo.startAutoPush,
+        getStatus: window.notegitApi.repo.getStatus,
+        listTree: window.notegitApi.files.listTree,
+        setStatus: setRepoStatus,
+        setTree,
+      }
+    );
+
+    return () => {
+      if (s3AutoSyncCleanupRef.current) {
+        s3AutoSyncCleanupRef.current();
+        s3AutoSyncCleanupRef.current = null;
+      }
+    };
+  }, [isS3Repo, appSettings?.s3AutoSyncEnabled, appSettings?.s3AutoSyncIntervalSec]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -146,6 +183,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       // Get repo path and profile info from config
       const configResponse = await window.notegitApi.config.getFull();
       if (configResponse.ok && configResponse.data) {
+        setAppSettings(configResponse.data.appSettings);
         if (configResponse.data.repoSettings?.localPath) {
           setRepoPath(configResponse.data.repoSettings.localPath);
         }
@@ -760,6 +798,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         onThemeChange={onThemeChange}
+        onAppSettingsSaved={setAppSettings}
         currentNoteContent={editorContent}
         currentNotePath={selectedFile || undefined}
       />

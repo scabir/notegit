@@ -67,6 +67,8 @@ describe('ConfigService', () => {
       expect(config.appSettings.autoSaveEnabled).toBe(true);
       expect(config.appSettings.theme).toBe(DEFAULT_APP_SETTINGS.theme);
       expect(config.appSettings.editorPrefs).toBeDefined();
+      expect(config.appSettings.s3AutoSyncEnabled).toBe(DEFAULT_APP_SETTINGS.s3AutoSyncEnabled);
+      expect(config.appSettings.s3AutoSyncIntervalSec).toBe(DEFAULT_APP_SETTINGS.s3AutoSyncIntervalSec);
     });
 
     it('should create config directory if it does not exist', async () => {
@@ -109,6 +111,22 @@ describe('ConfigService', () => {
       const savedData = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
       expect(savedData.autoSaveEnabled).toBe(false);
       expect(savedData.autoSaveIntervalSec).toBe(120);
+    });
+
+    it('should update s3 auto sync settings', async () => {
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+      mockFsAdapter.exists.mockResolvedValue(false);
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+
+      await configService.updateAppSettings({
+        s3AutoSyncEnabled: false,
+        s3AutoSyncIntervalSec: 120,
+      });
+
+      const savedData = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
+      expect(savedData.s3AutoSyncEnabled).toBe(false);
+      expect(savedData.s3AutoSyncIntervalSec).toBe(120);
+      expect(savedData.autoSaveEnabled).toBe(DEFAULT_APP_SETTINGS.autoSaveEnabled);
     });
   });
 

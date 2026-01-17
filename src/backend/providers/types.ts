@@ -9,7 +9,7 @@ export interface RepoProvider {
   fetch(): Promise<RepoStatus>;
   pull(): Promise<void>;
   push(): Promise<void>;
-  startAutoSync(): void;
+  startAutoSync(intervalMs?: number): void;
   stopAutoSync(): void;
 }
 

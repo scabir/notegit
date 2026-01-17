@@ -75,6 +75,7 @@ interface SettingsDialogProps {
   open: boolean;
   onClose: () => void;
   onThemeChange?: (theme: 'light' | 'dark' | 'system') => void;
+  onAppSettingsSaved?: (settings: AppSettings) => void;
   currentNoteContent?: string;
   currentNotePath?: string;
 }
@@ -83,6 +84,7 @@ export function SettingsDialog({
   open,
   onClose,
   onThemeChange,
+  onAppSettingsSaved,
   currentNoteContent,
   currentNotePath,
 }: SettingsDialogProps) {
@@ -163,6 +165,9 @@ export function SettingsDialog({
         setSuccess('App settings saved successfully');
         if (onThemeChange) {
           onThemeChange(appSettings.theme);
+        }
+        if (onAppSettingsSaved) {
+          onAppSettingsSaved(appSettings);
         }
       } else {
         setError(response.error?.message || 'Failed to save app settings');
@@ -555,6 +560,40 @@ export function SettingsDialog({
                   }
                   InputProps={{ inputProps: { min: 10, max: 300 } }}
                 />
+              )}
+
+              {repoProvider === 's3' && (
+                <>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={appSettings.s3AutoSyncEnabled}
+                        onChange={(e) =>
+                          setAppSettings({
+                            ...appSettings,
+                            s3AutoSyncEnabled: e.target.checked,
+                          })
+                        }
+                      />
+                    }
+                    label="Enable S3 Auto Sync"
+                  />
+
+                  {appSettings.s3AutoSyncEnabled && (
+                    <TextField
+                      label="S3 Auto Sync (in seconds)"
+                      type="number"
+                      value={appSettings.s3AutoSyncIntervalSec}
+                      onChange={(e) =>
+                        setAppSettings({
+                          ...appSettings,
+                          s3AutoSyncIntervalSec: parseInt(e.target.value),
+                        })
+                      }
+                      InputProps={{ inputProps: { min: 5, max: 3600 } }}
+                    />
+                  )}
+                </>
               )}
 
               <Typography variant="h6" sx={{ mt: 2 }}>

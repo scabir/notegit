@@ -112,12 +112,12 @@ export class RepoService {
 
   startAutoPush(): void {
     if (this.activeProvider) {
-      this.activeProvider.startAutoSync();
+      void this.applyAutoSyncSettings(this.activeProvider);
       return;
     }
 
     void this.ensureActiveProvider()
-      .then((provider) => provider.startAutoSync())
+      .then((provider) => this.applyAutoSyncSettings(provider))
       .catch((error) => logger.warn('Failed to start auto-sync', { error }));
   }
 
@@ -161,7 +161,7 @@ export class RepoService {
     }
 
     if (options.startAutoSync !== false) {
-      provider.startAutoSync();
+      await this.applyAutoSyncSettings(provider);
     }
 
     const status = await provider.getStatus();
@@ -276,6 +276,14 @@ export class RepoService {
     this.stopAutoPush();
   }
 
+  async refreshAutoSyncSettings(): Promise<void> {
+    if (!this.activeProvider) {
+      return;
+    }
+
+    await this.applyAutoSyncSettings(this.activeProvider);
+  }
+
   async queueS3Delete(path: string): Promise<void> {
     const provider = await this.ensureActiveProvider();
     if (provider.type !== 's3') {
@@ -306,5 +314,22 @@ export class RepoService {
     const parentPath = newPath.slice(0, lastSlash);
     const name = newPath.slice(lastSlash + 1).replace(/ /g, '-');
     return parentPath ? `${parentPath}/${name}` : name;
+  }
+
+  private async applyAutoSyncSettings(provider: RepoProvider): Promise<void> {
+    if (provider.type !== 's3') {
+      provider.startAutoSync();
+      return;
+    }
+
+    const appSettings = await this.configService.getAppSettings();
+    const intervalSec = appSettings.s3AutoSyncIntervalSec || 30;
+    const intervalMs = Math.max(1000, intervalSec * 1000);
+
+    if (appSettings.s3AutoSyncEnabled) {
+      provider.startAutoSync(intervalMs);
+    } else {
+      provider.stopAutoSync();
+    }
   }
 }

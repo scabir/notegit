@@ -43,6 +43,11 @@ export function registerConfigHandlers(
     async (_event, settings: Partial<AppSettings>): Promise<ApiResponse<void>> => {
       try {
         await configService.updateAppSettings(settings);
+        try {
+          await repoService.refreshAutoSyncSettings();
+        } catch (error) {
+          logger.warn('Failed to refresh auto-sync settings', { error });
+        }
         return {
           ok: true,
         };

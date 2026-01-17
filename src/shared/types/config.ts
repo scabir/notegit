@@ -1,6 +1,8 @@
 export interface AppSettings {
   autoSaveEnabled: boolean;
   autoSaveIntervalSec: number;
+  s3AutoSyncEnabled: boolean;
+  s3AutoSyncIntervalSec: number;
   theme: 'light' | 'dark' | 'system';
   editorPrefs: EditorPreferences;
 }
@@ -69,6 +71,8 @@ export interface AppStateSnapshot {
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   autoSaveEnabled: false,
   autoSaveIntervalSec: 30,
+  s3AutoSyncEnabled: true,
+  s3AutoSyncIntervalSec: 30,
   theme: 'system',
   editorPrefs: {
     fontSize: 14,

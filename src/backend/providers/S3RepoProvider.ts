@@ -20,7 +20,7 @@ export class S3RepoProvider implements RepoProvider {
   private settings: S3RepoSettings | null = null;
   private repoPath: string | null = null;
   private autoSyncTimer: NodeJS.Timeout | null = null;
-  private readonly AUTO_SYNC_INTERVAL = 30000;
+  private autoSyncIntervalMs = 30000;
   private lastSyncTime: Date | null = null;
   private syncInProgress = false;
   private pendingOperations: PendingS3Operation[] = [];
@@ -155,14 +155,21 @@ export class S3RepoProvider implements RepoProvider {
     await this.applyOrQueueOperation(operation);
   }
 
-  startAutoSync(): void {
+  startAutoSync(intervalMs?: number): void {
+    if (intervalMs && intervalMs > 0) {
+      this.autoSyncIntervalMs = intervalMs;
+    }
+
     if (this.autoSyncTimer) {
-      logger.debug('S3 auto-sync timer already running');
-      return;
+      logger.debug('Restarting S3 auto-sync timer', {
+        intervalMs: this.autoSyncIntervalMs,
+      });
+      clearInterval(this.autoSyncTimer);
+      this.autoSyncTimer = null;
     }
 
     logger.info('Starting S3 auto-sync timer', {
-      intervalMs: this.AUTO_SYNC_INTERVAL,
+      intervalMs: this.autoSyncIntervalMs,
     });
 
     this.autoSyncTimer = setInterval(async () => {
@@ -171,7 +178,7 @@ export class S3RepoProvider implements RepoProvider {
       } catch (error) {
         logger.debug('S3 auto-sync attempt failed, will retry', { error });
       }
-    }, this.AUTO_SYNC_INTERVAL);
+    }, this.autoSyncIntervalMs);
   }
 
   stopAutoSync(): void {

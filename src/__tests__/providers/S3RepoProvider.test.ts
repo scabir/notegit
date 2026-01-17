@@ -392,4 +392,66 @@ describe('S3RepoProvider', () => {
     expect(s3Adapter.getObject).not.toHaveBeenCalled();
     expect(s3Adapter.putObject).not.toHaveBeenCalled();
   });
+
+  it('uses the provided interval for auto sync', () => {
+    jest.useFakeTimers();
+
+    const tempDir = '/tmp/notegit-s3';
+    const settings = { ...baseSettings, localPath: tempDir };
+
+    const s3Adapter = {
+      configure: jest.fn(),
+      getBucketVersioning: jest.fn(),
+      listObjects: jest.fn(),
+      getObject: jest.fn(),
+      putObject: jest.fn(),
+      deleteObject: jest.fn(),
+    };
+
+    const provider = new S3RepoProvider(s3Adapter as any);
+    provider.configure(settings);
+
+    const setIntervalSpy = jest.spyOn(global, 'setInterval');
+
+    provider.startAutoSync(45000);
+
+    expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 45000);
+
+    provider.stopAutoSync();
+    setIntervalSpy.mockRestore();
+    jest.useRealTimers();
+  });
+
+  it('restarts the auto sync timer when called again', () => {
+    jest.useFakeTimers();
+
+    const tempDir = '/tmp/notegit-s3';
+    const settings = { ...baseSettings, localPath: tempDir };
+
+    const s3Adapter = {
+      configure: jest.fn(),
+      getBucketVersioning: jest.fn(),
+      listObjects: jest.fn(),
+      getObject: jest.fn(),
+      putObject: jest.fn(),
+      deleteObject: jest.fn(),
+    };
+
+    const provider = new S3RepoProvider(s3Adapter as any);
+    provider.configure(settings);
+
+    const setIntervalSpy = jest.spyOn(global, 'setInterval');
+    const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+
+    provider.startAutoSync(30000);
+    provider.startAutoSync(60000);
+
+    expect(clearIntervalSpy).toHaveBeenCalled();
+    expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 60000);
+
+    provider.stopAutoSync();
+    setIntervalSpy.mockRestore();
+    clearIntervalSpy.mockRestore();
+    jest.useRealTimers();
+  });
 });

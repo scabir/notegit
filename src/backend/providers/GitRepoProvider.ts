@@ -157,7 +157,7 @@ export class GitRepoProvider implements RepoProvider {
     await this.performPullThenPush();
   }
 
-  startAutoSync(): void {
+  startAutoSync(_intervalMs?: number): void {
     if (this.autoSyncTimer) {
       logger.debug('Git auto-sync timer already running');
       return;

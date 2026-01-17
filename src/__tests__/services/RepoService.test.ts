@@ -8,7 +8,7 @@ describe('RepoService', () => {
       type: 'git',
       configure: jest.fn(),
       open: jest.fn(),
-      getStatus: jest.fn(),
+      getStatus: jest.fn().mockResolvedValue({}),
       fetch: jest.fn(),
       pull: jest.fn(),
       push: jest.fn(),
@@ -20,7 +20,7 @@ describe('RepoService', () => {
       type: 's3',
       configure: jest.fn(),
       open: jest.fn(),
-      getStatus: jest.fn(),
+      getStatus: jest.fn().mockResolvedValue({}),
       fetch: jest.fn(),
       pull: jest.fn(),
       push: jest.fn(),
@@ -32,6 +32,7 @@ describe('RepoService', () => {
 
     const mockConfigService = {
       getRepoSettings: jest.fn(),
+      getAppSettings: jest.fn(),
     } as unknown as ConfigService;
 
     const mockFsAdapter = {} as FsAdapter;
@@ -105,5 +106,59 @@ describe('RepoService', () => {
     await repoService.queueS3Move('old.md', 'folder/new name.md');
 
     expect(s3Provider.queueMove).toHaveBeenCalledWith('old.md', 'folder/new-name.md');
+  });
+
+  it('refreshAutoSyncSettings starts s3 auto sync when enabled', async () => {
+    const { repoService, s3Provider, mockConfigService } = createRepoService();
+
+    const repoSettings = {
+      provider: 's3',
+      localPath: '/repo',
+      bucket: 'notes-bucket',
+      region: 'us-east-1',
+      prefix: '',
+      accessKeyId: 'access-key',
+      secretAccessKey: 'secret-key',
+      sessionToken: '',
+    };
+
+    mockConfigService.getRepoSettings = jest.fn().mockResolvedValue(repoSettings as any);
+    mockConfigService.getAppSettings = jest.fn().mockResolvedValue({
+      s3AutoSyncEnabled: true,
+      s3AutoSyncIntervalSec: 45,
+    });
+
+    await repoService.getStatus().catch(() => undefined);
+    await repoService.refreshAutoSyncSettings();
+
+    expect(s3Provider.startAutoSync).toHaveBeenCalledWith(45000);
+    expect(s3Provider.stopAutoSync).not.toHaveBeenCalled();
+  });
+
+  it('refreshAutoSyncSettings stops s3 auto sync when disabled', async () => {
+    const { repoService, s3Provider, mockConfigService } = createRepoService();
+
+    const repoSettings = {
+      provider: 's3',
+      localPath: '/repo',
+      bucket: 'notes-bucket',
+      region: 'us-east-1',
+      prefix: '',
+      accessKeyId: 'access-key',
+      secretAccessKey: 'secret-key',
+      sessionToken: '',
+    };
+
+    mockConfigService.getRepoSettings = jest.fn().mockResolvedValue(repoSettings as any);
+    mockConfigService.getAppSettings = jest.fn().mockResolvedValue({
+      s3AutoSyncEnabled: false,
+      s3AutoSyncIntervalSec: 30,
+    });
+
+    await repoService.getStatus().catch(() => undefined);
+    await repoService.refreshAutoSyncSettings();
+
+    expect(s3Provider.stopAutoSync).toHaveBeenCalled();
+    expect(s3Provider.startAutoSync).not.toHaveBeenCalled();
   });
 });
