@@ -575,6 +575,32 @@ describe('FilesService', () => {
     });
   });
 
+  describe('importFile', () => {
+    it('should normalize spaces for S3 target paths', async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 's3',
+        localPath: '/repo',
+        bucket: 'notes-bucket',
+        region: 'us-east-1',
+        prefix: '',
+        accessKeyId: 'access-key',
+        secretAccessKey: 'secret-key',
+        sessionToken: '',
+      });
+
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+      mockFsAdapter.copyFile.mockResolvedValue(undefined);
+
+      await filesService.importFile('/source/file.txt', 'folder/my file.txt');
+
+      expect(mockFsAdapter.mkdir).toHaveBeenCalledWith('/repo/folder', { recursive: true });
+      expect(mockFsAdapter.copyFile).toHaveBeenCalledWith(
+        '/source/file.txt',
+        '/repo/folder/my-file.txt'
+      );
+    });
+  });
+
   describe('deletePath', () => {
     beforeEach(async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({

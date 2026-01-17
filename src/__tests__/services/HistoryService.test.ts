@@ -11,13 +11,20 @@ describe('HistoryService', () => {
   let historyService: HistoryService;
   let mockGitAdapter: jest.Mocked<GitAdapter>;
   let mockConfigService: jest.Mocked<ConfigService>;
+  let mockS3HistoryProvider: jest.Mocked<{
+    type: 's3';
+    configure: jest.Mock;
+    getForFile: jest.Mock;
+    getVersion: jest.Mock;
+    getDiff: jest.Mock;
+  }>;
 
   beforeEach(() => {
     mockGitAdapter = new GitAdapter() as jest.Mocked<GitAdapter>;
     mockConfigService = new ConfigService({} as any, {} as any) as jest.Mocked<ConfigService>;
 
     const gitHistoryProvider = new GitHistoryProvider(mockGitAdapter);
-    const s3HistoryProvider = {
+    mockS3HistoryProvider = {
       type: 's3',
       configure: jest.fn(),
       getForFile: jest.fn(),
@@ -26,7 +33,7 @@ describe('HistoryService', () => {
     } as any;
 
     historyService = new HistoryService(
-      { git: gitHistoryProvider, s3: s3HistoryProvider },
+      { git: gitHistoryProvider, s3: mockS3HistoryProvider },
       mockConfigService
     );
 
@@ -213,6 +220,29 @@ index abc123..def456 100644
       const diff = await historyService.getDiff('abc123', 'def456', 'notes/file.md');
 
       expect(diff).toEqual([]);
+    });
+  });
+
+  describe('s3 provider selection', () => {
+    it('uses the s3 provider when repo settings are s3', async () => {
+      const repoSettings = {
+        provider: 's3',
+        localPath: '/repo',
+        bucket: 'notes-bucket',
+        region: 'us-east-1',
+        prefix: '',
+        accessKeyId: 'access-key',
+        secretAccessKey: 'secret-key',
+        sessionToken: '',
+      };
+
+      mockConfigService.getRepoSettings.mockResolvedValue(repoSettings as any);
+      mockS3HistoryProvider.getForFile.mockResolvedValue([]);
+
+      await historyService.getForFile('notes/file.md');
+
+      expect(mockS3HistoryProvider.configure).toHaveBeenCalledWith(repoSettings);
+      expect(mockS3HistoryProvider.getForFile).toHaveBeenCalledWith('notes/file.md');
     });
   });
 });
