@@ -101,25 +101,27 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
           )}
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="Fetch from remote">
-            <IconButton size="small" onClick={onFetch}>
-              <CloudSyncIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+        {!isS3 && (
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Tooltip title="Fetch from remote">
+              <IconButton size="small" onClick={onFetch}>
+                <CloudSyncIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
 
-          <Tooltip title="Pull from remote">
-            <IconButton size="small" onClick={onPull} disabled={!status.needsPull}>
-              <CloudDownloadIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+            <Tooltip title="Pull from remote">
+              <IconButton size="small" onClick={onPull} disabled={!status.needsPull}>
+                <CloudDownloadIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
 
-          <Tooltip title="Push to remote">
-            <IconButton size="small" onClick={onPush} disabled={status.pendingPushCount === 0}>
-              <CloudUploadIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
+            <Tooltip title="Push to remote">
+              <IconButton size="small" onClick={onPush} disabled={status.pendingPushCount === 0}>
+                <CloudUploadIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
       </Toolbar>
     </AppBar>
   );
