@@ -2,7 +2,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.test.ts'],
+  testMatch: ['**/unit-tests/**/*.test.ts'],
   collectCoverageFrom: [
     'src/backend/**/*.ts',
     '!src/backend/**/*.d.ts',
@@ -11,6 +11,5 @@ module.exports = {
   moduleNameMapper: {
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
   },
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/unit-tests/setup.ts'],
 };
-

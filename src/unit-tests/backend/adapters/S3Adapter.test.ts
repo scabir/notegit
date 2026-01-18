@@ -1,5 +1,5 @@
-import { S3Adapter } from '../../backend/adapters/S3Adapter';
-import { ApiErrorCode } from '../../shared/types';
+import { S3Adapter } from '../../../backend/adapters/S3Adapter';
+import { ApiErrorCode } from '../../../shared/types';
 
 jest.mock('@aws-sdk/client-s3', () => {
   const sendMock = jest.fn();

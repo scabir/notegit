@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { CommitDialog } from '../../frontend/components/CommitDialog';
+import { CommitDialog } from '../../../frontend/components/CommitDialog';
 
 describe('CommitDialog', () => {
   it('renders dialog container when open', () => {

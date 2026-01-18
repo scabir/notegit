@@ -1,4 +1,4 @@
-import { getS3AutoSyncIntervalMs, startS3AutoSync } from '../../frontend/utils/s3AutoSync';
+import { getS3AutoSyncIntervalMs, startS3AutoSync } from '../../../frontend/utils/s3AutoSync';
 
 const flushPromises = async () => {
   await Promise.resolve();

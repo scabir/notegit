@@ -1,4 +1,4 @@
-import { confirmProfileSwitch } from '../../frontend/utils/profileSwitch';
+import { confirmProfileSwitch } from '../../../frontend/utils/profileSwitch';
 
 describe('SettingsDialog', () => {
   it('requests confirmation before switching profiles', () => {

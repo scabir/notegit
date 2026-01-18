@@ -1,10 +1,10 @@
-import { SearchService } from '../../backend/services/SearchService';
-import { FsAdapter } from '../../backend/adapters/FsAdapter';
-import { ConfigService } from '../../backend/services/ConfigService';
-import { ApiErrorCode } from '../../shared/types';
+import { SearchService } from '../../../backend/services/SearchService';
+import { FsAdapter } from '../../../backend/adapters/FsAdapter';
+import { ConfigService } from '../../../backend/services/ConfigService';
+import { ApiErrorCode } from '../../../shared/types';
 
-jest.mock('../../backend/adapters/FsAdapter');
-jest.mock('../../backend/services/ConfigService');
+jest.mock('../../../backend/adapters/FsAdapter');
+jest.mock('../../../backend/services/ConfigService');
 
 describe('SearchService', () => {
   let searchService: SearchService;

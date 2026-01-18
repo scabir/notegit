@@ -1,4 +1,4 @@
-import { registerFilesHandlers } from '../../backend/handlers/filesHandlers';
+import { registerFilesHandlers } from '../../../backend/handlers/filesHandlers';
 
 describe('filesHandlers', () => {
   const createIpcMain = () => {

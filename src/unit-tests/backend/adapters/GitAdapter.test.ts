@@ -1,5 +1,5 @@
-import { GitAdapter } from '../../backend/adapters/GitAdapter';
-import { ApiErrorCode } from '../../shared/types';
+import { GitAdapter } from '../../../backend/adapters/GitAdapter';
+import { ApiErrorCode } from '../../../shared/types';
 import simpleGit, { SimpleGit } from 'simple-git';
 
 jest.mock('simple-git');

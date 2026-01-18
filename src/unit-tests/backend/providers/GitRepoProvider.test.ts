@@ -1,6 +1,6 @@
 import * as path from 'path';
-import { GitRepoProvider } from '../../backend/providers/GitRepoProvider';
-import { ApiErrorCode, AuthMethod, GitRepoSettings } from '../../shared/types';
+import { GitRepoProvider } from '../../../backend/providers/GitRepoProvider';
+import { ApiErrorCode, AuthMethod, GitRepoSettings } from '../../../shared/types';
 
 describe('GitRepoProvider', () => {
   const baseSettings: GitRepoSettings = {

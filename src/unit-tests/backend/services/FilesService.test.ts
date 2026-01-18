@@ -1,13 +1,13 @@
-import { FilesService } from '../../backend/services/FilesService';
-import { FsAdapter } from '../../backend/adapters/FsAdapter';
-import { ConfigService } from '../../backend/services/ConfigService';
-import { GitAdapter } from '../../backend/adapters/GitAdapter';
-import { FileType, AuthMethod, ApiErrorCode } from '../../shared/types';
+import { FilesService } from '../../../backend/services/FilesService';
+import { FsAdapter } from '../../../backend/adapters/FsAdapter';
+import { ConfigService } from '../../../backend/services/ConfigService';
+import { GitAdapter } from '../../../backend/adapters/GitAdapter';
+import { FileType, AuthMethod, ApiErrorCode } from '../../../shared/types';
 import { Stats } from 'fs';
 
-jest.mock('../../backend/adapters/FsAdapter');
-jest.mock('../../backend/services/ConfigService');
-jest.mock('../../backend/adapters/GitAdapter');
+jest.mock('../../../backend/adapters/FsAdapter');
+jest.mock('../../../backend/services/ConfigService');
+jest.mock('../../../backend/adapters/GitAdapter');
 
 describe('FilesService', () => {
   let filesService: FilesService;

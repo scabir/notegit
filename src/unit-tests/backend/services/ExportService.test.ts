@@ -1,11 +1,11 @@
-import { ExportService } from '../../backend/services/ExportService';
-import { FsAdapter } from '../../backend/adapters/FsAdapter';
-import { ConfigService } from '../../backend/services/ConfigService';
-import { ApiErrorCode, AuthMethod } from '../../shared/types';
+import { ExportService } from '../../../backend/services/ExportService';
+import { FsAdapter } from '../../../backend/adapters/FsAdapter';
+import { ConfigService } from '../../../backend/services/ConfigService';
+import { ApiErrorCode, AuthMethod } from '../../../shared/types';
 import * as fs from 'fs/promises';
 
-jest.mock('../../backend/adapters/FsAdapter');
-jest.mock('../../backend/services/ConfigService');
+jest.mock('../../../backend/adapters/FsAdapter');
+jest.mock('../../../backend/services/ConfigService');
 jest.mock('archiver');
 
 describe('ExportService', () => {

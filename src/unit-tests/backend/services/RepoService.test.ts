@@ -1,6 +1,6 @@
-import { RepoService } from '../../backend/services/RepoService';
-import type { ConfigService } from '../../backend/services/ConfigService';
-import type { FsAdapter } from '../../backend/adapters/FsAdapter';
+import { RepoService } from '../../../backend/services/RepoService';
+import type { ConfigService } from '../../../backend/services/ConfigService';
+import type { FsAdapter } from '../../../backend/adapters/FsAdapter';
 
 describe('RepoService', () => {
   const createRepoService = () => {

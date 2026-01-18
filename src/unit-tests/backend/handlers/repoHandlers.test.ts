@@ -1,5 +1,5 @@
-import { registerRepoHandlers } from '../../backend/handlers/repoHandlers';
-import { ApiErrorCode } from '../../shared/types';
+import { registerRepoHandlers } from '../../../backend/handlers/repoHandlers';
+import { ApiErrorCode } from '../../../shared/types';
 
 describe('repoHandlers', () => {
   const createIpcMain = () => {

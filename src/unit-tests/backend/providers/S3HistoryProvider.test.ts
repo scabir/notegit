@@ -1,5 +1,5 @@
-import { S3HistoryProvider } from '../../backend/providers/S3HistoryProvider';
-import { ApiErrorCode, S3RepoSettings } from '../../shared/types';
+import { S3HistoryProvider } from '../../../backend/providers/S3HistoryProvider';
+import { ApiErrorCode, S3RepoSettings } from '../../../shared/types';
 
 describe('S3HistoryProvider', () => {
   const baseSettings: S3RepoSettings = {

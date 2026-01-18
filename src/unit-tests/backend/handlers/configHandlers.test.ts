@@ -1,4 +1,4 @@
-import { registerConfigHandlers } from '../../backend/handlers/configHandlers';
+import { registerConfigHandlers } from '../../../backend/handlers/configHandlers';
 
 describe('configHandlers', () => {
   const createIpcMain = () => {

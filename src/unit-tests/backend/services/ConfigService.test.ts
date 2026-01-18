@@ -1,10 +1,10 @@
-import { ConfigService } from '../../backend/services/ConfigService';
-import { FsAdapter } from '../../backend/adapters/FsAdapter';
-import { CryptoAdapter } from '../../backend/adapters/CryptoAdapter';
-import { DEFAULT_APP_SETTINGS, AuthMethod, RepoSettings, GitRepoSettings } from '../../shared/types';
+import { ConfigService } from '../../../backend/services/ConfigService';
+import { FsAdapter } from '../../../backend/adapters/FsAdapter';
+import { CryptoAdapter } from '../../../backend/adapters/CryptoAdapter';
+import { DEFAULT_APP_SETTINGS, AuthMethod, RepoSettings, GitRepoSettings } from '../../../shared/types';
 
-jest.mock('../../backend/adapters/FsAdapter');
-jest.mock('../../backend/adapters/CryptoAdapter');
+jest.mock('../../../backend/adapters/FsAdapter');
+jest.mock('../../../backend/adapters/CryptoAdapter');
 
 describe('ConfigService', () => {
   let configService: ConfigService;

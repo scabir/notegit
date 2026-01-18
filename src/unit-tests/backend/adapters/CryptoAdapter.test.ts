@@ -1,4 +1,4 @@
-import { CryptoAdapter } from '../../backend/adapters/CryptoAdapter';
+import { CryptoAdapter } from '../../../backend/adapters/CryptoAdapter';
 
 describe('CryptoAdapter', () => {
   let cryptoAdapter: CryptoAdapter;

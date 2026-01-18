@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { StatusBar } from '../../frontend/components/StatusBar';
-import type { RepoStatus } from '../../shared/types';
+import { StatusBar } from '../../../frontend/components/StatusBar';
+import type { RepoStatus } from '../../../shared/types';
 
 describe('StatusBar', () => {
   const baseStatus: RepoStatus = {

@@ -1,8 +1,8 @@
 import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
-import { S3RepoProvider } from '../../backend/providers/S3RepoProvider';
-import { ApiErrorCode, S3RepoSettings } from '../../shared/types';
+import { S3RepoProvider } from '../../../backend/providers/S3RepoProvider';
+import { ApiErrorCode, S3RepoSettings } from '../../../shared/types';
 
 describe('S3RepoProvider', () => {
   const baseSettings: S3RepoSettings = {

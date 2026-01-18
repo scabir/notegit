@@ -1,11 +1,11 @@
-import { HistoryService } from '../../backend/services/HistoryService';
-import { GitAdapter } from '../../backend/adapters/GitAdapter';
-import { ConfigService } from '../../backend/services/ConfigService';
-import { GitHistoryProvider } from '../../backend/providers/GitHistoryProvider';
-import { AuthMethod } from '../../shared/types';
+import { HistoryService } from '../../../backend/services/HistoryService';
+import { GitAdapter } from '../../../backend/adapters/GitAdapter';
+import { ConfigService } from '../../../backend/services/ConfigService';
+import { GitHistoryProvider } from '../../../backend/providers/GitHistoryProvider';
+import { AuthMethod } from '../../../shared/types';
 
-jest.mock('../../backend/adapters/GitAdapter');
-jest.mock('../../backend/services/ConfigService');
+jest.mock('../../../backend/adapters/GitAdapter');
+jest.mock('../../../backend/services/ConfigService');
 
 describe('HistoryService', () => {
   let historyService: HistoryService;

@@ -337,7 +337,7 @@ notegit/
 │   ├── build-linux.sh
 │   └── build-all.sh
 │
-├── __tests__/                    # Test files
+├── unit-tests/                   # Unit test files
 ├── package.json
 ├── tsconfig.json                 # Root TypeScript config
 ├── tsconfig.frontend.json        # Frontend TypeScript config
@@ -503,17 +503,15 @@ The application implements an "invisible Git workflow":
 
 **Test Structure**:
 ```
-src/__tests__/
-├── adapters/
-│   ├── FsAdapter.test.ts         # File system operations
-│   ├── GitAdapter.test.ts        # Git operations
-│   └── CryptoAdapter.test.ts     # Encryption/decryption
-├── services/
-│   ├── FilesService.test.ts      # File management
-│   ├── ConfigService.test.ts     # Configuration
-│   ├── HistoryService.test.ts    # Git history
-│   ├── SearchService.test.ts     # Search & replace
-│   └── ExportService.test.ts     # Export functionality
+src/unit-tests/
+├── backend/
+│   ├── adapters/                 # Adapter unit tests
+│   ├── handlers/                 # IPC handler unit tests
+│   ├── providers/                # Repo provider unit tests
+│   └── services/                 # Service unit tests
+├── frontend/
+│   ├── components/               # UI component unit tests
+│   └── utils/                    # Frontend utility unit tests
 └── setup.ts                      # Test setup
 ```
 
@@ -667,7 +665,7 @@ npm start
 
 3. **Testing**:
    - Add unit tests for services
-   - Place in `src/__tests__/`
+   - Place in `src/unit-tests/backend/` or `src/unit-tests/frontend/`
    - Mock external dependencies
 
 ---
