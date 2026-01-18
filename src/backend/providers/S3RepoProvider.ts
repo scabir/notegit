@@ -13,7 +13,8 @@ import type { RepoProvider } from './types';
 
 type PendingS3Operation =
   | { type: 'delete'; path: string }
-  | { type: 'move'; from: string; to: string };
+  | { type: 'move'; from: string; to: string }
+  | { type: 'upload'; path: string };
 
 export class S3RepoProvider implements RepoProvider {
   type: 's3' = 's3';
@@ -152,6 +153,11 @@ export class S3RepoProvider implements RepoProvider {
 
   async queueMove(oldPath: string, newPath: string): Promise<void> {
     const operation: PendingS3Operation = { type: 'move', from: oldPath, to: newPath };
+    await this.applyOrQueueOperation(operation);
+  }
+
+  async queueUpload(path: string): Promise<void> {
+    const operation: PendingS3Operation = { type: 'upload', path };
     await this.applyOrQueueOperation(operation);
   }
 
@@ -330,7 +336,12 @@ export class S3RepoProvider implements RepoProvider {
       return;
     }
 
-    await this.moveRemotePath(operation.from, operation.to);
+    if (operation.type === 'move') {
+      await this.moveRemotePath(operation.from, operation.to);
+      return;
+    }
+
+    await this.uploadLocalFile(operation.path);
   }
 
   private async deleteRemotePath(relativePath: string): Promise<void> {

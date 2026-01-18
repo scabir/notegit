@@ -47,4 +47,22 @@ describe('filesHandlers', () => {
     expect(filesService.renamePath).toHaveBeenCalledWith('old.md', 'new.md');
     expect(repoService.queueS3Move).toHaveBeenCalledWith('old.md', 'new.md');
   });
+
+  it('returns ok for save even when s3 queueing fails', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      saveFile: jest.fn().mockResolvedValue(undefined),
+    } as any;
+    const repoService = {
+      queueS3Upload: jest.fn().mockRejectedValue(new Error('offline')),
+    } as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const response = await handlers['files:save'](null, 'note.md', '# content');
+
+    expect(response.ok).toBe(true);
+    expect(filesService.saveFile).toHaveBeenCalledWith('note.md', '# content');
+    expect(repoService.queueS3Upload).toHaveBeenCalledWith('note.md');
+  });
 });

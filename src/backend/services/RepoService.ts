@@ -305,6 +305,16 @@ export class RepoService {
     await s3Provider.queueMove(oldPath, normalizedNewPath);
   }
 
+  async queueS3Upload(path: string): Promise<void> {
+    const provider = await this.ensureActiveProvider();
+    if (provider.type !== 's3') {
+      return;
+    }
+
+    const s3Provider = provider as S3RepoProvider;
+    await s3Provider.queueUpload(path);
+  }
+
   private normalizeS3Path(newPath: string): string {
     const lastSlash = newPath.lastIndexOf('/');
     if (lastSlash === -1) {

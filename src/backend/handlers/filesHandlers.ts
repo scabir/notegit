@@ -59,6 +59,9 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
     async (_event, path: string, content: string): Promise<ApiResponse<void>> => {
       try {
         await filesService.saveFile(path, content);
+        void repoService.queueS3Upload(path).catch((error) => {
+          logger.warn('Failed to queue S3 upload operation', { path, error });
+        });
         return {
           ok: true,
         };

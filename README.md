@@ -1,8 +1,8 @@
 # notegit
 
-A Git-backed Markdown note-taking desktop application built with Electron, React, and TypeScript.
+A Git- and S3-backed Markdown note-taking desktop application built with Electron, React, and TypeScript.
 
-**Version**: 1.3.6  
+**Version**: 2.0.0  
 **License**: MIT
 
 ---
@@ -25,16 +25,16 @@ A Git-backed Markdown note-taking desktop application built with Electron, React
 ## Features
 
 ### Core Features
-- ✅ **Git-Backed Storage** - Notes stored as plain Markdown files in a Git repository
-- ✅ **Version Control** - Full Git history with commit viewing and per-file history
+- ✅ **Git & S3 Storage** - Notes stored in a Git repository or S3 bucket
+- ✅ **Version History** - Git commit history and S3 object versions (bucket versioning required)
 - ✅ **Markdown & Text Editor** - Support for `.md` and `.txt` files with live preview
 - ✅ **File Management** - Create, rename, move, delete files and folders
 - ✅ **Search & Replace** - Full-text search across all notes with regex support
 - ✅ **Find & Replace** - Single-file and repo-wide find and replace
-- ✅ **Auto-Save & Auto-Sync** - Invisible Git workflow with automatic commit/push
+- ✅ **Auto-Save & Auto-Sync** - Git auto commit/push or S3 background sync
 - ✅ **Import & Export** - Import files and export notes or entire repo as zip
 - ✅ **Dark Theme** - System-aware dark mode with manual toggle
-- ✅ **Encrypted Credentials** - Personal Access Tokens stored encrypted locally
+- ✅ **Encrypted Credentials** - Git PATs and S3 credentials stored encrypted locally
 - ✅ **Cross-Platform** - Runs on macOS, Windows, and Linux
 
 ### Advanced Features
@@ -53,17 +53,21 @@ A Git-backed Markdown note-taking desktop application built with Electron, React
 
 Before you begin, ensure you have the following installed:
 
-1. **Git** (required for the application to function)
+1. **Git** (required for Git repositories)
    - **macOS**: `brew install git`
    - **Windows**: Download from [git-scm.com](https://git-scm.com/downloads)
    - **Linux**: `sudo apt install git` (Debian/Ubuntu) or `sudo dnf install git` (Fedora)
    - Verify: `git --version`
 
-2. **Node.js** (version 18 or higher)
+2. **AWS S3** (optional for S3 repositories)
+   - An S3 bucket with versioning enabled
+   - Access Key ID + Secret Access Key (session token optional)
+
+3. **Node.js** (version 18 or higher)
    - Download from [nodejs.org](https://nodejs.org/)
    - Verify: `node --version`
 
-3. **npm** (comes with Node.js)
+4. **npm** (comes with Node.js)
    - Verify: `npm --version`
 
 
@@ -109,21 +113,21 @@ Use the provided scripts in the `setup/` folder:
 cd setup
 ./build-mac.sh
 ```
-Output: `release/notegit-1.3.6.dmg` and `release/notegit-1.3.6-mac.zip`
+Output: `release/notegit-2.0.0.dmg` and `release/notegit-2.0.0-mac.zip`
 
 **Windows** (run on Windows or use cross-compilation):
 ```bash
 cd setup
 ./build-windows.sh
 ```
-Output: `release/notegit-Setup-1.3.6.exe`
+Output: `release/notegit-Setup-2.0.0.exe`
 
 **Linux**:
 ```bash
 cd setup
 ./build-linux.sh
 ```
-Output: `release/notegit-1.3.6.AppImage` and `release/notegit_1.3.6_amd64.deb`
+Output: `release/notegit-2.0.0.AppImage` and `release/notegit_2.0.0_amd64.deb`
 
 **All Platforms** (requires cross-compilation setup):
 ```bash
@@ -166,7 +170,8 @@ The user guide covers:
 - Creating and editing notes
 - File and folder management
 - Search and find/replace operations
-- Git synchronization
+- Git and S3 synchronization
+- S3 setup and auto sync
 - Keyboard shortcuts
 - Settings and customization
 - Troubleshooting common issues
@@ -673,67 +678,6 @@ npm test -- --coverage
 # Watch mode (re-run on file changes)
 npm run test:watch
 ```
-
-### Test Coverage
-
-Current coverage focuses on business logic:
-
-- **SearchService**: 26.98% statements, 50% functions
-- **ExportService**: 24.19% statements, 18.18% functions
-- **Other Services**: Integration tested through application usage
-
-**Note**: Low overall coverage (5.84%) is expected because:
-- IPC handlers are thin integration layers (0% coverage)
-- Adapters wrap external libraries (tested implicitly)
-- Frontend components require E2E testing
-
-See [COVERAGE_REPORT.md](./COVERAGE_REPORT.md) for detailed breakdown.
-
----
-
-## Contributing
-
-Contributions are welcome! Here's how you can help:
-
-### Reporting Bugs
-
-1. Check existing [Issues](https://github.com/scabir/notegit/issues)
-2. Create new issue with:
-   - Clear title and description
-   - Steps to reproduce
-   - Expected vs actual behavior
-   - System information (OS, Node version)
-   - Screenshots if applicable
-
-### Suggesting Features
-
-1. Open an issue with the `enhancement` label
-2. Describe the feature and use case
-3. Discuss implementation approach
-
-### Submitting Pull Requests
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/amazing-feature`
-3. Make changes following code style
-4. Add tests for new functionality
-5. Ensure all tests pass: `npm test`
-6. Commit changes: `git commit -m 'Add amazing feature'`
-7. Push to branch: `git push origin feature/amazing-feature`
-8. Open Pull Request with:
-   - Clear description of changes
-   - Reference to related issue
-   - Screenshots/GIFs for UI changes
-
-### Development Guidelines
-
-- Write TypeScript, not JavaScript
-- Use functional React components with hooks
-- Follow existing code patterns and structure
-- Add JSDoc comments for public APIs
-- Write unit tests for new services
-- Keep commits atomic and well-described
-- Use normal hyphens (not em dashes) in code and comments
 
 ---
 
