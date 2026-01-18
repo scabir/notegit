@@ -3,7 +3,7 @@ import type { TechStackItem } from './types';
 
 export const APP_INFO = {
   name: 'notegit',
-  version: '2.0.0',
+  version: '2.0.1',
   description: 'A Git- or S3-backed Markdown note-taking desktop application built with Electron',
   author: 'Suleyman Cabir Ataman',
   githubUrl: 'https://github.com/scabir',

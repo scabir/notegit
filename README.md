@@ -2,7 +2,7 @@
 
 A Git- and S3-backed Markdown note-taking desktop application built with Electron, React, and TypeScript.
 
-**Version**: 2.0.0  
+**Version**: 2.0.1  
 **License**: MIT
 
 ---
@@ -27,7 +27,7 @@ A Git- and S3-backed Markdown note-taking desktop application built with Electro
 ### Core Features
 - ✅ **Git & S3 Storage** - Notes stored in a Git repository or S3 bucket
 - ✅ **Version History** - Git commit history and S3 object versions (bucket versioning required)
-- ✅ **Markdown & Text Editor** - Support for `.md` and `.txt` files with live preview
+- ✅ **Markdown & Text Editor** - Support for `.md` and `.txt` files with live preview (Mermaid diagrams in `.md`)
 - ✅ **File Management** - Create, rename, move, delete files and folders
 - ✅ **Search & Replace** - Full-text search across all notes with regex support
 - ✅ **Find & Replace** - Single-file and repo-wide find and replace
@@ -41,6 +41,7 @@ A Git- and S3-backed Markdown note-taking desktop application built with Electro
 - **Resizable Editor** - Split-pane Markdown editor with toggle preview
 - **Formatting Toolbar** - Quick access to bold, italic, headings, lists, code
 - **WYSIWYG Preview** - Edit directly in preview pane
+- **Mermaid Diagrams** - Render fenced code blocks with `mermaid` in preview for `.md` files
 - **History Viewer** - View previous versions of any file (read-only)
 - **Keyboard Shortcuts** - Efficient navigation and search (Cmd/Ctrl+P, Cmd/Ctrl+F, etc.)
 - **Move Operations** - Explicit move functionality for organizing files and folders
@@ -113,21 +114,21 @@ Use the provided scripts in the `setup/` folder:
 cd setup
 ./build-mac.sh
 ```
-Output: `release/notegit-2.0.0.dmg` and `release/notegit-2.0.0-mac.zip`
+Output: `release/notegit-2.0.1.dmg` and `release/notegit-2.0.1-mac.zip`
 
 **Windows** (run on Windows or use cross-compilation):
 ```bash
 cd setup
 ./build-windows.sh
 ```
-Output: `release/notegit-Setup-2.0.0.exe`
+Output: `release/notegit-Setup-2.0.1.exe`
 
 **Linux**:
 ```bash
 cd setup
 ./build-linux.sh
 ```
-Output: `release/notegit-2.0.0.AppImage` and `release/notegit_2.0.0_amd64.deb`
+Output: `release/notegit-2.0.1.AppImage` and `release/notegit_2.0.1_amd64.deb`
 
 **All Platforms** (requires cross-compilation setup):
 ```bash
@@ -172,6 +173,7 @@ The user guide covers:
 - Search and find/replace operations
 - Git and S3 synchronization
 - S3 setup and auto sync
+- Mermaid diagrams in Markdown preview
 - Keyboard shortcuts
 - Settings and customization
 - Troubleshooting common issues
@@ -237,6 +239,7 @@ notegit follows a modern Electron architecture with clear separation of concerns
 - **Material-UI (MUI)** - Component library
 - **CodeMirror 6** - Code editor with Markdown support
 - **React Markdown** - Markdown rendering with `remark-gfm`
+- **Mermaid** - Diagram rendering for Markdown preview
 - **Vite** - Fast build tool and dev server
 
 #### Backend
@@ -724,6 +727,7 @@ Built with:
 - [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
 - [Material-UI](https://mui.com/) - React component library
 - [CodeMirror](https://codemirror.net/) - Code editor
+- [Mermaid](https://mermaid.js.org/) - Diagram rendering
 - [simple-git](https://github.com/steveukx/git-js) - Git operations
 - [Vite](https://vitejs.dev/) - Build tool
 
