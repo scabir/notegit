@@ -23,6 +23,7 @@ import remarkGfm from 'remark-gfm';
 import { EditorView, keymap } from '@codemirror/view';
 import { EditorSelection } from '@codemirror/state';
 import { FindReplaceBar } from '../FindReplaceBar';
+import { MermaidDiagram } from '../MermaidDiagram';
 import type { AppSettings } from '../../../shared/types';
 import { MARKDOWN_EDITOR_TEXT, MARKDOWN_INSERT_DEFAULTS, MARKDOWN_INSERT_TOKENS } from './constants';
 import {
@@ -558,6 +559,18 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
                         style={{ maxWidth: '100%', height: 'auto' }}
                         alt={props.alt || ''}
                       />
+                    );
+                  },
+                  code: ({ inline, className, children, ...props }) => {
+                    const match = /language-(\w+)/.exec(className || '');
+                    if (!inline && match?.[1] === 'mermaid') {
+                      const diagramCode = String(children).replace(/\n$/, '');
+                      return <MermaidDiagram code={diagramCode} isDark={isDark} />;
+                    }
+                    return (
+                      <code className={className} {...props}>
+                        {children}
+                      </code>
                     );
                   },
                 }}

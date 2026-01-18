@@ -2,7 +2,7 @@
 
 Complete guide to using notegit - your Git- and S3-backed markdown note-taking application.
 
-**Version**: 2.0.0  
+**Version**: 2.0.1  
 **Last Updated**: November 17, 2025
 
 ---
@@ -108,6 +108,28 @@ For S3 repositories, spaces in file or folder names are replaced with `-`.
 ### Images
 
 Import images and reference them in markdown: `![Alt](./path)`
+
+### Mermaid Diagrams
+
+- Mermaid diagrams render in **Split View** or **Preview Only** for `.md` files
+- Use fenced code blocks with the `mermaid` language tag
+- Other file types show the code block as plain text
+
+Example:
+
+````markdown
+```mermaid
+erDiagram
+  CUSTOMER }|..|{ DELIVERY-ADDRESS : has
+  CUSTOMER ||--o{ ORDER : places
+  CUSTOMER ||--o{ INVOICE : "liable for"
+  DELIVERY-ADDRESS ||--o{ ORDER : receives
+  INVOICE ||--|{ ORDER : covers
+  ORDER ||--|{ ORDER-ITEM : includes
+  PRODUCT-CATEGORY ||--|{ PRODUCT : contains
+  PRODUCT ||--o{ ORDER-ITEM : "ordered in"
+```
+````
 
 ---
 
@@ -236,6 +258,7 @@ Your data is stored in:
 - S3 versioning required: enable bucket versioning in AWS
 - S3 changes not syncing: check S3 Auto Sync toggle/interval and credentials
 - Push fails or conflicts (Git): resolve in a Git client, then pull again
+- Mermaid not rendering: ensure `.md` file, a fenced code block with `mermaid`, and Preview/Split View
 - Slow performance: large repos or many files
 - White screen: restart, check logs, reinstall if needed
 - Lost changes: check file history or your Git client
@@ -259,12 +282,13 @@ Open an issue at [GitHub Issues](https://github.com/scabir/notegit/issues) with 
 - Export backups periodically
 - For S3, avoid spaces (auto-converted to `-`)
 - Use basic Markdown: headings, lists, links, code blocks
+- Use Mermaid code blocks for diagrams in `.md` files
 
 ---
 
 ## About notegit
 
-**Version**: 2.0.0  
+**Version**: 2.0.1  
 **Author**: Suleyman Cabir Ataman, PhD  
 **GitHub**: [github.com/scabir/notegit](https://github.com/scabir/notegit)  
 **License**: MIT

@@ -23,6 +23,7 @@ import { markdown } from '@codemirror/lang-markdown';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { MermaidDiagram } from '../MermaidDiagram';
 import { HISTORY_VIEWER_TEXT } from './constants';
 import {
   dialogPaperSx,
@@ -180,6 +181,18 @@ export function HistoryViewer({
                               style={{ maxWidth: '100%', height: 'auto' }}
                               alt={props.alt || ''}
                             />
+                          );
+                        },
+                        code: ({ inline, className, children, ...props }) => {
+                          const match = /language-(\w+)/.exec(className || '');
+                          if (!inline && match?.[1] === 'mermaid') {
+                            const diagramCode = String(children).replace(/\n$/, '');
+                            return <MermaidDiagram code={diagramCode} isDark={isDark} />;
+                          }
+                          return (
+                            <code className={className} {...props}>
+                              {children}
+                            </code>
                           );
                         },
                       }}
