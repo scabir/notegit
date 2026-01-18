@@ -17,16 +17,16 @@ echo ""
 
 # Clean previous builds
 echo "📦 Cleaning previous builds..."
-npm run clean
+pnpm run clean
 rm -rf release
 
 # Build the application
 echo "🔨 Building application..."
-npm run build
+pnpm run build
 
 # Package for all platforms
 echo "📦 Packaging for all platforms..."
-npx electron-builder --mac --win --linux --x64 --arm64 --ia32
+pnpm exec electron-builder --mac --win --linux --x64 --arm64 --ia32
 
 echo ""
 echo "✅ Build complete!"
@@ -39,4 +39,3 @@ echo "    - Building for macOS from Linux/Windows may not work"
 echo "    - Building for Windows from macOS/Linux may need Wine"
 echo ""
 echo "For best results, build on the target platform or use CI/CD."
-

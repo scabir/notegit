@@ -107,7 +107,7 @@ cd setup && ./build-linux.sh
 cd setup && ./build-all.sh
 
 # Clean builds
-npm run clean
+pnpm run clean
 rm -rf release
 ```
 
@@ -136,15 +136,15 @@ notegit/
 
 ### Build Fails
 ```bash
-npm run clean
-npm install
-npm run build
+pnpm run clean
+pnpm install
+pnpm run build
 cd setup && ./build-mac.sh
 ```
 
 ### "electron-builder: command not found"
 ```bash
-npm install
+pnpm install
 ```
 
 ### Permission Denied
@@ -168,7 +168,7 @@ chmod +x setup/*.sh
 For build issues:
 1. Check `setup/README.md` for detailed troubleshooting
 2. Check electron-builder GitHub issues
-3. Verify all dependencies are installed: `npm install`
+3. Verify all dependencies are installed: `pnpm install`
 
 ---
 

@@ -1,6 +1,7 @@
 {
   "name": "notegit",
   "version": "2.0.1",
+  "packageManager": "pnpm@10.28.0",
   "description": "A Git-backed Markdown note-taking desktop application",
   "main": "dist/electron/electron/main.js",
   "author": {
@@ -8,16 +9,16 @@
     "email": "suleymanc@protonmail.com"
   },
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:electron\"",
+    "dev": "concurrently \"pnpm run dev:frontend\" \"pnpm run dev:electron\"",
     "dev:frontend": "vite",
     "dev:electron": "wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .",
-    "build": "npm run build:frontend && npm run build:backend && npm run build:electron && npm run fix-imports",
+    "build": "pnpm run build:frontend && pnpm run build:backend && pnpm run build:electron && pnpm run fix-imports",
     "build:frontend": "vite build",
     "build:backend": "tsc -p tsconfig.backend.json",
     "build:electron": "tsc -p tsconfig.electron.json",
     "fix-imports": "node fix-electron-imports.js",
     "start": "electron .",
-    "package": "npm run build && electron-builder",
+    "package": "pnpm run build && electron-builder",
     "clean": "rimraf dist",
     "test": "./node_modules/.bin/jest",
     "test:watch": "./node_modules/.bin/jest --watch",

@@ -26,7 +26,7 @@ cd setup && ./build-all.sh
 
 1. **Install dependencies** (if not already done):
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. **Make scripts executable** (if not already done):
@@ -36,7 +36,7 @@ cd setup && ./build-all.sh
 
 3. **Build the app** (compile TypeScript):
    ```bash
-   npm run build
+   pnpm run build
    ```
 
 4. **Run the build script** for your target platform(s)
@@ -73,14 +73,14 @@ Once built, you can:
 ### Build fails
 ```bash
 # Clean and rebuild
-npm run clean
-npm run build
+pnpm run clean
+pnpm run build
 cd setup && ./build-mac.sh  # or your target platform
 ```
 
 ### Missing dependencies
 ```bash
-npm install
+pnpm install
 ```
 
 ### Permission denied

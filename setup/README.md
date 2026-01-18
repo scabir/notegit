@@ -4,8 +4,8 @@ This folder contains build scripts to create distributable packages for macOS, W
 
 ## Prerequisites
 
-1. Node.js and npm installed
-2. All dependencies installed (`npm install`)
+1. Node.js and pnpm installed
+2. All dependencies installed (`pnpm install`)
 3. For cross-platform builds, you may need additional tools (see notes below)
 
 ## Usage
@@ -111,13 +111,13 @@ Add signing configuration to `package.json` under the `"build"` section.
 ## Troubleshooting
 
 ### "Cannot find module" errors
-Run `npm install` to ensure all dependencies are installed.
+Run `pnpm install` to ensure all dependencies are installed.
 
 ### Wine errors on Linux/macOS when building for Windows
 Install Wine: `brew install wine-stable` (macOS) or `sudo apt install wine` (Linux)
 
 ### Build fails on first run
-Try cleaning the project first: `npm run clean` and then rebuild.
+Try cleaning the project first: `pnpm run clean` and then rebuild.
 
 ### Large build size
 The first build may be large due to Electron and dependencies. Consider:
@@ -138,21 +138,21 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install
+      - run: pnpm install
       - run: ./setup/build-mac.sh
   
   build-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install
+      - run: pnpm install
       - run: bash ./setup/build-windows.sh
   
   build-linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install
+      - run: pnpm install
       - run: ./setup/build-linux.sh
 ```
 

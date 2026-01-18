@@ -68,8 +68,8 @@ Before you begin, ensure you have the following installed:
    - Download from [nodejs.org](https://nodejs.org/)
    - Verify: `node --version`
 
-4. **npm** (comes with Node.js)
-   - Verify: `npm --version`
+4. **pnpm** (via Corepack or install)
+   - Verify: `pnpm --version`
 
 
 ### Building from Source
@@ -86,7 +86,7 @@ cd notegit
 #### 2. Install Dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 This will install all required dependencies including Electron, React, TypeScript, and build tools.
@@ -95,13 +95,13 @@ This will install all required dependencies including Electron, React, TypeScrip
 
 **For Development (with hot reload)**:
 ```bash
-npm run dev
+pnpm run dev
 ```
 This starts Vite dev server on port 5173 and Electron in development mode.
 
 **For Production Build**:
 ```bash
-npm run build
+pnpm run build
 ```
 This compiles TypeScript, bundles the frontend, and prepares the Electron app.
 
@@ -142,13 +142,13 @@ cd setup
 
 After building:
 ```bash
-npm start
+pnpm start
 ```
 
 #### From Development Mode
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 This enables:
@@ -504,7 +504,7 @@ The application implements an "invisible Git workflow":
 
 **Coverage**:
 - Coverage includes both frontend and backend unit tests by default.
-- Run `npm test -- --coverage` to generate the report.
+- Run `pnpm test -- --coverage` to generate the report.
 
 **Test Structure**:
 ```
@@ -523,13 +523,13 @@ src/unit-tests/
 **Run Tests**:
 ```bash
 # Run all tests
-npm test
+pnpm test
 
 # Run with coverage
-npm test -- --coverage
+pnpm test -- --coverage
 
 # Watch mode
-npm run test:watch
+pnpm run test:watch
 ```
 
 See [COVERAGE_REPORT.md](./COVERAGE_REPORT.md) for detailed coverage information.
@@ -538,19 +538,19 @@ See [COVERAGE_REPORT.md](./COVERAGE_REPORT.md) for detailed coverage information
 
 The build process consists of three main steps:
 
-1. **Frontend Build** (`npm run build:frontend`):
+1. **Frontend Build** (`pnpm run build:frontend`):
    - Vite bundles React app
    - Output: `dist/frontend/`
 
-2. **Backend Build** (`npm run build:backend`):
+2. **Backend Build** (`pnpm run build:backend`):
    - TypeScript compiler for backend services
    - Output: `dist/backend/`
 
-3. **Electron Build** (`npm run build:electron`):
+3. **Electron Build** (`pnpm run build:electron`):
    - TypeScript compiler for main process
    - Output: `dist/electron/`
 
-4. **Import Path Fixing** (`npm run fix-imports`):
+4. **Import Path Fixing** (`pnpm run fix-imports`):
    - Post-build script to correct require paths
    - Adjusts module resolution for Electron
 
@@ -618,7 +618,7 @@ The build process consists of three main steps:
 
 2. Start development server:
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
 3. Make changes:
@@ -629,22 +629,22 @@ The build process consists of three main steps:
 
 ```bash
 # Start development mode
-npm run dev
+pnpm run dev
 
 # Build for production
-npm run build
+pnpm run build
 
 # Run tests
-npm test
+pnpm test
 
 # Run tests with coverage
-npm test -- --coverage
+pnpm test -- --coverage
 
 # Lint code
-npm run lint
+pnpm run lint
 
 # Start built app
-npm start
+pnpm start
 ```
 
 ### Code Style
@@ -681,16 +681,16 @@ npm start
 
 ```bash
 # Run all tests
-npm test
+pnpm test
 
 # Run specific test file
-npm test -- SearchService.test.ts
+pnpm test -- SearchService.test.ts
 
 # Run with coverage report
-npm test -- --coverage
+pnpm test -- --coverage
 
 # Watch mode (re-run on file changes)
-npm run test:watch
+pnpm run test:watch
 ```
 
 ---
