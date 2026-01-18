@@ -10,6 +10,7 @@ import {
   CircularProgress,
   IconButton,
   Chip,
+  Tooltip,
   useTheme,
   Paper,
 } from '@mui/material';
@@ -22,15 +23,27 @@ import { markdown } from '@codemirror/lang-markdown';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
-interface HistoryViewerProps {
-  open: boolean;
-  filePath: string | null;
-  commitHash: string | null;
-  commitMessage: string;
-  repoPath: string | null;
-  onClose: () => void;
-}
+import { HISTORY_VIEWER_TEXT } from './constants';
+import {
+  dialogPaperSx,
+  dialogTitleSx,
+  titleRowSx,
+  titleInfoSx,
+  titleTextSx,
+  readOnlyChipSx,
+  contentRootSx,
+  viewToggleBarSx,
+  contentScrollSx,
+  loadingStateSx,
+  errorStateSx,
+  previewContainerSx,
+  previewPaperSx,
+  codeMirrorContainerSx,
+  dialogActionsSx,
+  dialogActionsNoteSx,
+} from './styles';
+import { getFileName, isMarkdownFile, resolveImageSrc } from './utils';
+import type { HistoryViewerProps } from './types';
 
 export function HistoryViewer({
   open,
@@ -65,11 +78,11 @@ export function HistoryViewer({
       if (response.ok && response.data !== undefined) {
         setContent(response.data);
       } else {
-        setError(response.error?.message || 'Failed to load version');
+        setError(response.error?.message || HISTORY_VIEWER_TEXT.loadFailed);
         setContent('');
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to load version');
+      setError(err.message || HISTORY_VIEWER_TEXT.loadFailed);
       setContent('');
     } finally {
       setLoading(false);
@@ -80,17 +93,6 @@ export function HistoryViewer({
     navigator.clipboard.writeText(content);
   };
 
-  const getFileName = () => {
-    if (!filePath) return '';
-    return filePath.split('/').pop() || filePath;
-  };
-
-  const isMarkdown = () => {
-    if (!filePath) return false;
-    const ext = filePath.split('.').pop()?.toLowerCase();
-    return ext === 'md' || ext === 'markdown';
-  };
-
   return (
     <Dialog
       open={open}
@@ -98,29 +100,26 @@ export function HistoryViewer({
       maxWidth="lg"
       fullWidth
       PaperProps={{
-        sx: {
-          height: '80vh',
-          maxHeight: '800px',
-        },
+        sx: dialogPaperSx,
       }}
     >
-      <DialogTitle sx={{ pb: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6" sx={{ mb: 0.5 }}>
-              {getFileName()}
+      <DialogTitle sx={dialogTitleSx}>
+        <Box sx={titleRowSx}>
+          <Box sx={titleInfoSx}>
+            <Typography variant="h6" sx={titleTextSx}>
+              {getFileName(filePath)}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {commitMessage}
             </Typography>
           </Box>
           <Chip
-            label="READ ONLY"
+            label={HISTORY_VIEWER_TEXT.readOnly}
             size="small"
             color="warning"
-            sx={{ fontWeight: 600 }}
+            sx={readOnlyChipSx}
           />
-          <Tooltip title="Close">
+          <Tooltip title={HISTORY_VIEWER_TEXT.closeTooltip}>
             <IconButton size="small" onClick={onClose}>
               <CloseIcon fontSize="small" />
             </IconButton>
@@ -128,114 +127,52 @@ export function HistoryViewer({
         </Box>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
-        {isMarkdown() && !loading && !error && (
-          <Box
-            sx={{
-              px: 2,
-              py: 1,
-              borderBottom: 1,
-              borderColor: 'divider',
-              display: 'flex',
-              gap: 1,
-            }}
-          >
+      <DialogContent sx={contentRootSx}>
+        {isMarkdownFile(filePath) && !loading && !error && (
+          <Box sx={viewToggleBarSx}>
             <Button
               size="small"
               variant={viewMode === 'preview' ? 'contained' : 'outlined'}
               onClick={() => setViewMode('preview')}
             >
-              Preview
+              {HISTORY_VIEWER_TEXT.preview}
             </Button>
             <Button
               size="small"
               variant={viewMode === 'source' ? 'contained' : 'outlined'}
               onClick={() => setViewMode('source')}
             >
-              Source
+              {HISTORY_VIEWER_TEXT.source}
             </Button>
           </Box>
         )}
 
-        <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+        <Box sx={contentScrollSx}>
           {loading && (
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100%',
-              }}
-            >
+            <Box sx={loadingStateSx}>
               <CircularProgress />
             </Box>
           )}
 
           {error && (
-            <Box sx={{ p: 3, textAlign: 'center' }}>
+            <Box sx={errorStateSx}>
               <Typography color="error">{error}</Typography>
             </Box>
           )}
 
           {!loading && !error && content && (
             <>
-              {isMarkdown() && viewMode === 'preview' ? (
-                <Box
-                  sx={{
-                    p: 3,
-                    bgcolor: isDark ? '#0d1117' : 'background.paper',
-                    color: isDark ? '#c9d1d9' : 'text.primary',
-                    height: '100%',
-                    overflow: 'auto',
-                  }}
-                >
+              {isMarkdownFile(filePath) && viewMode === 'preview' ? (
+                <Box sx={previewContainerSx(isDark)}>
                   <Paper
-                    sx={{
-                      p: 3,
-                      bgcolor: 'transparent',
-                      color: 'inherit',
-                      '& code': {
-                        bgcolor: isDark
-                          ? 'rgba(110, 118, 129, 0.4)'
-                          : 'rgba(175, 184, 193, 0.2)',
-                        padding: '0.2em 0.4em',
-                        borderRadius: '6px',
-                        fontSize: '85%',
-                      },
-                      '& pre': {
-                        bgcolor: isDark ? 'rgba(110, 118, 129, 0.2)' : '#f6f8fa',
-                        padding: '16px',
-                        borderRadius: '6px',
-                        overflow: 'auto',
-                      },
-                      '& pre code': {
-                        bgcolor: 'transparent',
-                        padding: 0,
-                      },
-                      '& a': {
-                        color: isDark ? '#58a6ff' : '#0969da',
-                      },
-                      '& blockquote': {
-                        borderLeft: `4px solid ${isDark ? '#3b434b' : '#d0d7de'}`,
-                        paddingLeft: '16px',
-                        color: isDark ? '#8b949e' : '#57606a',
-                      },
-                    }}
+                    sx={previewPaperSx(isDark)}
                     elevation={0}
                   >
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={{
                         img: ({ node, ...props }) => {
-                          let src = props.src || '';
-                          if (
-                            repoPath &&
-                            src &&
-                            !src.startsWith('http') &&
-                            !src.startsWith('data:')
-                          ) {
-                            src = `file://${repoPath}/${src}`;
-                          }
+                          const src = resolveImageSrc(repoPath, props.src);
                           return (
                             <img
                               {...props}
@@ -252,11 +189,11 @@ export function HistoryViewer({
                   </Paper>
                 </Box>
               ) : (
-                <Box sx={{ height: '100%', bgcolor: isDark ? '#0d1117' : '#fff' }}>
+                <Box sx={codeMirrorContainerSx(isDark)}>
                   <CodeMirror
                     value={content}
                     height="100%"
-                    extensions={isMarkdown() ? [markdown()] : []}
+                    extensions={isMarkdownFile(filePath) ? [markdown()] : []}
                     theme={isDark ? githubDark : githubLight}
                     editable={false}
                     basicSetup={{
@@ -273,22 +210,19 @@ export function HistoryViewer({
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Typography variant="caption" color="text.secondary" sx={{ flexGrow: 1 }}>
-          This is a historical version. To use this content, copy it manually to your editor.
+      <DialogActions sx={dialogActionsSx}>
+        <Typography variant="caption" color="text.secondary" sx={dialogActionsNoteSx}>
+          {HISTORY_VIEWER_TEXT.readOnlyNotice}
         </Typography>
         <Button
           startIcon={<CopyIcon />}
           onClick={handleCopy}
           disabled={!content}
         >
-          Copy Content
+          {HISTORY_VIEWER_TEXT.copyContent}
         </Button>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose}>{HISTORY_VIEWER_TEXT.close}</Button>
       </DialogActions>
     </Dialog>
   );
 }
-
-import { Tooltip } from '@mui/material';
-

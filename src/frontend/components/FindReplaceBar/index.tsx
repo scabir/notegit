@@ -15,16 +15,18 @@ import {
   FindReplace as ReplaceIcon,
   AutoFixHigh as ReplaceAllIcon,
 } from '@mui/icons-material';
-
-interface FindReplaceBarProps {
-  onClose: () => void;
-  onFindNext: (query: string) => void;
-  onFindPrevious: (query: string) => void;
-  onReplace: (query: string, replacement: string) => void;
-  onReplaceAll: (query: string, replacement: string) => void;
-  initialQuery?: string;
-  matchInfo?: { current: number; total: number } | null;
-}
+import { FIND_REPLACE_TEXT } from './constants';
+import {
+  containerSx,
+  findInputSx,
+  replaceInputSx,
+  matchCountSx,
+  noMatchesSx,
+  buttonRowSx,
+  dividerSx,
+  flexSpacerSx,
+} from './styles';
+import type { FindReplaceBarProps } from './types';
 
 export function FindReplaceBar({
   onClose,
@@ -81,37 +83,26 @@ export function FindReplaceBar({
   };
 
   return (
-    <Paper
-      elevation={4}
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1,
-        p: 1,
-        borderBottom: 1,
-        borderColor: 'divider',
-        bgcolor: 'background.paper',
-      }}
-    >
+    <Paper elevation={4} sx={containerSx}>
       <TextField
         inputRef={findInputRef}
         size="small"
-        placeholder="Find"
+        placeholder={FIND_REPLACE_TEXT.findPlaceholder}
         value={findQuery}
         onChange={(e) => setFindQuery(e.target.value)}
         onKeyDown={handleKeyDown}
-        sx={{ width: 200 }}
+        sx={findInputSx}
         InputProps={{
           endAdornment: matchInfo && matchInfo.total > 0 && (
-            <Typography variant="caption" color="text.secondary" sx={{ mr: 1 }}>
+            <Typography variant="caption" color="text.secondary" sx={matchCountSx}>
               {matchInfo.current}/{matchInfo.total}
             </Typography>
           ),
         }}
       />
 
-      <Box sx={{ display: 'flex', gap: 0.5 }}>
-        <Tooltip title="Find previous (Shift+Enter)">
+      <Box sx={buttonRowSx}>
+        <Tooltip title={FIND_REPLACE_TEXT.findPrevious}>
           <span>
             <IconButton
               size="small"
@@ -122,7 +113,7 @@ export function FindReplaceBar({
             </IconButton>
           </span>
         </Tooltip>
-        <Tooltip title="Find next (Enter)">
+        <Tooltip title={FIND_REPLACE_TEXT.findNext}>
           <span>
             <IconButton
               size="small"
@@ -136,24 +127,24 @@ export function FindReplaceBar({
       </Box>
 
       {findQuery.trim() && matchInfo && matchInfo.total === 0 && (
-        <Typography variant="caption" color="warning.main" sx={{ ml: 1 }}>
-          No matches
+        <Typography variant="caption" color="warning.main" sx={noMatchesSx}>
+          {FIND_REPLACE_TEXT.noMatches}
         </Typography>
       )}
 
-      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+      <Divider orientation="vertical" flexItem sx={dividerSx} />
 
       <TextField
         size="small"
-        placeholder="Replace"
+        placeholder={FIND_REPLACE_TEXT.replacePlaceholder}
         value={replaceText}
         onChange={(e) => setReplaceText(e.target.value)}
         onKeyDown={handleKeyDown}
-        sx={{ width: 200 }}
+        sx={replaceInputSx}
       />
 
-      <Box sx={{ display: 'flex', gap: 0.5 }}>
-        <Tooltip title="Replace current match">
+      <Box sx={buttonRowSx}>
+        <Tooltip title={FIND_REPLACE_TEXT.replaceCurrent}>
           <span>
             <IconButton
               size="small"
@@ -164,7 +155,7 @@ export function FindReplaceBar({
             </IconButton>
           </span>
         </Tooltip>
-        <Tooltip title="Replace all matches">
+        <Tooltip title={FIND_REPLACE_TEXT.replaceAll}>
           <span>
             <IconButton
               size="small"
@@ -177,9 +168,9 @@ export function FindReplaceBar({
         </Tooltip>
       </Box>
 
-      <Box sx={{ flexGrow: 1 }} />
+      <Box sx={flexSpacerSx} />
 
-      <Tooltip title="Close (Esc)">
+      <Tooltip title={FIND_REPLACE_TEXT.close}>
         <IconButton size="small" onClick={onClose}>
           <CloseIcon fontSize="small" />
         </IconButton>
@@ -187,4 +178,3 @@ export function FindReplaceBar({
     </Paper>
   );
 }
-

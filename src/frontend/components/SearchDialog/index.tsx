@@ -15,18 +15,31 @@ import {
   useTheme,
   InputAdornment,
 } from '@mui/material';
-import {
-  Search as SearchIcon,
-  Description as FileIcon,
-  TextSnippet as TextFileIcon,
-} from '@mui/icons-material';
+import { Search as SearchIcon } from '@mui/icons-material';
 import type { SearchResult } from '../../../shared/types/api';
-
-interface SearchDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onSelectFile: (filePath: string) => void;
-}
+import { SEARCH_DIALOG_TEXT } from './constants';
+import {
+  dialogPaperSx,
+  dialogTitleSx,
+  titleRowSx,
+  contentRootSx,
+  searchBoxSx,
+  resultsContainerSx,
+  centerStateSx,
+  resultItemSx,
+  resultButtonSx,
+  resultRowSx,
+  iconWrapSx,
+  fileInfoSx,
+  fileNameSx,
+  filePathSx,
+  matchSnippetSx,
+  matchTextSx,
+  lineNumberSx,
+  moreChipSx,
+} from './styles';
+import { getFileIcon, highlightMatch } from './utils';
+import type { SearchDialogProps } from './types';
 
 export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps) {
   const theme = useTheme();
@@ -76,11 +89,11 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
           setResults(response.data);
           setSelectedIndex(0);
         } else {
-          setError(response.error?.message || 'Search failed');
+          setError(response.error?.message || SEARCH_DIALOG_TEXT.searchFailed);
           setResults([]);
         }
       } catch (err: any) {
-        setError(err.message || 'Search failed');
+        setError(err.message || SEARCH_DIALOG_TEXT.searchFailed);
         setResults([]);
       } finally {
         setLoading(false);
@@ -115,39 +128,6 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
     onClose();
   };
 
-  const getFileIcon = (fileName: string) => {
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    if (ext === 'md' || ext === 'markdown') {
-      return <FileIcon sx={{ color: '#1976d2' }} />;
-    }
-    return <TextFileIcon sx={{ color: '#757575' }} />;
-  };
-
-  const highlightMatch = (text: string, query: string) => {
-    const index = text.toLowerCase().indexOf(query.toLowerCase());
-    if (index === -1) return text;
-
-    const before = text.slice(0, index);
-    const match = text.slice(index, index + query.length);
-    const after = text.slice(index + query.length);
-
-    return (
-      <>
-        {before}
-        <Box
-          component="span"
-          sx={{
-            bgcolor: isDark ? 'rgba(255, 217, 0, 0.3)' : 'rgba(255, 235, 59, 0.5)',
-            fontWeight: 600,
-          }}
-        >
-          {match}
-        </Box>
-        {after}
-      </>
-    );
-  };
-
   return (
     <Dialog
       open={open}
@@ -155,25 +135,22 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
       maxWidth="md"
       fullWidth
       PaperProps={{
-        sx: {
-          height: '70vh',
-          maxHeight: '600px',
-        },
+        sx: dialogPaperSx,
       }}
     >
-      <DialogTitle sx={{ pb: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <DialogTitle sx={dialogTitleSx}>
+        <Box sx={titleRowSx}>
           <SearchIcon />
-          <Typography variant="h6">Search Notes</Typography>
+          <Typography variant="h6">{SEARCH_DIALOG_TEXT.title}</Typography>
         </Box>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ px: 3, pt: 1, pb: 2 }}>
+      <DialogContent sx={contentRootSx}>
+        <Box sx={searchBoxSx}>
           <TextField
             inputRef={inputRef}
             fullWidth
-            placeholder="Search by file name or content..."
+            placeholder={SEARCH_DIALOG_TEXT.placeholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -190,28 +167,26 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
                 </InputAdornment>
               ) : null,
             }}
-            helperText="Use ↑↓ to navigate, Enter to open, Esc to close"
+            helperText={SEARCH_DIALOG_TEXT.helperText}
           />
         </Box>
 
-        <Box sx={{ flexGrow: 1, overflow: 'auto', px: 1 }}>
+        <Box sx={resultsContainerSx}>
           {error && (
-            <Box sx={{ p: 3, textAlign: 'center' }}>
+            <Box sx={centerStateSx}>
               <Typography color="error">{error}</Typography>
             </Box>
           )}
 
           {!error && !loading && query && results.length === 0 && (
-            <Box sx={{ p: 3, textAlign: 'center' }}>
-              <Typography color="text.secondary">No results found</Typography>
+            <Box sx={centerStateSx}>
+              <Typography color="text.secondary">{SEARCH_DIALOG_TEXT.noResults}</Typography>
             </Box>
           )}
 
           {!error && !query && (
-            <Box sx={{ p: 3, textAlign: 'center' }}>
-              <Typography color="text.secondary">
-                Start typing to search across all notes
-              </Typography>
+            <Box sx={centerStateSx}>
+              <Typography color="text.secondary">{SEARCH_DIALOG_TEXT.startTyping}</Typography>
             </Box>
           )}
 
@@ -221,34 +196,25 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
                 <ListItem
                   key={result.filePath}
                   disablePadding
-                  sx={{
-                    borderLeft: selectedIndex === index ? 3 : 0,
-                    borderColor: 'primary.main',
-                    bgcolor:
-                      selectedIndex === index
-                        ? isDark
-                          ? 'rgba(144, 202, 249, 0.16)'
-                          : 'rgba(25, 118, 210, 0.08)'
-                        : 'transparent',
-                  }}
+                  sx={resultItemSx(selectedIndex === index, isDark)}
                 >
                   <ListItemButton
                     onClick={() => handleSelectResult(result)}
                     onMouseEnter={() => setSelectedIndex(index)}
-                    sx={{ py: 1.5 }}
+                    sx={resultButtonSx}
                   >
-                    <Box sx={{ display: 'flex', gap: 2, width: '100%', alignItems: 'flex-start' }}>
-                      <Box sx={{ mt: 0.5 }}>{getFileIcon(result.fileName)}</Box>
+                    <Box sx={resultRowSx}>
+                      <Box sx={iconWrapSx}>{getFileIcon(result.fileName)}</Box>
 
-                      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-                          {highlightMatch(result.fileName, query)}
+                      <Box sx={fileInfoSx}>
+                        <Typography variant="subtitle2" sx={fileNameSx}>
+                          {highlightMatch(result.fileName, query, isDark)}
                         </Typography>
 
                         <Typography
                           variant="caption"
                           color="text.secondary"
-                          sx={{ display: 'block', mb: result.matches.length > 0 ? 1 : 0 }}
+                          sx={filePathSx}
                         >
                           {result.filePath}
                         </Typography>
@@ -258,32 +224,20 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
                             {result.matches.slice(0, 2).map((match, idx) => (
                               <Box
                                 key={idx}
-                                sx={{
-                                  mb: 0.5,
-                                  p: 1,
-                                  bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
-                                  borderRadius: 1,
-                                  fontSize: '0.75rem',
-                                }}
+                                sx={matchSnippetSx(isDark)}
                               >
                                 <Typography
                                   variant="caption"
-                                  sx={{
-                                    fontFamily: 'monospace',
-                                    display: 'block',
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                  }}
+                                  sx={matchTextSx}
                                 >
-                                  {highlightMatch(match.lineContent, query)}
+                                  {highlightMatch(match.lineContent, query, isDark)}
                                 </Typography>
                                 <Typography
                                   variant="caption"
                                   color="text.secondary"
-                                  sx={{ fontSize: '0.65rem' }}
+                                  sx={lineNumberSx}
                                 >
-                                  Line {match.lineNumber}
+                                  {SEARCH_DIALOG_TEXT.lineLabel} {match.lineNumber}
                                 </Typography>
                               </Box>
                             ))}
@@ -291,7 +245,7 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
                               <Chip
                                 label={`+${result.matches.length - 2} more`}
                                 size="small"
-                                sx={{ mt: 0.5, height: 20, fontSize: '0.7rem' }}
+                                sx={moreChipSx}
                               />
                             )}
                           </Box>

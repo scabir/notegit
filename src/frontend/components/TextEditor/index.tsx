@@ -6,13 +6,10 @@ import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import { EditorView, keymap } from '@codemirror/view';
 import { EditorSelection } from '@codemirror/state';
 import { FindReplaceBar } from '../FindReplaceBar';
-import type { FileContent, AppSettings } from '../../../shared/types';
-
-interface TextEditorProps {
-  file: FileContent | null;
-  onSave: (content: string) => void;
-  onChange: (content: string, hasChanges: boolean) => void;
-}
+import type { AppSettings } from '../../../shared/types';
+import { TEXT_EDITOR_TEXT } from './constants';
+import { emptyStateSx, rootSx, toolbarSx, filePathSx, modifiedChipSx, editorContainerSx } from './styles';
+import type { TextEditorProps } from './types';
 
 export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
   const theme = useTheme();
@@ -239,40 +236,27 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
 
   if (!file) {
     return (
-      <Box
-        sx={{
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'text.secondary',
-        }}
-      >
-        Select a file to edit
+      <Box sx={emptyStateSx}>
+        {TEXT_EDITOR_TEXT.emptyState}
       </Box>
     );
   }
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={rootSx}>
       <Toolbar
         variant="dense"
-        sx={{
-          minHeight: '48px',
-          borderBottom: 1,
-          borderColor: 'divider',
-          gap: 1,
-        }}
+        sx={toolbarSx}
       >
-        <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
+        <Typography variant="subtitle2" sx={filePathSx}>
           {file.path}
         </Typography>
 
         {hasChanges && (
-          <Chip label="Modified" size="small" color="warning" sx={{ height: 24 }} />
+          <Chip label={TEXT_EDITOR_TEXT.modified} size="small" color="warning" sx={modifiedChipSx} />
         )}
 
-        <Tooltip title="Save to disk">
+        <Tooltip title={TEXT_EDITOR_TEXT.saveTooltip}>
           <span>
             <IconButton
               size="small"
@@ -285,7 +269,7 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
           </span>
         </Tooltip>
 
-        <Tooltip title="Export Note">
+        <Tooltip title={TEXT_EDITOR_TEXT.exportTooltip}>
           <IconButton
             size="small"
             onClick={handleExport}
@@ -312,11 +296,7 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
       )}
 
       <Box
-        sx={{
-          flexGrow: 1,
-          overflow: 'auto',
-          bgcolor: isDark ? '#0d1117' : '#fff',
-        }}
+        sx={editorContainerSx(isDark)}
       >
         <CodeMirror
           ref={editorRef}

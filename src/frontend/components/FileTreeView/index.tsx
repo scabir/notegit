@@ -15,12 +15,6 @@ import {
 } from '@mui/material';
 import {
   Folder as FolderIcon,
-  Description as DescriptionIcon,
-  Image as ImageIcon,
-  PictureAsPdf as PdfIcon,
-  Code as CodeIcon,
-  TextSnippet as TextIcon,
-  InsertDriveFile as FileIcon,
   Add as PlusIcon,
   Remove as MinusIcon,
   CreateNewFolder as CreateFolderIcon,
@@ -32,38 +26,19 @@ import {
   DriveFileMove as MoveIcon,
 } from '@mui/icons-material';
 import { MoveToFolderDialog } from '../MoveToFolderDialog';
-import type { FileTreeNode, FileType } from '../../../shared/types';
-
-interface FileTreeViewProps {
-  tree: FileTreeNode[];
-  selectedFile: string | null;
-  onSelectFile: (path: string, type: 'file' | 'folder') => void;
-  onCreateFile: (parentPath: string, fileName: string) => Promise<void>;
-  onCreateFolder: (parentPath: string, folderName: string) => Promise<void>;
-  onDelete: (path: string) => Promise<void>;
-  onRename: (oldPath: string, newPath: string) => Promise<void>;
-  onImport: (sourcePath: string, targetPath: string) => Promise<void>;
-  isS3Repo: boolean;
-}
-
-const getFileIcon = (fileType?: FileType) => {
-  switch (fileType) {
-    case 'markdown':
-      return <DescriptionIcon fontSize="small" sx={{ color: '#1976d2' }} />;
-    case 'image':
-      return <ImageIcon fontSize="small" sx={{ color: '#f50057' }} />;
-    case 'pdf':
-      return <PdfIcon fontSize="small" sx={{ color: '#d32f2f' }} />;
-    case 'code':
-      return <CodeIcon fontSize="small" sx={{ color: '#388e3c' }} />;
-    case 'text':
-      return <TextIcon fontSize="small" sx={{ color: '#757575' }} />;
-    case 'json':
-      return <CodeIcon fontSize="small" sx={{ color: '#ff9800' }} />;
-    default:
-      return <FileIcon fontSize="small" sx={{ color: '#757575' }} />;
-  }
-};
+import type { FileTreeNode } from '../../../shared/types';
+import { FILE_TREE_TEXT, INVALID_NAME_CHARS } from './constants';
+import {
+  rootSx,
+  toolbarSx,
+  treeContainerSx,
+  treeItemLabelSx,
+  treeItemActionsSx,
+  dialogInfoSx,
+  dialogErrorSx,
+} from './styles';
+import { getFileIcon, normalizeName, findNode, findNodeByPath, getParentPath } from './utils';
+import type { FileTreeViewProps } from './types';
 
 export function FileTreeView({ 
   tree, 
@@ -85,9 +60,6 @@ export function FileTreeView({
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedNode, setSelectedNode] = useState<FileTreeNode | null>(null);
   const [expanded, setExpanded] = useState<string[]>([]);
-
-  const normalizeName = (value: string): string =>
-    isS3Repo ? value.replace(/ /g, '-') : value;
 
   React.useEffect(() => {
     if (selectedFile) {
@@ -133,13 +105,12 @@ export function FileTreeView({
     const trimmedName = newItemName.trim();
     if (!trimmedName) return;
     
-    let fileName = normalizeName(trimmedName);
+    let fileName = normalizeName(trimmedName, isS3Repo);
     if (!fileName.includes('.')) {
       fileName = `${fileName}.md`;
     }
 
-    const invalidChars = /[<>:"/\\|?*]/;
-    if (invalidChars.test(fileName)) {
+    if (INVALID_NAME_CHARS.test(fileName)) {
       setErrorMessage('File name contains invalid characters: < > : " / \\ | ? *');
       return;
     }
@@ -196,9 +167,8 @@ export function FileTreeView({
     const trimmedName = newItemName.trim();
     if (!trimmedName) return;
 
-    const folderName = normalizeName(trimmedName);
-    const invalidChars = /[<>:"/\\|?*]/;
-    if (invalidChars.test(folderName)) {
+    const folderName = normalizeName(trimmedName, isS3Repo);
+    if (INVALID_NAME_CHARS.test(folderName)) {
       setErrorMessage('Folder name contains invalid characters: < > : " / \\ | ? *');
       return;
     }
@@ -260,9 +230,8 @@ export function FileTreeView({
       return;
     }
 
-    const normalizedName = normalizeName(trimmedName);
-    const invalidChars = /[<>:"/\\|?*]/;
-    if (invalidChars.test(normalizedName)) {
+    const normalizedName = normalizeName(trimmedName, isS3Repo);
+    if (INVALID_NAME_CHARS.test(normalizedName)) {
       setErrorMessage('Name contains invalid characters: < > : " / \\ | ? *');
       return;
     }
@@ -338,7 +307,7 @@ export function FileTreeView({
 
       const sourcePath = result.filePaths[0];
       const rawFileName = sourcePath.split('/').pop() || 'imported_file';
-      const fileName = normalizeName(rawFileName);
+      const fileName = normalizeName(rawFileName, isS3Repo);
 
       let targetPath = fileName;
       if (selectedNode) {
@@ -357,29 +326,6 @@ export function FileTreeView({
       alert(`Failed to import file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
-
-  const findNode = (nodes: FileTreeNode[], id: string): FileTreeNode | null => {
-    for (const node of nodes) {
-      if (node.id === id) return node;
-      if (node.children) {
-        const found = findNode(node.children, id);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
-
-  const findNodeByPath = (nodes: FileTreeNode[], path: string): FileTreeNode | null => {
-    for (const node of nodes) {
-      if (node.path === path) return node;
-      if (node.children) {
-        const found = findNodeByPath(node.children, path);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
-
 
   const handleMoveToFolder = async (destinationPath: string) => {
     if (!selectedNode) return;
@@ -422,32 +368,15 @@ export function FileTreeView({
         key={node.id} 
         nodeId={node.id} 
         label={
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              pr: 1,
-              userSelect: 'none',
-            }}
-          >
-            <span style={{ flex: 1 }}>{node.name}</span>
-            <Box
-              sx={{
-                display: 'flex',
-                gap: 0.5,
-                opacity: 0,
-                '.MuiTreeItem-content:hover &': {
-                  opacity: 1,
-                },
-              }}
-            >
-              <Tooltip title="Move to folder">
-                <IconButton
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedNode(node);
+        <Box sx={treeItemLabelSx}>
+          <span style={{ flex: 1 }}>{node.name}</span>
+          <Box sx={treeItemActionsSx}>
+            <Tooltip title={FILE_TREE_TEXT.moveToFolder}>
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedNode(node);
                     setMoveDialogOpen(true);
                   }}
                   sx={{ padding: '2px' }}
@@ -493,35 +422,36 @@ export function FileTreeView({
 
   const getCreationLocationText = () => {
     if (!selectedNode) {
-      return 'Will be created in root directory';
+      return FILE_TREE_TEXT.createLocationRoot;
     }
     if (selectedNode.type === 'folder') {
-      return `Will be created in: ${selectedNode.path || 'root'}`;
+      return `${FILE_TREE_TEXT.createLocationPrefix}${selectedNode.path || 'root'}`;
     }
-    const lastSlash = selectedNode.path.lastIndexOf('/');
-    const parentPath = lastSlash > 0 ? selectedNode.path.substring(0, lastSlash) : '';
-    return parentPath ? `Will be created in: ${parentPath}` : 'Will be created in root directory';
+    const parentPath = getParentPath(selectedNode.path);
+    return parentPath
+      ? `${FILE_TREE_TEXT.createLocationPrefix}${parentPath}`
+      : FILE_TREE_TEXT.createLocationRoot;
   };
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Toolbar variant="dense" sx={{ minHeight: '48px', borderBottom: '1px solid #e0e0e0' }}>
-        <Tooltip title="New File">
+    <Box sx={rootSx}>
+      <Toolbar variant="dense" sx={toolbarSx}>
+        <Tooltip title={FILE_TREE_TEXT.newFile}>
           <IconButton size="small" onClick={handleOpenFileDialog}>
             <NoteAddIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-        <Tooltip title="New Folder">
+        <Tooltip title={FILE_TREE_TEXT.newFolder}>
           <IconButton size="small" onClick={handleOpenFolderDialog}>
             <CreateFolderIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Import File">
+        <Tooltip title={FILE_TREE_TEXT.importFile}>
           <IconButton size="small" onClick={handleImportFile}>
             <ImportIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Rename">
+        <Tooltip title={FILE_TREE_TEXT.rename}>
           <span>
             <IconButton 
               size="small" 
@@ -532,7 +462,7 @@ export function FileTreeView({
             </IconButton>
           </span>
         </Tooltip>
-        <Tooltip title="Delete">
+        <Tooltip title={FILE_TREE_TEXT.delete}>
           <span>
             <IconButton 
               size="small" 
@@ -544,7 +474,7 @@ export function FileTreeView({
           </span>
         </Tooltip>
         <Box sx={{ flexGrow: 1 }} />
-        <Tooltip title="Clear selection (create in root)">
+        <Tooltip title={FILE_TREE_TEXT.clearSelection}>
           <span>
             <IconButton 
               size="small" 
@@ -560,12 +490,7 @@ export function FileTreeView({
 
       <Box 
         className="tree-container"
-        sx={{ 
-          flex: 1, 
-          overflow: 'auto', 
-          p: 1,
-          position: 'relative',
-        }}
+        sx={treeContainerSx}
         onClick={handleContainerClick}
       >
         <TreeView
@@ -591,9 +516,9 @@ export function FileTreeView({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Create New File</DialogTitle>
+        <DialogTitle>{FILE_TREE_TEXT.createFileTitle}</DialogTitle>
         <DialogContent>
-          <Box sx={{ mb: 2, p: 1, bgcolor: 'action.hover', borderRadius: 1 }}>
+          <Box sx={dialogInfoSx}>
             <Typography variant="caption" color="text.secondary">
               {getCreationLocationText()}
             </Typography>
@@ -601,7 +526,7 @@ export function FileTreeView({
           <TextField
             autoFocus
             margin="dense"
-            label="File Name"
+            label={FILE_TREE_TEXT.fileNameLabel}
             fullWidth
             value={newItemName}
             onChange={(e) => {
@@ -613,12 +538,12 @@ export function FileTreeView({
                 handleCreateFile();
               }
             }}
-            placeholder="my-note (extension optional)"
-            helperText={!newItemName.includes('.') ? "Extension will be auto-added as .md if not specified" : " "}
+            placeholder={FILE_TREE_TEXT.filePlaceholder}
+            helperText={!newItemName.includes('.') ? FILE_TREE_TEXT.fileExtensionHint : ' '}
             error={!!errorMessage}
           />
           {errorMessage && (
-            <Box sx={{ mt: 1, color: 'error.main', fontSize: '0.875rem' }}>
+            <Box sx={dialogErrorSx}>
               {errorMessage}
             </Box>
           )}
@@ -630,14 +555,14 @@ export function FileTreeView({
               setErrorMessage('');
             }}
           >
-            Cancel
+            {FILE_TREE_TEXT.cancel}
           </Button>
           <Button 
             onClick={handleCreateFile} 
             disabled={creating || !newItemName.trim()}
             variant="contained"
           >
-            {creating ? 'Creating...' : 'Create'}
+            {creating ? FILE_TREE_TEXT.creating : FILE_TREE_TEXT.create}
           </Button>
         </DialogActions>
       </Dialog>
@@ -651,9 +576,9 @@ export function FileTreeView({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Create New Folder</DialogTitle>
+        <DialogTitle>{FILE_TREE_TEXT.createFolderTitle}</DialogTitle>
         <DialogContent>
-          <Box sx={{ mb: 2, p: 1, bgcolor: 'action.hover', borderRadius: 1 }}>
+          <Box sx={dialogInfoSx}>
             <Typography variant="caption" color="text.secondary">
               {getCreationLocationText()}
             </Typography>
@@ -661,7 +586,7 @@ export function FileTreeView({
           <TextField
             autoFocus
             margin="dense"
-            label="Folder Name"
+            label={FILE_TREE_TEXT.folderNameLabel}
             fullWidth
             value={newItemName}
             onChange={(e) => {
@@ -673,11 +598,11 @@ export function FileTreeView({
                 handleCreateFolder();
               }
             }}
-            placeholder="my-folder"
+            placeholder={FILE_TREE_TEXT.folderPlaceholder}
             error={!!errorMessage}
           />
           {errorMessage && (
-            <Box sx={{ mt: 1, color: 'error.main', fontSize: '0.875rem' }}>
+            <Box sx={dialogErrorSx}>
               {errorMessage}
             </Box>
           )}
@@ -689,14 +614,14 @@ export function FileTreeView({
               setErrorMessage('');
             }}
           >
-            Cancel
+            {FILE_TREE_TEXT.cancel}
           </Button>
           <Button 
             onClick={handleCreateFolder} 
             disabled={creating || !newItemName.trim()}
             variant="contained"
           >
-            {creating ? 'Creating...' : 'Create'}
+            {creating ? FILE_TREE_TEXT.creating : FILE_TREE_TEXT.create}
           </Button>
         </DialogActions>
       </Dialog>
@@ -710,12 +635,14 @@ export function FileTreeView({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Rename {selectedNode?.type === 'folder' ? 'Folder' : 'File'}</DialogTitle>
+        <DialogTitle>
+          {selectedNode?.type === 'folder' ? FILE_TREE_TEXT.renameFolderTitle : FILE_TREE_TEXT.renameFileTitle}
+        </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="New Name"
+            label={FILE_TREE_TEXT.newNameLabel}
             fullWidth
             value={newItemName}
             onChange={(e) => {
@@ -731,7 +658,7 @@ export function FileTreeView({
             error={!!errorMessage}
           />
           {errorMessage && (
-            <Box sx={{ mt: 1, color: 'error.main', fontSize: '0.875rem' }}>
+            <Box sx={dialogErrorSx}>
               {errorMessage}
             </Box>
           )}
@@ -743,14 +670,14 @@ export function FileTreeView({
               setErrorMessage('');
             }}
           >
-            Cancel
+            {FILE_TREE_TEXT.cancel}
           </Button>
           <Button 
             onClick={handleRename} 
             disabled={creating || !newItemName.trim()}
             variant="contained"
           >
-            {creating ? 'Renaming...' : 'Rename'}
+            {creating ? FILE_TREE_TEXT.renaming : FILE_TREE_TEXT.renameAction}
           </Button>
         </DialogActions>
       </Dialog>

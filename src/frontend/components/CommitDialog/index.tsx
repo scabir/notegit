@@ -10,13 +10,9 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
-
-interface CommitDialogProps {
-  open: boolean;
-  filePath: string | null;
-  onClose: () => void;
-  onSuccess: () => void;
-}
+import { COMMIT_DIALOG_TEXT } from './constants';
+import { contentStackSx } from './styles';
+import type { CommitDialogProps } from './types';
 
 export function CommitDialog({ open, filePath, onClose, onSuccess }: CommitDialogProps) {
   const [message, setMessage] = useState('');
@@ -32,7 +28,7 @@ export function CommitDialog({ open, filePath, onClose, onSuccess }: CommitDialo
 
   const handleCommit = async () => {
     if (!message.trim()) {
-      setError('Please enter a commit message');
+      setError(COMMIT_DIALOG_TEXT.emptyMessageError);
       return;
     }
 
@@ -47,10 +43,10 @@ export function CommitDialog({ open, filePath, onClose, onSuccess }: CommitDialo
         onSuccess();
         onClose();
       } else {
-        setError(response.error?.message || 'Failed to commit');
+        setError(response.error?.message || COMMIT_DIALOG_TEXT.commitFailed);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to commit');
+      setError(err.message || COMMIT_DIALOG_TEXT.commitFailed);
     } finally {
       setLoading(false);
     }
@@ -64,28 +60,28 @@ export function CommitDialog({ open, filePath, onClose, onSuccess }: CommitDialo
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Commit Changes</DialogTitle>
+      <DialogTitle>{COMMIT_DIALOG_TEXT.title}</DialogTitle>
       <DialogContent>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+        <Box sx={contentStackSx}>
           {error && <Alert severity="error">{error}</Alert>}
 
           <TextField
-            label="Commit Message"
+            label={COMMIT_DIALOG_TEXT.messageLabel}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             multiline
             rows={3}
             fullWidth
             autoFocus
-            placeholder="Describe your changes..."
+            placeholder={COMMIT_DIALOG_TEXT.messagePlaceholder}
             onKeyDown={handleKeyDown}
-            helperText="Cmd/Ctrl+Enter to commit"
+            helperText={COMMIT_DIALOG_TEXT.helperText}
           />
         </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>
-          Cancel
+          {COMMIT_DIALOG_TEXT.cancel}
         </Button>
         <Button
           variant="contained"
@@ -93,10 +89,9 @@ export function CommitDialog({ open, filePath, onClose, onSuccess }: CommitDialo
           disabled={loading || !message.trim()}
           startIcon={loading ? <CircularProgress size={20} /> : null}
         >
-          {loading ? 'Committing...' : 'Commit & Push'}
+          {loading ? COMMIT_DIALOG_TEXT.loading : COMMIT_DIALOG_TEXT.confirm}
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
-

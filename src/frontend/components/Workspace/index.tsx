@@ -21,10 +21,20 @@ import { HistoryViewer } from '../HistoryViewer';
 import type { AppSettings, FileTreeNode, FileContent, RepoStatus } from '../../../shared/types';
 import packageJson from '../../../../package.json';
 import { startS3AutoSync } from '../../utils/s3AutoSync';
-
-interface WorkspaceProps {
-  onThemeChange: (theme: 'light' | 'dark' | 'system') => void;
-}
+import { WORKSPACE_TEXT } from './constants';
+import {
+  rootSx,
+  saveStatusRowSx,
+  statusChipSx,
+  saveMessageSx,
+  spacerSx,
+  mainContentSx,
+  sidebarSx,
+  resizeHandleSx,
+  editorPaneSx,
+} from './styles';
+import { buildHeaderTitle } from './utils';
+import type { WorkspaceProps } from './types';
 
 export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [tree, setTree] = useState<FileTreeNode[]>([]);
@@ -58,23 +68,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [appVersion, setAppVersion] = useState<string>('');
   const isS3Repo = repoStatus?.provider === 's3';
 
-  const getTruncatedProfileName = (name: string): string => {
-    if (name.length <= 20) {
-      return name;
-    }
-    return name.substring(0, 20) + '...';
-  };
-
-  const getHeaderTitle = (): string => {
-    let title = 'notegit';
-    if (activeProfileName) {
-      title += ` - ${getTruncatedProfileName(activeProfileName)}`;
-    }
-    if (appVersion) {
-      title += ` - ${appVersion}`;
-    }
-    return title;
-  };
+  const headerTitle = buildHeaderTitle(activeProfileName, appVersion);
 
   useEffect(() => {
     loadWorkspace();
@@ -643,56 +637,56 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   }, [isResizing]);
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={rootSx}>
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar variant="dense">
           <Typography variant="h6" component="div">
-            {getHeaderTitle()}
+            {headerTitle}
           </Typography>
 
           {saveStatus !== 'idle' && (
-            <Box sx={{ ml: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={saveStatusRowSx}>
               {saveStatus === 'saving' && (
                 <Chip
-                  label="Saving..."
+                  label={WORKSPACE_TEXT.savingLabel}
                   size="small"
                   color="info"
-                  sx={{ height: 24 }}
+                  sx={statusChipSx}
                 />
               )}
               {saveStatus === 'saved' && (
                 <Chip
-                  label="Saved"
+                  label={WORKSPACE_TEXT.savedLabel}
                   size="small"
                   color="success"
-                  sx={{ height: 24 }}
+                  sx={statusChipSx}
                 />
               )}
               {saveStatus === 'error' && (
                 <Chip
-                  label="Error"
+                  label={WORKSPACE_TEXT.errorLabel}
                   size="small"
                   color="error"
-                  sx={{ height: 24 }}
+                  sx={statusChipSx}
                 />
               )}
               {saveMessage && (
-                <Typography variant="caption" color="text.secondary" sx={{ maxWidth: 300 }}>
+                <Typography variant="caption" color="text.secondary" sx={saveMessageSx}>
                   {saveMessage}
                 </Typography>
               )}
             </Box>
           )}
 
-          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={spacerSx} />
 
-          <Tooltip title="Search (Cmd/Ctrl+P)">
+          <Tooltip title={WORKSPACE_TEXT.searchTooltip}>
             <IconButton onClick={() => setSearchDialogOpen(true)} color="default">
               <SearchIcon />
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="File History">
+          <Tooltip title={WORKSPACE_TEXT.historyTooltip}>
             <IconButton
               onClick={handleToggleHistory}
               color={historyPanelOpen ? 'primary' : 'default'}
@@ -701,7 +695,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Save all open files">
+          <Tooltip title={WORKSPACE_TEXT.saveAllTooltip}>
             <span>
               <IconButton
                 onClick={handleSaveAll}
@@ -713,13 +707,13 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             </span>
           </Tooltip>
 
-          <Tooltip title={isS3Repo ? 'Sync' : 'Commit and Push'}>
+          <Tooltip title={isS3Repo ? WORKSPACE_TEXT.syncTooltip : WORKSPACE_TEXT.commitPushTooltip}>
             <IconButton onClick={handleCommitAndPush} color="primary">
               {isS3Repo ? <CloudSyncIcon /> : <CloudUploadIcon />}
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Settings">
+          <Tooltip title={WORKSPACE_TEXT.settingsTooltip}>
             <IconButton onClick={() => setSettingsOpen(true)}>
               <SettingsIcon />
             </IconButton>
@@ -727,17 +721,9 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden', pb: '40px' }}>
+      <Box sx={mainContentSx}>
         <Box
-          sx={{
-            width: sidebarWidth,
-            minWidth: sidebarWidth,
-            maxWidth: sidebarWidth,
-            flexShrink: 0,
-            borderRight: 1,
-            borderColor: 'divider',
-            overflow: 'auto',
-          }}
+          sx={sidebarSx(sidebarWidth)}
         >
           <FileTreeView
             tree={tree}
@@ -754,19 +740,10 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
         <Box
           onMouseDown={handleResizeStart}
-          sx={{
-            width: '4px',
-            cursor: 'col-resize',
-            bgcolor: isResizing ? 'primary.main' : 'transparent',
-            '&:hover': {
-              bgcolor: 'primary.light',
-            },
-            transition: 'background-color 0.2s',
-            flexShrink: 0,
-          }}
+          sx={resizeHandleSx(isResizing)}
         />
 
-        <Box sx={{ flexGrow: 1, overflow: 'hidden', minWidth: 0 }}>
+        <Box sx={editorPaneSx}>
           {fileContent?.type === 'text' ? (
             <TextEditor
               file={fileContent}

@@ -12,7 +12,6 @@ import {
   IconButton,
   Tooltip,
   useTheme,
-  Paper,
 } from '@mui/material';
 import {
   History as HistoryIcon,
@@ -20,12 +19,25 @@ import {
   Visibility as ViewIcon,
 } from '@mui/icons-material';
 import type { CommitEntry } from '../../../shared/types';
-
-interface HistoryPanelProps {
-  filePath: string | null;
-  onViewVersion: (commitHash: string, commitMessage: string) => void;
-  onClose: () => void;
-}
+import { HISTORY_PANEL_TEXT } from './constants';
+import {
+  panelSx,
+  headerSx,
+  headerInfoSx,
+  scrollContainerSx,
+  centerStateSx,
+  loadingStateSx,
+  listSx,
+  listItemSx,
+  listItemButtonSx,
+  commitMessageSx,
+  commitMetaSx,
+  hashChipSx,
+  commitDateSx,
+  footerSx,
+} from './styles';
+import { formatRelativeDate, getFileName } from './utils';
+import type { HistoryPanelProps } from './types';
 
 export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelProps) {
   const theme = useTheme();
@@ -55,11 +67,11 @@ export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelP
       if (response.ok && response.data) {
         setHistory(response.data);
       } else {
-        setError(response.error?.message || 'Failed to load history');
+        setError(response.error?.message || HISTORY_PANEL_TEXT.loadFailed);
         setHistory([]);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to load history');
+      setError(err.message || HISTORY_PANEL_TEXT.loadFailed);
       setHistory([]);
     } finally {
       setLoading(false);
@@ -71,82 +83,36 @@ export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelP
     onViewVersion(commit.hash, commit.message);
   };
 
-  const formatDate = (date: Date | string) => {
-    const d = typeof date === 'string' ? new Date(date) : date;
-    const now = new Date();
-    const diff = now.getTime() - d.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (days === 0) {
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      if (hours === 0) {
-        const minutes = Math.floor(diff / (1000 * 60));
-        return minutes === 0 ? 'just now' : `${minutes}m ago`;
-      }
-      return `${hours}h ago`;
-    } else if (days === 1) {
-      return 'yesterday';
-    } else if (days < 7) {
-      return `${days} days ago`;
-    } else {
-      return d.toLocaleDateString();
-    }
-  };
-
-  const getFileName = () => {
-    if (!filePath) return '';
-    return filePath.split('/').pop() || filePath;
-  };
-
   return (
-    <Box
-      sx={{
-        width: 320,
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        borderLeft: 1,
-        borderColor: 'divider',
-        bgcolor: isDark ? '#0d1117' : 'background.paper',
-      }}
-    >
-      <Box
-        sx={{
-          p: 2,
-          borderBottom: 1,
-          borderColor: 'divider',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-        }}
-      >
+    <Box sx={panelSx(isDark)}>
+      <Box sx={headerSx}>
         <HistoryIcon fontSize="small" />
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={headerInfoSx}>
           <Typography variant="subtitle2" fontWeight={600}>
-            File History
+            {HISTORY_PANEL_TEXT.title}
           </Typography>
           {filePath && (
             <Typography variant="caption" color="text.secondary" noWrap>
-              {getFileName()}
+              {getFileName(filePath)}
             </Typography>
           )}
         </Box>
-        <Tooltip title="Close history">
+        <Tooltip title={HISTORY_PANEL_TEXT.closeTooltip}>
           <IconButton size="small" onClick={onClose}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       </Box>
 
-      <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+      <Box sx={scrollContainerSx}>
         {loading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+          <Box sx={loadingStateSx}>
             <CircularProgress size={32} />
           </Box>
         )}
 
         {error && (
-          <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Box sx={centerStateSx}>
             <Typography color="error" variant="body2">
               {error}
             </Typography>
@@ -154,56 +120,45 @@ export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelP
         )}
 
         {!loading && !error && !filePath && (
-          <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Box sx={centerStateSx}>
             <Typography color="text.secondary" variant="body2">
-              Select a file to view its history
+              {HISTORY_PANEL_TEXT.selectFile}
             </Typography>
           </Box>
         )}
 
         {!loading && !error && filePath && history.length === 0 && (
-          <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Box sx={centerStateSx}>
             <Typography color="text.secondary" variant="body2">
-              No commits found for this file
+              {HISTORY_PANEL_TEXT.noCommits}
             </Typography>
           </Box>
         )}
 
         {!loading && !error && history.length > 0 && (
-          <List sx={{ py: 0 }}>
+          <List sx={listSx}>
             {history.map((commit, index) => (
               <React.Fragment key={commit.hash}>
                 {index > 0 && <Divider />}
                 <ListItem
                   disablePadding
-                  sx={{
-                    bgcolor:
-                      selectedHash === commit.hash
-                        ? isDark
-                          ? 'rgba(144, 202, 249, 0.16)'
-                          : 'rgba(25, 118, 210, 0.08)'
-                        : 'transparent',
-                  }}
+                  sx={listItemSx(selectedHash === commit.hash, isDark)}
                 >
                   <ListItemButton
                     onClick={() => handleViewVersion(commit)}
-                    sx={{ py: 1.5, px: 2 }}
+                    sx={listItemButtonSx}
                   >
                     <ListItemText
                       primary={
                         <Box>
-                          <Typography variant="body2" sx={{ mb: 0.5, lineHeight: 1.4 }}>
+                          <Typography variant="body2" sx={commitMessageSx}>
                             {commit.message}
                           </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                          <Box sx={commitMetaSx}>
                             <Chip
                               label={commit.hash.substring(0, 7)}
                               size="small"
-                              sx={{
-                                height: 20,
-                                fontSize: '0.7rem',
-                                fontFamily: 'monospace',
-                              }}
+                              sx={hashChipSx}
                             />
                             <Typography variant="caption" color="text.secondary">
                               {commit.author}
@@ -212,8 +167,8 @@ export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelP
                         </Box>
                       }
                       secondary={
-                        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                          {formatDate(commit.date)}
+                        <Typography variant="caption" color="text.secondary" sx={commitDateSx}>
+                          {formatRelativeDate(commit.date)}
                         </Typography>
                       }
                     />
@@ -229,20 +184,13 @@ export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelP
       </Box>
 
       {history.length > 0 && (
-        <Box
-          sx={{
-            p: 1.5,
-            borderTop: 1,
-            borderColor: 'divider',
-            bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)',
-          }}
-        >
+        <Box sx={footerSx(isDark)}>
           <Typography variant="caption" color="text.secondary">
-            {history.length} commit{history.length !== 1 ? 's' : ''} found
+            {history.length} {HISTORY_PANEL_TEXT.commitSuffix}
+            {history.length !== 1 ? 's' : ''} found
           </Typography>
         </Box>
       )}
     </Box>
   );
 }
-

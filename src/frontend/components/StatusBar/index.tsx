@@ -7,14 +7,9 @@ import {
   CloudDone as CloudDoneIcon,
   CloudSync as CloudSyncIcon,
 } from '@mui/icons-material';
-import type { RepoStatus } from '../../../shared/types';
-
-interface StatusBarProps {
-  status: RepoStatus | null;
-  onFetch: () => void;
-  onPull: () => void;
-  onPush: () => void;
-}
+import { STATUS_TEXT } from './constants';
+import { appBarSx, toolbarSx, statusRowSx, branchLabelSx, actionsRowSx } from './styles';
+import type { StatusBarProps } from './types';
 
 export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
   if (!status) {
@@ -53,14 +48,14 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
     if (status.hasUncommitted) {
       return {
         icon: <CloudOffIcon fontSize="small" />,
-        label: isS3 ? 'Unsynced changes' : 'Uncommitted changes',
+        label: isS3 ? STATUS_TEXT.unsynced : STATUS_TEXT.uncommitted,
         color: 'default' as const,
       };
     }
 
     return {
       icon: <CloudDoneIcon fontSize="small" />,
-      label: 'Synced',
+      label: STATUS_TEXT.synced,
       color: 'success' as const,
     };
   };
@@ -68,20 +63,12 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
   const syncStatus = getSyncStatus();
 
   return (
-    <AppBar
-      position="fixed"
-      color="default"
-      sx={{
-        top: 'auto',
-        bottom: 0,
-        borderTop: 1,
-        borderColor: 'divider',
-      }}
-    >
-      <Toolbar variant="dense" sx={{ minHeight: 40 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1 }}>
-          <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            {isS3 ? 'Bucket' : 'Branch'}: <strong>{status.branch}</strong>
+    <AppBar position="fixed" color="default" sx={appBarSx}>
+      <Toolbar variant="dense" sx={toolbarSx}>
+        <Box sx={statusRowSx}>
+          <Typography variant="body2" sx={branchLabelSx}>
+            {isS3 ? STATUS_TEXT.bucketLabel : STATUS_TEXT.branchLabel}:{' '}
+            <strong>{status.branch}</strong>
           </Typography>
 
           <Chip
@@ -93,7 +80,7 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
 
           {status.hasUncommitted && (
             <Chip
-              label={isS3 ? 'Unsynced changes' : 'Uncommitted changes'}
+              label={isS3 ? STATUS_TEXT.unsynced : STATUS_TEXT.uncommitted}
               size="small"
               color="default"
               variant="outlined"
@@ -102,20 +89,20 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
         </Box>
 
         {!isS3 && (
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Tooltip title="Fetch from remote">
+          <Box sx={actionsRowSx}>
+            <Tooltip title={STATUS_TEXT.fetchTooltip}>
               <IconButton size="small" onClick={onFetch}>
                 <CloudSyncIcon fontSize="small" />
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Pull from remote">
+            <Tooltip title={STATUS_TEXT.pullTooltip}>
               <IconButton size="small" onClick={onPull} disabled={!status.needsPull}>
                 <CloudDownloadIcon fontSize="small" />
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Push to remote">
+            <Tooltip title={STATUS_TEXT.pushTooltip}>
               <IconButton size="small" onClick={onPush} disabled={status.pendingPushCount === 0}>
                 <CloudUploadIcon fontSize="small" />
               </IconButton>

@@ -16,14 +16,20 @@ import {
   ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import type { FileTreeNode } from '../../../shared/types';
-
-interface MoveToFolderDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onConfirm: (destinationPath: string) => void;
-  itemToMove: FileTreeNode | null;
-  tree: FileTreeNode[];
-}
+import { MOVE_DIALOG_ERRORS, MOVE_DIALOG_TEXT } from './constants';
+import {
+  infoBoxSx,
+  errorAlertSx,
+  sectionLabelSx,
+  folderRowSx,
+  folderIconSx,
+  rootOptionSx,
+  rootOptionInnerSx,
+  treeContainerSx,
+  emptyTreeTextSx,
+} from './styles';
+import { isDescendant, collectFolders, getParentPath, getCurrentLocationLabel } from './utils';
+import type { MoveToFolderDialogProps } from './types';
 
 export function MoveToFolderDialog({
   open,
@@ -42,28 +48,7 @@ export function MoveToFolderDialog({
     }
   }, [open]);
 
-  const isDescendant = (ancestorPath: string, descendantPath: string): boolean => {
-    if (!descendantPath) return false;
-    if (!ancestorPath) return false;
-    return descendantPath === ancestorPath || descendantPath.startsWith(ancestorPath + '/');
-  };
-
-  const getFolders = (nodes: FileTreeNode[], parentPath: string = ''): FileTreeNode[] => {
-    const folders: FileTreeNode[] = [];
-    
-    for (const node of nodes) {
-      if (node.type === 'folder') {
-        folders.push(node);
-        if (node.children) {
-          folders.push(...getFolders(node.children, node.path));
-        }
-      }
-    }
-    
-    return folders;
-  };
-
-  const allFolders = getFolders(tree);
+  const allFolders = collectFolders(tree);
 
   const renderFolderTree = (node: FileTreeNode): React.ReactNode => {
     if (node.type !== 'folder') return null;
@@ -78,16 +63,8 @@ export function MoveToFolderDialog({
         key={node.id}
         nodeId={node.id}
         label={
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              py: 0.5,
-              opacity: isInvalid ? 0.4 : 1,
-              cursor: isInvalid ? 'not-allowed' : 'pointer',
-            }}
-          >
-            <FolderIcon fontSize="small" sx={{ mr: 1, color: 'action.active' }} />
+          <Box sx={folderRowSx(isInvalid)}>
+            <FolderIcon fontSize="small" sx={folderIconSx} />
             <Typography variant="body2">{node.name}</Typography>
           </Box>
         }
@@ -102,22 +79,20 @@ export function MoveToFolderDialog({
     if (!itemToMove) return;
 
     if (!selectedFolderPath && selectedFolderPath !== '') {
-      setError('Please select a destination folder');
+      setError(MOVE_DIALOG_ERRORS.selectDestination);
       return;
     }
 
-    const currentParentPath = itemToMove.path.includes('/')
-      ? itemToMove.path.substring(0, itemToMove.path.lastIndexOf('/'))
-      : '';
+    const currentParentPath = getParentPath(itemToMove.path);
 
     if (selectedFolderPath === currentParentPath) {
-      setError('Item is already in this location');
+      setError(MOVE_DIALOG_ERRORS.sameLocation);
       return;
     }
 
     const destinationFolder = allFolders.find(f => f.path === selectedFolderPath);
     if (destinationFolder?.children?.some(child => child.name === itemToMove.name)) {
-      setError(`An item named "${itemToMove.name}" already exists in the destination folder`);
+      setError(MOVE_DIALOG_ERRORS.duplicateItem(itemToMove.name));
       return;
     }
 
@@ -126,31 +101,29 @@ export function MoveToFolderDialog({
 
   if (!itemToMove) return null;
 
-  const currentLocation = itemToMove.path.includes('/')
-    ? itemToMove.path.substring(0, itemToMove.path.lastIndexOf('/'))
-    : 'root';
+  const currentLocation = getCurrentLocationLabel(itemToMove.path);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Move Item</DialogTitle>
+      <DialogTitle>{MOVE_DIALOG_TEXT.title}</DialogTitle>
       <DialogContent>
-        <Box sx={{ mb: 2 }}>
+        <Box sx={infoBoxSx}>
           <Typography variant="body2" color="text.secondary">
-            Moving: <strong>{itemToMove.name}</strong>
+            {MOVE_DIALOG_TEXT.movingLabel}: <strong>{itemToMove.name}</strong>
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Current location: <strong>{currentLocation}</strong>
+            {MOVE_DIALOG_TEXT.currentLocationLabel}: <strong>{currentLocation}</strong>
           </Typography>
         </Box>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={errorAlertSx}>
             {error}
           </Alert>
         )}
 
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          Select destination folder:
+        <Typography variant="subtitle2" sx={sectionLabelSx}>
+          {MOVE_DIALOG_TEXT.selectDestination}
         </Typography>
 
         <Box
@@ -158,27 +131,18 @@ export function MoveToFolderDialog({
             setSelectedFolderPath('');
             setError('');
           }}
-          sx={{
-            p: 1,
-            mb: 1,
-            borderRadius: 1,
-            cursor: 'pointer',
-            bgcolor: selectedFolderPath === '' ? 'action.selected' : 'transparent',
-            '&:hover': {
-              bgcolor: 'action.hover',
-            },
-          }}
+          sx={rootOptionSx(selectedFolderPath === '')}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <FolderIcon fontSize="small" sx={{ mr: 1, color: 'action.active' }} />
-            <Typography variant="body2">Root Directory</Typography>
+          <Box sx={rootOptionInnerSx}>
+            <FolderIcon fontSize="small" sx={folderIconSx} />
+            <Typography variant="body2">{MOVE_DIALOG_TEXT.rootLabel}</Typography>
           </Box>
         </Box>
 
-        <Box sx={{ maxHeight: 300, overflow: 'auto', border: 1, borderColor: 'divider', borderRadius: 1, p: 1 }}>
+        <Box sx={treeContainerSx}>
           {allFolders.length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
-              No folders in repository
+            <Typography variant="body2" color="text.secondary" sx={emptyTreeTextSx}>
+              {MOVE_DIALOG_TEXT.noFolders}
             </Typography>
           ) : (
             <TreeView
@@ -206,13 +170,13 @@ export function MoveToFolderDialog({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>{MOVE_DIALOG_TEXT.cancel}</Button>
         <Button
           onClick={handleConfirm}
           variant="contained"
           disabled={!selectedFolderPath && selectedFolderPath !== ''}
         >
-          Move Here
+          {MOVE_DIALOG_TEXT.confirm}
         </Button>
       </DialogActions>
     </Dialog>

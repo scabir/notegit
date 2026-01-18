@@ -49,12 +49,9 @@ import type {
   S3RepoSettings,
 } from '../../../shared/types';
 import { confirmProfileSwitch } from '../../utils/profileSwitch';
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
+import { SETTINGS_TEXT } from './constants';
+import { tabHeaderSx, alertSx } from './styles';
+import type { TabPanelProps, SettingsDialogProps } from './types';
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -69,15 +66,6 @@ function TabPanel(props: TabPanelProps) {
       {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
     </div>
   );
-}
-
-interface SettingsDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onThemeChange?: (theme: 'light' | 'dark' | 'system') => void;
-  onAppSettingsSaved?: (settings: AppSettings) => void;
-  currentNoteContent?: string;
-  currentNotePath?: string;
 }
 
 export function SettingsDialog({
@@ -493,26 +481,24 @@ export function SettingsDialog({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Settings</DialogTitle>
+      <DialogTitle>{SETTINGS_TEXT.title}</DialogTitle>
       <DialogContent>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={tabHeaderSx}>
           <Tabs value={tabValue} onChange={handleTabChange}>
-            <Tab label="App Settings" />
-            <Tab label="Repository" />
-            <Tab label="Profiles" />
-            <Tab label="Export" />
-            <Tab label="Logs" />
+            {SETTINGS_TEXT.tabs.map((label) => (
+              <Tab key={label} label={label} />
+            ))}
           </Tabs>
         </Box>
 
         {error && (
-          <Alert severity="error" sx={{ mt: 2 }} onClose={() => setError(null)}>
+          <Alert severity="error" sx={alertSx} onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
 
         {success && (
-          <Alert severity="success" sx={{ mt: 2 }} onClose={() => setSuccess(null)}>
+          <Alert severity="success" sx={alertSx} onClose={() => setSuccess(null)}>
             {success}
           </Alert>
         )}

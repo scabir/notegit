@@ -1,0 +1,16 @@
+export const REPO_SETUP_TEXT = {
+  title: 'Connect to Repository',
+  description: 'Connect to your repository to start taking notes',
+  repoTypeLabel: 'Repository type',
+  gitLabel: 'Git',
+  s3Label: 'S3',
+  cancel: 'Cancel',
+  connect: 'Connect',
+  connecting: 'Connecting...',
+  gitRequired: 'Please fill in all Git fields',
+  s3Required: 'Please fill in all required S3 fields',
+  connectFailed: 'Failed to connect to repository',
+  patHelper: 'Your PAT is stored encrypted locally',
+  s3SecretHelper: 'Stored encrypted locally',
+  s3Info: 'The S3 bucket must have versioning enabled to support history.',
+} as const;

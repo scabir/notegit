@@ -14,12 +14,9 @@ import {
   ToggleButton,
 } from '@mui/material';
 import type { RepoSettings, AuthMethod, RepoProviderType } from '../../../shared/types';
-
-interface RepoSetupDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-}
+import { REPO_SETUP_TEXT } from './constants';
+import { contentStackSx, repoTypeRowSx, patTitleSx, patListSx } from './styles';
+import type { RepoSetupDialogProps } from './types';
 
 export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogProps) {
   const [provider, setProvider] = useState<RepoProviderType>('git');
@@ -44,7 +41,7 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
 
       if (provider === 'git') {
         if (!remoteUrl || !branch || !pat) {
-          setError('Please fill in all Git fields');
+          setError(REPO_SETUP_TEXT.gitRequired);
           setLoading(false);
           return;
         }
@@ -59,7 +56,7 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
         };
       } else {
         if (!bucket || !region || !accessKeyId || !secretAccessKey) {
-          setError('Please fill in all required S3 fields');
+          setError(REPO_SETUP_TEXT.s3Required);
           setLoading(false);
           return;
         }
@@ -82,10 +79,10 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
         onSuccess();
         onClose();
       } else {
-        setError(response.error?.message || 'Failed to connect to repository');
+        setError(response.error?.message || REPO_SETUP_TEXT.connectFailed);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to connect to repository');
+      setError(err.message || REPO_SETUP_TEXT.connectFailed);
     } finally {
       setLoading(false);
     }
@@ -93,18 +90,18 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Connect to Repository</DialogTitle>
+      <DialogTitle>{REPO_SETUP_TEXT.title}</DialogTitle>
       <DialogContent>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+        <Box sx={contentStackSx}>
           <Typography variant="body2" color="text.secondary">
-            Connect to your repository to start taking notes
+            {REPO_SETUP_TEXT.description}
           </Typography>
 
           {error && <Alert severity="error">{error}</Alert>}
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={repoTypeRowSx}>
             <Typography variant="body2" color="text.secondary">
-              Repository type
+              {REPO_SETUP_TEXT.repoTypeLabel}
             </Typography>
             <ToggleButtonGroup
               exclusive
@@ -112,8 +109,8 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
               onChange={(_, value) => value && setProvider(value)}
               size="small"
             >
-              <ToggleButton value="git">Git</ToggleButton>
-              <ToggleButton value="s3">S3</ToggleButton>
+              <ToggleButton value="git">{REPO_SETUP_TEXT.gitLabel}</ToggleButton>
+              <ToggleButton value="s3">{REPO_SETUP_TEXT.s3Label}</ToggleButton>
             </ToggleButtonGroup>
           </Box>
 
@@ -148,14 +145,14 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
                 fullWidth
                 required
                 disabled={loading}
-                helperText="Your PAT is stored encrypted locally"
+                helperText={REPO_SETUP_TEXT.patHelper}
               />
 
               <Alert severity="info">
-                <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                <Typography variant="body2" sx={patTitleSx}>
                   How to create a GitHub Personal Access Token:
                 </Typography>
-                <Typography variant="body2" component="div" sx={{ mt: 1 }}>
+                <Typography variant="body2" component="div" sx={patListSx}>
                   1. Go to GitHub Settings → Developer settings
                   <br />
                   2. Click Personal access tokens → Fine Grained Tokens
@@ -228,7 +225,7 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
                 fullWidth
                 required
                 disabled={loading}
-                helperText="Stored encrypted locally"
+                helperText={REPO_SETUP_TEXT.s3SecretHelper}
               />
 
               <TextField
@@ -242,7 +239,7 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
 
               <Alert severity="info">
                 <Typography variant="body2">
-                  The S3 bucket must have versioning enabled to support history.
+                  {REPO_SETUP_TEXT.s3Info}
                 </Typography>
               </Alert>
             </>
@@ -250,16 +247,14 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={loading}>
-          Cancel
-        </Button>
+        <Button onClick={onClose} disabled={loading}>{REPO_SETUP_TEXT.cancel}</Button>
         <Button
           variant="contained"
           onClick={handleConnect}
           disabled={loading}
           startIcon={loading ? <CircularProgress size={20} /> : null}
         >
-          {loading ? 'Connecting...' : 'Connect'}
+          {loading ? REPO_SETUP_TEXT.connecting : REPO_SETUP_TEXT.connect}
         </Button>
       </DialogActions>
     </Dialog>

@@ -23,16 +23,22 @@ import remarkGfm from 'remark-gfm';
 import { EditorView, keymap } from '@codemirror/view';
 import { EditorSelection } from '@codemirror/state';
 import { FindReplaceBar } from '../FindReplaceBar';
-import type { FileContent, AppSettings } from '../../../shared/types';
-
-interface MarkdownEditorProps {
-  file: FileContent | null;
-  repoPath: string | null;
-  onSave: (content: string) => void;
-  onChange: (content: string, hasChanges: boolean) => void;
-}
-
-type ViewMode = 'split' | 'editor' | 'preview';
+import type { AppSettings } from '../../../shared/types';
+import { MARKDOWN_EDITOR_TEXT, MARKDOWN_INSERT_DEFAULTS, MARKDOWN_INSERT_TOKENS } from './constants';
+import {
+  emptyStateSx,
+  rootSx,
+  headerToolbarSx,
+  headerRowSx,
+  splitIconRowSx,
+  formatToolbarSx,
+  editorContainerSx,
+  editorPaneSx,
+  previewPaneSx,
+  splitterSx,
+  previewPaperSx,
+} from './styles';
+import type { MarkdownEditorProps, ViewMode } from './types';
 
 export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEditorProps) {
   const theme = useTheme();
@@ -257,15 +263,51 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     view.focus();
   }, []);
 
-  const formatBold = () => insertMarkdown('**', '**', 'bold text');
-  const formatItalic = () => insertMarkdown('*', '*', 'italic text');
-  const formatCode = () => insertMarkdown('`', '`', 'code');
-  const formatCodeBlock = () => insertMarkdown('\n```\n', '\n```\n', 'code block');
-  const formatHeading = () => insertMarkdown('## ', '', 'Heading');
-  const formatQuote = () => insertMarkdown('> ', '', 'quote');
-  const formatBulletList = () => insertMarkdown('- ', '', 'list item');
-  const formatNumberedList = () => insertMarkdown('1. ', '', 'list item');
-  const formatLink = () => insertMarkdown('[', '](url)', 'link text');
+  const formatBold = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.bold[0],
+    MARKDOWN_INSERT_TOKENS.bold[1],
+    MARKDOWN_INSERT_DEFAULTS.bold,
+  );
+  const formatItalic = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.italic[0],
+    MARKDOWN_INSERT_TOKENS.italic[1],
+    MARKDOWN_INSERT_DEFAULTS.italic,
+  );
+  const formatCode = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.code[0],
+    MARKDOWN_INSERT_TOKENS.code[1],
+    MARKDOWN_INSERT_DEFAULTS.code,
+  );
+  const formatCodeBlock = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.codeBlock[0],
+    MARKDOWN_INSERT_TOKENS.codeBlock[1],
+    MARKDOWN_INSERT_DEFAULTS.codeBlock,
+  );
+  const formatHeading = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.heading[0],
+    MARKDOWN_INSERT_TOKENS.heading[1],
+    MARKDOWN_INSERT_DEFAULTS.heading,
+  );
+  const formatQuote = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.quote[0],
+    MARKDOWN_INSERT_TOKENS.quote[1],
+    MARKDOWN_INSERT_DEFAULTS.quote,
+  );
+  const formatBulletList = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.bullet[0],
+    MARKDOWN_INSERT_TOKENS.bullet[1],
+    MARKDOWN_INSERT_DEFAULTS.listItem,
+  );
+  const formatNumberedList = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.numbered[0],
+    MARKDOWN_INSERT_TOKENS.numbered[1],
+    MARKDOWN_INSERT_DEFAULTS.listItem,
+  );
+  const formatLink = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.link[0],
+    MARKDOWN_INSERT_TOKENS.link[1],
+    MARKDOWN_INSERT_DEFAULTS.linkText,
+  );
 
   const customKeymap = keymap.of([
     {
@@ -318,16 +360,8 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
 
   if (!file) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          color: 'text.secondary',
-        }}
-      >
-        Select a file to edit
+      <Box sx={emptyStateSx}>
+        {MARKDOWN_EDITOR_TEXT.emptyState}
       </Box>
     );
   }
@@ -336,14 +370,14 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   const showPreview = viewMode === 'split' || viewMode === 'preview';
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Toolbar variant="dense" sx={{ borderBottom: 1, borderColor: 'divider', gap: 1, minHeight: '48px' }}>
-        <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+    <Box sx={rootSx}>
+      <Toolbar variant="dense" sx={headerToolbarSx}>
+        <Box sx={headerRowSx}>
           <span>{file.path}</span>
           {hasUnsavedChanges && (
             <Chip
               icon={<UnsavedIcon fontSize="small" />}
-              label="Unsaved changes"
+              label={MARKDOWN_EDITOR_TEXT.unsaved}
               size="small"
               color="warning"
             />
@@ -357,26 +391,26 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
           size="small"
         >
           <ToggleButton value="editor" aria-label="editor only">
-            <Tooltip title="Editor Only">
+            <Tooltip title={MARKDOWN_EDITOR_TEXT.editorOnlyTooltip}>
               <PreviewOffIcon fontSize="small" />
             </Tooltip>
           </ToggleButton>
           <ToggleButton value="split" aria-label="split view">
-            <Tooltip title="Split View">
-              <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <Tooltip title={MARKDOWN_EDITOR_TEXT.splitViewTooltip}>
+              <Box sx={splitIconRowSx}>
                 <PreviewOffIcon fontSize="small" />
                 <PreviewIcon fontSize="small" />
               </Box>
             </Tooltip>
           </ToggleButton>
           <ToggleButton value="preview" aria-label="preview only">
-            <Tooltip title="Preview Only">
+            <Tooltip title={MARKDOWN_EDITOR_TEXT.previewOnlyTooltip}>
               <PreviewIcon fontSize="small" />
             </Tooltip>
           </ToggleButton>
         </ToggleButtonGroup>
 
-        <Tooltip title="Save (Cmd/Ctrl+S)">
+        <Tooltip title={MARKDOWN_EDITOR_TEXT.saveTooltip}>
           <IconButton
             size="small"
             onClick={handleSave}
@@ -387,7 +421,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
           </IconButton>
         </Tooltip>
 
-        <Tooltip title="Export Note">
+        <Tooltip title={MARKDOWN_EDITOR_TEXT.exportTooltip}>
           <IconButton
             size="small"
             onClick={handleExport}
@@ -414,50 +448,50 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
       )}
 
       {showEditor && (
-        <Toolbar variant="dense" sx={{ borderBottom: 1, borderColor: 'divider', minHeight: '40px', gap: 0.5 }}>
-          <Tooltip title="Bold (Ctrl+B)">
+        <Toolbar variant="dense" sx={formatToolbarSx}>
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.boldTooltip}>
             <IconButton size="small" onClick={formatBold}>
               <BoldIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Italic (Ctrl+I)">
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.italicTooltip}>
             <IconButton size="small" onClick={formatItalic}>
               <ItalicIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Heading">
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.headingTooltip}>
             <IconButton size="small" onClick={formatHeading}>
               <HeadingIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
-          <Tooltip title="Bullet List">
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.bulletTooltip}>
             <IconButton size="small" onClick={formatBulletList}>
               <ListIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Numbered List">
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.numberedTooltip}>
             <IconButton size="small" onClick={formatNumberedList}>
               <NumberedListIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Quote">
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.quoteTooltip}>
             <IconButton size="small" onClick={formatQuote}>
               <QuoteIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
-          <Tooltip title="Inline Code">
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.inlineCodeTooltip}>
             <IconButton size="small" onClick={formatCode}>
               <CodeIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Code Block">
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.codeBlockTooltip}>
             <IconButton size="small" onClick={formatCodeBlock}>
               <Box sx={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{'{ }'}</Box>
             </IconButton>
           </Tooltip>
-          <Tooltip title="Link">
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.linkTooltip}>
             <IconButton size="small" onClick={formatLink}>
               <LinkIcon fontSize="small" />
             </IconButton>
@@ -467,21 +501,11 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
 
       <Box 
         id="editor-container"
-        sx={{ 
-          display: 'flex', 
-          flexGrow: 1, 
-          overflow: 'hidden',
-          position: 'relative',
-        }}
+        sx={editorContainerSx}
       >
         {showEditor && (
           <Box 
-            sx={{ 
-              width: viewMode === 'split' ? `${editorWidth}%` : '100%',
-              overflow: 'auto',
-              bgcolor: isDark ? '#0d1117' : '#fff',
-              transition: viewMode === 'split' ? 'none' : 'width 0.3s ease',
-            }}
+            sx={editorPaneSx(isDark, viewMode, editorWidth)}
           >
             <CodeMirror
               ref={editorRef}
@@ -507,76 +531,16 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
         {viewMode === 'split' && (
           <Box
             onMouseDown={handleMouseDown}
-            sx={{
-              width: '4px',
-              cursor: 'col-resize',
-              bgcolor: isDark ? '#30363d' : '#e0e0e0',
-              '&:hover': {
-                bgcolor: isDark ? '#58a6ff' : '#1976d2',
-              },
-              transition: 'background-color 0.2s',
-              position: 'relative',
-              zIndex: 1,
-            }}
+            sx={splitterSx(isDark)}
           />
         )}
 
         {showPreview && (
           <Box
-            sx={{
-              width: viewMode === 'split' ? `${100 - editorWidth}%` : '100%',
-              overflow: 'auto',
-              p: 2,
-              bgcolor: isDark ? '#0d1117' : 'background.paper',
-              color: isDark ? '#c9d1d9' : 'text.primary',
-              transition: viewMode === 'split' ? 'none' : 'width 0.3s ease',
-            }}
+            sx={previewPaneSx(isDark, viewMode, editorWidth)}
           >
             <Paper 
-              sx={{ 
-                p: 3, 
-                bgcolor: 'transparent',
-                color: 'inherit',
-                '& code': {
-                  bgcolor: isDark ? 'rgba(110, 118, 129, 0.4)' : 'rgba(175, 184, 193, 0.2)',
-                  padding: '0.2em 0.4em',
-                  borderRadius: '6px',
-                  fontSize: '85%',
-                },
-                '& pre': {
-                  bgcolor: isDark ? 'rgba(110, 118, 129, 0.2)' : '#f6f8fa',
-                  padding: '16px',
-                  borderRadius: '6px',
-                  overflow: 'auto',
-                },
-                '& pre code': {
-                  bgcolor: 'transparent',
-                  padding: 0,
-                },
-                '& a': {
-                  color: isDark ? '#58a6ff' : '#0969da',
-                },
-                '& blockquote': {
-                  borderLeft: `4px solid ${isDark ? '#3b434b' : '#d0d7de'}`,
-                  paddingLeft: '16px',
-                  color: isDark ? '#8b949e' : '#57606a',
-                },
-                '& h1, & h2, & h3, & h4, & h5, & h6': {
-                  marginTop: '24px',
-                  marginBottom: '16px',
-                  fontWeight: 600,
-                  lineHeight: 1.25,
-                },
-                '& p': {
-                  marginTop: 0,
-                  marginBottom: '16px',
-                },
-                '& ul, & ol': {
-                  paddingLeft: '2em',
-                  marginTop: 0,
-                  marginBottom: '16px',
-                },
-              }} 
+              sx={previewPaperSx(isDark)}
               elevation={0}
             >
               <ReactMarkdown
