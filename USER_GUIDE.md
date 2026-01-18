@@ -1,8 +1,8 @@
 # notegit User Guide
 
-Complete guide to using notegit - your Git-backed markdown note-taking application.
+Complete guide to using notegit - your Git- and S3-backed markdown note-taking application.
 
-**Version**: 1.3.6  
+**Version**: 2.0.0  
 **Last Updated**: November 17, 2025
 
 ---
@@ -24,575 +24,153 @@ Complete guide to using notegit - your Git-backed markdown note-taking applicati
 
 ---
 
-## Quick Start
-
-**5-Minute Walkthrough**:
-
-1. **Launch** notegit
-2. **Connect** to a Git repository (GitHub, GitLab, etc.)
-3. **Create** your first note
-4. **Edit** in the markdown editor with live preview
-5. **Save** - changes are automatically committed and synced
-
-That's it! Your notes are now backed by Git with full version history.
-
----
-
 ## First-Time Setup
 
 ### System Requirements
 
 - **Operating System**: macOS 10.13+, Windows 10+, or Linux (Ubuntu 18.04+)
-- **Git**: Must be installed and accessible from command line
+- **Git**: Required for Git repositories (not needed for S3-only workflows)
+- **AWS S3**: Optional for S3 repositories (bucket with versioning enabled + credentials)
 - **Internet Connection**: Required for initial repository setup and syncing
-
-### Verify Git Installation
-
-Before launching notegit, verify Git is installed:
-
-**macOS/Linux**:
-```bash
-git --version
-```
-
-**Windows**:
-```cmd
-git --version
-```
-
-If Git is not found:
-- **macOS**: `brew install git`
-- **Windows**: Download from [git-scm.com](https://git-scm.com/downloads)
-- **Linux**: `sudo apt install git` (Debian/Ubuntu)
 
 ### First Launch
 
-1. **Open notegit** from your Applications folder or Start menu
-2. You'll see the welcome screen with "Connect to Repository" button
-3. If you don't have a repository yet, create one on GitHub, GitLab, or any Git hosting service
+1. Open notegit
+2. Click **Connect to Repository** and follow the prompts
 
 ---
 
 ## Connecting to a Repository
 
-### Prerequisites
+### Prerequisites (Git)
 
-You need:
-1. A Git repository (GitHub, GitLab, Bitbucket, or self-hosted)
-2. Repository URL (HTTPS or SSH)
-3. Authentication credentials (Personal Access Token for HTTPS, or SSH key for SSH)
+- Repository URL (HTTPS or SSH)
+- Authentication (PAT or SSH key)
+- Branch name (default: `main`)
 
-### Setting Up a GitHub Repository
-
-If you don't have a notes repository yet:
-
-1. Go to [GitHub](https://github.com) and sign in
-2. Click **New Repository**
-3. Name it (e.g., `my-notes`)
-4. Choose **Private** (recommended for personal notes)
-5. ✅ Check "Initialize this repository with a README"
-6. Click **Create repository**
-7. Copy the repository URL (HTTPS: `https://github.com/username/my-notes.git`)
-
-### Creating a GitHub Personal Access Token (PAT)
-
-For HTTPS authentication, you need a Personal Access Token:
-
-1. Go to GitHub **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)**
-2. Click **Generate new token** → **Generate new token (classic)**
-3. Give it a name: `notegit`
-4. Set expiration: 90 days (or No expiration for convenience)
-5. ✅ Select scope: **`repo`** (Full control of private repositories)
-6. Click **Generate token**
-7. **Copy the token immediately** (you won't see it again!)
-
-### Using SSH Authentication
-
-If you prefer SSH (no PAT needed):
-
-1. Ensure you have SSH keys set up: `ls ~/.ssh/`
-2. If not, generate one: `ssh-keygen -t ed25519 -C "your_email@example.com"`
-3. Add to GitHub: **Settings** → **SSH and GPG keys** → **New SSH key**
-4. Copy your public key: `cat ~/.ssh/id_ed25519.pub`
-5. Paste into GitHub and save
+For S3 repositories, see **Connecting to an S3 Bucket** below. For PAT/SSH setup, use your Git provider docs.
 
 ### Connecting in notegit
 
-#### First Connection
+#### Git
 
-1. Click **Connect to Repository** on welcome screen
-2. Enter repository details:
-   - **Remote URL**: 
-     - HTTPS: `https://github.com/username/my-notes.git`
-     - SSH: `git@github.com:username/my-notes.git`
-   - **Branch**: `main` (or `master` for older repos)
-   - **Authentication Method**: 
-     - Choose **HTTPS** if using PAT
-     - Choose **SSH** if using SSH keys
-   - **Personal Access Token**: (only for HTTPS) Paste your PAT
+1. Click **Connect to Repository**
+2. **Repository type**: Git
+3. Fill **Remote URL**, **Branch**, **Auth Method**, and **PAT** (if HTTPS)
+4. Click **Connect**
 
-3. Click **Connect**
-4. Wait for repository to clone (progress shown in status bar)
-5. Once complete, your file tree appears on the left
+#### Switching Repositories
 
-#### Reconnecting to a Different Repository
+- **Settings** → **Repository** → **Disconnect** → **Connect**
 
-1. Click **Settings** (gear icon) in top-right
-2. Go to **Repository** tab
-3. Click **Disconnect** (if currently connected)
-4. Enter new repository details
-5. Click **Connect**
+---
+
+### Connecting to an S3 Bucket
+
+- **Bucket** and **Region**
+- **Access Key ID** + **Secret Access Key** (session token optional)
+- **Bucket versioning** enabled (required for history)
+
+Steps:
+1. Click **Connect to Repository**
+2. **Repository type**: S3
+3. Enter **Bucket**, **Region**, optional **Prefix**
+4. Enter credentials and click **Connect**
+
+Notes: **Prefix** scopes notes to a folder (e.g., `notes/`). Credentials are stored encrypted locally.
 
 ---
 
 ## Creating and Editing Notes
 
-### Creating a New Note
+### Creating Notes
 
-#### From the Toolbar
+- **New File** icon to create a note (adds `.md` if missing)
+- **New Folder** icon to create folders
+- Create items inside the selected folder to place them there
 
-1. Click the **New File** icon (📄+) in the left panel toolbar
-2. Enter file name (e.g., `meeting-notes`)
-3. Extension will auto-add `.md` if not specified
-4. Click **Create**
-5. File appears in the tree and opens in the editor
+### S3 Naming Rules
 
-#### Creating in a Folder
+For S3 repositories, spaces in file or folder names are replaced with `-`.
 
-1. **Select** a folder in the tree
-2. Click **New File** icon
-3. File is created inside the selected folder
+### Editors
 
-#### Creating a Folder
-
-1. Click **New Folder** icon (📁+)
-2. Enter folder name
-3. Click **Create**
-
-### File Types
-
-notegit supports:
-
-- **`.md` / `.markdown`**: Markdown files (split-pane editor with preview)
-- **`.txt`**: Plain text files (single-pane editor)
-- **Other files**: Can be imported and viewed but not edited
-
-### The Markdown Editor
-
-#### Layout
-
-```
-┌─────────────────────────────────────────┐
-│  File: meeting-notes.md        [Save]   │
-├─────────────────┬───────────────────────┤
-│                 │                       │
-│  # Meeting      │  Meeting              │
-│  ## Agenda      │  Agenda               │
-│  - Item 1       │  • Item 1             │
-│  - Item 2       │  • Item 2             │
-│                 │                       │
-│  Editor         │  Preview              │
-│  (Edit here)    │  (Live preview)       │
-│                 │                       │
-└─────────────────┴───────────────────────┘
-```
-
-#### Toolbar
-
-- **Bold** (`Ctrl/Cmd+B`): Make text bold
-- **Italic** (`Ctrl/Cmd+I`): Make text italic
-- **H1/H2/H3**: Insert headings
-- **List**: Insert bullet or numbered list
-- **Code**: Insert inline code or code block
-- **Toggle Preview**: Show/hide preview pane
-- **Resize**: Drag the divider between editor and preview
-
-#### Editing
-
-1. **Type** markdown in the left pane
-2. **See** live preview in the right pane
-3. **Save** with `Ctrl/Cmd+S` or click Save icon
-4. Changes are **auto-saved** every 5 minutes
-
-#### Preview Editing (WYSIWYG)
-
-You can also edit directly in the preview pane:
-- Click in the preview
-- Edit text
-- Changes sync back to markdown source
-- Formatting is preserved
-
-### The Text Editor
-
-For `.txt` files, you get a single-pane editor:
-- Simple text editing
-- No markdown formatting
-- Same save behavior
+- **Markdown**: split editor + preview, formatting toolbar, save with `Ctrl/Cmd+S`
+- **Text**: single-pane editor
 
 ### Saving
 
-#### Manual Save
+- Manual: `Ctrl/Cmd+S`
+- Auto-save: every 5 minutes by default (configurable)
+- Git: save → commit → pull → push
+- S3: save locally and upload immediately; background sync continues
 
-- Click **Save** icon in toolbar
-- Press `Ctrl/Cmd+S`
-- Triggers: Save → Commit → Pull → Push
+### Images
 
-#### Auto-Save
-
-- Enabled by default
-- Saves every 5 minutes
-- Saves when closing app
-- Can be configured in Settings
-
-### Images in Markdown
-
-To include images:
-
-1. **Import** image file using Import button
-2. **Reference** in markdown:
-   ```markdown
-   ![Alt text](./images/screenshot.png)
-   ```
-3. Images display in preview pane
+Import images and reference them in markdown: `![Alt](./path)`
 
 ---
 
 ## File and Folder Management
 
-### Selecting Files
-
-- **Click** on any file in the tree to open it
-- **Click on empty space** to deselect (closes editor)
-- Selected file is highlighted
-
-### Renaming Files and Folders
-
-1. Click **Rename** icon (✏️) in toolbar
-2. Dialog shows with current name
-3. Enter new name
-4. Click **Rename**
-5. File/folder is renamed and change is committed
-
-### Moving Files and Folders
-
-1. Select file/folder to move
-2. Click **Move** icon
-3. Dialog opens with folder tree
-4. Select destination folder (or root)
-5. Click **Move Here**
-6. File/folder is moved and committed
-
-#### Validation
-
-- Cannot move folder into itself or its subfolders
-- Cannot move to same location
-- Warns if name conflict exists
-
-### Deleting Files and Folders
-
-1. Select file/folder
-2. Click **Delete** icon (🗑️)
-3. Confirm deletion
-4. **Warning**: Folder deletion deletes all contents
-5. Changes are committed automatically
-
-### Importing Files
-
-1. Click **Import** icon (📥)
-2. File browser opens
-3. Select file from your computer
-4. Choose destination in repo
-5. File is copied into repo
+- Select files in the tree to open them
+- Rename, move, and delete using the toolbar actions
+- Moves validate conflicts and prevent moving into itself
+- Deleting a folder removes its contents
+- Import adds any file type into the repo
 
 ---
 
 ## Search and Find & Replace
 
-### Quick File Search
-
-**Open**: `Ctrl/Cmd+P` or `Ctrl/Cmd+K`
-
-1. Search dialog opens
-2. Type file name or partial match
-3. Results appear instantly
-4. Click result to open file
-5. Press `Enter` on selected result
-
-### Single-File Find & Replace
-
-**Open**: `Ctrl/Cmd+F` (when file is open)
-
-#### Find Bar
-
-```
-┌────────────────────────────────────────┐
-│ Find: [search term___]  ⬆️ ⬇️ ×        │
-│ Replace: [new term___]  Replace | All  │
-└────────────────────────────────────────┘
-```
-
-**Actions**:
-- **Find Next**: `Enter` or ⬇️ button
-- **Find Previous**: `Shift+Enter` or ⬆️ button
-- **Replace**: Replace current match and move to next
-- **Replace All**: Replace all matches in file
-- **Close**: × button or `Esc`
-
-**Features**:
-- Highlights current match
-- Shows match count (e.g., "3/10")
-- Wraps around when reaching end
-- Pre-fills with current selection
-
-### Repo-Wide Find & Replace
-
-**Open**: `Ctrl/Cmd+Shift+F`
-
-Search across all `.md` files in your repository.
-
-#### Search Dialog
-
-```
-┌────────────────────────────────────────┐
-│  Find in Repository                    │
-├────────────────────────────────────────┤
-│ Find: [search___________________]  🔍  │
-│ Replace: [replacement____________]     │
-│                                        │
-│ ☐ Case sensitive   ☐ Use regex        │
-├────────────────────────────────────────┤
-│ Results: 15 matches in 3 files         │
-│                                        │
-│ 📄 meeting-notes.md (5 matches)        │
-│   Line 3: found search term here       │
-│   Line 7: another search term          │
-│                                        │
-│ 📄 project-ideas.md (10 matches)       │
-│   Line 1: search term in title         │
-│   ...                                  │
-└────────────────────────────────────────┘
-```
-
-**Actions**:
-- **Search**: Find all matches
-- **Replace in File**: Replace all matches in one file
-- **Replace All**: Replace all matches across all files
-- **Click Match**: Jump to that line in file
-
-**Options**:
-- **Case Sensitive**: Match exact case
-- **Use Regex**: Use regular expressions (e.g., `test\d+`)
-
-**Safety**:
-- Shows count before replacing
-- Confirms before bulk operations
-- Local changes preserved if replace fails
+- **Quick file search**: `Ctrl/Cmd+P` or `Ctrl/Cmd+K`
+- **Find in file**: `Ctrl/Cmd+F` (with replace)
+- **Find in repo**: `Ctrl/Cmd+Shift+F` (with replace)
+- Options: case-sensitive and regex
 
 ---
 
 ## Git Operations
 
-### Understanding the Invisible Git Workflow
+Git operations apply to Git repositories only.
 
-notegit uses an "invisible Git workflow" - you don't need to think about Git commands:
+- Workflow: save → commit → pull → push (automatic)
+- Manual controls: fetch, pull, push from the status bar
+- Auto-push retries when offline
+- Conflicts require an external Git client to resolve
 
-1. **Edit** → You type in editor
-2. **Save** → File saved to disk + Git commit created
-3. **Pull** → Fetches latest changes from remote
-4. **Push** → Uploads your commits to remote
+### S3 Sync Behavior
 
-All automatic!
-
-### Manual Git Operations
-
-#### Pull (Fetch Latest)
-
-1. Click **Status** bar at bottom
-2. Click **Pull** button
-3. Latest changes downloaded
-4. If conflicts: You'll be notified
-
-#### Push (Upload Changes)
-
-1. Normally happens automatically after save
-2. Manual push: Click **Push** in status bar
-3. Uploads all local commits
-
-#### Commit with Custom Message
-
-1. Save changes to file
-2. Click **Commit** icon (📝) in toolbar
-3. Enter commit message
-4. Click **Commit**
-5. Automatically pulls and pushes
-
-#### Commit All Changes
-
-The "Save All" button commits all open unsaved files:
-1. Click **Save All** icon
-2. All changes committed with timestamp
-3. Auto-pull and push
-
-### Repository Status
-
-Status bar shows:
-- **Branch** name (e.g., `main`)
-- **Connection** status (Connected/Offline)
-- **Pending** changes count
-- **Last sync** time
-
-### Auto-Push Mechanism
-
-If push fails (offline, network issue):
-1. Commit is saved locally
-2. Status bar shows "Pending pushes: 1"
-3. Background timer checks connection every 30s
-4. Automatically pushes when connection restored
-5. You don't lose any work!
-
-### Handling Conflicts
-
-If you have conflicts (edited same file elsewhere):
-
-1. notegit **cannot auto-merge** conflicts
-2. You'll see error message
-3. **Solution**:
-   - Open repo folder in terminal or Git client
-   - Manually resolve conflicts
-   - Return to notegit and pull again
+- S3 repositories do not use commits or pull/push buttons
+- Sync runs automatically on the **S3 Auto Sync** interval
+- Deletes and moves are applied to S3 immediately; if offline, they are queued and retried
+- The status bar shows "changes waiting" until the next sync completes
 
 ---
 
 ## History and Versions
 
-### Viewing File History
-
-1. **Open** a file
-2. **History panel** appears on right
-3. Shows all commits that modified this file
-
-#### History Panel
-
-```
-┌────────────────────────────────┐
-│ History: meeting-notes.md      │
-├────────────────────────────────┤
-│ ● Update note: meeting-notes   │
-│   2 hours ago | John Doe       │
-│   a3f4c9b                       │
-├────────────────────────────────┤
-│ ● Autosave: meeting-notes      │
-│   5 hours ago | John Doe       │
-│   b7e2d1a                       │
-├────────────────────────────────┤
-│ ● Initial commit               │
-│   1 day ago | John Doe         │
-│   c4f8e2b                       │
-└────────────────────────────────┘
-```
-
-**Information shown**:
-- Commit message
-- Time ago
-- Author name
-- Short commit hash
-
-### Viewing Previous Versions
-
-1. **Click** on any commit in history panel
-2. **Read-only viewer** opens below or beside editor
-3. Shows file content at that point in time
-4. Clearly marked as "Historical Version - Read Only"
-
-**Note**: You cannot edit or restore from history panel (coming in future version). To revert, use Git client or terminal.
-
-### Comparing Versions
-
-Currently not supported in UI. Use external Git client for diff viewing.
+- Open a file to see its history panel
+- Click an entry to view a read-only version
+- S3 history requires bucket versioning and uses object versions
+- Diff view is not available for S3 history
 
 ---
 
 ## Import and Export
 
-### Importing Files
-
-#### Import a Single File
-
-1. Click **Import** icon (📥) in toolbar
-2. File browser opens
-3. Select file from your computer
-4. Specify destination in repo (root or folder)
-5. File is copied and committed
-
-**Supported**: Any file type (images, PDFs, markdown, text, code)
-
-### Exporting Notes
-
-#### Export Current Note
-
-1. Open note to export
-2. Go to **Settings** → **Export** tab
-3. Click **Export Current Note**
-4. Choose format (`.md` or `.txt`)
-5. Select save location
-6. File is saved
-
-**Note**: Exports current in-memory content (includes unsaved edits)
-
-#### Export Entire Repository
-
-1. Go to **Settings** → **Export** tab
-2. Click **Export Repository as ZIP**
-3. Choose save location
-4. Wait for zip creation
-5. Zip file includes all tracked files
-
-**Use cases**:
-- Backup entire note collection
-- Share notes with someone
-- Move to another app
+- **Import**: toolbar → choose file and destination (any file type)
+- **Export current note**: Settings → Export → choose format and location
+- **Export repository**: Settings → Export → ZIP of the repo
 
 ---
 
 ## Settings and Customization
 
-### Opening Settings
-
-- Click **Settings** icon (⚙️) in top-right
-- Or press `Ctrl/Cmd+,`
-
-### Settings Tabs
-
-#### General Settings
-
-**Theme**:
-- **Light**: Light mode
-- **Dark**: Dark mode
-- **System**: Follow OS theme (auto-switches)
-
-**Auto-Save**:
-- ☑️ Enable auto-save (default: on)
-- Interval: 5 minutes (recommended)
-
-#### Repository Settings
-
-**Current Repository**:
-- Remote URL
-- Branch
-- Last sync time
-
-**Change Repository**:
-- Disconnect from current
-- Connect to different repo
-
-**Credentials**:
-- Update Personal Access Token
-- Switch auth method (HTTPS ↔ SSH)
-
-#### Export Settings
-
-- Export current note as `.md` or `.txt`
-- Export entire repo as `.zip`
+- **Open Settings**: gear icon or `Ctrl/Cmd+,`
+- **App settings**: theme, auto-save, S3 auto sync (S3 profiles)
+- **Repository settings**: Git URL/branch or S3 bucket/region/prefix + credentials
+- **Export**: current note or repository ZIP
 
 ### Data Location
 
@@ -654,197 +232,39 @@ Your data is stored in:
 
 ## Troubleshooting
 
-### Common Issues and Solutions
+- Authentication failed: verify URL/branch/credentials and repo access
+- S3 versioning required: enable bucket versioning in AWS
+- S3 changes not syncing: check S3 Auto Sync toggle/interval and credentials
+- Push fails or conflicts (Git): resolve in a Git client, then pull again
+- Slow performance: large repos or many files
+- White screen: restart, check logs, reinstall if needed
+- Lost changes: check file history or your Git client
 
-#### Git Not Found
-
-**Problem**: "Git is not installed" error on launch
-
-**Solution**:
-1. Install Git for your platform
-2. Restart notegit
-3. Verify: `git --version` in terminal
-
-#### Authentication Failed
-
-**Problem**: Cannot connect to repository
-
-**Solutions**:
-- **PAT expired**: Generate new Personal Access Token
-- **Wrong credentials**: Double-check URL, branch, token
-- **No repo access**: Verify permissions on GitHub/GitLab
-- **SSH not configured**: Set up SSH keys or switch to HTTPS
-
-#### Cannot Push Changes
-
-**Problem**: Push fails with error
-
-**Possible Causes**:
-- **Offline**: Check internet connection, wait for auto-retry
-- **Conflicts**: Pull first, resolve conflicts manually
-- **No write access**: Verify repository permissions
-- **Branch protected**: Check branch protection rules on GitHub
-
-**Solution**:
-1. Check status bar for details
-2. Try manual pull and push
-3. If conflict, resolve in Git client
-4. Worst case: Export notes, reconnect to repo
-
-#### Merge Conflicts
-
-**Problem**: "Conflict detected" message
-
-**Solution**:
-1. Open repository folder:
-   - macOS/Linux: `~/Library/Application Support/notegit/repos/[repo-name]/`
-   - Windows: `%APPDATA%/notegit/repos/[repo-name]/`
-2. Use Git client or terminal:
-   ```bash
-   git status
-   git merge --abort  # or resolve manually
-   ```
-3. Return to notegit, click Pull
-
-#### Slow Performance
-
-**Problem**: App feels sluggish
-
-**Solutions**:
-- **Large repository**: Consider splitting into smaller repos
-- **Many files**: Close unused files
-- **Auto-save disabled**: Check settings
-- **Clear cache**: Restart application
-
-#### White Screen
-
-**Problem**: App opens to blank white screen
-
-**Solutions**:
-1. **Hard refresh**: Close and reopen app
-2. **Check logs**: `~/Library/Application Support/notegit/logs/`
-3. **Reinstall**: Uninstall and reinstall app
-4. **Report bug**: Open issue on GitHub with log files
-
-#### Lost Changes
-
-**Problem**: Edits disappeared
-
-**Don't Panic**:
-- Changes are committed to Git
-- Check file history in Git
-- Use `git log` and `git show` to find commits
-
-**Recovery**:
-```bash
-cd ~/Library/Application\ Support/notegit/repos/[repo-name]/
-git log --all --oneline
-git show [commit-hash]:[file-path]
-```
-
-### Getting Help
-
-#### Check Logs
+### Logs
 
 Logs are in: `~/Library/Application Support/notegit/logs/`
 
 - `main.log`: General application logs
 - `error.log`: Error messages
 
-#### Report Issues
+### Report Issues
 
-1. Go to [GitHub Issues](https://github.com/scabir/notegit/issues)
-2. Check if issue already exists
-3. Create new issue with:
-   - Description of problem
-   - Steps to reproduce
-   - System information (OS, notegit version)
-   - Relevant log excerpts
-   - Screenshots if applicable
-
-#### Feature Requests
-
-Open an issue with `enhancement` label describing your desired feature.
+Open an issue at [GitHub Issues](https://github.com/scabir/notegit/issues) with steps, OS/version, and relevant logs.
 
 ---
 
 ## Best Practices
 
-### Organizing Notes
-
-**Folder Structure**:
-```
-my-notes/
-├── daily/
-│   ├── 2025-01-15.md
-│   └── 2025-01-16.md
-├── projects/
-│   ├── project-a.md
-│   └── project-b.md
-├── meetings/
-│   └── team-meeting-2025-01-15.md
-└── ideas/
-    └── brainstorm.md
-```
-
-**Naming Conventions**:
-- Use lowercase
-- Use hyphens instead of spaces (`meeting-notes.md`)
-- Include dates for daily notes (`2025-01-15.md`)
-- Be descriptive (`project-alpha-kickoff.md` not `notes.md`)
-
-### Markdown Tips
-
-**Headers**:
-```markdown
-# H1 - Main Title
-## H2 - Section
-### H3 - Subsection
-```
-
-**Lists**:
-```markdown
-- Bullet point
-  - Nested point
-1. Numbered item
-2. Another item
-```
-
-**Links**:
-```markdown
-[GitHub](https://github.com)
-[Another Note](./projects/project-a.md)
-```
-
-**Images**:
-```markdown
-![Screenshot](./images/screenshot.png)
-```
-
-**Code**:
-````markdown
-Inline `code` here
-
-```javascript
-function example() {
-  return "code block";
-}
-```
-````
-
-### Git Best Practices
-
-- **Commit often**: Don't worry, auto-save handles this
-- **Descriptive messages**: Use manual commit for important changes
-- **Pull before editing**: Ensures you have latest version
-- **Backup regularly**: Export repo as zip periodically
-- **Don't force push**: Can cause data loss
+- Keep folders shallow and names clear (use hyphens, add dates when useful)
+- Export backups periodically
+- For S3, avoid spaces (auto-converted to `-`)
+- Use basic Markdown: headings, lists, links, code blocks
 
 ---
 
 ## About notegit
 
-**Version**: 1.3.6  
+**Version**: 2.0.0  
 **Author**: Suleyman Cabir Ataman, PhD  
 **GitHub**: [github.com/scabir/notegit](https://github.com/scabir/notegit)  
 **License**: MIT

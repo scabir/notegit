@@ -16,6 +16,7 @@ build/
 !build/README.md
 out/
 release/
+coverage/
 
 # IDE
 .vscode/

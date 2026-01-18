@@ -1,201 +1,185 @@
 import * as path from 'path';
-import { app } from 'electron';
-import { GitAdapter } from '../adapters/GitAdapter';
 import { FsAdapter } from '../adapters/FsAdapter';
 import { ConfigService } from './ConfigService';
 import type { FilesService } from './FilesService';
+import type { RepoProvider } from '../providers/types';
+import type { S3RepoProvider } from '../providers/S3RepoProvider';
 import {
+  RepoProviderType,
   RepoSettings,
   RepoStatus,
   OpenOrCloneRepoResponse,
   FileTreeNode,
   ApiError,
   ApiErrorCode,
+  AuthMethod,
+  GitRepoSettings,
+  S3RepoSettings,
 } from '../../shared/types';
 import { logger } from '../utils/logger';
+import {
+  slugifyProfileName,
+  getDefaultReposBaseDir,
+  extractRepoNameFromUrl,
+  findUniqueFolderName,
+} from '../utils/profileHelpers';
+
+interface OpenRepoOptions {
+  updateConfig?: boolean;
+  loadTree?: boolean;
+  startAutoSync?: boolean;
+}
 
 export class RepoService {
-  private autoPushTimer: NodeJS.Timeout | null = null;
-  private readonly AUTO_PUSH_INTERVAL = 30000;
-  private currentRepoPath: string | null = null;
+  private activeProvider: RepoProvider | null = null;
+  private activeSettings: RepoSettings | null = null;
   private filesService: FilesService | null = null;
 
   constructor(
-    private gitAdapter: GitAdapter,
+    private providers: Record<RepoProviderType, RepoProvider>,
     private fsAdapter: FsAdapter,
     private configService: ConfigService
-  ) { }
+  ) {}
 
   setFilesService(filesService: FilesService): void {
     this.filesService = filesService;
   }
 
   async openOrClone(settings: RepoSettings): Promise<OpenOrCloneRepoResponse> {
-    logger.info('Opening or cloning repository', {
-      remoteUrl: settings.remoteUrl,
-      branch: settings.branch,
+    return await this.openRepo(settings, {
+      updateConfig: true,
+      loadTree: true,
+      startAutoSync: true,
     });
+  }
 
-    const reposDir = path.join(app.getPath('userData'), 'repos');
-    await this.fsAdapter.mkdir(reposDir, { recursive: true });
-
-    const repoName = this.extractRepoName(settings.remoteUrl);
-    const localPath = path.join(reposDir, repoName);
+  async prepareRepo(settings: RepoSettings): Promise<void> {
+    const previousProvider = this.activeProvider;
+    const previousSettings = this.activeSettings;
+    const shouldRestartAutoSync = Boolean(previousProvider);
 
     try {
-      const exists = await this.fsAdapter.exists(localPath);
+      if (previousProvider) {
+        previousProvider.stopAutoSync();
+      }
 
-    if (!exists) {
-        logger.info('Repository not found locally, cloning...', { localPath });
+      await this.openRepo(settings, {
+        updateConfig: false,
+        loadTree: false,
+        startAutoSync: false,
+      });
+    } finally {
+      if (previousProvider && previousSettings) {
+        previousProvider.configure(previousSettings);
+        this.activeProvider = previousProvider;
+        this.activeSettings = previousSettings;
 
         try {
-          await this.gitAdapter.clone(settings.remoteUrl, localPath, settings.branch, settings.pat);
-        } catch (cloneError: any) {
-    if (cloneError.message?.includes('Remote branch') && cloneError.message?.includes('not found')) {
-            logger.info('Empty repository detected, initializing locally...', { localPath });
+          await previousProvider.getStatus();
+        } catch (error) {
+          logger.warn('Failed to restore previous repository after prepare', { error });
+        }
 
-            await this.fsAdapter.mkdir(localPath, { recursive: true });
-            await this.gitAdapter.init(localPath);
-
-            const readmePath = path.join(localPath, 'README.md');
-            await this.fsAdapter.writeFile(readmePath, `# ${repoName}\n\nThis repository was initialized by notegit.\n`);
-
-            await this.gitAdapter.addRemote(settings.remoteUrl);
-
-            await this.gitAdapter.add('README.md');
-            await this.gitAdapter.commit('Initial commit from notegit');
-
-            logger.info('Pushing initial commit to create remote branch...', { branch: settings.branch });
-            await this.gitAdapter.push(settings.pat);
-
-            logger.info('Successfully initialized empty repository');
-          } else {
-            throw cloneError;
-          }
+        if (shouldRestartAutoSync) {
+          previousProvider.startAutoSync();
         }
       } else {
-        logger.info('Repository exists locally, opening...', { localPath });
-        await this.gitAdapter.init(localPath);
+        this.activeProvider = null;
+        this.activeSettings = null;
       }
-
-      this.currentRepoPath = localPath;
-
-      settings.localPath = localPath;
-      await this.configService.updateRepoSettings(settings);
-
-      const status = await this.getStatus();
-
-      let tree: FileTreeNode[] = [];
-    if (this.filesService) {
-        await this.filesService.init();
-        tree = await this.filesService.listTree();
-      }
-
-      this.startAutoPush();
-
-      return {
-        localPath,
-        tree,
-        status,
-      };
-    } catch (error: any) {
-      logger.error('Failed to open or clone repository', { error });
-      throw error;
     }
   }
 
   async getStatus(): Promise<RepoStatus> {
-    if (!this.currentRepoPath) {
-      const repoSettings = await this.configService.getRepoSettings();
-    if (repoSettings?.localPath) {
-        this.currentRepoPath = repoSettings.localPath;
-        await this.gitAdapter.init(this.currentRepoPath);
-      } else {
-        throw this.createError(
-          ApiErrorCode.VALIDATION_ERROR,
-          'No repository configured',
-          null
-        );
-      }
-    }
-
-    try {
-      const gitStatus = await this.gitAdapter.status();
-      const branch = await this.gitAdapter.getCurrentBranch();
-      const { ahead, behind } = await this.gitAdapter.getAheadBehind();
-
-      const status: RepoStatus = {
-        branch,
-        ahead,
-        behind,
-        hasUncommitted: gitStatus.files.length > 0,
-        pendingPushCount: ahead,
-        needsPull: behind > 0,
-      };
-
-      logger.debug('Repository status', { status });
-      return status;
-    } catch (error: any) {
-      logger.error('Failed to get repository status', { error });
-      throw error;
-    }
+    const provider = await this.ensureActiveProvider();
+    return await provider.getStatus();
   }
 
   async fetch(): Promise<RepoStatus> {
-    if (!this.currentRepoPath) {
-      throw this.createError(
-        ApiErrorCode.VALIDATION_ERROR,
-        'No repository configured',
-        null
-      );
-    }
-
-    try {
-      logger.info('Fetching from remote');
-      await this.gitAdapter.fetch();
-      logger.info('Fetch completed successfully');
-
-      return await this.getStatus();
-    } catch (error: any) {
-      logger.error('Failed to fetch', { error });
-      throw error;
-    }
+    const provider = await this.ensureActiveProvider();
+    return await provider.fetch();
   }
 
   async pull(): Promise<void> {
-    if (!this.currentRepoPath) {
-      throw this.createError(
-        ApiErrorCode.VALIDATION_ERROR,
-        'No repository configured',
-        null
-      );
-    }
-
-    try {
-      const repoSettings = await this.configService.getRepoSettings();
-    if (!repoSettings) {
-        throw this.createError(
-          ApiErrorCode.VALIDATION_ERROR,
-          'Repository settings not found',
-          null
-        );
-      }
-
-      logger.info('Pulling from remote');
-      await this.gitAdapter.pull(repoSettings.pat);
-      logger.info('Pull completed successfully');
-    } catch (error: any) {
-      logger.error('Failed to pull', { error });
-      throw error;
-    }
+    const provider = await this.ensureActiveProvider();
+    await provider.pull();
   }
 
   async push(): Promise<void> {
-    await this.performPullThenPush();
+    const provider = await this.ensureActiveProvider();
+    await provider.push();
   }
 
-  private async performPullThenPush(): Promise<void> {
-    if (!this.currentRepoPath) {
+  startAutoPush(): void {
+    if (this.activeProvider) {
+      void this.applyAutoSyncSettings(this.activeProvider);
+      return;
+    }
+
+    void this.ensureActiveProvider()
+      .then((provider) => this.applyAutoSyncSettings(provider))
+      .catch((error) => logger.warn('Failed to start auto-sync', { error }));
+  }
+
+  stopAutoPush(): void {
+    if (this.activeProvider) {
+      this.activeProvider.stopAutoSync();
+    }
+  }
+
+  async getProviderType(): Promise<RepoProviderType> {
+    const provider = await this.ensureActiveProvider();
+    return provider.type;
+  }
+
+  private async openRepo(
+    settings: RepoSettings,
+    options: OpenRepoOptions
+  ): Promise<OpenOrCloneRepoResponse> {
+    logger.info('Opening repository', {
+      provider: settings.provider,
+    });
+
+    const normalized = this.normalizeSettings(settings);
+    const withLocalPath = await this.ensureLocalPath(normalized);
+    const provider = this.getProvider(withLocalPath.provider);
+
+    provider.configure(withLocalPath);
+    await provider.open(withLocalPath);
+
+    this.activeProvider = provider;
+    this.activeSettings = withLocalPath;
+
+    if (options.updateConfig !== false) {
+      await this.configService.updateRepoSettings(withLocalPath);
+    }
+
+    let tree: FileTreeNode[] = [];
+    if (this.filesService && options.loadTree !== false) {
+      await this.filesService.init();
+      tree = await this.filesService.listTree();
+    }
+
+    if (options.startAutoSync !== false) {
+      await this.applyAutoSyncSettings(provider);
+    }
+
+    const status = await provider.getStatus();
+
+    return {
+      localPath: withLocalPath.localPath,
+      tree,
+      status,
+    };
+  }
+
+  private async ensureActiveProvider(): Promise<RepoProvider> {
+    if (this.activeProvider && this.activeSettings) {
+      return this.activeProvider;
+    }
+
+    const repoSettings = await this.configService.getRepoSettings();
+    if (!repoSettings) {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
         'No repository configured',
@@ -203,120 +187,81 @@ export class RepoService {
       );
     }
 
-    try {
-      const repoSettings = await this.configService.getRepoSettings();
-    if (!repoSettings) {
-        throw this.createError(
-          ApiErrorCode.VALIDATION_ERROR,
-          'Repository settings not found',
-          null
-        );
-      }
+    const provider = this.getProvider(repoSettings.provider);
+    provider.configure(repoSettings);
 
-      logger.info('Performing pull-then-push sync');
+    this.activeProvider = provider;
+    this.activeSettings = repoSettings;
 
-      await this.gitAdapter.fetch();
-
-      const { ahead, behind } = await this.gitAdapter.getAheadBehind();
-
-    if (behind > 0) {
-        logger.info('Remote has changes, pulling', { behind });
-        try {
-          await this.gitAdapter.pull(repoSettings.pat);
-        } catch (error: any) {
-    if (error.code === ApiErrorCode.GIT_CONFLICT ||
-            error.message?.includes('CONFLICT') ||
-            error.message?.includes('Automatic merge failed')) {
-            logger.warn('Merge conflict detected, committing conflicted state');
-
-            await this.gitAdapter.add('.');
-
-            await this.gitAdapter.commit('Merge remote changes - conflicts present');
-
-            logger.info('Conflicts committed with markers');
-          } else {
-            throw error;
-          }
-        }
-      }
-
-      logger.info('Pushing to remote');
-      await this.gitAdapter.push(repoSettings.pat);
-      logger.info('Push completed successfully');
-
-    } catch (error: any) {
-      logger.error('Pull-then-push failed', { error });
-      throw error;
-    }
+    return provider;
   }
 
-  startAutoPush(): void {
-    if (this.autoPushTimer) {
-      logger.debug('Auto-push timer already running');
-      return;
+  private getProvider(providerType: RepoProviderType): RepoProvider {
+    const provider = this.providers[providerType];
+    if (!provider) {
+      throw this.createError(
+        ApiErrorCode.VALIDATION_ERROR,
+        `Unsupported repository provider: ${providerType}`,
+        null
+      );
     }
-
-    logger.info('Starting auto-push timer', {
-      intervalMs: this.AUTO_PUSH_INTERVAL,
-    });
-
-    this.autoPushTimer = setInterval(async () => {
-      try {
-        await this.tryAutoPush();
-      } catch (error) {
-        logger.debug('Auto-push attempt failed, will retry', { error });
-      }
-    }, this.AUTO_PUSH_INTERVAL);
+    return provider;
   }
 
-  stopAutoPush(): void {
-    if (this.autoPushTimer) {
-      logger.info('Stopping auto-push timer');
-  clearInterval(this.autoPushTimer);
-      this.autoPushTimer = null;
+  private normalizeSettings(settings: RepoSettings): RepoSettings {
+    if (settings.provider === 's3') {
+      const s3Settings = settings as S3RepoSettings;
+      return {
+        provider: 's3',
+        bucket: s3Settings.bucket || '',
+        region: s3Settings.region || '',
+        prefix: s3Settings.prefix || '',
+        localPath: s3Settings.localPath || '',
+        accessKeyId: s3Settings.accessKeyId || '',
+        secretAccessKey: s3Settings.secretAccessKey || '',
+        sessionToken: s3Settings.sessionToken || '',
+      };
     }
+
+    const gitSettings = settings as GitRepoSettings;
+    return {
+      provider: 'git',
+      remoteUrl: gitSettings.remoteUrl || '',
+      branch: gitSettings.branch || 'main',
+      localPath: gitSettings.localPath || '',
+      pat: gitSettings.pat || '',
+      authMethod: gitSettings.authMethod || AuthMethod.PAT,
+    };
   }
 
-  private async tryAutoPush(): Promise<void> {
-    if (!this.currentRepoPath) {
-      return;
+  private async ensureLocalPath(settings: RepoSettings): Promise<RepoSettings> {
+    if (settings.localPath) {
+      return settings;
     }
 
-    try {
-      const status = await this.getStatus();
+    const baseDir = getDefaultReposBaseDir();
+    await this.fsAdapter.mkdir(baseDir, { recursive: true });
 
-    if (status.ahead === 0) {
-        return;
-      }
-
-      logger.debug('Auto-push: commits waiting', { ahead: status.ahead });
-
-      const repoSettings = await this.configService.getRepoSettings();
-    if (!repoSettings) {
-        return;
-      }
-
-      await this.gitAdapter.fetch();
-
-      logger.info('Auto-push: connection available, syncing');
-      await this.performPullThenPush();
-
-      logger.info('Auto-push: push successful', {
-        commitsCount: status.ahead,
-      });
-    } catch (error) {
-      logger.debug('Auto-push: offline or failed', { error });
-    }
-  }
-
-  private extractRepoName(remoteUrl: string): string {
-    const match = remoteUrl.match(/\/([^\/]+?)(?:\.git)?$/);
-    if (match) {
-      return match[1];
+    if (settings.provider === 'git') {
+      const repoName = extractRepoNameFromUrl(settings.remoteUrl);
+      const folderName = await findUniqueFolderName(baseDir, repoName, this.fsAdapter);
+      return {
+        ...settings,
+        localPath: path.join(baseDir, folderName),
+      };
     }
 
-    const crypto = require('crypto');
-    return crypto.createHash('md5').update(remoteUrl).digest('hex').substring(0, 8);
+    const s3Settings = settings as S3RepoSettings;
+    const suffix = s3Settings.prefix
+      ? `${s3Settings.bucket}-${s3Settings.prefix.replace(/\//g, '-')}`
+      : s3Settings.bucket;
+    const baseName = `${slugifyProfileName(suffix)}-s3`;
+    const folderName = await findUniqueFolderName(baseDir, baseName, this.fsAdapter);
+
+    return {
+      ...settings,
+      localPath: path.join(baseDir, folderName),
+    };
   }
 
   private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
@@ -329,5 +274,72 @@ export class RepoService {
 
   destroy(): void {
     this.stopAutoPush();
+  }
+
+  async refreshAutoSyncSettings(): Promise<void> {
+    if (!this.activeProvider) {
+      return;
+    }
+
+    await this.applyAutoSyncSettings(this.activeProvider);
+  }
+
+  async queueS3Delete(path: string): Promise<void> {
+    const provider = await this.ensureActiveProvider();
+    if (provider.type !== 's3') {
+      return;
+    }
+
+    const s3Provider = provider as S3RepoProvider;
+    await s3Provider.queueDelete(path);
+  }
+
+  async queueS3Move(oldPath: string, newPath: string): Promise<void> {
+    const provider = await this.ensureActiveProvider();
+    if (provider.type !== 's3') {
+      return;
+    }
+
+    const s3Provider = provider as S3RepoProvider;
+    const normalizedNewPath = this.normalizeS3Path(newPath);
+    await s3Provider.queueMove(oldPath, normalizedNewPath);
+  }
+
+  async queueS3Upload(path: string): Promise<void> {
+    const provider = await this.ensureActiveProvider();
+    if (provider.type !== 's3') {
+      return;
+    }
+
+    const s3Provider = provider as S3RepoProvider;
+    await s3Provider.queueUpload(path);
+  }
+
+  private normalizeS3Path(newPath: string): string {
+    const lastSlash = newPath.lastIndexOf('/');
+    if (lastSlash === -1) {
+      return newPath.replace(/ /g, '-');
+    }
+
+    const parentPath = newPath.slice(0, lastSlash);
+    const name = newPath.slice(lastSlash + 1).replace(/ /g, '-');
+    return parentPath ? `${parentPath}/${name}` : name;
+  }
+
+  private async applyAutoSyncSettings(provider: RepoProvider): Promise<void> {
+    if (provider.type !== 's3') {
+      provider.startAutoSync();
+      return;
+    }
+
+    const appSettings = await this.configService.getAppSettings();
+    const intervalSec = appSettings.s3AutoSyncIntervalSec || 30;
+    const intervalMs = Math.max(1000, intervalSec * 1000);
+
+    if (appSettings.s3AutoSyncEnabled) {
+      provider.startAutoSync(intervalMs);
+    } else {
+      provider.stopAutoSync();
+    }
   }
 }

@@ -8,12 +8,14 @@ import {
   FileType,
   ApiError,
   ApiErrorCode,
+  RepoProviderType,
 } from '../../shared/types';
 import { logger } from '../utils/logger';
 
 export class FilesService {
   private repoPath: string | null = null;
   private gitAdapter: GitAdapter | null = null;
+  private repoProvider: RepoProviderType | null = null;
 
   constructor(
     private fsAdapter: FsAdapter,
@@ -28,6 +30,7 @@ export class FilesService {
     const repoSettings = await this.configService.getRepoSettings();
     if (repoSettings?.localPath) {
       this.repoPath = repoSettings.localPath;
+      this.repoProvider = repoSettings.provider || null;
       logger.debug('FilesService initialized', { repoPath: this.repoPath });
     }
   }
@@ -86,6 +89,7 @@ export class FilesService {
 
   async commitFile(filePath: string, message: string): Promise<void> {
     await this.ensureRepoPath();
+    await this.ensureGitRepo();
 
     if (!this.gitAdapter) {
       throw this.createError(
@@ -111,6 +115,7 @@ export class FilesService {
 
   async commitAll(message: string): Promise<void> {
     await this.ensureRepoPath();
+    await this.ensureGitRepo();
 
     if (!this.gitAdapter) {
       throw this.createError(
@@ -136,6 +141,7 @@ export class FilesService {
 
   async getGitStatus(): Promise<{ modified: string[]; added: string[]; deleted: string[] }> {
     await this.ensureRepoPath();
+    await this.ensureGitRepo();
 
     if (!this.gitAdapter) {
       throw this.createError(
@@ -167,6 +173,7 @@ export class FilesService {
     isAutosave: boolean = false
   ): Promise<{ pullFailed?: boolean; pushFailed?: boolean; conflictDetected?: boolean }> {
     await this.ensureRepoPath();
+    await this.ensureGitRepo();
 
     if (!this.gitAdapter) {
       throw this.createError(
@@ -230,13 +237,14 @@ export class FilesService {
   async createFile(parentPath: string, name: string): Promise<void> {
     await this.ensureRepoPath();
 
-    const filePath = parentPath ? path.join(parentPath, name) : name;
+    const fileName = this.normalizeNameForProvider(name);
+    const filePath = parentPath ? path.join(parentPath, fileName) : fileName;
     const fullPath = path.join(this.repoPath!, filePath);
 
     try {
       let content = '';
-    if (name.endsWith('.md')) {
-        content = `# ${name.replace('.md', '')}\n\n`;
+    if (fileName.endsWith('.md')) {
+        content = `# ${fileName.replace('.md', '')}\n\n`;
       }
 
       await this.fsAdapter.writeFile(fullPath, content);
@@ -250,7 +258,8 @@ export class FilesService {
   async createFolder(parentPath: string, name: string): Promise<void> {
     await this.ensureRepoPath();
 
-    const folderPath = parentPath ? path.join(parentPath, name) : name;
+    const folderName = this.normalizeNameForProvider(name);
+    const folderPath = parentPath ? path.join(parentPath, folderName) : folderName;
     const fullPath = path.join(this.repoPath!, folderPath);
 
     try {
@@ -287,13 +296,14 @@ export class FilesService {
     await this.ensureRepoPath();
 
     const fullOldPath = path.join(this.repoPath!, oldPath);
-    const fullNewPath = path.join(this.repoPath!, newPath);
+    const normalizedNewPath = this.normalizeNewPathForProvider(newPath);
+    const fullNewPath = path.join(this.repoPath!, normalizedNewPath);
 
     try {
       await this.fsAdapter.rename(fullOldPath, fullNewPath);
-      logger.info('Path renamed', { oldPath, newPath });
+      logger.info('Path renamed', { oldPath, newPath: normalizedNewPath });
     } catch (error: any) {
-      logger.error('Failed to rename path', { oldPath, newPath, error });
+      logger.error('Failed to rename path', { oldPath, newPath: normalizedNewPath, error });
       throw error;
     }
   }
@@ -315,16 +325,17 @@ export class FilesService {
   async importFile(sourcePath: string, targetPath: string): Promise<void> {
     await this.ensureRepoPath();
 
-    const fullTargetPath = path.join(this.repoPath!, targetPath);
+    const normalizedTargetPath = this.normalizeNewPathForProvider(targetPath);
+    const fullTargetPath = path.join(this.repoPath!, normalizedTargetPath);
 
     try {
       const parentDir = path.dirname(fullTargetPath);
       await this.fsAdapter.mkdir(parentDir, { recursive: true });
 
       await this.fsAdapter.copyFile(sourcePath, fullTargetPath);
-      logger.info('File imported', { sourcePath, targetPath });
+      logger.info('File imported', { sourcePath, targetPath: normalizedTargetPath });
     } catch (error: any) {
-      logger.error('Failed to import file', { sourcePath, targetPath, error });
+      logger.error('Failed to import file', { sourcePath, targetPath: normalizedTargetPath, error });
       throw error;
     }
   }
@@ -458,6 +469,38 @@ export class FilesService {
     }
   }
 
+  private async ensureGitRepo(): Promise<void> {
+    const repoSettings = await this.configService.getRepoSettings();
+    if (repoSettings?.provider && repoSettings.provider !== 'git') {
+      throw this.createError(
+        ApiErrorCode.REPO_PROVIDER_MISMATCH,
+        'Git operations are only available for Git repositories',
+        { provider: repoSettings.provider }
+      );
+    }
+  }
+
+  private normalizeNameForProvider(name: string): string {
+    if (this.repoProvider !== 's3') {
+      return name;
+    }
+    return name.replace(/ /g, '-');
+  }
+
+  private normalizeNewPathForProvider(newPath: string): string {
+    if (this.repoProvider !== 's3') {
+      return newPath;
+    }
+    const lastSlash = newPath.lastIndexOf('/');
+    if (lastSlash === -1) {
+      return this.normalizeNameForProvider(newPath);
+    }
+    const parentPath = newPath.slice(0, lastSlash);
+    const name = newPath.slice(lastSlash + 1);
+    const normalizedName = this.normalizeNameForProvider(name);
+    return parentPath ? `${parentPath}/${normalizedName}` : normalizedName;
+  }
+
   private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
     return {
       code,
@@ -466,4 +509,3 @@ export class FilesService {
     };
   }
 }
-

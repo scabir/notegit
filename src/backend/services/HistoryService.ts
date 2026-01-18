@@ -1,130 +1,73 @@
-import { GitAdapter } from '../adapters/GitAdapter';
-import { ConfigService } from './ConfigService';
 import {
   CommitEntry,
   DiffHunk,
-  DiffLine,
   ApiError,
   ApiErrorCode,
+  RepoProviderType,
 } from '../../shared/types';
+import { ConfigService } from './ConfigService';
+import type { HistoryProvider } from '../providers/types';
 import { logger } from '../utils/logger';
 
 export class HistoryService {
-  private repoPath: string | null = null;
+  private activeProvider: HistoryProvider | null = null;
+  private activeProviderType: RepoProviderType | null = null;
 
   constructor(
-    private gitAdapter: GitAdapter,
+    private providers: Record<RepoProviderType, HistoryProvider>,
     private configService: ConfigService
   ) {}
 
   async init(): Promise<void> {
-    const repoSettings = await this.configService.getRepoSettings();
-    if (repoSettings?.localPath) {
-      this.repoPath = repoSettings.localPath;
-      await this.gitAdapter.init(this.repoPath);
-      logger.debug('HistoryService initialized', { repoPath: this.repoPath });
-    }
+    await this.ensureProvider();
   }
 
   async getForFile(filePath: string): Promise<CommitEntry[]> {
-    await this.ensureRepoPath();
-
-    try {
-      const commits = await this.gitAdapter.log(filePath);
-      
-      return commits.map((commit: any) => ({
-        hash: commit.hash,
-        author: commit.author_name,
-        email: commit.author_email,
-        date: new Date(commit.date),
-        message: commit.message,
-        files: [], // Not populated for performance
-      }));
-    } catch (error: any) {
-      logger.error('Failed to get file history', { filePath, error });
-      throw error;
-    }
+    const provider = await this.ensureProvider();
+    return await provider.getForFile(filePath);
   }
 
-  async getVersion(commitHash: string, filePath: string): Promise<string> {
-    await this.ensureRepoPath();
-
-    try {
-      const content = await this.gitAdapter.show(commitHash, filePath);
-      return content;
-    } catch (error: any) {
-      logger.error('Failed to get file version', { commitHash, filePath, error });
-      throw error;
-    }
+  async getVersion(versionId: string, filePath: string): Promise<string> {
+    const provider = await this.ensureProvider();
+    return await provider.getVersion(versionId, filePath);
   }
 
-  async getDiff(hash1: string, hash2: string, filePath: string): Promise<DiffHunk[]> {
-    await this.ensureRepoPath();
-
-    try {
-      const diffText = await this.gitAdapter.diff(hash1, hash2, filePath);
-      
-      const hunks: DiffHunk[] = [];
-      const lines = diffText.split('\n');
-      
-      let currentHunk: DiffHunk | null = null;
-      
-    for (const line of lines) {
-        const hunkMatch = line.match(/^@@ -(\d+),(\d+) \+(\d+),(\d+) @@/);
-    if (hunkMatch) {
-    if (currentHunk) {
-            hunks.push(currentHunk);
-          }
-          currentHunk = {
-            oldStart: parseInt(hunkMatch[1]),
-            oldLines: parseInt(hunkMatch[2]),
-            newStart: parseInt(hunkMatch[3]),
-            newLines: parseInt(hunkMatch[4]),
-            lines: [],
-          };
-          continue;
-        }
-        
-    if (currentHunk) {
-          let type: 'add' | 'remove' | 'context';
-    if (line.startsWith('+')) {
-            type = 'add';
-          } else if (line.startsWith('-')) {
-            type = 'remove';
-          } else {
-            type = 'context';
-          }
-          
-          currentHunk.lines.push({
-            type,
-            content: line.substring(1),
-          });
-        }
-      }
-      
-    if (currentHunk) {
-        hunks.push(currentHunk);
-      }
-      
-      return hunks;
-    } catch (error: any) {
-      logger.error('Failed to get diff', { hash1, hash2, filePath, error });
-      throw error;
-    }
+  async getDiff(versionA: string, versionB: string, filePath: string): Promise<DiffHunk[]> {
+    const provider = await this.ensureProvider();
+    return await provider.getDiff(versionA, versionB, filePath);
   }
 
-  private async ensureRepoPath(): Promise<void> {
-    if (!this.repoPath) {
-      await this.init();
-    }
-
-    if (!this.repoPath) {
+  private async ensureProvider(): Promise<HistoryProvider> {
+    const repoSettings = await this.configService.getRepoSettings();
+    if (!repoSettings) {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
         'No repository configured',
         null
       );
     }
+
+    if (this.activeProvider && this.activeProviderType === repoSettings.provider) {
+      this.activeProvider.configure(repoSettings);
+      return this.activeProvider;
+    }
+
+    const provider = this.providers[repoSettings.provider];
+    if (!provider) {
+      throw this.createError(
+        ApiErrorCode.VALIDATION_ERROR,
+        `Unsupported history provider: ${repoSettings.provider}`,
+        null
+      );
+    }
+
+    provider.configure(repoSettings);
+    this.activeProvider = provider;
+    this.activeProviderType = repoSettings.provider;
+
+    logger.debug('History provider configured', { provider: repoSettings.provider });
+
+    return provider;
   }
 
   private createError(code: ApiErrorCode, message: string, details?: any): ApiError {

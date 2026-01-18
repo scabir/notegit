@@ -6,9 +6,13 @@ import {
   FullConfig,
   AppSettings,
   RepoSettings,
+  GitRepoSettings,
+  S3RepoSettings,
+  RepoProviderType,
   AppStateSnapshot,
   Profile,
   AuthMethod,
+  ApiErrorCode,
   DEFAULT_APP_SETTINGS,
   DEFAULT_APP_STATE,
 } from '../../shared/types';
@@ -38,6 +42,75 @@ export class ConfigService {
     this.appStatePath = path.join(this.configDir, 'app-state.json');
     this.profilesPath = path.join(this.configDir, 'profiles.json');
     this.activeProfilePath = path.join(this.configDir, 'active-profile.json');
+  }
+
+  private normalizeRepoSettings(raw: any): RepoSettings {
+    const provider: RepoProviderType = raw?.provider === 's3' ? 's3' : 'git';
+    if (provider === 's3') {
+      return {
+        provider: 's3',
+        bucket: raw?.bucket || '',
+        region: raw?.region || '',
+        prefix: raw?.prefix || '',
+        localPath: raw?.localPath || '',
+        accessKeyId: raw?.accessKeyId || '',
+        secretAccessKey: raw?.secretAccessKey || '',
+        sessionToken: raw?.sessionToken || '',
+      };
+    }
+
+    return {
+      provider: 'git',
+      remoteUrl: raw?.remoteUrl || '',
+      branch: raw?.branch || 'main',
+      localPath: raw?.localPath || '',
+      pat: raw?.pat || '',
+      authMethod: raw?.authMethod || AuthMethod.PAT,
+    };
+  }
+
+  private decryptRepoSettings(settings: RepoSettings): RepoSettings {
+    if (settings.provider === 's3') {
+      const decrypted: S3RepoSettings = { ...settings };
+      if (decrypted.accessKeyId) {
+        decrypted.accessKeyId = this.cryptoAdapter.decrypt(decrypted.accessKeyId);
+      }
+      if (decrypted.secretAccessKey) {
+        decrypted.secretAccessKey = this.cryptoAdapter.decrypt(decrypted.secretAccessKey);
+      }
+      if (decrypted.sessionToken) {
+        decrypted.sessionToken = this.cryptoAdapter.decrypt(decrypted.sessionToken);
+      }
+      return decrypted;
+    }
+
+    const decrypted: GitRepoSettings = { ...settings };
+    if (decrypted.pat) {
+      decrypted.pat = this.cryptoAdapter.decrypt(decrypted.pat);
+    }
+    return decrypted;
+  }
+
+  private encryptRepoSettings(settings: RepoSettings): RepoSettings {
+    if (settings.provider === 's3') {
+      const encrypted: S3RepoSettings = { ...settings };
+      if (encrypted.accessKeyId) {
+        encrypted.accessKeyId = this.cryptoAdapter.encrypt(encrypted.accessKeyId);
+      }
+      if (encrypted.secretAccessKey) {
+        encrypted.secretAccessKey = this.cryptoAdapter.encrypt(encrypted.secretAccessKey);
+      }
+      if (encrypted.sessionToken) {
+        encrypted.sessionToken = this.cryptoAdapter.encrypt(encrypted.sessionToken);
+      }
+      return encrypted;
+    }
+
+    const encrypted: GitRepoSettings = { ...settings };
+    if (encrypted.pat) {
+      encrypted.pat = this.cryptoAdapter.encrypt(encrypted.pat);
+    }
+    return encrypted;
   }
 
   async ensureConfigDir(): Promise<void> {
@@ -106,14 +179,12 @@ export class ConfigService {
     try {
     if (await this.fsAdapter.exists(this.repoSettingsPath)) {
         const content = await this.fsAdapter.readFile(this.repoSettingsPath);
-        const settings = JSON.parse(content);
+        const rawSettings = JSON.parse(content);
+        const settings = this.normalizeRepoSettings(rawSettings);
+        const decrypted = this.decryptRepoSettings(settings);
         
-    if (settings.pat) {
-          settings.pat = this.cryptoAdapter.decrypt(settings.pat);
-        }
-        
-        logger.debug('Loaded repo settings (PAT decrypted)');
-        return settings;
+        logger.debug('Loaded repo settings');
+        return decrypted;
       }
     } catch (error) {
       logger.error('Failed to load repo settings', { error });
@@ -123,21 +194,27 @@ export class ConfigService {
   }
 
   async updateRepoSettings(settings: RepoSettings): Promise<void> {
+    const existing = await this.getRepoSettings();
+    if (existing && existing.provider !== settings.provider) {
+      throw {
+        code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
+        message: 'Repository provider cannot be changed',
+        details: { from: existing.provider, to: settings.provider },
+      };
+    }
+
     logger.info('Updating repo settings', {
-      remoteUrl: settings.remoteUrl,
-      branch: settings.branch,
-      authMethod: settings.authMethod,
+      provider: settings.provider,
+      remoteUrl: settings.provider === 'git' ? settings.remoteUrl : undefined,
+      bucket: settings.provider === 's3' ? settings.bucket : undefined,
+      region: settings.provider === 's3' ? settings.region : undefined,
     });
     
     await this.ensureConfigDir();
 
-    const toSave = { ...settings };
-    if (toSave.pat) {
-      toSave.pat = this.cryptoAdapter.encrypt(toSave.pat);
-    }
-
+    const toSave = this.encryptRepoSettings(settings);
     await this.fsAdapter.writeFile(this.repoSettingsPath, JSON.stringify(toSave, null, 2));
-    logger.debug('Repo settings saved (PAT encrypted)');
+    logger.debug('Repo settings saved');
   }
 
   async getAppState(): Promise<AppStateSnapshot> {
@@ -179,15 +256,16 @@ export class ConfigService {
     if (await this.fsAdapter.exists(this.profilesPath)) {
         const content = await this.fsAdapter.readFile(this.profilesPath);
         const profiles = JSON.parse(content);
-        
-    for (const profile of profiles) {
-    if (profile.repoSettings.pat) {
-            profile.repoSettings.pat = this.cryptoAdapter.decrypt(profile.repoSettings.pat);
-          }
-        }
+        const hydrated = profiles.map((profile: Profile) => {
+          const normalizedSettings = this.normalizeRepoSettings(profile.repoSettings);
+          return {
+            ...profile,
+            repoSettings: this.decryptRepoSettings(normalizedSettings),
+          };
+        });
         
         logger.debug('Loaded profiles', { count: profiles.length });
-        return profiles;
+        return hydrated;
       }
     } catch (error) {
       logger.error('Failed to load profiles', { error });
@@ -203,12 +281,7 @@ export class ConfigService {
 
     const toSave = profiles.map(profile => ({
       ...profile,
-      repoSettings: {
-        ...profile.repoSettings,
-        pat: profile.repoSettings.pat
-          ? this.cryptoAdapter.encrypt(profile.repoSettings.pat)
-          : '',
-      },
+      repoSettings: this.encryptRepoSettings(profile.repoSettings),
     }));
 
     await this.fsAdapter.writeFile(this.profilesPath, JSON.stringify(toSave, null, 2));
@@ -248,23 +321,49 @@ export class ConfigService {
     
     const profiles = await this.getProfiles();
     
+    const provider: RepoProviderType = repoSettings.provider === 's3' ? 's3' : 'git';
     const baseName = slugifyProfileName(name);
     const baseDir = getDefaultReposBaseDir();
     
     await this.fsAdapter.mkdir(baseDir, { recursive: true });
     
-    const folderName = await findUniqueFolderName(baseDir, baseName, this.fsAdapter);
+    const baseFolderName = provider === 's3' ? `${baseName}-s3` : baseName;
+    const folderName = await findUniqueFolderName(baseDir, baseFolderName, this.fsAdapter);
     const localPath = path.join(baseDir, folderName);
     
     logger.info('Assigned local path for profile', { name, localPath });
     
-    const fullRepoSettings: RepoSettings = {
-      remoteUrl: repoSettings.remoteUrl || '',
-      branch: repoSettings.branch || 'main',
-      localPath,
-      pat: repoSettings.pat || '',
-      authMethod: repoSettings.authMethod || AuthMethod.PAT,
-    };
+    let fullRepoSettings: RepoSettings;
+    if (provider === 'git') {
+      const gitSettings = repoSettings as Partial<GitRepoSettings>;
+      fullRepoSettings = {
+        provider: 'git',
+        remoteUrl: gitSettings.remoteUrl || '',
+        branch: gitSettings.branch || 'main',
+        localPath,
+        pat: gitSettings.pat || '',
+        authMethod: gitSettings.authMethod || AuthMethod.PAT,
+      };
+    } else {
+      const s3Settings = repoSettings as Partial<S3RepoSettings>;
+      if (!s3Settings.bucket || !s3Settings.region || !s3Settings.accessKeyId || !s3Settings.secretAccessKey) {
+        throw {
+          code: ApiErrorCode.VALIDATION_ERROR,
+          message: 'S3 bucket, region, access key, and secret are required',
+        };
+      }
+
+      fullRepoSettings = {
+        provider: 's3',
+        bucket: s3Settings.bucket,
+        region: s3Settings.region,
+        prefix: s3Settings.prefix || '',
+        localPath,
+        accessKeyId: s3Settings.accessKeyId,
+        secretAccessKey: s3Settings.secretAccessKey,
+        sessionToken: s3Settings.sessionToken || '',
+      };
+    }
     
     const newProfile: Profile = {
       id: `profile-${Date.now()}-${Math.random().toString(36).substring(7)}`,
@@ -289,6 +388,14 @@ export class ConfigService {
     
     if (index === -1) {
       throw new Error(`Profile not found: ${profileId}`);
+    }
+
+    if (updates.repoSettings?.provider && updates.repoSettings.provider !== profiles[index].repoSettings.provider) {
+      throw {
+        code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
+        message: 'Repository provider cannot be changed',
+        details: { from: profiles[index].repoSettings.provider, to: updates.repoSettings.provider },
+      };
     }
 
     profiles[index] = {
@@ -333,15 +440,13 @@ export class ConfigService {
         logger.info('Migrating legacy repo settings to first profile');
         
         const content = await this.fsAdapter.readFile(this.repoSettingsPath);
-        const repoSettings = JSON.parse(content);
-        
-    if (repoSettings.pat) {
-          repoSettings.pat = this.cryptoAdapter.decrypt(repoSettings.pat);
-        }
+        const rawSettings = JSON.parse(content);
+        const normalizedSettings = this.normalizeRepoSettings(rawSettings);
+        const repoSettings = this.decryptRepoSettings(normalizedSettings);
 
         let profileName = 'Default Profile';
         
-    if (repoSettings.remoteUrl) {
+    if (repoSettings.provider === 'git' && repoSettings.remoteUrl) {
           profileName = extractRepoNameFromUrl(repoSettings.remoteUrl);
         } else if (repoSettings.localPath) {
           profileName = path.basename(repoSettings.localPath);
@@ -367,4 +472,3 @@ export class ConfigService {
     }
   }
 }
-

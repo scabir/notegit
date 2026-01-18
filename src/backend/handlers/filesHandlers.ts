@@ -59,6 +59,11 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
     async (_event, path: string, content: string): Promise<ApiResponse<void>> => {
       try {
         await filesService.saveFile(path, content);
+        try {
+          await repoService.queueS3Upload(path);
+        } catch (error) {
+          logger.warn('Failed to queue S3 upload operation', { path, error });
+        }
         return {
           ok: true,
         };
@@ -163,6 +168,14 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
     async (): Promise<ApiResponse<{ message: string }>> => {
       try {
         const statusResponse = await repoService.getStatus();
+
+        if (statusResponse.provider !== 'git') {
+          await repoService.push();
+          return {
+            ok: true,
+            data: { message: 'Synced successfully' },
+          };
+        }
         
         if (!statusResponse.hasUncommitted) {
           return {
@@ -263,6 +276,9 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
   ipcMain.handle('files:delete', async (_event, path: string): Promise<ApiResponse<void>> => {
     try {
       await filesService.deletePath(path);
+      void repoService.queueS3Delete(path).catch((error) => {
+        logger.warn('Failed to queue S3 delete operation', { path, error });
+      });
       return {
         ok: true,
       };
@@ -286,6 +302,9 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
     async (_event, oldPath: string, newPath: string): Promise<ApiResponse<void>> => {
       try {
         await filesService.renamePath(oldPath, newPath);
+        void repoService.queueS3Move(oldPath, newPath).catch((error) => {
+          logger.warn('Failed to queue S3 move operation', { oldPath, newPath, error });
+        });
         return {
           ok: true,
         };

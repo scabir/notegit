@@ -1,6 +1,8 @@
 export interface AppSettings {
   autoSaveEnabled: boolean;
   autoSaveIntervalSec: number;
+  s3AutoSyncEnabled: boolean;
+  s3AutoSyncIntervalSec: number;
   theme: 'light' | 'dark' | 'system';
   editorPrefs: EditorPreferences;
 }
@@ -12,13 +14,29 @@ export interface EditorPreferences {
   showPreview: boolean;
 }
 
-export interface RepoSettings {
+export type RepoProviderType = 'git' | 's3';
+
+export interface GitRepoSettings {
+  provider: 'git';
   remoteUrl: string;
   branch: string;
   localPath: string;
   pat: string; // Personal Access Token (encrypted in storage)
   authMethod: AuthMethod;
 }
+
+export interface S3RepoSettings {
+  provider: 's3';
+  bucket: string;
+  region: string;
+  prefix?: string;
+  localPath: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  sessionToken?: string;
+}
+
+export type RepoSettings = GitRepoSettings | S3RepoSettings;
 
 export enum AuthMethod {
   PAT = 'pat',
@@ -53,6 +71,8 @@ export interface AppStateSnapshot {
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   autoSaveEnabled: false,
   autoSaveIntervalSec: 30,
+  s3AutoSyncEnabled: true,
+  s3AutoSyncIntervalSec: 30,
   theme: 'system',
   editorPrefs: {
     fontSize: 14,

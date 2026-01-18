@@ -1,0 +1,28 @@
+export const FILE_TREE_TEXT = {
+  newFile: 'New File',
+  newFolder: 'New Folder',
+  importFile: 'Import File',
+  rename: 'Rename',
+  delete: 'Delete',
+  clearSelection: 'Clear selection (create in root)',
+  moveToFolder: 'Move to folder',
+  createFileTitle: 'Create New File',
+  createFolderTitle: 'Create New Folder',
+  renameFileTitle: 'Rename File',
+  renameFolderTitle: 'Rename Folder',
+  fileNameLabel: 'File Name',
+  folderNameLabel: 'Folder Name',
+  newNameLabel: 'New Name',
+  filePlaceholder: 'my-note (extension optional)',
+  folderPlaceholder: 'my-folder',
+  fileExtensionHint: 'Extension will be auto-added as .md if not specified',
+  createLocationRoot: 'Will be created in root directory',
+  createLocationPrefix: 'Will be created in: ',
+  cancel: 'Cancel',
+  create: 'Create',
+  creating: 'Creating...',
+  renameAction: 'Rename',
+  renaming: 'Renaming...',
+} as const;
+
+export const INVALID_NAME_CHARS = /[<>:"/\\|?*]/;

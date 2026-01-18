@@ -1,4 +1,7 @@
+import type { RepoProviderType } from './config';
+
 export interface RepoStatus {
+  provider: RepoProviderType;
   branch: string;
   ahead: number;
   behind: number;
