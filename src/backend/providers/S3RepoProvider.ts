@@ -26,6 +26,7 @@ export class S3RepoProvider implements RepoProvider {
   private syncInProgress = false;
   private pendingOperations: PendingS3Operation[] = [];
   private pendingSyncTimer: NodeJS.Timeout | null = null;
+  private uploadedFileTimes = new Map<string, number>();
 
   constructor(private s3Adapter: S3Adapter) {}
 
@@ -264,6 +265,7 @@ export class S3RepoProvider implements RepoProvider {
       }
 
       this.lastSyncTime = new Date();
+      this.uploadedFileTimes.clear();
       logger.info('S3 sync completed', { updatedAt: this.lastSyncTime });
     } finally {
       this.syncInProgress = false;
@@ -274,6 +276,7 @@ export class S3RepoProvider implements RepoProvider {
     const fullPath = path.join(this.repoPath!, relativePath);
     const body = await fs.readFile(fullPath);
     await this.s3Adapter.putObject(this.toS3Key(relativePath), body);
+    this.markFileUploaded(relativePath);
   }
 
   private async downloadObjectToLocal(
@@ -406,12 +409,28 @@ export class S3RepoProvider implements RepoProvider {
     for (const relativePath of files) {
       const fullPath = path.join(this.repoPath!, relativePath);
       const stats = await fs.stat(fullPath);
-      if (stats.mtime.getTime() > lastSync) {
+      const modifiedAt = stats.mtime.getTime();
+      if (modifiedAt > lastSync && !this.isFileSynced(relativePath, modifiedAt)) {
         count += 1;
       }
     }
 
     return count;
+  }
+
+  private markFileUploaded(relativePath: string): void {
+    const key = this.normalizeRelativePath(relativePath);
+    this.uploadedFileTimes.set(key, Date.now());
+  }
+
+  private isFileSynced(relativePath: string, modifiedAt: number): boolean {
+    const key = this.normalizeRelativePath(relativePath);
+    const uploadedAt = this.uploadedFileTimes.get(key);
+    return typeof uploadedAt === 'number' && uploadedAt >= modifiedAt;
+  }
+
+  private normalizeRelativePath(relativePath: string): string {
+    return path.normalize(relativePath);
   }
 
   private async countRemoteChanges(): Promise<number> {
@@ -424,7 +443,37 @@ export class S3RepoProvider implements RepoProvider {
       return objects.length;
     }
 
-    return objects.filter((obj) => (obj.lastModified?.getTime() || 0) > lastSync).length;
+    let count = 0;
+
+    for (const object of objects) {
+      const modifiedAt = object.lastModified?.getTime() || 0;
+      if (modifiedAt <= lastSync) {
+        continue;
+      }
+
+      const relativePath = this.fromS3Key(object.key);
+      if (this.isRemoteChangeAcknowledged(relativePath, modifiedAt)) {
+        continue;
+      }
+
+      count += 1;
+    }
+
+    return count;
+  }
+
+  private isRemoteChangeAcknowledged(relativePath: string, modifiedAt: number): boolean {
+    if (!relativePath || relativePath.endsWith('/')) {
+      return false;
+    }
+
+    const key = this.normalizeRelativePath(relativePath);
+    const uploadedAt = this.uploadedFileTimes.get(key);
+    if (!uploadedAt) {
+      return false;
+    }
+
+    return uploadedAt + 5000 >= modifiedAt;
   }
 
   private async listLocalFiles(dirPath: string, basePath: string = dirPath): Promise<string[]> {

@@ -161,6 +161,40 @@ describe('S3RepoProvider', () => {
     expect(s3Adapter.deleteObject).toHaveBeenCalledWith('notes/note.md');
   });
 
+  it('clears pending status after immediate upload', async () => {
+    const tempDir = await createTempDir();
+    const settings = { ...baseSettings, localPath: tempDir };
+
+    const s3Adapter = {
+      configure: jest.fn(),
+      getBucketVersioning: jest.fn(),
+      listObjects: jest.fn().mockResolvedValue([
+        {
+          key: 'notes/note.md',
+          lastModified: new Date('2024-01-02T10:00:00Z'),
+        },
+      ]),
+      getObject: jest.fn(),
+      putObject: jest.fn().mockResolvedValue(undefined),
+      deleteObject: jest.fn(),
+    };
+
+    const provider = new S3RepoProvider(s3Adapter as any);
+    provider.configure(settings);
+    await fs.mkdir(tempDir, { recursive: true });
+    await fs.writeFile(path.join(tempDir, 'note.md'), 'Local note');
+    (provider as any).lastSyncTime = new Date('2024-01-01T10:00:00Z');
+
+    const statusBefore = await provider.getStatus();
+    expect(statusBefore.pendingPushCount).toBe(1);
+
+    await provider.queueUpload('note.md');
+
+    const statusAfter = await provider.getStatus();
+    expect(statusAfter.pendingPushCount).toBe(0);
+    expect(statusAfter.behind).toBe(0);
+  });
+
   it('deletes remote objects removed locally after last sync', async () => {
     const tempDir = await createTempDir();
     const settings = { ...baseSettings, localPath: tempDir };
