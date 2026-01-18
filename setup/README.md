@@ -62,6 +62,8 @@ This will attempt to build for all platforms. Note that cross-platform builds ha
 ## Output
 
 All built installers are placed in the `release/` folder at the project root.
+Released binaries for macOS, Windows, and Linux are available here:
+https://drive.google.com/drive/folders/1kI5mWrkVu30ASVN2loQVWnXtE8MgXq4v
 
 ## Cross-Platform Building
 
@@ -159,4 +161,3 @@ jobs:
 For issues with electron-builder, see:
 - Documentation: https://www.electron.build/
 - GitHub: https://github.com/electron-userland/electron-builder
-

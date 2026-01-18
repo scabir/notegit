@@ -160,6 +160,9 @@ This enables:
 
 Simply double-click the application icon or run the executable from your terminal.
 
+Released binaries for macOS, Windows, and Linux are available here:
+https://drive.google.com/drive/folders/1kI5mWrkVu30ASVN2loQVWnXtE8MgXq4v
+
 ---
 
 ## User Guide
@@ -500,9 +503,8 @@ The application implements an "invisible Git workflow":
 **Test Framework**: Jest with ts-jest for TypeScript support
 
 **Coverage**:
-- **Total Tests**: 107 passing
-- **Test Suites**: 8 (all passing)
-- **Coverage**: 5.84% (focused on business logic)
+- Coverage includes both frontend and backend unit tests by default.
+- Run `npm test -- --coverage` to generate the report.
 
 **Test Structure**:
 ```
