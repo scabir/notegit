@@ -27,7 +27,7 @@ import {
   Close as CloseIcon,
   FindReplace as ReplaceIcon,
 } from '@mui/icons-material';
-import type { RepoWideSearchResult, ReplaceResult } from '../../shared/types';
+import type { RepoWideSearchResult, ReplaceResult } from '../../../shared/types';
 
 interface RepoSearchDialogProps {
   open: boolean;

@@ -38,7 +38,7 @@ import {
   FolderOpen as FolderOpenIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
-import { AboutDialog } from './AboutDialog';
+import { AboutDialog } from '../AboutDialog';
 import type {
   FullConfig,
   AppSettings,
@@ -47,8 +47,8 @@ import type {
   RepoProviderType,
   GitRepoSettings,
   S3RepoSettings,
-} from '../../shared/types';
-import { confirmProfileSwitch } from '../utils/profileSwitch';
+} from '../../../shared/types';
+import { confirmProfileSwitch } from '../../utils/profileSwitch';
 
 interface TabPanelProps {
   children?: React.ReactNode;

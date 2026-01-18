@@ -20,7 +20,7 @@ import {
   Description as FileIcon,
   TextSnippet as TextFileIcon,
 } from '@mui/icons-material';
-import type { SearchResult } from '../../shared/types/api';
+import type { SearchResult } from '../../../shared/types/api';
 
 interface SearchDialogProps {
   open: boolean;

@@ -22,8 +22,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { EditorView, keymap } from '@codemirror/view';
 import { EditorSelection } from '@codemirror/state';
-import { FindReplaceBar } from './FindReplaceBar';
-import type { FileContent, AppSettings } from '../../shared/types';
+import { FindReplaceBar } from '../FindReplaceBar';
+import type { FileContent, AppSettings } from '../../../shared/types';
 
 interface MarkdownEditorProps {
   file: FileContent | null;

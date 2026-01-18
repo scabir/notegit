@@ -7,7 +7,7 @@ import {
   CloudDone as CloudDoneIcon,
   CloudSync as CloudSyncIcon,
 } from '@mui/icons-material';
-import type { RepoStatus } from '../../shared/types';
+import type { RepoStatus } from '../../../shared/types';
 
 interface StatusBarProps {
   status: RepoStatus | null;

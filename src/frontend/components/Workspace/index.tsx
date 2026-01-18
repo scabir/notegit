@@ -8,19 +8,19 @@ import {
   CloudUpload as CloudUploadIcon,
   CloudSync as CloudSyncIcon,
 } from '@mui/icons-material';
-import { FileTreeView } from './FileTreeView';
-import { MarkdownEditor } from './MarkdownEditor';
-import { TextEditor } from './TextEditor';
-import { StatusBar } from './StatusBar';
-import { SettingsDialog } from './SettingsDialog';
-import { CommitDialog } from './CommitDialog';
-import { SearchDialog } from './SearchDialog';
-import { RepoSearchDialog } from './RepoSearchDialog';
-import { HistoryPanel } from './HistoryPanel';
-import { HistoryViewer } from './HistoryViewer';
-import type { AppSettings, FileTreeNode, FileContent, RepoStatus } from '../../shared/types';
-import packageJson from '../../../package.json';
-import { startS3AutoSync } from '../utils/s3AutoSync';
+import { FileTreeView } from '../FileTreeView';
+import { MarkdownEditor } from '../MarkdownEditor';
+import { TextEditor } from '../TextEditor';
+import { StatusBar } from '../StatusBar';
+import { SettingsDialog } from '../SettingsDialog';
+import { CommitDialog } from '../CommitDialog';
+import { SearchDialog } from '../SearchDialog';
+import { RepoSearchDialog } from '../RepoSearchDialog';
+import { HistoryPanel } from '../HistoryPanel';
+import { HistoryViewer } from '../HistoryViewer';
+import type { AppSettings, FileTreeNode, FileContent, RepoStatus } from '../../../shared/types';
+import packageJson from '../../../../package.json';
+import { startS3AutoSync } from '../../utils/s3AutoSync';
 
 interface WorkspaceProps {
   onThemeChange: (theme: 'light' | 'dark' | 'system') => void;

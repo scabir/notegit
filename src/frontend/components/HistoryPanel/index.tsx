@@ -19,7 +19,7 @@ import {
   Close as CloseIcon,
   Visibility as ViewIcon,
 } from '@mui/icons-material';
-import type { CommitEntry } from '../../shared/types';
+import type { CommitEntry } from '../../../shared/types';
 
 interface HistoryPanelProps {
   filePath: string | null;

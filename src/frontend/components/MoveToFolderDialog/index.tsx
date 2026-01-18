@@ -15,7 +15,7 @@ import {
   ExpandMore as ExpandMoreIcon,
   ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
-import type { FileTreeNode } from '../../shared/types';
+import type { FileTreeNode } from '../../../shared/types';
 
 interface MoveToFolderDialogProps {
   open: boolean;

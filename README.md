@@ -260,17 +260,28 @@ notegit/
 ├── src/
 │   ├── frontend/                 # React UI (Renderer Process)
 │   │   ├── components/           # React components
-│   │   │   ├── AboutDialog.tsx
-│   │   │   ├── CommitDialog.tsx
-│   │   │   ├── FileTreeView.tsx
-│   │   │   ├── MarkdownEditor.tsx
-│   │   │   ├── TextEditor.tsx
-│   │   │   ├── SearchDialog.tsx
-│   │   │   ├── RepoSearchDialog.tsx
-│   │   │   ├── FindReplaceBar.tsx
-│   │   │   ├── HistoryPanel.tsx
-│   │   │   ├── SettingsDialog.tsx
-│   │   │   ├── Workspace.tsx
+│   │   │   ├── AboutDialog/
+│   │   │   │   └── index.tsx
+│   │   │   ├── CommitDialog/
+│   │   │   │   └── index.tsx
+│   │   │   ├── FileTreeView/
+│   │   │   │   └── index.tsx
+│   │   │   ├── MarkdownEditor/
+│   │   │   │   └── index.tsx
+│   │   │   ├── TextEditor/
+│   │   │   │   └── index.tsx
+│   │   │   ├── SearchDialog/
+│   │   │   │   └── index.tsx
+│   │   │   ├── RepoSearchDialog/
+│   │   │   │   └── index.tsx
+│   │   │   ├── FindReplaceBar/
+│   │   │   │   └── index.tsx
+│   │   │   ├── HistoryPanel/
+│   │   │   │   └── index.tsx
+│   │   │   ├── SettingsDialog/
+│   │   │   │   └── index.tsx
+│   │   │   ├── Workspace/
+│   │   │   │   └── index.tsx
 │   │   │   └── ...
 │   │   ├── utils/                # Frontend utilities
 │   │   ├── App.tsx               # Root component
@@ -652,7 +663,7 @@ npm start
    - Create component in `src/frontend/components/`
    - Use TypeScript and React functional components
    - Follow Material-UI patterns
-   - Add to main `Workspace.tsx` if needed
+   - Add to main `Workspace/index.tsx` if needed
 
 3. **Testing**:
    - Add unit tests for services

@@ -5,8 +5,8 @@ import CodeMirror from '@uiw/react-codemirror';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import { EditorView, keymap } from '@codemirror/view';
 import { EditorSelection } from '@codemirror/state';
-import { FindReplaceBar } from './FindReplaceBar';
-import type { FileContent, AppSettings } from '../../shared/types';
+import { FindReplaceBar } from '../FindReplaceBar';
+import type { FileContent, AppSettings } from '../../../shared/types';
 
 interface TextEditorProps {
   file: FileContent | null;

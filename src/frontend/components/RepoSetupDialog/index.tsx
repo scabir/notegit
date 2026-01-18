@@ -13,7 +13,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
 } from '@mui/material';
-import type { RepoSettings, AuthMethod, RepoProviderType } from '../../shared/types';
+import type { RepoSettings, AuthMethod, RepoProviderType } from '../../../shared/types';
 
 interface RepoSetupDialogProps {
   open: boolean;

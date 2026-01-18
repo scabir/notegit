@@ -31,8 +31,8 @@ import {
   Clear as ClearIcon,
   DriveFileMove as MoveIcon,
 } from '@mui/icons-material';
-import { MoveToFolderDialog } from './MoveToFolderDialog';
-import type { FileTreeNode, FileType } from '../../shared/types';
+import { MoveToFolderDialog } from '../MoveToFolderDialog';
+import type { FileTreeNode, FileType } from '../../../shared/types';
 
 interface FileTreeViewProps {
   tree: FileTreeNode[];
