@@ -54,4 +54,38 @@ describe('configHandlers', () => {
     expect(configService.updateAppSettings).toHaveBeenCalled();
     expect(repoService.refreshAutoSyncSettings).toHaveBeenCalled();
   });
+
+  it('returns git installation status when checkGitInstalled succeeds', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const configService = {} as any;
+    const repoService = {} as any;
+    const gitAdapter = {
+      checkGitInstalled: jest.fn().mockResolvedValue(true),
+    } as any;
+
+    registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
+
+    const response = await handlers['config:checkGitInstalled'](null);
+
+    expect(response.ok).toBe(true);
+    expect(response.data).toBe(true);
+    expect(gitAdapter.checkGitInstalled).toHaveBeenCalled();
+  });
+
+  it('returns false when checkGitInstalled fails', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const configService = {} as any;
+    const repoService = {} as any;
+    const gitAdapter = {
+      checkGitInstalled: jest.fn().mockRejectedValue(new Error('no git')),
+    } as any;
+
+    registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
+
+    const response = await handlers['config:checkGitInstalled'](null);
+
+    expect(response.ok).toBe(true);
+    expect(response.data).toBe(false);
+    expect(gitAdapter.checkGitInstalled).toHaveBeenCalled();
+  });
 });

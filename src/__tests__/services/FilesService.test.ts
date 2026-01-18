@@ -134,6 +134,95 @@ describe('FilesService', () => {
     });
   });
 
+  describe('saveWithGitWorkflow', () => {
+    beforeEach(() => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
+        localPath: '/repo',
+        remoteUrl: 'url',
+        branch: 'main',
+        pat: 'token',
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+      mockGitAdapter.init.mockResolvedValue(undefined);
+      mockGitAdapter.add.mockResolvedValue(undefined);
+      mockGitAdapter.commit.mockResolvedValue(undefined);
+      mockGitAdapter.pull.mockResolvedValue(undefined);
+      mockGitAdapter.push.mockResolvedValue(undefined);
+    });
+
+    it('saves, commits, pulls, and pushes on success', async () => {
+      const result = await filesService.saveWithGitWorkflow(
+        'notes/test.md',
+        'content'
+      );
+
+      expect(mockGitAdapter.add).toHaveBeenCalledWith('notes/test.md');
+      expect(mockGitAdapter.commit).toHaveBeenCalledWith('Update note: test.md');
+      expect(mockGitAdapter.pull).toHaveBeenCalled();
+      expect(mockGitAdapter.push).toHaveBeenCalled();
+      expect(result).toEqual({});
+    });
+
+    it('uses autosave commit message when requested', async () => {
+      await filesService.saveWithGitWorkflow('notes/test.md', 'content', true);
+
+      expect(mockGitAdapter.commit).toHaveBeenCalledWith('Autosave: test.md');
+    });
+
+    it('marks pull failure and conflict without pushing', async () => {
+      mockGitAdapter.pull.mockRejectedValue(new Error('CONFLICT in file'));
+
+      const result = await filesService.saveWithGitWorkflow(
+        'notes/test.md',
+        'content'
+      );
+
+      expect(result.pullFailed).toBe(true);
+      expect(result.conflictDetected).toBe(true);
+      expect(mockGitAdapter.push).not.toHaveBeenCalled();
+    });
+
+    it('marks pull failure and still pushes when not a conflict', async () => {
+      mockGitAdapter.pull.mockRejectedValue(new Error('Network error'));
+
+      const result = await filesService.saveWithGitWorkflow(
+        'notes/test.md',
+        'content'
+      );
+
+      expect(result.pullFailed).toBe(true);
+      expect(result.conflictDetected).toBeUndefined();
+      expect(mockGitAdapter.push).toHaveBeenCalled();
+    });
+
+    it('marks push failure when push fails', async () => {
+      mockGitAdapter.push.mockRejectedValue(new Error('Push failed'));
+
+      const result = await filesService.saveWithGitWorkflow(
+        'notes/test.md',
+        'content'
+      );
+
+      expect(result.pushFailed).toBe(true);
+    });
+
+    it('continues when commit fails', async () => {
+      mockGitAdapter.commit.mockRejectedValue(new Error('Nothing to commit'));
+
+      const result = await filesService.saveWithGitWorkflow(
+        'notes/test.md',
+        'content'
+      );
+
+      expect(mockGitAdapter.pull).toHaveBeenCalled();
+      expect(mockGitAdapter.push).toHaveBeenCalled();
+      expect(result).toEqual({});
+    });
+  });
+
   describe('createFile', () => {
     it('should create markdown file with default content', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
