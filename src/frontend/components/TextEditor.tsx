@@ -197,6 +197,10 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) {
+        return;
+      }
+
       if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         handleOpenFind();
@@ -208,6 +212,13 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
   }, [handleOpenFind]);
 
   const customKeymap = keymap.of([
+    {
+      key: 'Mod-s',
+      run: () => {
+        handleSave();
+        return true;
+      },
+    },
     {
       key: 'Ctrl-Enter',
       run: (view) => {
@@ -342,4 +353,3 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     </Box>
   );
 }
-
