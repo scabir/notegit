@@ -57,6 +57,8 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.962.0",
     "@codemirror/lang-markdown": "^6.2.3",
+    "@codemirror/state": "^6.5.4",
+    "@codemirror/view": "^6.39.11",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.0",
@@ -77,6 +79,12 @@
     "remark-gfm": "^4.0.0",
     "simple-git": "^3.21.0",
     "winston": "^3.11.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild"
+    ]
   },
   "build": {
     "appId": "com.notegit.app",
