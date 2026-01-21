@@ -17,16 +17,16 @@ echo ""
 
 # Clean previous builds
 echo "📦 Cleaning previous builds..."
-npm run clean
+pnpm run clean
 rm -rf release
 
 # Build the application
 echo "🔨 Building application..."
-npm run build
+pnpm run build
 
 # Package for Linux
 echo "📦 Packaging for Linux (x64)..."
-npx electron-builder --linux --x64
+pnpm exec electron-builder --linux --x64
 
 echo ""
 echo "✅ Build complete!"
@@ -38,4 +38,3 @@ echo "Distribution files:"
 echo "  - AppImage: Universal Linux package (works on most distributions)"
 echo "  - DEB: Debian/Ubuntu package (apt-based systems)"
 echo "  - RPM: Fedora/RHEL/CentOS package (yum/dnf-based systems)"
-

@@ -18,16 +18,16 @@ echo ""
 
 # Clean previous builds
 echo "📦 Cleaning previous builds..."
-npm run clean
+pnpm run clean
 rm -rf release
 
 # Build the application
 echo "🔨 Building application..."
-npm run build
+pnpm run build
 
 # Package for Windows
 echo "📦 Packaging for Windows (x64 and ia32)..."
-npx electron-builder --win --x64 --ia32
+pnpm exec electron-builder --win --x64 --ia32
 
 echo ""
 echo "✅ Build complete!"
@@ -41,4 +41,3 @@ echo "  - Portable: Standalone executable (no installation required)"
 echo ""
 echo "⚠️  Note: If building from macOS/Linux, you may need Wine installed"
 echo "    for code signing. For unsigned builds, this should work fine."
-

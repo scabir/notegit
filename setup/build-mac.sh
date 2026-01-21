@@ -17,16 +17,16 @@ echo ""
 
 # Clean previous builds
 echo "📦 Cleaning previous builds..."
-npm run clean
+pnpm run clean
 rm -rf release
 
 # Build the application
 echo "🔨 Building application..."
-npm run build
+pnpm run build
 
 # Package for macOS
 echo "📦 Packaging for macOS (Intel x64 and Apple Silicon arm64)..."
-npx electron-builder --mac --x64 --arm64
+pnpm exec electron-builder --mac --x64 --arm64
 
 echo ""
 echo "✅ Build complete!"
@@ -37,4 +37,3 @@ echo ""
 echo "Distribution files:"
 echo "  - DMG: Drag-and-drop installer for macOS"
 echo "  - ZIP: Portable archive for manual installation"
-

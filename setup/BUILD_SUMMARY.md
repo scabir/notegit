@@ -1,6 +1,6 @@
 # Build Setup Summary
 
-✅ **notegit v2.0.1** is ready to be packaged for distribution!
+✅ **notegit v2.1.0** is ready to be packaged for distribution!
 
 ## What Was Set Up
 
@@ -40,8 +40,8 @@ cd setup
 ```
 
 This will create:
-- `release/notegit-2.0.1.dmg` (DMG installer)
-- `release/notegit-2.0.1-mac.zip` (ZIP archive)
+- `release/notegit-2.1.0.dmg` (DMG installer)
+- `release/notegit-2.1.0-mac.zip` (ZIP archive)
 
 ### What Happens During Build
 
@@ -107,7 +107,7 @@ cd setup && ./build-linux.sh
 cd setup && ./build-all.sh
 
 # Clean builds
-npm run clean
+pnpm run clean
 rm -rf release
 ```
 
@@ -136,15 +136,15 @@ notegit/
 
 ### Build Fails
 ```bash
-npm run clean
-npm install
-npm run build
+pnpm run clean
+pnpm install
+pnpm run build
 cd setup && ./build-mac.sh
 ```
 
 ### "electron-builder: command not found"
 ```bash
-npm install
+pnpm install
 ```
 
 ### Permission Denied
@@ -168,10 +168,10 @@ chmod +x setup/*.sh
 For build issues:
 1. Check `setup/README.md` for detailed troubleshooting
 2. Check electron-builder GitHub issues
-3. Verify all dependencies are installed: `npm install`
+3. Verify all dependencies are installed: `pnpm install`
 
 ---
 
 **Status**: ✅ Ready to build  
-**Version**: 2.0.1  
+**Version**: 2.1.0  
 **Last Updated**: November 16, 2025
