@@ -2,7 +2,7 @@
 
 A Git- and S3-backed Markdown note-taking desktop application built with Electron, React, and TypeScript.
 
-**Version**: 2.0.1  
+**Version**: 2.1.0  
 **License**: MIT
 
 ---
@@ -114,21 +114,21 @@ Use the provided scripts in the `setup/` folder:
 cd setup
 ./build-mac.sh
 ```
-Output: `release/notegit-2.0.1.dmg` and `release/notegit-2.0.1-mac.zip`
+Output: `release/notegit-2.1.0.dmg` and `release/notegit-2.1.0-mac.zip`
 
 **Windows** (run on Windows or use cross-compilation):
 ```bash
 cd setup
 ./build-windows.sh
 ```
-Output: `release/notegit-Setup-2.0.1.exe`
+Output: `release/notegit-Setup-2.1.0.exe`
 
 **Linux**:
 ```bash
 cd setup
 ./build-linux.sh
 ```
-Output: `release/notegit-2.0.1.AppImage` and `release/notegit_2.0.1_amd64.deb`
+Output: `release/notegit-2.1.0.AppImage` and `release/notegit_2.1.0_amd64.deb`
 
 **All Platforms** (requires cross-compilation setup):
 ```bash

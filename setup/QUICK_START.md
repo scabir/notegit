@@ -46,19 +46,19 @@ cd setup && ./build-all.sh
 After running a build script, you'll find installers in the `release/` folder:
 
 ### macOS
-- `notegit-2.0.1.dmg` - Drag-and-drop installer
-- `notegit-2.0.1-mac.zip` - Portable archive
+- `notegit-2.1.0.dmg` - Drag-and-drop installer
+- `notegit-2.1.0-mac.zip` - Portable archive
 - Universal build (works on Intel and Apple Silicon)
 
 ### Windows
-- `notegit Setup 2.0.1.exe` - Full installer
-- `notegit 2.0.1.exe` - Portable executable
+- `notegit Setup 2.1.0.exe` - Full installer
+- `notegit 2.1.0.exe` - Portable executable
 - Both 32-bit and 64-bit versions
 
 ### Linux
-- `notegit-2.0.1.AppImage` - Universal Linux package
-- `notegit_2.0.1_amd64.deb` - Debian/Ubuntu package
-- `notegit-2.0.1.x86_64.rpm` - Red Hat/Fedora package
+- `notegit-2.1.0.AppImage` - Universal Linux package
+- `notegit_2.1.0_amd64.deb` - Debian/Ubuntu package
+- `notegit-2.1.0.x86_64.rpm` - Red Hat/Fedora package
 
 ## Distribution
 
