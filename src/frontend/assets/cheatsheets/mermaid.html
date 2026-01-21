@@ -1,0 +1,179 @@
+<section>
+  <h1>Mermaid Diagrams Cheatsheet</h1>
+  <p>Wrap Mermaid diagrams in a <code>```mermaid</code> code block.</p>
+  <p>Some diagrams are marked as beta and may require newer Mermaid versions.</p>
+
+  <h2>Flowchart</h2>
+  <pre><code>```mermaid
+flowchart LR
+  A[Start] --> B{Decision}
+  B -->|Yes| C[Continue]
+  B -->|No| D[Stop]
+  subgraph Phase 1
+    C --> E[Finish]
+  end
+```</code></pre>
+
+  <h2>Sequence Diagram</h2>
+  <pre><code>```mermaid
+sequenceDiagram
+  participant U as User
+  participant A as App
+  participant S as Service
+  U->>A: Click
+  A->>S: Request
+  S-->>A: Response
+  A-->>U: Update
+```</code></pre>
+
+  <h2>Class Diagram</h2>
+  <pre><code>```mermaid
+classDiagram
+  class User {
+    +string name
+  }
+  class Note {
+    +string title
+    +string body
+  }
+  User "1" --> "*" Note : owns
+```</code></pre>
+
+  <h2>State Diagram (v2)</h2>
+  <pre><code>```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Editing : open
+  Editing --> Saved : save
+  Saved --> Idle : close
+```</code></pre>
+
+  <h2>ER Diagram</h2>
+  <pre><code>```mermaid
+erDiagram
+  CUSTOMER }|..|{ ORDER : places
+  ORDER ||--|{ ORDER-ITEM : includes
+```</code></pre>
+
+  <h2>Gantt</h2>
+  <pre><code>```mermaid
+gantt
+  title Project Plan
+  dateFormat  YYYY-MM-DD
+  section Build
+  Setup :a1, 2025-01-01, 3d
+  Dev   :a2, after a1, 5d
+```</code></pre>
+
+  <h2>User Journey</h2>
+  <pre><code>```mermaid
+journey
+  title User Journey
+  section Search
+    Find note: 5: User
+    Open note: 4: User
+```</code></pre>
+
+  <h2>Pie</h2>
+  <pre><code>```mermaid
+pie title Time
+  "Coding" : 8
+  "Meetings" : 2
+```</code></pre>
+
+  <h2>Requirement Diagram</h2>
+  <pre><code>```mermaid
+requirementDiagram
+  requirement req1 {
+    id: REQ-1
+    text: Save notes
+    risk: medium
+    verifymethod: test
+  }
+  element app
+  app - satisfies -> req1
+```</code></pre>
+
+  <h2>Git Graph</h2>
+  <pre><code>```mermaid
+gitGraph
+  commit
+  branch feature
+  checkout feature
+  commit
+  checkout main
+  merge feature
+```</code></pre>
+
+  <h2>Mindmap</h2>
+  <pre><code>```mermaid
+mindmap
+  root((Notes))
+    Markdown
+      Basics
+      Tables
+    Sync
+      Git
+      S3
+```</code></pre>
+
+  <h2>Timeline</h2>
+  <pre><code>```mermaid
+timeline
+  title Release Timeline
+  2025-01 : MVP
+  2025-02 : S3 sync
+  2025-03 : Mobile
+```</code></pre>
+
+  <h2>Quadrant Chart</h2>
+  <pre><code>```mermaid
+quadrantChart
+  title Priorities
+  x-axis Low --> High
+  y-axis Low --> High
+  quadrant-1 Urgent
+  quadrant-2 Important
+  quadrant-3 Defer
+  quadrant-4 Optional
+  "Fix bug" : [0.8, 0.9]
+```</code></pre>
+
+  <h2>Sankey (beta)</h2>
+  <pre><code>```mermaid
+sankey-beta
+  A, B, 5
+  A, C, 3
+  B, D, 2
+```</code></pre>
+
+  <h2>XY Chart (beta)</h2>
+  <pre><code>```mermaid
+xychart-beta
+  title "Build time"
+  x-axis [Jan, Feb, Mar]
+  y-axis "Minutes" 0 --> 30
+  bar [10, 20, 15]
+  line [12, 18, 14]
+```</code></pre>
+
+  <h2>Block Diagram (beta)</h2>
+  <pre><code>```mermaid
+block-beta
+  columns 3
+  A["Input"] B["Process"] C["Output"]
+  A --> B --> C
+```</code></pre>
+
+  <h2>Architecture Diagram (beta)</h2>
+  <pre><code>```mermaid
+architecture-beta
+  group client
+    service web
+  group backend
+    service api
+    service db
+  web --> api
+  api --> db
+```</code></pre>
+</section>

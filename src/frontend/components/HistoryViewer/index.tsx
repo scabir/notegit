@@ -23,7 +23,9 @@ import { markdown } from '@codemirror/lang-markdown';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkDeflist from 'remark-deflist';
 import { MermaidDiagram } from '../MermaidDiagram';
+import { remarkHighlight } from '../../utils/remarkHighlight';
 import { HISTORY_VIEWER_TEXT } from './constants';
 import {
   dialogPaperSx,
@@ -170,7 +172,7 @@ export function HistoryViewer({
                     elevation={0}
                   >
                     <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
+                      remarkPlugins={[remarkGfm, remarkDeflist, remarkHighlight]}
                       components={{
                         img: ({ node, ...props }) => {
                           const src = resolveImageSrc(repoPath, props.src);

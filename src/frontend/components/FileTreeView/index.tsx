@@ -33,7 +33,6 @@ import {
   toolbarSx,
   treeContainerSx,
   treeItemLabelSx,
-  treeItemActionsSx,
   dialogInfoSx,
   dialogErrorSx,
 } from './styles';
@@ -99,6 +98,10 @@ export function FileTreeView({
     setNewItemName(currentName);
     setErrorMessage('');
     setRenameDialogOpen(true);
+  };
+  const handleOpenMoveDialog = () => {
+    if (!selectedNode) return;
+    setMoveDialogOpen(true);
   };
 
   const handleCreateFile = async () => {
@@ -370,22 +373,7 @@ export function FileTreeView({
         label={
         <Box sx={treeItemLabelSx}>
           <span style={{ flex: 1 }}>{node.name}</span>
-          <Box sx={treeItemActionsSx}>
-            <Tooltip title={FILE_TREE_TEXT.moveToFolder}>
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedNode(node);
-                    setMoveDialogOpen(true);
-                  }}
-                  sx={{ padding: '2px' }}
-                >
-                  <MoveIcon sx={{ fontSize: '14px' }} />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          </Box>
+        </Box>
         }
         icon={icon}
       >
@@ -459,6 +447,17 @@ export function FileTreeView({
               disabled={!selectedNode}
             >
               <RenameIcon fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title={FILE_TREE_TEXT.moveToFolder}>
+          <span>
+            <IconButton
+              size="small"
+              onClick={handleOpenMoveDialog}
+              disabled={!selectedNode}
+            >
+              <MoveIcon fontSize="small" />
             </IconButton>
           </span>
         </Tooltip>

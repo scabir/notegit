@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Paper, Divider, Toolbar, IconButton, Chip, Tooltip, useTheme, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { Box, Paper, Divider, Toolbar, IconButton, Chip, Tooltip, useTheme, ToggleButtonGroup, ToggleButton, Menu, MenuItem, Typography } from '@mui/material';
 import {
   Save as SaveIcon,
   FiberManualRecord as UnsavedIcon,
@@ -13,18 +13,30 @@ import {
   Title as HeadingIcon,
   FormatQuote as QuoteIcon,
   Link as LinkIcon,
+  TableChart as TableIcon,
+  Notes as FootnoteIcon,
+  Checklist as TaskListIcon,
+  Highlight as HighlightIcon,
+  ListAlt as DefinitionListIcon,
   FileDownload as ExportIcon,
+  MoreHoriz as MoreIcon,
+  MenuBook as CheatSheetIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
 import CodeMirror from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkDeflist from 'remark-deflist';
 import { EditorView, keymap } from '@codemirror/view';
 import { EditorSelection } from '@codemirror/state';
 import { FindReplaceBar } from '../FindReplaceBar';
 import { MermaidDiagram } from '../MermaidDiagram';
 import type { AppSettings } from '../../../shared/types';
+import { remarkHighlight } from '../../utils/remarkHighlight';
+import markdownCheatsheetHtml from '../../assets/cheatsheets/markdown.html?raw';
+import mermaidCheatsheetHtml from '../../assets/cheatsheets/mermaid.html?raw';
 import { MARKDOWN_EDITOR_TEXT, MARKDOWN_INSERT_DEFAULTS, MARKDOWN_INSERT_TOKENS } from './constants';
 import {
   emptyStateSx,
@@ -38,6 +50,8 @@ import {
   previewPaneSx,
   splitterSx,
   previewPaperSx,
+  cheatSheetHeaderSx,
+  cheatSheetContentSx,
 } from './styles';
 import type { MarkdownEditorProps, ViewMode } from './types';
 
@@ -57,6 +71,9 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
 
   const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
+  const [extrasAnchorEl, setExtrasAnchorEl] = useState<null | HTMLElement>(null);
+  const [cheatSheetAnchorEl, setCheatSheetAnchorEl] = useState<null | HTMLElement>(null);
+  const [cheatSheetType, setCheatSheetType] = useState<'markdown' | 'mermaid' | null>(null);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -309,6 +326,174 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     MARKDOWN_INSERT_TOKENS.link[1],
     MARKDOWN_INSERT_DEFAULTS.linkText,
   );
+  const formatTable = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.table[0],
+    MARKDOWN_INSERT_TOKENS.table[1],
+    MARKDOWN_INSERT_DEFAULTS.table,
+  );
+  const formatTaskList = useCallback(() => {
+    if (!editorRef.current?.view) return;
+
+    const view = editorRef.current.view;
+    const selection = view.state.selection.main;
+    const selectedText = view.state.doc.sliceString(selection.from, selection.to);
+    const taskLabel = MARKDOWN_INSERT_DEFAULTS.taskList;
+    const uncheckedRegex = /^\s*-\s\[\s\]\s?/;
+    const doneRegex = /^\s*-\s\[[xX]\]\s?/;
+
+    if (!selectedText) {
+      const line = view.state.doc.lineAt(selection.from);
+      const atLineStart = selection.from === line.from;
+      const prefix = atLineStart ? '' : '\n';
+      const insertText = `${prefix}- [ ] ${taskLabel}`;
+      const cursorStart = selection.from + prefix.length + '- [ ] '.length;
+      const cursorEnd = cursorStart + taskLabel.length;
+
+      view.dispatch({
+        changes: { from: selection.from, to: selection.to, insert: insertText },
+        selection: { anchor: cursorStart, head: cursorEnd },
+      });
+      view.focus();
+      return;
+    }
+
+    const lines = selectedText.split('\n');
+    const allTasks = lines.every((line) => uncheckedRegex.test(line) || doneRegex.test(line));
+    const anyDone = lines.some((line) => doneRegex.test(line));
+
+    if (allTasks && !anyDone) {
+      const stripped = lines.map((line) => line.replace(uncheckedRegex, ''));
+      const replacement = stripped.join('\n');
+
+      view.dispatch({
+        changes: { from: selection.from, to: selection.to, insert: replacement },
+        selection: { anchor: selection.from, head: selection.from + replacement.length },
+      });
+      view.focus();
+      return;
+    }
+
+    if (allTasks && anyDone) {
+      view.focus();
+      return;
+    }
+
+    const replacement = lines
+      .map((line) => {
+        if (uncheckedRegex.test(line) || doneRegex.test(line)) {
+          return line;
+        }
+        const content = line.trim() || taskLabel;
+        return `- [ ] ${content}`;
+      })
+      .join('\n');
+
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: replacement },
+      selection: { anchor: selection.from, head: selection.from + replacement.length },
+    });
+    view.focus();
+  }, []);
+  const formatHighlight = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.highlight[0],
+    MARKDOWN_INSERT_TOKENS.highlight[1],
+    MARKDOWN_INSERT_DEFAULTS.highlight,
+  );
+  const formatDefinitionList = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.definitionList[0],
+    MARKDOWN_INSERT_TOKENS.definitionList[1],
+    MARKDOWN_INSERT_DEFAULTS.definitionList,
+  );
+  const formatFootnote = useCallback(() => {
+    if (!editorRef.current?.view) return;
+
+    const view = editorRef.current.view;
+    const docText = view.state.doc.toString();
+    const footnoteMatches = [...docText.matchAll(/\[\^(\d+)\]/g)];
+    const maxId = footnoteMatches.reduce((max, match) => {
+      const value = Number(match[1]);
+      return Number.isFinite(value) ? Math.max(max, value) : max;
+    }, 0);
+    const nextId = maxId + 1;
+
+    const reference = `[^${nextId}]`;
+    const definitionPrefix = `\n\n[^${nextId}]: `;
+    const definitionText = MARKDOWN_INSERT_DEFAULTS.footnote;
+    const definition = `${definitionPrefix}${definitionText}`;
+
+    const selection = view.state.selection.main;
+    const docLength = view.state.doc.length;
+    const changes = [
+      { from: selection.to, to: selection.to, insert: reference },
+      { from: docLength, to: docLength, insert: definition },
+    ];
+
+    const footnoteTextStart = docLength + reference.length + definitionPrefix.length;
+    const footnoteTextEnd = footnoteTextStart + definitionText.length;
+
+    view.dispatch({
+      changes,
+      selection: { anchor: footnoteTextStart, head: footnoteTextEnd },
+      scrollIntoView: true,
+    });
+
+    view.focus();
+  }, []);
+  const formatRawMarkdown = () => insertMarkdown(
+    MARKDOWN_INSERT_TOKENS.rawMarkdown[0],
+    MARKDOWN_INSERT_TOKENS.rawMarkdown[1],
+    MARKDOWN_INSERT_DEFAULTS.rawMarkdown,
+  );
+  const formatMermaid = useCallback(() => {
+    if (!editorRef.current?.view) return;
+
+    const view = editorRef.current.view;
+    const selection = view.state.selection.main;
+    const mermaidBlock = `${MARKDOWN_INSERT_TOKENS.mermaid[0]}${MARKDOWN_INSERT_DEFAULTS.mermaid}${MARKDOWN_INSERT_TOKENS.mermaid[1]}`;
+    const cursorStart = selection.from + MARKDOWN_INSERT_TOKENS.mermaid[0].length;
+    const cursorEnd = cursorStart + MARKDOWN_INSERT_DEFAULTS.mermaid.length;
+
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: mermaidBlock },
+      selection: { anchor: cursorStart, head: cursorEnd },
+    });
+
+    view.focus();
+  }, []);
+
+  const handleOpenExtras = (event: React.MouseEvent<HTMLElement>) => {
+    setExtrasAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseExtras = () => {
+    setExtrasAnchorEl(null);
+  };
+
+  const handleInsertMermaid = () => {
+    handleCloseExtras();
+    formatMermaid();
+  };
+  const handleInsertRawMarkdown = () => {
+    handleCloseExtras();
+    formatRawMarkdown();
+  };
+  const handleOpenCheatSheetMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setCheatSheetAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseCheatSheetMenu = () => {
+    setCheatSheetAnchorEl(null);
+  };
+
+  const handleSelectCheatSheet = (type: 'markdown' | 'mermaid') => {
+    handleCloseCheatSheetMenu();
+    setCheatSheetType(type);
+    setViewMode('split');
+  };
+
+  const handleCloseCheatSheet = () => {
+    setCheatSheetType(null);
+  };
 
   const customKeymap = keymap.of([
     {
@@ -369,6 +554,20 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
 
   const showEditor = viewMode === 'split' || viewMode === 'editor';
   const showPreview = viewMode === 'split' || viewMode === 'preview';
+  const activeCheatSheetHtml = cheatSheetType === 'markdown'
+    ? markdownCheatsheetHtml
+    : cheatSheetType === 'mermaid'
+      ? mermaidCheatsheetHtml
+      : null;
+  const activeCheatSheetLabel = cheatSheetType === 'markdown'
+    ? MARKDOWN_EDITOR_TEXT.markdownCheatsheetLabel
+    : cheatSheetType === 'mermaid'
+      ? MARKDOWN_EDITOR_TEXT.mermaidCheatsheetLabel
+      : '';
+  const cheatSheets = [
+    { key: 'markdown' as const, label: MARKDOWN_EDITOR_TEXT.markdownCheatsheetLabel },
+    { key: 'mermaid' as const, label: MARKDOWN_EDITOR_TEXT.mermaidCheatsheetLabel },
+  ];
 
   return (
     <Box sx={rootSx}>
@@ -497,6 +696,88 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
               <LinkIcon fontSize="small" />
             </IconButton>
           </Tooltip>
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.tableTooltip}>
+            <IconButton size="small" onClick={formatTable}>
+              <TableIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.footnoteLabel}>
+            <IconButton size="small" onClick={formatFootnote}>
+              <FootnoteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.taskListLabel}>
+            <IconButton size="small" onClick={formatTaskList}>
+              <TaskListIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.highlightLabel}>
+            <IconButton size="small" onClick={formatHighlight}>
+              <HighlightIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.definitionListLabel}>
+            <IconButton size="small" onClick={formatDefinitionList}>
+              <DefinitionListIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.extrasTooltip}>
+            <IconButton
+              size="small"
+              onClick={handleOpenExtras}
+              aria-label={MARKDOWN_EDITOR_TEXT.extrasTooltip}
+              aria-haspopup="true"
+              aria-controls={extrasAnchorEl ? 'markdown-extras-menu' : undefined}
+              aria-expanded={extrasAnchorEl ? 'true' : undefined}
+            >
+              <MoreIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={MARKDOWN_EDITOR_TEXT.cheatsheetTooltip}>
+            <IconButton
+              size="small"
+              onClick={handleOpenCheatSheetMenu}
+              aria-label={MARKDOWN_EDITOR_TEXT.cheatsheetTooltip}
+              aria-haspopup="true"
+              aria-controls={cheatSheetAnchorEl ? 'markdown-cheatsheet-menu' : undefined}
+              aria-expanded={cheatSheetAnchorEl ? 'true' : undefined}
+            >
+              <CheatSheetIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Menu
+            id="markdown-extras-menu"
+            anchorEl={extrasAnchorEl}
+            open={Boolean(extrasAnchorEl)}
+            onClose={handleCloseExtras}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            <MenuItem onClick={handleInsertMermaid}>
+              {MARKDOWN_EDITOR_TEXT.mermaidLabel}
+            </MenuItem>
+            <MenuItem onClick={handleInsertRawMarkdown}>
+              {MARKDOWN_EDITOR_TEXT.rawMarkdownLabel}
+            </MenuItem>
+          </Menu>
+          <Menu
+            id="markdown-cheatsheet-menu"
+            anchorEl={cheatSheetAnchorEl}
+            open={Boolean(cheatSheetAnchorEl)}
+            onClose={handleCloseCheatSheetMenu}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            {cheatSheets.map((sheet) => (
+              <MenuItem
+                key={sheet.key}
+                onClick={() => handleSelectCheatSheet(sheet.key)}
+              >
+                {sheet.label}
+              </MenuItem>
+            ))}
+          </Menu>
         </Toolbar>
       )}
 
@@ -544,39 +825,58 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
               sx={previewPaperSx(isDark)}
               elevation={0}
             >
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  img: ({ node, ...props }) => {
-                    let src = props.src || '';
-                    if (repoPath && src && !src.startsWith('http') && !src.startsWith('data:')) {
-                      src = `file://${repoPath}/${src}`;
-                    }
-                    return (
-                      <img
-                        {...props}
-                        src={src}
-                        style={{ maxWidth: '100%', height: 'auto' }}
-                        alt={props.alt || ''}
-                      />
-                    );
-                  },
-                  code: ({ inline, className, children, ...props }) => {
-                    const match = /language-(\w+)/.exec(className || '');
-                    if (!inline && match?.[1] === 'mermaid') {
-                      const diagramCode = String(children).replace(/\n$/, '');
-                      return <MermaidDiagram code={diagramCode} isDark={isDark} />;
-                    }
-                    return (
-                      <code className={className} {...props}>
-                        {children}
-                      </code>
-                    );
-                  },
-                }}
-              >
-                {content}
-              </ReactMarkdown>
+              {activeCheatSheetHtml ? (
+                <>
+                  <Box sx={cheatSheetHeaderSx}>
+                    <Typography variant="subtitle1">
+                      {activeCheatSheetLabel}
+                    </Typography>
+                    <Tooltip title={MARKDOWN_EDITOR_TEXT.closeCheatsheetLabel}>
+                      <IconButton size="small" onClick={handleCloseCheatSheet}>
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  <Box
+                    sx={cheatSheetContentSx}
+                    dangerouslySetInnerHTML={{ __html: activeCheatSheetHtml }}
+                  />
+                </>
+              ) : (
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkDeflist, remarkHighlight]}
+                  components={{
+                    img: ({ node, ...props }) => {
+                      let src = props.src || '';
+                      if (repoPath && src && !src.startsWith('http') && !src.startsWith('data:')) {
+                        src = `file://${repoPath}/${src}`;
+                      }
+                      return (
+                        <img
+                          {...props}
+                          src={src}
+                          style={{ maxWidth: '100%', height: 'auto' }}
+                          alt={props.alt || ''}
+                        />
+                      );
+                    },
+                    code: ({ inline, className, children, ...props }) => {
+                      const match = /language-(\w+)/.exec(className || '');
+                      if (!inline && match?.[1] === 'mermaid') {
+                        const diagramCode = String(children).replace(/\n$/, '');
+                        return <MermaidDiagram code={diagramCode} isDark={isDark} />;
+                      }
+                      return (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      );
+                    },
+                  }}
+                >
+                  {content}
+                </ReactMarkdown>
+              )}
             </Paper>
           </Box>
         )}

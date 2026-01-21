@@ -115,4 +115,26 @@ export const previewPaperSx = (isDark: boolean): SxProps<Theme> => ({
     marginTop: 0,
     marginBottom: '16px',
   },
+  '& mark': {
+    backgroundColor: isDark ? 'rgba(255, 212, 0, 0.2)' : 'rgba(255, 230, 128, 0.6)',
+    color: 'inherit',
+    padding: '0 2px',
+    borderRadius: '2px',
+  },
 });
+
+export const cheatSheetHeaderSx: SxProps<Theme> = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 1,
+  mb: 2,
+};
+
+export const cheatSheetContentSx: SxProps<Theme> = {
+  '& section': {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+};

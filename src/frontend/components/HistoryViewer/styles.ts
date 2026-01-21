@@ -67,6 +67,12 @@ export const previewPaperSx = (isDark: boolean): SxProps<Theme> => ({
     paddingLeft: '16px',
     color: isDark ? '#8b949e' : '#57606a',
   },
+  '& mark': {
+    backgroundColor: isDark ? 'rgba(255, 212, 0, 0.2)' : 'rgba(255, 230, 128, 0.6)',
+    color: 'inherit',
+    padding: '0 2px',
+    borderRadius: '2px',
+  },
 });
 
 export const codeMirrorContainerSx = (isDark: boolean): SxProps<Theme> => ({
