@@ -11,6 +11,7 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
+    '\\.html\\?raw$': '<rootDir>/src/unit-tests/__mocks__/rawHtmlMock.ts',
   },
   setupFilesAfterEnv: ['<rootDir>/src/unit-tests/setup.ts'],
 };

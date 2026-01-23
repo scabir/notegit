@@ -241,4 +241,186 @@ describe('filesHandlers', () => {
     expect(response.ok).toBe(false);
     expect(response.error?.message).toBe('status failed');
   });
+
+  it('returns file tree from listTree', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      listTree: jest.fn().mockResolvedValue([{ id: 'root' }]),
+    } as any;
+    const repoService = {} as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const response = await handlers['files:listTree']();
+
+    expect(response.ok).toBe(true);
+    expect(response.data).toHaveLength(1);
+  });
+
+  it('returns error when listTree fails', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      listTree: jest.fn().mockRejectedValue(new Error('list fail')),
+    } as any;
+    const repoService = {} as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const response = await handlers['files:listTree']();
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.message).toBe('list fail');
+  });
+
+  it('reads files and handles read errors', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      readFile: jest.fn().mockResolvedValue({ path: 'note.md', content: 'hi', type: 'markdown' }),
+    } as any;
+    const repoService = {} as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const okResponse = await handlers['files:read'](null, 'note.md');
+    expect(okResponse.ok).toBe(true);
+    expect(okResponse.data?.path).toBe('note.md');
+
+    filesService.readFile.mockRejectedValueOnce(new Error('read fail'));
+    const errResponse = await handlers['files:read'](null, 'note.md');
+    expect(errResponse.ok).toBe(false);
+    expect(errResponse.error?.message).toBe('read fail');
+  });
+
+  it('creates files and folders and returns errors', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      createFile: jest.fn().mockResolvedValue(undefined),
+      createFolder: jest.fn().mockResolvedValue(undefined),
+    } as any;
+    const repoService = {} as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const createResponse = await handlers['files:create'](null, '', 'note.md');
+    const folderResponse = await handlers['files:createFolder'](null, '', 'docs');
+
+    expect(createResponse.ok).toBe(true);
+    expect(folderResponse.ok).toBe(true);
+
+    filesService.createFile.mockRejectedValueOnce(new Error('create fail'));
+    const createError = await handlers['files:create'](null, '', 'note.md');
+    expect(createError.ok).toBe(false);
+    expect(createError.error?.message).toBe('create fail');
+  });
+
+  it('returns error when save fails', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      saveFile: jest.fn().mockRejectedValue(new Error('save fail')),
+    } as any;
+    const repoService = {
+      queueS3Upload: jest.fn(),
+    } as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const response = await handlers['files:save'](null, 'note.md', 'body');
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.message).toBe('save fail');
+  });
+
+  it('returns error when delete or rename fails', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      deletePath: jest.fn().mockRejectedValue(new Error('delete fail')),
+      renamePath: jest.fn().mockRejectedValue(new Error('rename fail')),
+    } as any;
+    const repoService = {
+      queueS3Delete: jest.fn(),
+      queueS3Move: jest.fn(),
+    } as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const deleteResponse = await handlers['files:delete'](null, 'note.md');
+    const renameResponse = await handlers['files:rename'](null, 'note.md', 'new.md');
+
+    expect(deleteResponse.ok).toBe(false);
+    expect(deleteResponse.error?.message).toBe('delete fail');
+    expect(renameResponse.ok).toBe(false);
+    expect(renameResponse.error?.message).toBe('rename fail');
+  });
+
+  it('handles saveAs and import success/error', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      saveFileAs: jest.fn().mockResolvedValue(undefined),
+      importFile: jest.fn().mockResolvedValue(undefined),
+    } as any;
+    const repoService = {} as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const saveAsResponse = await handlers['files:saveAs'](null, '/repo', '/tmp/out.md');
+    const importResponse = await handlers['files:import'](null, '/tmp/in.md', 'in.md');
+
+    expect(saveAsResponse.ok).toBe(true);
+    expect(importResponse.ok).toBe(true);
+
+    filesService.saveFileAs.mockRejectedValueOnce(new Error('saveAs fail'));
+    filesService.importFile.mockRejectedValueOnce(new Error('import fail'));
+
+    const saveAsError = await handlers['files:saveAs'](null, '/repo', '/tmp/out.md');
+    const importError = await handlers['files:import'](null, '/tmp/in.md', 'in.md');
+
+    expect(saveAsError.ok).toBe(false);
+    expect(saveAsError.error?.message).toBe('saveAs fail');
+    expect(importError.ok).toBe(false);
+    expect(importError.error?.message).toBe('import fail');
+  });
+
+  it('adds extra file count to commit message when more than five changes', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      commitAll: jest.fn().mockResolvedValue(undefined),
+      getGitStatus: jest.fn().mockResolvedValue({
+        modified: ['a.md', 'b.md', 'c.md', 'd.md', 'e.md', 'f.md'],
+        added: [],
+        deleted: [],
+      }),
+    } as any;
+    const repoService = {
+      getStatus: jest.fn().mockResolvedValue({ provider: 'git', hasUncommitted: true }),
+      push: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    await handlers['files:commitAndPushAll'](null);
+
+    expect(filesService.commitAll).toHaveBeenCalledWith('Update: a.md, b.md, c.md, d.md, e.md and 1 more');
+  });
+
+  it('uses fallback message when no changed files are listed', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      commitAll: jest.fn().mockResolvedValue(undefined),
+      getGitStatus: jest.fn().mockResolvedValue({
+        modified: [],
+        added: [],
+        deleted: [],
+      }),
+    } as any;
+    const repoService = {
+      getStatus: jest.fn().mockResolvedValue({ provider: 'git', hasUncommitted: true }),
+      push: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    await handlers['files:commitAndPushAll'](null);
+
+    expect(filesService.commitAll).toHaveBeenCalledWith('Update: multiple files');
+  });
 });

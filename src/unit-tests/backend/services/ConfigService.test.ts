@@ -1,7 +1,7 @@
 import { ConfigService } from '../../../backend/services/ConfigService';
 import { FsAdapter } from '../../../backend/adapters/FsAdapter';
 import { CryptoAdapter } from '../../../backend/adapters/CryptoAdapter';
-import { DEFAULT_APP_SETTINGS, AuthMethod, RepoSettings, GitRepoSettings } from '../../../shared/types';
+import { DEFAULT_APP_SETTINGS, AuthMethod, RepoSettings, GitRepoSettings, ApiErrorCode, Profile } from '../../../shared/types';
 
 jest.mock('../../../backend/adapters/FsAdapter');
 jest.mock('../../../backend/adapters/CryptoAdapter');
@@ -163,6 +163,46 @@ describe('ConfigService', () => {
       expect(mockCryptoAdapter.decrypt).toHaveBeenCalledWith(encryptedPat);
       expect((settings as GitRepoSettings | null)?.pat).toBe(decryptedPat);
     });
+
+    it('returns repo settings from active profile', async () => {
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) => {
+        return filePath.includes('active-profile.json') || filePath.includes('profiles.json');
+      });
+
+      mockFsAdapter.readFile.mockImplementation(async (filePath: string) => {
+        if (filePath.includes('active-profile.json')) {
+          return JSON.stringify({ activeProfileId: 'profile-1' });
+        }
+        if (filePath.includes('profiles.json')) {
+          return JSON.stringify([
+            {
+              id: 'profile-1',
+              name: 'Profile',
+              repoSettings: {
+                provider: 'git',
+                remoteUrl: 'https://github.com/user/repo.git',
+                branch: 'main',
+                localPath: '/repo',
+                pat: 'encrypted',
+                authMethod: AuthMethod.PAT,
+              },
+              createdAt: Date.now(),
+              lastUsedAt: Date.now(),
+            },
+          ]);
+        }
+        return '{}';
+      });
+
+      mockCryptoAdapter.decrypt.mockReturnValue('decrypted');
+
+      const settings = await configService.getRepoSettings();
+
+      expect(settings).toMatchObject({
+        provider: 'git',
+        pat: 'decrypted',
+      });
+    });
   });
 
   describe('updateRepoSettings', () => {
@@ -192,6 +232,32 @@ describe('ConfigService', () => {
       expect(savedData.pat).toBe(encryptedPat);
       expect(savedData.remoteUrl).toBe(settings.remoteUrl);
     });
+
+    it('throws when provider is changed', async () => {
+      jest.spyOn(configService, 'getRepoSettings').mockResolvedValue({
+        provider: 'git',
+        remoteUrl: 'url',
+        branch: 'main',
+        localPath: '/repo',
+        pat: 'token',
+        authMethod: AuthMethod.PAT,
+      });
+
+      await expect(
+        configService.updateRepoSettings({
+          provider: 's3',
+          bucket: 'bucket',
+          region: 'region',
+          prefix: '',
+          localPath: '/repo',
+          accessKeyId: 'key',
+          secretAccessKey: 'secret',
+          sessionToken: '',
+        })
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
+      });
+    });
   });
 
   describe('clearRepoSettings', () => {
@@ -210,6 +276,162 @@ describe('ConfigService', () => {
       await expect(configService.clearRepoSettings()).resolves.toBeUndefined();
 
       expect(mockFsAdapter.deleteFile).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('profiles management', () => {
+    it('saves profiles with encrypted values', async () => {
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+      mockCryptoAdapter.encrypt.mockImplementation((value) => `enc:${value}`);
+
+      const profiles: Profile[] = [
+        {
+          id: 'profile-1',
+          name: 'Profile',
+          repoSettings: {
+            provider: 'git',
+            remoteUrl: 'https://github.com/user/repo.git',
+            branch: 'main',
+            localPath: '/repo',
+            pat: 'token',
+            authMethod: AuthMethod.PAT,
+          },
+          createdAt: Date.now(),
+          lastUsedAt: Date.now(),
+        },
+      ];
+
+      await configService.saveProfiles(profiles);
+
+      const saved = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
+      expect(saved[0].repoSettings.pat).toBe('enc:token');
+    });
+
+    it('sets active profile id', async () => {
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+
+      await configService.setActiveProfileId('profile-1');
+
+      expect(mockFsAdapter.writeFile).toHaveBeenCalled();
+    });
+
+    it('validates required s3 fields when creating profile', async () => {
+      await expect(
+        configService.createProfile('S3', {
+          provider: 's3',
+          bucket: '',
+          region: '',
+          accessKeyId: '',
+          secretAccessKey: '',
+        } as any)
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.VALIDATION_ERROR,
+      });
+    });
+
+    it('throws when updating unknown profile', async () => {
+      jest.spyOn(configService, 'getProfiles').mockResolvedValue([]);
+
+      await expect(configService.updateProfile('missing', { name: 'New' })).rejects.toThrow(
+        'Profile not found'
+      );
+    });
+
+    it('throws when changing profile provider', async () => {
+      const profiles: Profile[] = [
+        {
+          id: 'profile-1',
+          name: 'Profile',
+          repoSettings: {
+            provider: 'git',
+            remoteUrl: 'https://github.com/user/repo.git',
+            branch: 'main',
+            localPath: '/repo',
+            pat: 'token',
+            authMethod: AuthMethod.PAT,
+          },
+          createdAt: Date.now(),
+          lastUsedAt: Date.now(),
+        },
+      ];
+
+      jest.spyOn(configService, 'getProfiles').mockResolvedValue(profiles);
+
+      await expect(
+        configService.updateProfile('profile-1', {
+          repoSettings: {
+            provider: 's3',
+          } as any,
+        })
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
+      });
+    });
+
+    it('deletes active profile and clears active id', async () => {
+      const profiles: Profile[] = [
+        {
+          id: 'profile-1',
+          name: 'Profile',
+          repoSettings: {
+            provider: 'git',
+            remoteUrl: 'https://github.com/user/repo.git',
+            branch: 'main',
+            localPath: '/repo',
+            pat: 'token',
+            authMethod: AuthMethod.PAT,
+          },
+          createdAt: Date.now(),
+          lastUsedAt: Date.now(),
+        },
+      ];
+
+      jest.spyOn(configService, 'getProfiles').mockResolvedValue(profiles);
+      jest.spyOn(configService, 'saveProfiles').mockResolvedValue(undefined);
+      jest.spyOn(configService, 'getActiveProfileId').mockResolvedValue('profile-1');
+      jest.spyOn(configService, 'setActiveProfileId').mockResolvedValue(undefined);
+
+      await configService.deleteProfile('profile-1');
+
+      expect(configService.saveProfiles).toHaveBeenCalledWith([]);
+      expect(configService.setActiveProfileId).toHaveBeenCalledWith(null);
+    });
+  });
+
+  describe('migrateToProfiles', () => {
+    it('creates a default profile from legacy repo settings', async () => {
+      jest.spyOn(configService, 'getProfiles').mockResolvedValue([]);
+      jest.spyOn(configService, 'getActiveProfileId').mockResolvedValue(null);
+
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) => {
+        return filePath.includes('repo-settings.json');
+      });
+      mockFsAdapter.readFile.mockResolvedValue(
+        JSON.stringify({
+          provider: 'git',
+          remoteUrl: 'https://github.com/user/repo.git',
+          branch: 'main',
+          localPath: '/repo',
+          pat: 'token',
+          authMethod: AuthMethod.PAT,
+        })
+      );
+
+      jest.spyOn(configService, 'saveProfiles').mockResolvedValue(undefined);
+      jest.spyOn(configService, 'setActiveProfileId').mockResolvedValue(undefined);
+
+      await configService.migrateToProfiles();
+
+      expect(configService.saveProfiles).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: 'profile-default',
+          }),
+        ])
+      );
+      expect(configService.setActiveProfileId).toHaveBeenCalledWith('profile-default');
     });
   });
 });

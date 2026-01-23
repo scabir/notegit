@@ -53,6 +53,7 @@ export interface OpenOrCloneRepoResponse {
 export interface NotegitApi {
   config: {
     getFull: () => Promise<ApiResponse<FullConfig>>;
+    getAppSettings: () => Promise<ApiResponse<AppSettings>>;
     updateAppSettings: (settings: Partial<AppSettings>) => Promise<ApiResponse<void>>;
     updateRepoSettings: (settings: RepoSettings) => Promise<ApiResponse<void>>;
     checkGitInstalled: () => Promise<ApiResponse<boolean>>;

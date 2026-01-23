@@ -48,6 +48,7 @@ import type {
   GitRepoSettings,
   S3RepoSettings,
 } from '../../../shared/types';
+import { AuthMethod } from '../../../shared/types';
 import { confirmProfileSwitch } from '../../utils/profileSwitch';
 import { SETTINGS_TEXT } from './constants';
 import { tabHeaderSx, alertSx } from './styles';
@@ -184,8 +185,12 @@ export function SettingsDialog({
         }
 
         settingsToSave = {
-          ...(repoSettings as RepoSettings),
           provider: 'git',
+          remoteUrl: gitSettings.remoteUrl,
+          branch: gitSettings.branch,
+          localPath: gitSettings.localPath || '',
+          pat: gitSettings.pat,
+          authMethod: gitSettings.authMethod ?? AuthMethod.PAT,
         };
       } else {
         const s3Settings = repoSettings as Partial<S3RepoSettings>;
@@ -196,8 +201,14 @@ export function SettingsDialog({
         }
 
         settingsToSave = {
-          ...(repoSettings as RepoSettings),
           provider: 's3',
+          bucket: s3Settings.bucket,
+          region: s3Settings.region,
+          prefix: s3Settings.prefix,
+          localPath: s3Settings.localPath || '',
+          accessKeyId: s3Settings.accessKeyId,
+          secretAccessKey: s3Settings.secretAccessKey,
+          sessionToken: s3Settings.sessionToken,
         };
       }
 
@@ -329,7 +340,7 @@ export function SettingsDialog({
               remoteUrl: newProfileRemoteUrl,
               branch: newProfileBranch,
               pat: newProfilePat,
-              authMethod: 'pat',
+              authMethod: AuthMethod.PAT,
             }
           : {
               provider: 's3',

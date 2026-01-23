@@ -53,10 +53,10 @@ export function MoveToFolderDialog({
   const renderFolderTree = (node: FileTreeNode): React.ReactNode => {
     if (node.type !== 'folder') return null;
 
-    const isInvalid = itemToMove && (
+    const isInvalid = Boolean(itemToMove && (
       node.id === itemToMove.id ||
       (itemToMove.type === 'folder' && isDescendant(itemToMove.path, node.path))
-    );
+    ));
 
     return (
       <TreeItem

@@ -1,0 +1,59 @@
+import { registerLogsHandlers } from '../../../backend/handlers/logsHandlers';
+
+describe('logsHandlers', () => {
+  const createIpcMain = () => {
+    const handlers: Record<string, (...args: any[]) => any> = {};
+    const ipcMain = {
+      handle: jest.fn((channel: string, handler: (...args: any[]) => any) => {
+        handlers[channel] = handler;
+      }),
+    } as any;
+
+    return { ipcMain, handlers };
+  };
+
+  it('returns log content', async () => {
+    const logsService = {
+      getLogContent: jest.fn().mockResolvedValue('content'),
+      exportLogs: jest.fn(),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerLogsHandlers(ipcMain, logsService);
+
+    const response = await handlers['logs:getContent'](null, 'combined');
+
+    expect(response.ok).toBe(true);
+    expect(response.data).toBe('content');
+  });
+
+  it('exports logs', async () => {
+    const logsService = {
+      getLogContent: jest.fn(),
+      exportLogs: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerLogsHandlers(ipcMain, logsService);
+
+    const response = await handlers['logs:export'](null, 'error', '/tmp/out.log');
+
+    expect(response.ok).toBe(true);
+    expect(logsService.exportLogs).toHaveBeenCalledWith('error', '/tmp/out.log');
+  });
+
+  it('returns error when log fetch fails', async () => {
+    const logsService = {
+      getLogContent: jest.fn().mockRejectedValue(new Error('fail')),
+      exportLogs: jest.fn(),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerLogsHandlers(ipcMain, logsService);
+
+    const response = await handlers['logs:getContent'](null, 'combined');
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.message).toBe('fail');
+  });
+});

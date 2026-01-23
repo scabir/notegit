@@ -2,8 +2,8 @@ import { visit } from 'unist-util-visit';
 
 export const remarkHighlight = () => {
   return (tree: any) => {
-    visit(tree, 'text', (node: any, index: number | null, parent: any) => {
-      if (index === null || index === undefined || !parent) {
+    visit(tree, 'text', (node: any, index: number | undefined, parent: any) => {
+      if (index === undefined || !parent) {
         return;
       }
 

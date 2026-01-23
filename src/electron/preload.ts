@@ -4,6 +4,7 @@ import type { NotegitApi } from '../shared/types/api';
 const api: NotegitApi = {
   config: {
     getFull: () => ipcRenderer.invoke('config:getFull'),
+    getAppSettings: () => ipcRenderer.invoke('config:getAppSettings'),
     updateAppSettings: (settings) => ipcRenderer.invoke('config:updateAppSettings', settings),
     updateRepoSettings: (settings) => ipcRenderer.invoke('config:updateRepoSettings', settings),
     checkGitInstalled: () => ipcRenderer.invoke('config:checkGitInstalled'),

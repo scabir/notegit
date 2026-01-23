@@ -29,12 +29,12 @@ import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkDeflist from 'remark-deflist';
-import { EditorView, keymap } from '@codemirror/view';
-import { EditorSelection } from '@codemirror/state';
+import { EditorView } from '@codemirror/view';
 import { FindReplaceBar } from '../FindReplaceBar';
 import { MermaidDiagram } from '../MermaidDiagram';
 import type { AppSettings } from '../../../shared/types';
 import { remarkHighlight } from '../../utils/remarkHighlight';
+import { useEditorFindReplace, useEditorGlobalShortcuts, useEditorKeymap } from '../../utils/editorHooks';
 import markdownCheatsheetHtml from '../../assets/cheatsheets/markdown.html?raw';
 import mermaidCheatsheetHtml from '../../assets/cheatsheets/mermaid.html?raw';
 import { MARKDOWN_EDITOR_TEXT, MARKDOWN_INSERT_DEFAULTS, MARKDOWN_INSERT_TOKENS } from './constants';
@@ -65,15 +65,23 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   const editorRef = useRef<any>(null);
   const editorViewRef = useRef<EditorView | null>(null);
   const isDraggingRef = useRef(false);
-  
-  const [findBarOpen, setFindBarOpen] = useState(false);
-  const [searchMatches, setSearchMatches] = useState<{ start: number; end: number }[]>([]);
-  const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
 
   const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
   const [extrasAnchorEl, setExtrasAnchorEl] = useState<null | HTMLElement>(null);
   const [cheatSheetAnchorEl, setCheatSheetAnchorEl] = useState<null | HTMLElement>(null);
   const [cheatSheetType, setCheatSheetType] = useState<'markdown' | 'mermaid' | null>(null);
+  const {
+    findBarOpen,
+    searchMatches,
+    currentMatchIndex,
+    closeFindBar,
+    resetFindState,
+    handleOpenFind,
+    handleFindNext,
+    handleFindPrevious,
+    handleReplace,
+    handleReplaceAll,
+  } = useEditorFindReplace({ content, setContent, editorViewRef });
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -89,11 +97,9 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     if (file) {
       setContent(file.content);
       setSavedContent(file.content);
-      setFindBarOpen(false);
-      setSearchMatches([]);
-      setCurrentMatchIndex(-1);
+      resetFindState();
     }
-  }, [file]);
+  }, [file, resetFindState]);
 
   const hasUnsavedChanges = content !== savedContent;
 
@@ -107,12 +113,12 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     }
   }, [editorRef.current]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     if (hasUnsavedChanges) {
       onSave(content);
       setSavedContent(content);
     }
-  };
+  }, [content, hasUnsavedChanges, onSave]);
 
   const handleExport = async () => {
     if (!file) return;
@@ -130,137 +136,11 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
       alert('Failed to export note');
     }
   };
-
-  const findMatches = useCallback((query: string): { start: number; end: number }[] => {
-    if (!query) return [];
-    
-    const matches: { start: number; end: number }[] = [];
-    const lowerContent = content.toLowerCase();
-    const lowerQuery = query.toLowerCase();
-    let index = 0;
-    
-    while ((index = lowerContent.indexOf(lowerQuery, index)) !== -1) {
-      matches.push({ start: index, end: index + query.length });
-      index += query.length;
-    }
-    
-    return matches;
-  }, [content]);
-
-  const highlightMatch = useCallback((matchIndex: number) => {
-    if (!editorViewRef.current || matchIndex < 0 || matchIndex >= searchMatches.length) return;
-    
-    const match = searchMatches[matchIndex];
-    const view = editorViewRef.current;
-    
-    view.dispatch({
-      selection: EditorSelection.single(match.start, match.end),
-      scrollIntoView: true,
-    });
-    
-    view.focus();
-  }, [searchMatches]);
-
-  const handleOpenFind = useCallback(() => {
-    let initialQuery = '';
-    if (editorViewRef.current) {
-      const selection = editorViewRef.current.state.selection.main;
-      if (selection.from !== selection.to) {
-        initialQuery = editorViewRef.current.state.doc.sliceString(selection.from, selection.to);
-      }
-    }
-    
-    setFindBarOpen(true);
-    
-    if (initialQuery) {
-      const matches = findMatches(initialQuery);
-      setSearchMatches(matches);
-      if (matches.length > 0) {
-        setCurrentMatchIndex(0);
-        setTimeout(() => highlightMatch(0), 0);
-      }
-    }
-  }, [findMatches, highlightMatch]);
-
-  const handleFindNext = useCallback((query: string) => {
-    const matches = findMatches(query);
-    setSearchMatches(matches);
-    
-    if (matches.length === 0) {
-      setCurrentMatchIndex(-1);
-      return;
-    }
-    
-    const nextIndex = currentMatchIndex < matches.length - 1 ? currentMatchIndex + 1 : 0;
-    setCurrentMatchIndex(nextIndex);
-    highlightMatch(nextIndex);
-  }, [findMatches, highlightMatch, currentMatchIndex]);
-
-  const handleFindPrevious = useCallback((query: string) => {
-    const matches = findMatches(query);
-    setSearchMatches(matches);
-    
-    if (matches.length === 0) {
-      setCurrentMatchIndex(-1);
-      return;
-    }
-    
-    const prevIndex = currentMatchIndex > 0 ? currentMatchIndex - 1 : matches.length - 1;
-    setCurrentMatchIndex(prevIndex);
-    highlightMatch(prevIndex);
-  }, [findMatches, highlightMatch, currentMatchIndex]);
-
-  const handleReplace = useCallback((query: string, replacement: string) => {
-    if (currentMatchIndex < 0 || currentMatchIndex >= searchMatches.length) return;
-    
-    const match = searchMatches[currentMatchIndex];
-    const newContent = content.substring(0, match.start) + replacement + content.substring(match.end);
-    
-    setContent(newContent);
-    
-    setTimeout(() => {
-      const matches = findMatches(query);
-      setSearchMatches(matches);
-      if (matches.length > 0) {
-        const nextIndex = currentMatchIndex < matches.length ? currentMatchIndex : 0;
-        setCurrentMatchIndex(nextIndex);
-        highlightMatch(nextIndex);
-      } else {
-        setCurrentMatchIndex(-1);
-      }
-    }, 0);
-  }, [content, searchMatches, currentMatchIndex, findMatches, highlightMatch]);
-
-  const handleReplaceAll = useCallback((query: string, replacement: string) => {
-    if (!query) return;
-    
-    const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-    const newContent = content.replace(regex, replacement);
-    
-    setContent(newContent);
-    setSearchMatches([]);
-    setCurrentMatchIndex(-1);
-  }, [content]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.defaultPrevented) {
-        return;
-      }
-
-      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
-        e.preventDefault();
-        handleSave();
-      }
-      else if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
-        e.preventDefault();
-        handleOpenFind();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [hasUnsavedChanges, content]);
+  useEditorGlobalShortcuts({
+    onSave: handleSave,
+    onOpenFind: handleOpenFind,
+    enableSaveShortcut: true,
+  });
 
   const insertMarkdown = useCallback((before: string, after: string = '', defaultText: string = '') => {
     if (!editorRef.current) return;
@@ -358,11 +238,11 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     }
 
     const lines = selectedText.split('\n');
-    const allTasks = lines.every((line) => uncheckedRegex.test(line) || doneRegex.test(line));
-    const anyDone = lines.some((line) => doneRegex.test(line));
+    const allTasks = lines.every((line: string) => uncheckedRegex.test(line) || doneRegex.test(line));
+    const anyDone = lines.some((line: string) => doneRegex.test(line));
 
     if (allTasks && !anyDone) {
-      const stripped = lines.map((line) => line.replace(uncheckedRegex, ''));
+      const stripped = lines.map((line: string) => line.replace(uncheckedRegex, ''));
       const replacement = stripped.join('\n');
 
       view.dispatch({
@@ -379,7 +259,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     }
 
     const replacement = lines
-      .map((line) => {
+      .map((line: string) => {
         if (uncheckedRegex.test(line) || doneRegex.test(line)) {
           return line;
         }
@@ -494,27 +374,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
   const handleCloseCheatSheet = () => {
     setCheatSheetType(null);
   };
-
-  const customKeymap = keymap.of([
-    {
-      key: 'Mod-s',
-      run: () => {
-        handleSave();
-        return true;
-      },
-    },
-    {
-      key: 'Ctrl-Enter',
-      run: (view) => {
-        const { from } = view.state.selection.main;
-        view.dispatch({
-          changes: { from, insert: '\r' },
-          selection: { anchor: from + 1 }
-        });
-        return true;
-      }
-    }
-  ]);
+  const editorKeymap = useEditorKeymap(handleSave);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -634,7 +494,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
 
       {findBarOpen && (
         <FindReplaceBar
-          onClose={() => setFindBarOpen(false)}
+          onClose={closeFindBar}
           onFindNext={handleFindNext}
           onFindPrevious={handleFindPrevious}
           onReplace={handleReplace}
@@ -796,7 +656,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
               extensions={[
                 markdown(),
                 EditorView.lineWrapping,
-                customKeymap,
+                editorKeymap,
               ]}
               onChange={(value) => setContent(value)}
               theme={isDark ? githubDark : githubLight}
@@ -860,7 +720,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
                         />
                       );
                     },
-                    code: ({ inline, className, children, ...props }) => {
+                    code: ({ inline, className, children, ...props }: any) => {
                       const match = /language-(\w+)/.exec(className || '');
                       if (!inline && match?.[1] === 'mermaid') {
                         const diagramCode = String(children).replace(/\n$/, '');

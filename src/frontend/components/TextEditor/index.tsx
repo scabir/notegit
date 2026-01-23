@@ -3,13 +3,13 @@ import { Box, Toolbar, IconButton, Chip, Tooltip, Typography, useTheme } from '@
 import { Save as SaveIcon, FileDownload as ExportIcon } from '@mui/icons-material';
 import CodeMirror from '@uiw/react-codemirror';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
-import { EditorView, keymap } from '@codemirror/view';
-import { EditorSelection } from '@codemirror/state';
+import { EditorView } from '@codemirror/view';
 import { FindReplaceBar } from '../FindReplaceBar';
 import type { AppSettings } from '../../../shared/types';
 import { TEXT_EDITOR_TEXT } from './constants';
 import { emptyStateSx, rootSx, toolbarSx, filePathSx, modifiedChipSx, editorContainerSx } from './styles';
 import type { TextEditorProps } from './types';
+import { useEditorFindReplace, useEditorGlobalShortcuts, useEditorKeymap } from '../../utils/editorHooks';
 
 export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
   const theme = useTheme();
@@ -18,12 +18,25 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
   const [hasChanges, setHasChanges] = useState(false);
   const editorRef = useRef<any>(null);
   const editorViewRef = useRef<EditorView | null>(null);
-  
-  const [findBarOpen, setFindBarOpen] = useState(false);
-  const [searchMatches, setSearchMatches] = useState<{ start: number; end: number }[]>([]);
-  const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
 
   const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
+  const {
+    findBarOpen,
+    searchMatches,
+    currentMatchIndex,
+    closeFindBar,
+    resetFindState,
+    handleOpenFind,
+    handleFindNext,
+    handleFindPrevious,
+    handleReplace,
+    handleReplaceAll,
+  } = useEditorFindReplace({
+    content,
+    setContent,
+    editorViewRef,
+    onContentModified: () => setHasChanges(true),
+  });
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -39,11 +52,9 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     if (file) {
       setContent(file.content);
       setHasChanges(false);
-      setFindBarOpen(false);
-      setSearchMatches([]);
-      setCurrentMatchIndex(-1);
+      resetFindState();
     }
-  }, [file]);
+  }, [file, resetFindState]);
 
   useEffect(() => {
     onChange(content, hasChanges);
@@ -55,12 +66,12 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     }
   }, [editorRef.current]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     if (file && hasChanges) {
       onSave(content);
       setHasChanges(false);
     }
-  };
+  }, [content, file, hasChanges, onSave]);
 
   const handleExport = async () => {
     if (!file) return;
@@ -78,156 +89,8 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
       alert('Failed to export note');
     }
   };
-
-  const findMatches = useCallback((query: string): { start: number; end: number }[] => {
-    if (!query) return [];
-    
-    const matches: { start: number; end: number }[] = [];
-    const lowerContent = content.toLowerCase();
-    const lowerQuery = query.toLowerCase();
-    let index = 0;
-    
-    while ((index = lowerContent.indexOf(lowerQuery, index)) !== -1) {
-      matches.push({ start: index, end: index + query.length });
-      index += query.length;
-    }
-    
-    return matches;
-  }, [content]);
-
-  const highlightMatch = useCallback((matchIndex: number) => {
-    if (!editorViewRef.current || matchIndex < 0 || matchIndex >= searchMatches.length) return;
-    
-    const match = searchMatches[matchIndex];
-    const view = editorViewRef.current;
-    
-    view.dispatch({
-      selection: EditorSelection.single(match.start, match.end),
-      scrollIntoView: true,
-    });
-    
-    view.focus();
-  }, [searchMatches]);
-
-  const handleOpenFind = useCallback(() => {
-    let initialQuery = '';
-    if (editorViewRef.current) {
-      const selection = editorViewRef.current.state.selection.main;
-      if (selection.from !== selection.to) {
-        initialQuery = editorViewRef.current.state.doc.sliceString(selection.from, selection.to);
-      }
-    }
-    
-    setFindBarOpen(true);
-    
-    if (initialQuery) {
-      const matches = findMatches(initialQuery);
-      setSearchMatches(matches);
-      if (matches.length > 0) {
-        setCurrentMatchIndex(0);
-        setTimeout(() => highlightMatch(0), 0);
-      }
-    }
-  }, [findMatches, highlightMatch]);
-
-  const handleFindNext = useCallback((query: string) => {
-    const matches = findMatches(query);
-    setSearchMatches(matches);
-    
-    if (matches.length === 0) {
-      setCurrentMatchIndex(-1);
-      return;
-    }
-    
-    const nextIndex = currentMatchIndex < matches.length - 1 ? currentMatchIndex + 1 : 0;
-    setCurrentMatchIndex(nextIndex);
-    highlightMatch(nextIndex);
-  }, [findMatches, highlightMatch, currentMatchIndex]);
-
-  const handleFindPrevious = useCallback((query: string) => {
-    const matches = findMatches(query);
-    setSearchMatches(matches);
-    
-    if (matches.length === 0) {
-      setCurrentMatchIndex(-1);
-      return;
-    }
-    
-    const prevIndex = currentMatchIndex > 0 ? currentMatchIndex - 1 : matches.length - 1;
-    setCurrentMatchIndex(prevIndex);
-    highlightMatch(prevIndex);
-  }, [findMatches, highlightMatch, currentMatchIndex]);
-
-  const handleReplace = useCallback((query: string, replacement: string) => {
-    if (currentMatchIndex < 0 || currentMatchIndex >= searchMatches.length) return;
-    
-    const match = searchMatches[currentMatchIndex];
-    const newContent = content.substring(0, match.start) + replacement + content.substring(match.end);
-    
-    setContent(newContent);
-    setHasChanges(true);
-    
-    setTimeout(() => {
-      const matches = findMatches(query);
-      setSearchMatches(matches);
-      if (matches.length > 0) {
-        const nextIndex = currentMatchIndex < matches.length ? currentMatchIndex : 0;
-        setCurrentMatchIndex(nextIndex);
-        highlightMatch(nextIndex);
-      } else {
-        setCurrentMatchIndex(-1);
-      }
-    }, 0);
-  }, [content, searchMatches, currentMatchIndex, findMatches, highlightMatch]);
-
-  const handleReplaceAll = useCallback((query: string, replacement: string) => {
-    if (!query) return;
-    
-    const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-    const newContent = content.replace(regex, replacement);
-    
-    setContent(newContent);
-    setHasChanges(true);
-    setSearchMatches([]);
-    setCurrentMatchIndex(-1);
-  }, [content]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.defaultPrevented) {
-        return;
-      }
-
-      if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
-        e.preventDefault();
-        handleOpenFind();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleOpenFind]);
-
-  const customKeymap = keymap.of([
-    {
-      key: 'Mod-s',
-      run: () => {
-        handleSave();
-        return true;
-      },
-    },
-    {
-      key: 'Ctrl-Enter',
-      run: (view) => {
-        const { from } = view.state.selection.main;
-        view.dispatch({
-          changes: { from, insert: '\r' },
-          selection: { anchor: from + 1 }
-        });
-        return true;
-      }
-    }
-  ]);
+  useEditorGlobalShortcuts({ onOpenFind: handleOpenFind });
+  const editorKeymap = useEditorKeymap(handleSave);
 
   const handleChange = (value: string) => {
     setContent(value);
@@ -282,7 +145,7 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
 
       {findBarOpen && (
         <FindReplaceBar
-          onClose={() => setFindBarOpen(false)}
+          onClose={closeFindBar}
           onFindNext={handleFindNext}
           onFindPrevious={handleFindPrevious}
           onReplace={handleReplace}
@@ -304,7 +167,7 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
           height="100%"
           extensions={[
             EditorView.lineWrapping,
-            customKeymap,
+            editorKeymap,
           ]}
           theme={isDark ? githubDark : githubLight}
           onChange={handleChange}

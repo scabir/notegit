@@ -104,6 +104,16 @@ describe('FsAdapter', () => {
         code: ApiErrorCode.FS_NOT_FOUND,
       });
     });
+
+    it('should throw FS_PERMISSION_DENIED when access denied', async () => {
+      const error: any = new Error('EACCES');
+      error.code = 'EACCES';
+      mockFs.unlink.mockRejectedValue(error);
+
+      await expect(fsAdapter.deleteFile('/forbidden/file.txt')).rejects.toMatchObject({
+        code: ApiErrorCode.FS_PERMISSION_DENIED,
+      });
+    });
   });
 
   describe('rename', () => {
@@ -122,6 +132,16 @@ describe('FsAdapter', () => {
 
       await expect(fsAdapter.rename('/missing/file.txt', '/new/file.txt')).rejects.toMatchObject({
         code: ApiErrorCode.FS_NOT_FOUND,
+      });
+    });
+
+    it('should throw FS_PERMISSION_DENIED when rename is blocked', async () => {
+      const error: any = new Error('EACCES');
+      error.code = 'EACCES';
+      mockFs.rename.mockRejectedValue(error);
+
+      await expect(fsAdapter.rename('/forbidden/file.txt', '/new/file.txt')).rejects.toMatchObject({
+        code: ApiErrorCode.FS_PERMISSION_DENIED,
       });
     });
   });
@@ -154,6 +174,26 @@ describe('FsAdapter', () => {
     });
   });
 
+  describe('rmdir', () => {
+    it('should remove directory recursively', async () => {
+      mockFs.rm.mockResolvedValue(undefined);
+
+      await fsAdapter.rmdir('/test/dir', { recursive: true });
+
+      expect(mockFs.rm).toHaveBeenCalledWith('/test/dir', { recursive: true, force: true });
+    });
+
+    it('should throw FS_NOT_FOUND for missing directory', async () => {
+      const error: any = new Error('ENOENT');
+      error.code = 'ENOENT';
+      mockFs.rm.mockRejectedValue(error);
+
+      await expect(fsAdapter.rmdir('/missing/dir')).rejects.toMatchObject({
+        code: ApiErrorCode.FS_NOT_FOUND,
+      });
+    });
+  });
+
   describe('readdir', () => {
     it('should list directory contents', async () => {
       const files = ['file1.txt', 'file2.txt'];
@@ -171,6 +211,37 @@ describe('FsAdapter', () => {
       mockFs.readdir.mockRejectedValue(error);
 
       await expect(fsAdapter.readdir('/missing/dir')).rejects.toMatchObject({
+        code: ApiErrorCode.FS_NOT_FOUND,
+      });
+    });
+
+    it('should throw FS_PERMISSION_DENIED when access is blocked', async () => {
+      const error: any = new Error('EACCES');
+      error.code = 'EACCES';
+      mockFs.readdir.mockRejectedValue(error);
+
+      await expect(fsAdapter.readdir('/forbidden/dir')).rejects.toMatchObject({
+        code: ApiErrorCode.FS_PERMISSION_DENIED,
+      });
+    });
+  });
+
+  describe('stat', () => {
+    it('should return stats for existing path', async () => {
+      const stats = { isDirectory: () => false } as any;
+      mockFs.stat.mockResolvedValue(stats);
+
+      const result = await fsAdapter.stat('/test/file.txt');
+
+      expect(result).toBe(stats);
+    });
+
+    it('should throw FS_NOT_FOUND when stat fails with ENOENT', async () => {
+      const error: any = new Error('ENOENT');
+      error.code = 'ENOENT';
+      mockFs.stat.mockRejectedValue(error);
+
+      await expect(fsAdapter.stat('/missing/file.txt')).rejects.toMatchObject({
         code: ApiErrorCode.FS_NOT_FOUND,
       });
     });
@@ -225,6 +296,26 @@ describe('FsAdapter', () => {
         }
       );
     });
+
+    it('should throw FS_PERMISSION_DENIED on access error', async () => {
+      const error: any = new Error('EACCES');
+      error.code = 'EACCES';
+      mockFs.mkdir.mockResolvedValue(undefined);
+      mockFs.copyFile.mockRejectedValue(error);
+
+      await expect(fsAdapter.copyFile('/src/file.txt', '/dest/file.txt')).rejects.toMatchObject({
+        code: ApiErrorCode.FS_PERMISSION_DENIED,
+      });
+    });
+  });
+
+  describe('existsSync', () => {
+    it('returns sync existence result', () => {
+      const fsSync = require('fs') as { existsSync: jest.Mock };
+      fsSync.existsSync.mockReturnValueOnce(true);
+
+      expect(fsAdapter.existsSync('/test/file.txt')).toBe(true);
+      expect(fsSync.existsSync).toHaveBeenCalledWith('/test/file.txt');
+    });
   });
 });
-

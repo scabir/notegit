@@ -177,15 +177,16 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       // Get repo path and profile info from config
       const configResponse = await window.notegitApi.config.getFull();
       if (configResponse.ok && configResponse.data) {
-        setAppSettings(configResponse.data.appSettings);
-        if (configResponse.data.repoSettings?.localPath) {
-          setRepoPath(configResponse.data.repoSettings.localPath);
+        const configData = configResponse.data;
+        setAppSettings(configData.appSettings);
+        if (configData.repoSettings?.localPath) {
+          setRepoPath(configData.repoSettings.localPath);
         }
 
         // Get active profile name
-        if (configResponse.data.activeProfileId && configResponse.data.profiles) {
-          const activeProfile = configResponse.data.profiles.find(
-            p => p.id === configResponse.data.activeProfileId
+        if (configData.activeProfileId && configData.profiles) {
+          const activeProfile = configData.profiles.find(
+            p => p.id === configData.activeProfileId
           );
           if (activeProfile) {
             setActiveProfileName(activeProfile.name);

@@ -22,6 +22,7 @@ describe('GitAdapter', () => {
       show: jest.fn(),
       diff: jest.fn(),
       fetch: jest.fn(),
+      addRemote: jest.fn(),
       addConfig: jest.fn(),
     } as any;
 
@@ -85,6 +86,16 @@ describe('GitAdapter', () => {
         message: expect.stringContaining('Authentication failed'),
       });
     });
+
+    it('should throw clone failed for non-auth errors', async () => {
+      mockGit.clone.mockRejectedValue(new Error('boom'));
+
+      await expect(
+        gitAdapter.clone('https://github.com/user/repo.git', '/path/to/local', 'main')
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.GIT_CLONE_FAILED,
+      });
+    });
   });
 
   describe('pull', () => {
@@ -113,6 +124,24 @@ describe('GitAdapter', () => {
 
       expect(mockGit.pull).toHaveBeenCalled();
     });
+
+    it('should throw auth error on pull', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.pull.mockRejectedValue(new Error('Authentication failed'));
+
+      await expect(gitAdapter.pull()).rejects.toMatchObject({
+        code: ApiErrorCode.GIT_AUTH_FAILED,
+      });
+    });
+
+    it('should throw conflict error on pull', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.pull.mockRejectedValue(new Error('CONFLICT'));
+
+      await expect(gitAdapter.pull()).rejects.toMatchObject({
+        code: ApiErrorCode.GIT_CONFLICT,
+      });
+    });
   });
 
   describe('push', () => {
@@ -134,6 +163,15 @@ describe('GitAdapter', () => {
       await gitAdapter.push();
 
       expect(mockGit.push).toHaveBeenCalled();
+    });
+
+    it('should throw auth error on push', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.push.mockRejectedValue(new Error('403'));
+
+      await expect(gitAdapter.push()).rejects.toMatchObject({
+        code: ApiErrorCode.GIT_AUTH_FAILED,
+      });
     });
   });
 
@@ -193,6 +231,15 @@ describe('GitAdapter', () => {
 
       expect(mockGit.add).toHaveBeenCalledWith('file.md');
     });
+
+    it('throws on add failure', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.add.mockRejectedValue(new Error('add failed'));
+
+      await expect(gitAdapter.add('file.md')).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
+    });
   });
 
   describe('commit', () => {
@@ -207,6 +254,37 @@ describe('GitAdapter', () => {
       await gitAdapter.commit('Update file');
 
       expect(mockGit.commit).toHaveBeenCalledWith('Update file');
+    });
+
+    it('throws on commit failure', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.commit.mockRejectedValue(new Error('commit failed'));
+
+      await expect(gitAdapter.commit('Update file')).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
+    });
+  });
+
+  describe('addRemote', () => {
+    it('adds a remote', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.addRemote = jest.fn().mockResolvedValue(undefined as any);
+
+      await gitAdapter.addRemote('https://github.com/user/repo.git', 'origin');
+
+      expect(mockGit.addRemote).toHaveBeenCalledWith('origin', 'https://github.com/user/repo.git');
+    });
+
+    it('throws on add remote failure', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.addRemote = jest.fn().mockRejectedValue(new Error('remote failed'));
+
+      await expect(
+        gitAdapter.addRemote('https://github.com/user/repo.git', 'origin')
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
     });
   });
 
@@ -260,6 +338,15 @@ describe('GitAdapter', () => {
       });
       expect(commits).toHaveLength(1);
     });
+
+    it('throws on log failure', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.log.mockRejectedValue(new Error('log failed'));
+
+      await expect(gitAdapter.log()).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
+    });
   });
 
   describe('show', () => {
@@ -272,6 +359,15 @@ describe('GitAdapter', () => {
 
       expect(mockGit.show).toHaveBeenCalledWith(['abc123:notes/file.md']);
       expect(content).toBe('# File content at commit');
+    });
+
+    it('throws on show failure', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.show.mockRejectedValue(new Error('show failed'));
+
+      await expect(gitAdapter.show('abc123', 'notes/file.md')).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
     });
   });
 
@@ -297,6 +393,15 @@ index abc123..def456 100644
       expect(mockGit.diff).toHaveBeenCalledWith(['abc123', 'def456', '--', 'file.md']);
       expect(diff).toBe(mockDiff);
     });
+
+    it('throws on diff failure', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.diff.mockRejectedValue(new Error('diff failed'));
+
+      await expect(gitAdapter.diff('a', 'b')).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
+    });
   });
 
   describe('fetch', () => {
@@ -308,6 +413,13 @@ index abc123..def456 100644
       await gitAdapter.fetch();
 
       expect(mockGit.fetch).toHaveBeenCalled();
+    });
+
+    it('throws when fetch fails', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.fetch.mockRejectedValue(new Error('fetch failed'));
+
+      await expect(gitAdapter.fetch()).rejects.toBeInstanceOf(Error);
     });
   });
 
@@ -333,6 +445,23 @@ index abc123..def456 100644
         code: ApiErrorCode.GIT_PULL_FAILED,
       });
     });
+
+    it('returns default ahead/behind on status failure', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.status.mockRejectedValue(new Error('status failed'));
+
+      const result = await gitAdapter.getAheadBehind();
+
+      expect(result).toEqual({ ahead: 0, behind: 0 });
+    });
+
+    it('returns main when current branch cannot be detected', async () => {
+      await gitAdapter.init('/repo');
+      mockGit.status.mockRejectedValue(new Error('status failed'));
+
+      const result = await gitAdapter.getCurrentBranch();
+
+      expect(result).toBe('main');
+    });
   });
 });
-

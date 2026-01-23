@@ -185,7 +185,7 @@ export function HistoryViewer({
                             />
                           );
                         },
-                        code: ({ inline, className, children, ...props }) => {
+                        code: ({ inline, className, children, ...props }: any) => {
                           const match = /language-(\w+)/.exec(className || '');
                           if (!inline && match?.[1] === 'mermaid') {
                             const diagramCode = String(children).replace(/\n$/, '');
