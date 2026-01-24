@@ -60,7 +60,7 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
   const [results, setResults] = useState<RepoWideSearchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [replaceResult, setReplaceResult] = useState<ReplaceResult | null>(null);
-  const [selectedFileIndex, setSelectedFileIndex] = useState(-1);
+  /* const [selectedFileIndex, setSelectedFileIndex] = useState(-1); */
   const queryInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
     setError(null);
     setReplaceResult(null);
     setResults([]);
-    setSelectedFileIndex(-1);
+    /* setSelectedFileIndex(-1); */
 
     try {
       const response = await window.notegitApi.search.repoWide(query, {
@@ -305,7 +305,7 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
                 {results.map((fileResult, fileIndex) => (
                   <React.Fragment key={fileResult.filePath}>
                     {fileIndex > 0 && <Divider />}
-                    
+
                     <ListItem
                       sx={fileHeaderItemSx}
                     >

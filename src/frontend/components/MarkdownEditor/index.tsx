@@ -105,13 +105,13 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
 
   useEffect(() => {
     onChange(content, hasUnsavedChanges);
-  }, [content, hasUnsavedChanges]);
+  }, [content, hasUnsavedChanges, onChange]);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.view) {
       editorViewRef.current = editorRef.current.view;
     }
-  }, [editorRef.current]);
+  }, []);
 
   const handleSave = useCallback(() => {
     if (hasUnsavedChanges) {
@@ -641,12 +641,12 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
         </Toolbar>
       )}
 
-      <Box 
+      <Box
         id="editor-container"
         sx={editorContainerSx}
       >
         {showEditor && (
-          <Box 
+          <Box
             sx={editorPaneSx(isDark, viewMode, editorWidth)}
           >
             <CodeMirror
@@ -681,7 +681,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
           <Box
             sx={previewPaneSx(isDark, viewMode, editorWidth)}
           >
-            <Paper 
+            <Paper
               sx={previewPaperSx(isDark)}
               elevation={0}
             >
@@ -706,7 +706,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm, remarkDeflist, remarkHighlight]}
                   components={{
-                    img: ({ node, ...props }) => {
+                    img: ({ node: _node, ...props }) => {
                       let src = props.src || '';
                       if (repoPath && src && !src.startsWith('http') && !src.startsWith('data:')) {
                         src = `file://${repoPath}/${src}`;

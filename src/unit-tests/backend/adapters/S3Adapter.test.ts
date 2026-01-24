@@ -10,6 +10,7 @@ jest.mock('@aws-sdk/client-s3', () => {
     GetObjectCommand: jest.fn((input) => ({ input })),
     PutObjectCommand: jest.fn((input) => ({ input })),
     DeleteObjectCommand: jest.fn((input) => ({ input })),
+    HeadObjectCommand: jest.fn((input) => ({ input })),
     GetBucketVersioningCommand: jest.fn((input) => ({ input })),
     ListObjectVersionsCommand: jest.fn((input) => ({ input })),
     __sendMock: sendMock,
@@ -127,6 +128,22 @@ describe('S3Adapter', () => {
     expect(sendMock.mock.calls[1][0].input).toMatchObject({
       Bucket: 'notes-bucket',
       Key: 'notes/a.md',
+    });
+  });
+
+  it('returns metadata from headObject', async () => {
+    sendMock.mockResolvedValue({
+      LastModified: new Date('2024-01-02T10:00:00Z'),
+      ContentLength: 42,
+      ETag: '"etag"',
+    });
+
+    const result = await adapter.headObject('notes/a.md');
+
+    expect(result).toMatchObject({
+      key: 'notes/a.md',
+      size: 42,
+      eTag: '"etag"',
     });
   });
 

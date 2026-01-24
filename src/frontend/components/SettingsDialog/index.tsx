@@ -40,7 +40,7 @@ import {
 } from '@mui/icons-material';
 import { AboutDialog } from '../AboutDialog';
 import type {
-  FullConfig,
+  /* FullConfig, */
   AppSettings,
   RepoSettings,
   Profile,
@@ -78,7 +78,7 @@ export function SettingsDialog({
   currentNotePath,
 }: SettingsDialogProps) {
   const [tabValue, setTabValue] = useState(0);
-  const [config, setConfig] = useState<FullConfig | null>(null);
+  /* const [config, setConfig] = useState<FullConfig | null>(null); */
   const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
   const [repoSettings, setRepoSettings] = useState<Partial<RepoSettings>>({});
   const [loading, setLoading] = useState(false);
@@ -125,7 +125,7 @@ export function SettingsDialog({
       const response = await window.notegitApi.config.getFull();
 
       if (response.ok && response.data) {
-        setConfig(response.data);
+        /* setConfig(response.data); */
         setAppSettings(response.data.appSettings);
         setRepoSettings(response.data.repoSettings || {});
         setProfiles(response.data.profiles || []);
@@ -336,21 +336,21 @@ export function SettingsDialog({
       const repoSettings: Partial<RepoSettings> =
         newProfileProvider === 'git'
           ? {
-              provider: 'git',
-              remoteUrl: newProfileRemoteUrl,
-              branch: newProfileBranch,
-              pat: newProfilePat,
-              authMethod: AuthMethod.PAT,
-            }
+            provider: 'git',
+            remoteUrl: newProfileRemoteUrl,
+            branch: newProfileBranch,
+            pat: newProfilePat,
+            authMethod: AuthMethod.PAT,
+          }
           : {
-              provider: 's3',
-              bucket: newProfileBucket,
-              region: newProfileRegion,
-              prefix: newProfilePrefix,
-              accessKeyId: newProfileAccessKeyId,
-              secretAccessKey: newProfileSecretAccessKey,
-              sessionToken: newProfileSessionToken,
-            };
+            provider: 's3',
+            bucket: newProfileBucket,
+            region: newProfileRegion,
+            prefix: newProfilePrefix,
+            accessKeyId: newProfileAccessKeyId,
+            secretAccessKey: newProfileSecretAccessKey,
+            sessionToken: newProfileSessionToken,
+          };
 
       const response = await window.notegitApi.config.createProfile(
         newProfileName.trim(),
@@ -409,7 +409,7 @@ export function SettingsDialog({
     }
   };
 
-  const loadLogs = async () => {
+  const loadLogs = React.useCallback(async () => {
     setLoadingLogs(true);
     try {
       const response = await window.notegitApi.logs.getContent(logType);
@@ -423,13 +423,13 @@ export function SettingsDialog({
     } finally {
       setLoadingLogs(false);
     }
-  };
+  }, [logType]);
 
   useEffect(() => {
     if (open && tabValue === 4) {
       loadLogs();
     }
-  }, [open, tabValue, logType]);
+  }, [open, tabValue, logType, loadLogs]);
 
   const handleCopyLogs = () => {
     navigator.clipboard.writeText(logContent);

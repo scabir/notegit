@@ -1,0 +1,78 @@
+
+> notegit@2.1.1 lint /Users/sca/Documents/repo/notegit
+> eslint . --ext .ts,.tsx
+
+
+/Users/sca/Documents/repo/notegit/src/backend/adapters/GitAdapter.ts
+  298:31  warning  'pat' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/sca/Documents/repo/notegit/src/backend/providers/S3RepoProvider.ts
+   49:9   error    Expected a `const` assertion instead of a literal type annotation          @typescript-eslint/prefer-as-const
+  150:21  warning  'path' is defined but never used. Allowed unused args must match /^_/u     @typescript-eslint/no-unused-vars
+  154:19  warning  'oldPath' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  154:36  warning  'newPath' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  158:21  warning  'path' is defined but never used. Allowed unused args must match /^_/u     @typescript-eslint/no-unused-vars
+  506:55  warning  'local' is defined but never used. Allowed unused args must match /^_/u    @typescript-eslint/no-unused-vars
+  694:26  error    Unnecessary escape character: \"                                           no-useless-escape
+
+/Users/sca/Documents/repo/notegit/src/frontend/components/CommitDialog/index.tsx
+  17:38  warning  'filePath' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/sca/Documents/repo/notegit/src/frontend/components/FileTreeView/index.tsx
+  348:43  warning  'parentPath' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/sca/Documents/repo/notegit/src/frontend/components/HistoryViewer/index.tsx
+   70:6   warning  React Hook useEffect has a missing dependency: 'loadVersion'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  177:33  warning  'node' is defined but never used. Allowed unused args must match /^_/u                                          @typescript-eslint/no-unused-vars
+
+/Users/sca/Documents/repo/notegit/src/frontend/components/MarkdownEditor/index.tsx
+  108:6   warning  React Hook useEffect has a missing dependency: 'onChange'. Either include it or remove the dependency array. If 'onChange' changes too often, find the parent component that defines it and wrap that definition in useCallback                     react-hooks/exhaustive-deps
+  114:6   warning  React Hook useEffect has an unnecessary dependency: 'editorRef.current'. Either exclude it or remove the dependency array. Mutable values like 'editorRef.current' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+  709:29  warning  'node' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                              @typescript-eslint/no-unused-vars
+
+/Users/sca/Documents/repo/notegit/src/frontend/components/RepoSearchDialog/index.tsx
+  63:10  warning  'selectedFileIndex' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/sca/Documents/repo/notegit/src/frontend/components/SearchDialog/index.tsx
+  10:3  warning  'ListItemText' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/sca/Documents/repo/notegit/src/frontend/components/SettingsDialog/index.tsx
+   81:10  warning  'config' is assigned a value but never used                                                                  @typescript-eslint/no-unused-vars
+  432:6   warning  React Hook useEffect has a missing dependency: 'loadLogs'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/sca/Documents/repo/notegit/src/frontend/components/TextEditor/index.tsx
+  61:6  warning  React Hook useEffect has a missing dependency: 'onChange'. Either include it or remove the dependency array. If 'onChange' changes too often, find the parent component that defines it and wrap that definition in useCallback                     react-hooks/exhaustive-deps
+  67:6  warning  React Hook useEffect has an unnecessary dependency: 'editorRef.current'. Either exclude it or remove the dependency array. Mutable values like 'editorRef.current' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+
+/Users/sca/Documents/repo/notegit/src/frontend/components/Workspace/index.tsx
+  109:6  warning  React Hook useEffect has a missing dependency: 'appSettings'. Either include it or remove the dependency array     react-hooks/exhaustive-deps
+  146:6  warning  React Hook useEffect has a missing dependency: 'handleSaveFile'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  161:6  warning  React Hook useEffect has a missing dependency: 'handleSaveFile'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  514:9  warning  'handleOpenCommitDialog' is assigned a value but never used                                                        @typescript-eslint/no-unused-vars
+
+/Users/sca/Documents/repo/notegit/src/unit-tests/backend/adapters/FsAdapter.test.ts
+  3:13  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/sca/Documents/repo/notegit/src/unit-tests/backend/providers/S3RepoProvider.test.ts
+  179:11  warning  'stats' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  309:11  warning  'stats' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/sca/Documents/repo/notegit/src/unit-tests/frontend/components/Workspace.test.ts
+   288:9  warning  'renderer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   494:9  warning  'renderer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   606:9  warning  'renderer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   702:9  warning  'renderer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   745:9  warning  'renderer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   821:9  warning  'renderer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  1027:9  warning  'renderer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  1177:9  warning  'renderer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  1226:9  warning  'renderer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  1257:9  warning  'renderer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  1287:9  warning  'renderer' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/sca/Documents/repo/notegit/src/unit-tests/setup.ts
+  25:9  warning  'message' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 40 problems (2 errors, 38 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.

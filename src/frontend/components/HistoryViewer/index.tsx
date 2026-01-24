@@ -63,13 +63,7 @@ export function HistoryViewer({
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'source' | 'preview'>('preview');
 
-  useEffect(() => {
-    if (open && filePath && commitHash) {
-      loadVersion();
-    }
-  }, [open, filePath, commitHash]);
-
-  const loadVersion = async () => {
+  const loadVersion = React.useCallback(async () => {
     if (!filePath || !commitHash) return;
 
     setLoading(true);
@@ -90,7 +84,13 @@ export function HistoryViewer({
     } finally {
       setLoading(false);
     }
-  };
+  }, [filePath, commitHash]);
+
+  useEffect(() => {
+    if (open && filePath && commitHash) {
+      loadVersion();
+    }
+  }, [open, filePath, commitHash, loadVersion]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
@@ -174,7 +174,7 @@ export function HistoryViewer({
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm, remarkDeflist, remarkHighlight]}
                       components={{
-                        img: ({ node, ...props }) => {
+                        img: ({ node: _node, ...props }) => {
                           const src = resolveImageSrc(repoPath, props.src);
                           return (
                             <img

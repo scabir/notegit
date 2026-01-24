@@ -7,11 +7,10 @@ import {
   RepoSettings,
   GitRepoSettings,
 } from '../../shared/types';
-import { logger } from '../utils/logger';
 import type { HistoryProvider } from './types';
 
 export class GitHistoryProvider implements HistoryProvider {
-  type: 'git' = 'git';
+  readonly type = 'git' as const;
   private settings: GitRepoSettings | null = null;
   private repoPath: string | null = null;
 

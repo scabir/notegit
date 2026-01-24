@@ -14,7 +14,7 @@ import { COMMIT_DIALOG_TEXT } from './constants';
 import { contentStackSx } from './styles';
 import type { CommitDialogProps } from './types';
 
-export function CommitDialog({ open, filePath, onClose, onSuccess }: CommitDialogProps) {
+export function CommitDialog({ open, filePath: _filePath, onClose, onSuccess }: CommitDialogProps) {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

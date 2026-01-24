@@ -37,13 +37,13 @@ export class GitAdapter {
       }
 
       await simpleGit().clone(authUrl, localPath, ['--branch', branch]);
-      
+
       await this.init(localPath);
-      
+
       logger.info('Repository cloned successfully');
     } catch (error: any) {
       logger.error('Failed to clone repository', { error });
-      
+
       if (error.message?.includes('Authentication failed')) {
         throw this.createError(
           ApiErrorCode.GIT_AUTH_FAILED,
@@ -51,7 +51,7 @@ export class GitAdapter {
           error
         );
       }
-      
+
       throw this.createError(
         ApiErrorCode.GIT_CLONE_FAILED,
         `Failed to clone repository: ${error.message}`,
@@ -62,7 +62,7 @@ export class GitAdapter {
 
   async status(): Promise<any> {
     this.ensureInitialized();
-    
+
     try {
       const status = await this.git!.status();
       logger.debug('Git status', { status });
@@ -79,19 +79,19 @@ export class GitAdapter {
 
   async pull(pat?: string): Promise<void> {
     this.ensureInitialized();
-    
+
     try {
       logger.info('Pulling from remote');
-      
+
       if (pat) {
         await this.configureAuth(pat);
       }
-      
+
       await this.git!.pull();
       logger.info('Pull completed successfully');
     } catch (error: any) {
       logger.error('Failed to pull', { error });
-      
+
       if (error.message?.includes('Authentication failed') || error.message?.includes('403')) {
         throw this.createError(
           ApiErrorCode.GIT_AUTH_FAILED,
@@ -99,7 +99,7 @@ export class GitAdapter {
           error
         );
       }
-      
+
       if (error.message?.includes('CONFLICT')) {
         throw this.createError(
           ApiErrorCode.GIT_CONFLICT,
@@ -107,7 +107,7 @@ export class GitAdapter {
           error
         );
       }
-      
+
       throw this.createError(
         ApiErrorCode.GIT_PULL_FAILED,
         `Failed to pull: ${error.message}`,
@@ -118,19 +118,19 @@ export class GitAdapter {
 
   async push(pat?: string): Promise<void> {
     this.ensureInitialized();
-    
+
     try {
       logger.info('Pushing to remote');
-      
+
       if (pat) {
         await this.configureAuth(pat);
       }
-      
+
       await this.git!.push();
       logger.info('Push completed successfully');
     } catch (error: any) {
       logger.error('Failed to push', { error });
-      
+
       if (error.message?.includes('Authentication failed') || error.message?.includes('403')) {
         throw this.createError(
           ApiErrorCode.GIT_AUTH_FAILED,
@@ -138,7 +138,7 @@ export class GitAdapter {
           error
         );
       }
-      
+
       throw this.createError(
         ApiErrorCode.GIT_PUSH_FAILED,
         `Failed to push: ${error.message}`,
@@ -149,7 +149,7 @@ export class GitAdapter {
 
   async fetch(): Promise<void> {
     this.ensureInitialized();
-    
+
     try {
       logger.debug('Fetching from remote');
       await this.git!.fetch();
@@ -161,7 +161,7 @@ export class GitAdapter {
 
   async add(filePath: string): Promise<void> {
     this.ensureInitialized();
-    
+
     try {
       await this.git!.add(filePath);
       logger.debug('File added to staging', { filePath });
@@ -177,7 +177,7 @@ export class GitAdapter {
 
   async commit(message: string): Promise<void> {
     this.ensureInitialized();
-    
+
     try {
       await this.git!.commit(message);
       logger.info('Commit created', { message });
@@ -193,7 +193,7 @@ export class GitAdapter {
 
   async addRemote(remoteUrl: string, name: string = 'origin'): Promise<void> {
     this.ensureInitialized();
-    
+
     try {
       await this.git!.addRemote(name, remoteUrl);
       logger.info('Remote added', { name, remoteUrl });
@@ -209,13 +209,13 @@ export class GitAdapter {
 
   async log(filePath?: string): Promise<any[]> {
     this.ensureInitialized();
-    
+
     try {
       const options: any = {
         file: filePath,
         maxCount: 100,
       };
-      
+
       const log = await this.git!.log(options);
       logger.debug('Retrieved git log', { fileCount: log.all.length });
       return [...log.all];
@@ -231,7 +231,7 @@ export class GitAdapter {
 
   async show(commitHash: string, filePath: string): Promise<string> {
     this.ensureInitialized();
-    
+
     try {
       const content = await this.git!.show([`${commitHash}:${filePath}`]);
       logger.debug('Retrieved file content from commit', { commitHash, filePath });
@@ -248,13 +248,13 @@ export class GitAdapter {
 
   async diff(commit1: string, commit2: string, filePath?: string): Promise<string> {
     this.ensureInitialized();
-    
+
     try {
       const args = [commit1, commit2];
       if (filePath) {
         args.push('--', filePath);
       }
-      
+
       const diff = await this.git!.diff(args);
       logger.debug('Retrieved diff', { commit1, commit2, filePath });
       return diff;
@@ -270,7 +270,7 @@ export class GitAdapter {
 
   async getAheadBehind(): Promise<{ ahead: number; behind: number }> {
     this.ensureInitialized();
-    
+
     try {
       const status = await this.git!.status();
       return {
@@ -285,7 +285,7 @@ export class GitAdapter {
 
   async getCurrentBranch(): Promise<string> {
     this.ensureInitialized();
-    
+
     try {
       const status = await this.git!.status();
       return status.current || 'main';
@@ -295,7 +295,7 @@ export class GitAdapter {
     }
   }
 
-  private async configureAuth(pat: string): Promise<void> {
+  private async configureAuth(_pat: string): Promise<void> {
     await this.git!.addConfig('credential.helper', 'store');
   }
 

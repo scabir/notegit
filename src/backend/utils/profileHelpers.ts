@@ -18,18 +18,18 @@ export function getDefaultReposBaseDir(): string {
 
 export function extractRepoNameFromUrl(remoteUrl: string): string {
   try {
-    let cleaned = remoteUrl.replace(/\.git$/, '');
-    
+    const cleaned = remoteUrl.replace(/\.git$/, '');
+
     const parts = cleaned.split('/');
     const lastPart = parts[parts.length - 1];
-    
+
     if (lastPart.includes(':')) {
       const colonParts = lastPart.split(':');
       const afterColon = colonParts[colonParts.length - 1];
       const slashParts = afterColon.split('/');
       return slashParts[slashParts.length - 1] || 'repo';
     }
-    
+
     return lastPart || 'repo';
   } catch (error) {
     return 'repo';
@@ -44,15 +44,14 @@ export async function findUniqueFolderName(
   let folderName = baseName;
   let counter = 1;
   let fullPath = path.join(baseDir, folderName);
-  
+
   while (await fsAdapter.exists(fullPath)) {
     folderName = `${baseName}-${counter}`;
     fullPath = path.join(baseDir, folderName);
     counter++;
   }
-  
+
   return folderName;
 }
-
 
 

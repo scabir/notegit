@@ -4,6 +4,7 @@ import {
   GetObjectCommand,
   PutObjectCommand,
   DeleteObjectCommand,
+  HeadObjectCommand,
   GetBucketVersioningCommand,
   ListObjectVersionsCommand,
 } from '@aws-sdk/client-s3';
@@ -204,6 +205,34 @@ export class S3Adapter {
       throw this.createError(
         this.isAuthError(error) ? ApiErrorCode.S3_AUTH_FAILED : ApiErrorCode.S3_SYNC_FAILED,
         `Failed to upload object: ${error.message || 'Unknown error'}`,
+        error
+      );
+    }
+  }
+
+  async headObject(key: string): Promise<S3ObjectSummary> {
+    const client = this.ensureClient();
+    const bucket = this.ensureBucket();
+
+    try {
+      const response = await client.send(
+        new HeadObjectCommand({
+          Bucket: bucket,
+          Key: key,
+        })
+      );
+
+      return {
+        key,
+        lastModified: response.LastModified,
+        size: response.ContentLength,
+        eTag: response.ETag,
+      };
+    } catch (error: any) {
+      logger.error('Failed to head S3 object', { bucket, key, error });
+      throw this.createError(
+        this.isAuthError(error) ? ApiErrorCode.S3_AUTH_FAILED : ApiErrorCode.S3_SYNC_FAILED,
+        `Failed to read object metadata: ${error.message || 'Unknown error'}`,
         error
       );
     }

@@ -285,9 +285,9 @@ describe('Workspace', () => {
       data: [{ id: 'note.md', name: 'note.md', path: 'note.md', type: 'file', fileType: FileType.MARKDOWN }],
     });
 
-    let renderer: TestRenderer.ReactTestRenderer;
+
     await act(async () => {
-      renderer = TestRenderer.create(React.createElement(Workspace, { onThemeChange: jest.fn() }));
+      TestRenderer.create(React.createElement(Workspace, { onThemeChange: jest.fn() }));
     });
 
     await act(async () => {
@@ -491,9 +491,9 @@ describe('Workspace', () => {
     (global as any).window.notegitApi.files.import = jest.fn().mockResolvedValue({ ok: true });
     (global as any).window.notegitApi.files.commitAll = jest.fn().mockResolvedValue({ ok: true });
 
-    let renderer: TestRenderer.ReactTestRenderer;
+
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -603,9 +603,9 @@ describe('Workspace', () => {
   });
 
   it('triggers autosave and beforeunload save', async () => {
-    let renderer: TestRenderer.ReactTestRenderer;
+
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -699,9 +699,9 @@ describe('Workspace', () => {
 
     const s3AutoSync = require('../../../frontend/utils/s3AutoSync');
 
-    let renderer: TestRenderer.ReactTestRenderer;
+
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -742,9 +742,9 @@ describe('Workspace', () => {
     });
     (global as any).window.notegitApi.files.read = readFile;
 
-    let renderer: TestRenderer.ReactTestRenderer;
+
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -818,9 +818,9 @@ describe('Workspace', () => {
       },
     });
 
-    let renderer: TestRenderer.ReactTestRenderer;
+
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1024,9 +1024,9 @@ describe('Workspace', () => {
       },
     });
 
-    let renderer: TestRenderer.ReactTestRenderer;
+
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1174,9 +1174,9 @@ describe('Workspace', () => {
       },
     });
 
-    let renderer: TestRenderer.ReactTestRenderer;
+
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1200,7 +1200,7 @@ describe('Workspace', () => {
   });
 
   it('logs load errors when workspace initialization fails', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
     (global as any).window.notegitApi.files.listTree = jest.fn().mockRejectedValue(new Error('boom'));
 
     await act(async () => {
@@ -1220,12 +1220,12 @@ describe('Workspace', () => {
   });
 
   it('logs read errors when file loading throws', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
     (global as any).window.notegitApi.files.read = jest.fn().mockRejectedValue(new Error('read error'));
 
-    let renderer: TestRenderer.ReactTestRenderer;
+
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1248,15 +1248,15 @@ describe('Workspace', () => {
   });
 
   it('throws when rename responses fail', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
     (global as any).window.notegitApi.files.rename = jest.fn().mockResolvedValue({
       ok: false,
       error: { message: 'rename failed' },
     });
 
-    let renderer: TestRenderer.ReactTestRenderer;
+
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1278,15 +1278,15 @@ describe('Workspace', () => {
   });
 
   it('throws when import responses fail', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
     (global as any).window.notegitApi.files.import = jest.fn().mockResolvedValue({
       ok: false,
       error: { message: 'import failed' },
     });
 
-    let renderer: TestRenderer.ReactTestRenderer;
+
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })

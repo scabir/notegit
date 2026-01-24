@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import * as path from 'path';
 import { GitAdapter } from '../adapters/GitAdapter';
 import { FsAdapter } from '../adapters/FsAdapter';
@@ -12,7 +13,7 @@ import { logger } from '../utils/logger';
 import type { RepoProvider } from './types';
 
 export class GitRepoProvider implements RepoProvider {
-  type: 'git' = 'git';
+  readonly type = 'git' as const;
   private settings: GitRepoSettings | null = null;
   private repoPath: string | null = null;
   private autoSyncTimer: NodeJS.Timeout | null = null;
@@ -272,12 +273,11 @@ export class GitRepoProvider implements RepoProvider {
   }
 
   private extractRepoName(remoteUrl: string): string {
-    const match = remoteUrl.match(/\/([^\/]+?)(?:\.git)?$/);
+    const match = remoteUrl.match(/\/([^/]+?)(?:\.git)?$/);
     if (match) {
       return match[1];
     }
 
-    const crypto = require('crypto');
     return crypto.createHash('md5').update(remoteUrl).digest('hex').substring(0, 8);
   }
 

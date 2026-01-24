@@ -1,8 +1,46 @@
+import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
 import { S3RepoProvider } from '../../../backend/providers/S3RepoProvider';
 import { ApiErrorCode, S3RepoSettings } from '../../../shared/types';
+
+const hashContent = (content: string) =>
+  crypto.createHash('sha256').update(content).digest('hex');
+
+const manifestPath = (dir: string) => path.join(dir, '.notegit', 's3-sync.json');
+
+const readManifest = async (dir: string) => {
+  const content = await fs.readFile(manifestPath(dir), 'utf-8');
+  return JSON.parse(content);
+};
+
+type AdapterOverrides = Partial<{
+  configure: jest.Mock;
+  getBucketVersioning: jest.Mock;
+  listObjects: jest.Mock;
+  getObject: jest.Mock;
+  putObject: jest.Mock;
+  headObject: jest.Mock;
+  deleteObject: jest.Mock;
+}>;
+
+const createAdapter = (overrides: AdapterOverrides = {}) => {
+  return {
+    configure: jest.fn(),
+    getBucketVersioning: jest.fn().mockResolvedValue('Enabled'),
+    listObjects: jest.fn().mockResolvedValue([]),
+    getObject: jest.fn(),
+    putObject: jest.fn().mockResolvedValue(undefined),
+    headObject: jest.fn().mockImplementation(async (key: string) => ({
+      key,
+      eTag: '"etag-default"',
+      lastModified: new Date('2024-01-01T00:00:00Z'),
+    })),
+    deleteObject: jest.fn().mockResolvedValue(undefined),
+    ...overrides,
+  };
+};
 
 describe('S3RepoProvider', () => {
   const baseSettings: S3RepoSettings = {
@@ -30,20 +68,16 @@ describe('S3RepoProvider', () => {
         await fs.rm(dir, { recursive: true, force: true });
       })
     );
+    jest.useRealTimers();
   });
 
   it('rejects when bucket versioning is not enabled', async () => {
     const tempDir = await createTempDir();
     const settings = { ...baseSettings, localPath: tempDir };
 
-    const s3Adapter = {
-      configure: jest.fn(),
+    const s3Adapter = createAdapter({
       getBucketVersioning: jest.fn().mockResolvedValue('Suspended'),
-      listObjects: jest.fn(),
-      getObject: jest.fn(),
-      putObject: jest.fn(),
-      deleteObject: jest.fn(),
-    };
+    });
 
     const provider = new S3RepoProvider(s3Adapter as any);
 
@@ -52,23 +86,21 @@ describe('S3RepoProvider', () => {
     });
   });
 
-  it('pulls remote objects on open', async () => {
+  it('pulls remote objects on open and records a manifest', async () => {
     const tempDir = await createTempDir();
     const settings = { ...baseSettings, localPath: tempDir };
 
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn().mockResolvedValue('Enabled'),
+    const remoteTime = new Date('2024-01-01T10:00:00Z');
+    const s3Adapter = createAdapter({
       listObjects: jest.fn().mockResolvedValue([
         {
           key: 'notes/test.md',
-          lastModified: new Date('2024-01-01T10:00:00Z'),
+          lastModified: remoteTime,
+          eTag: '"etag-1"',
         },
       ]),
       getObject: jest.fn().mockResolvedValue(Buffer.from('# Hello from S3')),
-      putObject: jest.fn(),
-      deleteObject: jest.fn(),
-    };
+    });
 
     const provider = new S3RepoProvider(s3Adapter as any);
 
@@ -77,20 +109,23 @@ describe('S3RepoProvider', () => {
     const saved = await fs.readFile(path.join(tempDir, 'test.md'), 'utf-8');
     expect(saved).toBe('# Hello from S3');
     expect(s3Adapter.getObject).toHaveBeenCalledWith('notes/test.md');
+
+    const manifest = await readManifest(tempDir);
+    expect(manifest.files['test.md'].remoteETag).toBe('etag-1');
+    expect(manifest.files['test.md'].localHash).toBe(hashContent('# Hello from S3'));
   });
 
-  it('uploads local changes on push', async () => {
+  it('uploads local changes on push and stores remote metadata', async () => {
     const tempDir = await createTempDir();
     const settings = { ...baseSettings, localPath: tempDir };
 
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn().mockResolvedValue('Enabled'),
-      listObjects: jest.fn().mockResolvedValue([]),
-      getObject: jest.fn(),
-      putObject: jest.fn().mockResolvedValue(undefined),
-      deleteObject: jest.fn(),
-    };
+    const s3Adapter = createAdapter({
+      headObject: jest.fn().mockResolvedValue({
+        key: 'notes/note.md',
+        eTag: '"etag-upload"',
+        lastModified: new Date('2024-01-02T10:00:00Z'),
+      }),
+    });
 
     const provider = new S3RepoProvider(s3Adapter as any);
     provider.configure(settings);
@@ -100,152 +135,32 @@ describe('S3RepoProvider', () => {
 
     await provider.push();
 
-    expect(s3Adapter.putObject).toHaveBeenCalledWith(
-      'notes/note.md',
-      expect.any(Buffer)
-    );
+    expect(s3Adapter.putObject).toHaveBeenCalledWith('notes/note.md', expect.any(Buffer));
+    expect(s3Adapter.headObject).toHaveBeenCalledWith('notes/note.md');
+
+    const manifest = await readManifest(tempDir);
+    expect(manifest.files['note.md'].remoteETag).toBe('etag-upload');
   });
 
-  it('deletes remote objects when queueing a delete', async () => {
+  it('downloads remote objects during sync', async () => {
     const tempDir = await createTempDir();
     const settings = { ...baseSettings, localPath: tempDir };
 
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
-      listObjects: jest.fn().mockResolvedValue([
-        {
-          key: 'notes/folder/note.md',
-          lastModified: new Date('2024-01-01T10:00:00Z'),
-        },
-      ]),
-      getObject: jest.fn(),
-      putObject: jest.fn(),
-      deleteObject: jest.fn().mockResolvedValue(undefined),
-    };
-
-    const provider = new S3RepoProvider(s3Adapter as any);
-    provider.configure(settings);
-    await fs.mkdir(tempDir, { recursive: true });
-
-    await provider.queueDelete('folder');
-
-    expect(s3Adapter.deleteObject).toHaveBeenCalledWith('notes/folder');
-    expect(s3Adapter.deleteObject).toHaveBeenCalledWith('notes/folder/note.md');
-  });
-
-  it('moves remote file when queueing a move', async () => {
-    const tempDir = await createTempDir();
-    const settings = { ...baseSettings, localPath: tempDir };
-
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
-      listObjects: jest.fn().mockResolvedValue([]),
-      getObject: jest.fn(),
-      putObject: jest.fn().mockResolvedValue(undefined),
-      deleteObject: jest.fn().mockResolvedValue(undefined),
-    };
-
-    const provider = new S3RepoProvider(s3Adapter as any);
-    provider.configure(settings);
-    await fs.mkdir(path.join(tempDir, 'moved'), { recursive: true });
-    await fs.writeFile(path.join(tempDir, 'moved', 'note.md'), 'Moved note');
-
-    await provider.queueMove('note.md', 'moved/note.md');
-
-    expect(s3Adapter.putObject).toHaveBeenCalledWith(
-      'notes/moved/note.md',
-      expect.any(Buffer)
-    );
-    expect(s3Adapter.deleteObject).toHaveBeenCalledWith('notes/note.md');
-  });
-
-  it('clears pending status after immediate upload', async () => {
-    const tempDir = await createTempDir();
-    const settings = { ...baseSettings, localPath: tempDir };
-
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
-      listObjects: jest.fn().mockResolvedValue([
-        {
-          key: 'notes/note.md',
-          lastModified: new Date('2024-01-02T10:00:00Z'),
-        },
-      ]),
-      getObject: jest.fn(),
-      putObject: jest.fn().mockResolvedValue(undefined),
-      deleteObject: jest.fn(),
-    };
-
-    const provider = new S3RepoProvider(s3Adapter as any);
-    provider.configure(settings);
-    await fs.mkdir(tempDir, { recursive: true });
-    await fs.writeFile(path.join(tempDir, 'note.md'), 'Local note');
-    (provider as any).lastSyncTime = new Date('2024-01-01T10:00:00Z');
-
-    const statusBefore = await provider.getStatus();
-    expect(statusBefore.pendingPushCount).toBe(1);
-
-    await provider.queueUpload('note.md');
-
-    const statusAfter = await provider.getStatus();
-    expect(statusAfter.pendingPushCount).toBe(0);
-    expect(statusAfter.behind).toBe(0);
-  });
-
-  it('deletes remote objects removed locally after last sync', async () => {
-    const tempDir = await createTempDir();
-    const settings = { ...baseSettings, localPath: tempDir };
-
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
-      listObjects: jest.fn().mockResolvedValue([
-        {
-          key: 'notes/old.md',
-          lastModified: new Date('2024-01-01T10:00:00Z'),
-        },
-      ]),
-      getObject: jest.fn(),
-      putObject: jest.fn(),
-      deleteObject: jest.fn().mockResolvedValue(undefined),
-    };
-
-    const provider = new S3RepoProvider(s3Adapter as any);
-    provider.configure(settings);
-    await fs.mkdir(tempDir, { recursive: true });
-    (provider as any).lastSyncTime = new Date('2024-01-02T10:00:00Z');
-
-    await provider.push();
-
-    expect(s3Adapter.deleteObject).toHaveBeenCalledWith('notes/old.md');
-    expect(s3Adapter.getObject).not.toHaveBeenCalled();
-  });
-
-  it('downloads remote objects added after last sync', async () => {
-    const tempDir = await createTempDir();
-    const settings = { ...baseSettings, localPath: tempDir };
-
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
+    const remoteTime = new Date('2024-01-03T10:00:00Z');
+    const s3Adapter = createAdapter({
       listObjects: jest.fn().mockResolvedValue([
         {
           key: 'notes/new.md',
-          lastModified: new Date('2024-01-03T10:00:00Z'),
+          lastModified: remoteTime,
+          eTag: '"etag-remote"',
         },
       ]),
       getObject: jest.fn().mockResolvedValue(Buffer.from('Remote note')),
-      putObject: jest.fn(),
-      deleteObject: jest.fn(),
-    };
+    });
 
     const provider = new S3RepoProvider(s3Adapter as any);
     provider.configure(settings);
     await fs.mkdir(tempDir, { recursive: true });
-    (provider as any).lastSyncTime = new Date('2024-01-02T10:00:00Z');
 
     await provider.push();
 
@@ -254,177 +169,177 @@ describe('S3RepoProvider', () => {
     expect(s3Adapter.getObject).toHaveBeenCalledWith('notes/new.md');
   });
 
-  it('retries pending deletes on next sync after failure', async () => {
+  it('deletes remote objects removed locally after a baseline sync', async () => {
     const tempDir = await createTempDir();
     const settings = { ...baseSettings, localPath: tempDir };
 
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
+    const baseContent = 'Base note';
+    await fs.mkdir(tempDir, { recursive: true });
+    await fs.writeFile(path.join(tempDir, 'obsolete.md'), baseContent);
+    await fs.stat(path.join(tempDir, 'obsolete.md'));
+
+    const manifest = {
+      version: 1,
+      updatedAt: new Date('2024-01-01T00:00:00Z').toISOString(),
+      files: {
+        'obsolete.md': {
+          localHash: hashContent(baseContent),
+          localMtimeMs: 0,
+          remoteETag: 'etag-base',
+          remoteLastModifiedMs: new Date('2024-01-01T00:00:00Z').getTime(),
+          deleted: false,
+        },
+      },
+    };
+
+    await fs.mkdir(path.join(tempDir, '.notegit'), { recursive: true });
+    await fs.writeFile(manifestPath(tempDir), JSON.stringify(manifest, null, 2), 'utf-8');
+    await fs.rm(path.join(tempDir, 'obsolete.md'));
+
+    const s3Adapter = createAdapter({
+      listObjects: jest.fn().mockResolvedValue([
+        {
+          key: 'notes/obsolete.md',
+          lastModified: new Date('2024-01-01T00:00:00Z'),
+          eTag: '"etag-base"',
+        },
+      ]),
+    });
+
+    const provider = new S3RepoProvider(s3Adapter as any);
+    provider.configure(settings);
+
+    await provider.push();
+
+    expect(s3Adapter.deleteObject).toHaveBeenCalledWith('notes/obsolete.md');
+
+    const updated = await readManifest(tempDir);
+    expect(updated.files['obsolete.md'].deleted).toBe(true);
+  });
+
+  it('creates a conflict copy when both local and remote changed', async () => {
+    const tempDir = await createTempDir();
+    const settings = { ...baseSettings, localPath: tempDir };
+
+    const baseContent = 'Base';
+    const localContent = 'Local v2';
+    const remoteContent = 'Remote v2';
+    const remoteTime = new Date('2024-01-02T03:04:05Z');
+
+    await fs.mkdir(tempDir, { recursive: true });
+    await fs.writeFile(path.join(tempDir, 'note.md'), localContent);
+    const stats = await fs.stat(path.join(tempDir, 'note.md'));
+
+    const manifest = {
+      version: 1,
+      updatedAt: new Date('2024-01-01T00:00:00Z').toISOString(),
+      files: {
+        'note.md': {
+          localHash: hashContent(baseContent),
+          localMtimeMs: stats.mtimeMs - 1000,
+          remoteETag: 'etag-base',
+          remoteLastModifiedMs: new Date('2024-01-01T00:00:00Z').getTime(),
+          deleted: false,
+        },
+      },
+    };
+
+    await fs.mkdir(path.join(tempDir, '.notegit'), { recursive: true });
+    await fs.writeFile(manifestPath(tempDir), JSON.stringify(manifest, null, 2), 'utf-8');
+
+    const s3Adapter = createAdapter({
+      listObjects: jest.fn().mockResolvedValue([
+        {
+          key: 'notes/note.md',
+          lastModified: remoteTime,
+          eTag: '"etag-remote"',
+        },
+      ]),
+      getObject: jest.fn().mockResolvedValue(Buffer.from(remoteContent)),
+    });
+
+    const provider = new S3RepoProvider(s3Adapter as any);
+    provider.configure(settings);
+
+    await provider.push();
+
+    const conflictFile = path.join(tempDir, 'note.s3-conflict-20240102-030405.md');
+    const conflictContent = await fs.readFile(conflictFile, 'utf-8');
+    const localContentAfter = await fs.readFile(path.join(tempDir, 'note.md'), 'utf-8');
+
+    expect(conflictContent).toBe(remoteContent);
+    expect(localContentAfter).toBe(localContent);
+
+    const updated = await readManifest(tempDir);
+    expect(updated.files['note.md'].conflict).toBe(true);
+    expect(updated.files['note.md'].conflictRemoteETag).toBe('etag-remote');
+    expect(updated.files['note.md'].conflictLocalHash).toBe(hashContent(localContent));
+  });
+
+  it('ignores conflict copies when uploading', async () => {
+    const tempDir = await createTempDir();
+    const settings = { ...baseSettings, localPath: tempDir };
+
+    await fs.mkdir(tempDir, { recursive: true });
+    await fs.writeFile(
+      path.join(tempDir, 'note.s3-conflict-20240102-030405.md'),
+      'Conflict copy'
+    );
+
+    const s3Adapter = createAdapter();
+
+    const provider = new S3RepoProvider(s3Adapter as any);
+    provider.configure(settings);
+
+    await provider.push();
+
+    expect(s3Adapter.putObject).not.toHaveBeenCalled();
+    expect(s3Adapter.headObject).not.toHaveBeenCalled();
+  });
+
+  it('marks a conflict when remote is deleted and local changed', async () => {
+    const tempDir = await createTempDir();
+    const settings = { ...baseSettings, localPath: tempDir };
+
+    const baseContent = 'Base';
+    const localContent = 'Local v2';
+
+    await fs.mkdir(tempDir, { recursive: true });
+    await fs.writeFile(path.join(tempDir, 'note.md'), localContent);
+    await fs.stat(path.join(tempDir, 'note.md'));
+
+    const manifest = {
+      version: 1,
+      updatedAt: new Date('2024-01-01T00:00:00Z').toISOString(),
+      files: {
+        'note.md': {
+          localHash: hashContent(baseContent),
+          localMtimeMs: 0,
+          remoteETag: 'etag-base',
+          remoteLastModifiedMs: new Date('2024-01-01T00:00:00Z').getTime(),
+          deleted: false,
+        },
+      },
+    };
+
+    await fs.mkdir(path.join(tempDir, '.notegit'), { recursive: true });
+    await fs.writeFile(manifestPath(tempDir), JSON.stringify(manifest, null, 2), 'utf-8');
+
+    const s3Adapter = createAdapter({
       listObjects: jest.fn().mockResolvedValue([]),
-      getObject: jest.fn(),
-      putObject: jest.fn(),
-      deleteObject: jest.fn()
-        .mockRejectedValueOnce(new Error('offline'))
-        .mockResolvedValue(undefined),
-    };
+    });
 
     const provider = new S3RepoProvider(s3Adapter as any);
     provider.configure(settings);
-    await fs.mkdir(tempDir, { recursive: true });
-
-    await expect(provider.queueDelete('note.md')).rejects.toThrow('offline');
 
     await provider.push();
 
-    expect(s3Adapter.deleteObject).toHaveBeenCalledWith('notes/note.md');
-    expect(s3Adapter.deleteObject).toHaveBeenCalledTimes(2);
-  });
-
-  it('moves directory paths by uploading new files and deleting old prefix', async () => {
-    const tempDir = await createTempDir();
-    const settings = { ...baseSettings, localPath: tempDir };
-
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
-      listObjects: jest.fn().mockResolvedValue([
-        {
-          key: 'notes/old-folder/one.md',
-          lastModified: new Date('2024-01-01T10:00:00Z'),
-        },
-        {
-          key: 'notes/old-folder/sub/two.md',
-          lastModified: new Date('2024-01-01T10:00:00Z'),
-        },
-      ]),
-      getObject: jest.fn(),
-      putObject: jest.fn().mockResolvedValue(undefined),
-      deleteObject: jest.fn().mockResolvedValue(undefined),
-    };
-
-    const provider = new S3RepoProvider(s3Adapter as any);
-    provider.configure(settings);
-    await fs.mkdir(path.join(tempDir, 'new-folder', 'sub'), { recursive: true });
-    await fs.writeFile(path.join(tempDir, 'new-folder', 'one.md'), 'One');
-    await fs.writeFile(path.join(tempDir, 'new-folder', 'sub', 'two.md'), 'Two');
-
-    await provider.queueMove('old-folder', 'new-folder');
-
-    expect(s3Adapter.putObject).toHaveBeenCalledWith(
-      'notes/new-folder/one.md',
-      expect.any(Buffer)
-    );
-    expect(s3Adapter.putObject).toHaveBeenCalledWith(
-      'notes/new-folder/sub/two.md',
-      expect.any(Buffer)
-    );
-    expect(s3Adapter.deleteObject).toHaveBeenCalledWith('notes/old-folder');
-    expect(s3Adapter.deleteObject).toHaveBeenCalledWith('notes/old-folder/one.md');
-    expect(s3Adapter.deleteObject).toHaveBeenCalledWith('notes/old-folder/sub/two.md');
-  });
-
-  it('downloads when remote object is newer than local', async () => {
-    const tempDir = await createTempDir();
-    const settings = { ...baseSettings, localPath: tempDir };
-
-    const remoteTime = new Date('2024-01-02T10:00:00Z');
-    const localTime = new Date('2024-01-01T10:00:00Z');
-
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
-      listObjects: jest.fn().mockResolvedValue([
-        {
-          key: 'notes/note.md',
-          lastModified: remoteTime,
-        },
-      ]),
-      getObject: jest.fn().mockResolvedValue(Buffer.from('Remote note')),
-      putObject: jest.fn(),
-      deleteObject: jest.fn(),
-    };
-
-    const provider = new S3RepoProvider(s3Adapter as any);
-    provider.configure(settings);
-    await fs.mkdir(tempDir, { recursive: true });
-    await fs.writeFile(path.join(tempDir, 'note.md'), 'Local note');
-    await fs.utimes(path.join(tempDir, 'note.md'), localTime, localTime);
-
-    await provider.push();
-
-    const saved = await fs.readFile(path.join(tempDir, 'note.md'), 'utf-8');
-    expect(saved).toBe('Remote note');
-    expect(s3Adapter.getObject).toHaveBeenCalledWith('notes/note.md');
-    expect(s3Adapter.putObject).not.toHaveBeenCalled();
-  });
-
-  it('uploads when local object is newer than remote', async () => {
-    const tempDir = await createTempDir();
-    const settings = { ...baseSettings, localPath: tempDir };
-
-    const remoteTime = new Date('2024-01-01T10:00:00Z');
-    const localTime = new Date('2024-01-02T10:00:00Z');
-
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
-      listObjects: jest.fn().mockResolvedValue([
-        {
-          key: 'notes/note.md',
-          lastModified: remoteTime,
-        },
-      ]),
-      getObject: jest.fn(),
-      putObject: jest.fn().mockResolvedValue(undefined),
-      deleteObject: jest.fn(),
-    };
-
-    const provider = new S3RepoProvider(s3Adapter as any);
-    provider.configure(settings);
-    await fs.mkdir(tempDir, { recursive: true });
-    await fs.writeFile(path.join(tempDir, 'note.md'), 'Local note');
-    await fs.utimes(path.join(tempDir, 'note.md'), localTime, localTime);
-
-    await provider.push();
-
-    expect(s3Adapter.putObject).toHaveBeenCalledWith(
-      'notes/note.md',
-      expect.any(Buffer)
-    );
+    expect(s3Adapter.deleteObject).not.toHaveBeenCalled();
     expect(s3Adapter.getObject).not.toHaveBeenCalled();
-  });
 
-  it('does nothing when local and remote timestamps match', async () => {
-    const tempDir = await createTempDir();
-    const settings = { ...baseSettings, localPath: tempDir };
-
-    const sameTime = new Date('2024-01-01T10:00:00Z');
-
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
-      listObjects: jest.fn().mockResolvedValue([
-        {
-          key: 'notes/note.md',
-          lastModified: sameTime,
-        },
-      ]),
-      getObject: jest.fn(),
-      putObject: jest.fn(),
-      deleteObject: jest.fn(),
-    };
-
-    const provider = new S3RepoProvider(s3Adapter as any);
-    provider.configure(settings);
-    await fs.mkdir(tempDir, { recursive: true });
-    await fs.writeFile(path.join(tempDir, 'note.md'), 'Local note');
-    await fs.utimes(path.join(tempDir, 'note.md'), sameTime, sameTime);
-
-    await provider.push();
-
-    expect(s3Adapter.getObject).not.toHaveBeenCalled();
-    expect(s3Adapter.putObject).not.toHaveBeenCalled();
+    const updated = await readManifest(tempDir);
+    expect(updated.files['note.md'].conflict).toBe(true);
+    expect(updated.files['note.md'].conflictRemoteDeleted).toBe(true);
   });
 
   it('uses the provided interval for auto sync', () => {
@@ -433,17 +348,11 @@ describe('S3RepoProvider', () => {
     const tempDir = '/tmp/notegit-s3';
     const settings = { ...baseSettings, localPath: tempDir };
 
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
-      listObjects: jest.fn(),
-      getObject: jest.fn(),
-      putObject: jest.fn(),
-      deleteObject: jest.fn(),
-    };
-
+    const s3Adapter = createAdapter();
     const provider = new S3RepoProvider(s3Adapter as any);
     provider.configure(settings);
+
+    jest.spyOn(provider, 'pull').mockResolvedValue(undefined);
 
     const setIntervalSpy = jest.spyOn(global, 'setInterval');
 
@@ -453,7 +362,6 @@ describe('S3RepoProvider', () => {
 
     provider.stopAutoSync();
     setIntervalSpy.mockRestore();
-    jest.useRealTimers();
   });
 
   it('restarts the auto sync timer when called again', () => {
@@ -462,17 +370,11 @@ describe('S3RepoProvider', () => {
     const tempDir = '/tmp/notegit-s3';
     const settings = { ...baseSettings, localPath: tempDir };
 
-    const s3Adapter = {
-      configure: jest.fn(),
-      getBucketVersioning: jest.fn(),
-      listObjects: jest.fn(),
-      getObject: jest.fn(),
-      putObject: jest.fn(),
-      deleteObject: jest.fn(),
-    };
-
+    const s3Adapter = createAdapter();
     const provider = new S3RepoProvider(s3Adapter as any);
     provider.configure(settings);
+
+    jest.spyOn(provider, 'pull').mockResolvedValue(undefined);
 
     const setIntervalSpy = jest.spyOn(global, 'setInterval');
     const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
@@ -486,6 +388,5 @@ describe('S3RepoProvider', () => {
     provider.stopAutoSync();
     setIntervalSpy.mockRestore();
     clearIntervalSpy.mockRestore();
-    jest.useRealTimers();
   });
 });

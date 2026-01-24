@@ -11,7 +11,7 @@ import { logger } from '../utils/logger';
 import type { HistoryProvider } from './types';
 
 export class S3HistoryProvider implements HistoryProvider {
-  type: 's3' = 's3';
+  readonly type = 's3' as const;
   private settings: S3RepoSettings | null = null;
 
   constructor(private s3Adapter: S3Adapter) {}

@@ -58,13 +58,13 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
 
   useEffect(() => {
     onChange(content, hasChanges);
-  }, [content, hasChanges]);
+  }, [content, hasChanges, onChange]);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.view) {
       editorViewRef.current = editorRef.current.view;
     }
-  }, [editorRef.current]);
+  }, []);
 
   const handleSave = useCallback(() => {
     if (file && hasChanges) {

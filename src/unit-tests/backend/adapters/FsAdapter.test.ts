@@ -1,6 +1,6 @@
 import { FsAdapter } from '../../../backend/adapters/FsAdapter';
 import * as fs from 'fs/promises';
-import * as path from 'path';
+
 import { ApiErrorCode } from '../../../shared/types';
 
 jest.mock('fs/promises');

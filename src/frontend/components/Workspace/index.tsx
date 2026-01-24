@@ -106,7 +106,54 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         s3AutoSyncCleanupRef.current = null;
       }
     };
-  }, [isS3Repo, appSettings?.s3AutoSyncEnabled, appSettings?.s3AutoSyncIntervalSec]);
+  }, [isS3Repo, appSettings?.s3AutoSyncEnabled, appSettings?.s3AutoSyncIntervalSec, appSettings]);
+
+  const handleSaveFile = React.useCallback(async (content: string, isAutosave: boolean = false) => {
+    if (!selectedFile) return;
+
+    setSaveStatus('saving');
+    setSaveMessage('');
+
+    try {
+      const response = await window.notegitApi.files.save(
+        selectedFile,
+        content
+      );
+
+      if (response.ok) {
+        setSaveStatus('saved');
+        setHasUnsavedChanges(false);
+
+        if (selectedFile) {
+          fileContentCacheRef.current.delete(selectedFile);
+        }
+
+        if (!isAutosave) {
+          setSaveMessage('Saved locally');
+        }
+
+        const statusResponse = await window.notegitApi.repo.getStatus();
+        if (statusResponse.ok && statusResponse.data) {
+          setRepoStatus(statusResponse.data);
+        }
+
+        setTimeout(() => {
+          if (!isAutosave) {
+            setSaveStatus('idle');
+            setSaveMessage('');
+          }
+        }, 2000);
+      } else {
+        setSaveStatus('error');
+        setSaveMessage(response.error?.message || 'Failed to save file');
+        console.error('Failed to save file:', response.error);
+      }
+    } catch (error: any) {
+      setSaveStatus('error');
+      setSaveMessage(error.message || 'Failed to save file');
+      console.error('Failed to save file:', error);
+    }
+  }, [selectedFile]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -143,7 +190,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         clearTimeout(autosaveTimerRef.current);
       }
     };
-  }, [hasUnsavedChanges, selectedFile, editorContent]);
+  }, [hasUnsavedChanges, selectedFile, editorContent, handleSaveFile]);
 
   // Save on app close
   useEffect(() => {
@@ -158,7 +205,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [hasUnsavedChanges, selectedFile, editorContent]);
+  }, [hasUnsavedChanges, selectedFile, editorContent, handleSaveFile]);
 
   const loadWorkspace = async () => {
     try {
@@ -238,52 +285,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     }
   };
 
-  const handleSaveFile = async (content: string, isAutosave: boolean = false) => {
-    if (!selectedFile) return;
 
-    setSaveStatus('saving');
-    setSaveMessage('');
-
-    try {
-      const response = await window.notegitApi.files.save(
-        selectedFile,
-        content
-      );
-
-      if (response.ok) {
-        setSaveStatus('saved');
-        setHasUnsavedChanges(false);
-
-        if (selectedFile) {
-          fileContentCacheRef.current.delete(selectedFile);
-        }
-
-        if (!isAutosave) {
-          setSaveMessage('Saved locally');
-        }
-
-        const statusResponse = await window.notegitApi.repo.getStatus();
-        if (statusResponse.ok && statusResponse.data) {
-          setRepoStatus(statusResponse.data);
-        }
-
-        setTimeout(() => {
-          if (!isAutosave) {
-            setSaveStatus('idle');
-            setSaveMessage('');
-          }
-        }, 2000);
-      } else {
-        setSaveStatus('error');
-        setSaveMessage(response.error?.message || 'Failed to save file');
-        console.error('Failed to save file:', response.error);
-      }
-    } catch (error: any) {
-      setSaveStatus('error');
-      setSaveMessage(error.message || 'Failed to save file');
-      console.error('Failed to save file:', error);
-    }
-  };
 
   const handleCommit = async () => {
     const statusResponse = await window.notegitApi.repo.getStatus();
@@ -511,12 +513,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     }
   };
 
-  const handleOpenCommitDialog = async () => {
-    if (hasUnsavedChanges && selectedFile) {
-      await handleSaveFile(editorContent);
-    }
-    setCommitDialogOpen(true);
-  };
+
 
   const handleCommitAndPush = async () => {
     if (hasUnsavedChanges && selectedFile) {
