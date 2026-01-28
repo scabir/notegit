@@ -115,6 +115,31 @@ const getToolbarButton = (renderer: TestRenderer.ReactTestRenderer, title: strin
   return tooltip.findByType(IconButton);
 };
 
+const fireWindowKeydown = (
+  handlers: Record<string, any[]>,
+  event: {
+    key: string;
+    ctrlKey?: boolean;
+    metaKey?: boolean;
+    shiftKey?: boolean;
+    preventDefault?: jest.Mock;
+    target?: any;
+  }
+) => {
+  (handlers.keydown || []).forEach((handler) => {
+    act(() => {
+      handler({
+        key: event.key,
+        ctrlKey: event.ctrlKey ?? false,
+        metaKey: event.metaKey ?? false,
+        shiftKey: event.shiftKey ?? false,
+        preventDefault: event.preventDefault || jest.fn(),
+        target: event.target || null,
+      });
+    });
+  });
+};
+
 describe('MarkdownEditor task list formatting', () => {
   beforeEach(() => {
     (global as any).window = {
@@ -278,10 +303,12 @@ describe('MarkdownEditor task list formatting', () => {
   });
 
   it('saves via toolbar and keyboard shortcut', async () => {
-    const handlers: Record<string, any> = {};
+    const handlers: Record<string, any[]> = {};
     (global as any).window.addEventListener = jest.fn((event: string, handler: any) => {
-      handlers[event] = handler;
+      handlers[event] = handlers[event] || [];
+      handlers[event].push(handler);
     });
+    (global as any).window.removeEventListener = jest.fn();
 
     const { renderer, onSave, onChange } = await renderEditor('hello', 0, 0);
 
@@ -294,9 +321,9 @@ describe('MarkdownEditor task list formatting', () => {
     const saveButton = getToolbarButton(renderer, MARKDOWN_EDITOR_TEXT.saveTooltip);
     expect(saveButton.props.disabled).toBe(false);
 
-    act(() => {
-      handlers.keydown({ key: 's', ctrlKey: true, metaKey: false, preventDefault: jest.fn() });
-    });
+    const preventDefault = jest.fn();
+    fireWindowKeydown(handlers, { key: 's', ctrlKey: true, metaKey: false, preventDefault });
+    expect(preventDefault).toHaveBeenCalled();
 
     act(() => {
       saveButton.props.onClick();
@@ -352,17 +379,19 @@ describe('MarkdownEditor task list formatting', () => {
   });
 
   it('opens find bar and navigates/updates matches', async () => {
-    const handlers: Record<string, any> = {};
+    const handlers: Record<string, any[]> = {};
     (global as any).window.addEventListener = jest.fn((event: string, handler: any) => {
-      handlers[event] = handler;
+      handlers[event] = handlers[event] || [];
+      handlers[event].push(handler);
     });
+    (global as any).window.removeEventListener = jest.fn();
 
     jest.useFakeTimers();
     const { renderer, onChange } = await renderEditor('hello hello', 0, 5);
 
-    act(() => {
-      handlers.keydown({ key: 'f', ctrlKey: true, metaKey: false, preventDefault: jest.fn() });
-    });
+    const preventDefault = jest.fn();
+    fireWindowKeydown(handlers, { key: 'f', ctrlKey: true, metaKey: false, preventDefault });
+    expect(preventDefault).toHaveBeenCalled();
 
     act(() => {
       jest.runAllTimers();
@@ -424,6 +453,75 @@ describe('MarkdownEditor task list formatting', () => {
     });
 
     expect(mockView.dispatch).toHaveBeenCalled();
+  });
+
+  describe('keyboard shortcuts', () => {
+    it('applies bold formatting with Ctrl+B', async () => {
+      const handlers: Record<string, any[]> = {};
+      (global as any).window.addEventListener = jest.fn((event: string, handler: any) => {
+        handlers[event] = handlers[event] || [];
+        handlers[event].push(handler);
+      });
+      (global as any).window.removeEventListener = jest.fn();
+
+      const { renderer } = await renderEditor('note', 0, 0);
+      mockView.dispatch.mockClear();
+
+      const preventDefault = jest.fn();
+      fireWindowKeydown(handlers, { key: 'b', ctrlKey: true, preventDefault });
+
+      expect(mockView.dispatch).toHaveBeenCalledTimes(1);
+      const boldCall = mockView.dispatch.mock.calls[0][0];
+      expect(boldCall.changes.insert).toBe(
+        `${MARKDOWN_INSERT_TOKENS.bold[0]}${MARKDOWN_INSERT_DEFAULTS.bold}${MARKDOWN_INSERT_TOKENS.bold[1]}`
+      );
+      expect(preventDefault).toHaveBeenCalled();
+    });
+
+    it('adds highlight markup with Ctrl+Shift+H', async () => {
+      const handlers: Record<string, any[]> = {};
+      (global as any).window.addEventListener = jest.fn((event: string, handler: any) => {
+        handlers[event] = handlers[event] || [];
+        handlers[event].push(handler);
+      });
+      (global as any).window.removeEventListener = jest.fn();
+
+      await renderEditor('note', 0, 0);
+      mockView.dispatch.mockClear();
+
+      const preventDefault = jest.fn();
+      fireWindowKeydown(handlers, { key: 'h', ctrlKey: true, shiftKey: true, preventDefault });
+
+      expect(mockView.dispatch).toHaveBeenCalledTimes(1);
+      const highlightCall = mockView.dispatch.mock.calls[0][0];
+      expect(highlightCall.changes.insert).toBe(
+        `${MARKDOWN_INSERT_TOKENS.highlight[0]}${MARKDOWN_INSERT_DEFAULTS.highlight}${MARKDOWN_INSERT_TOKENS.highlight[1]}`
+      );
+      expect(preventDefault).toHaveBeenCalled();
+    });
+
+    it('inserts a mermaid block with Ctrl+Shift+M', async () => {
+      const handlers: Record<string, any[]> = {};
+      (global as any).window.addEventListener = jest.fn((event: string, handler: any) => {
+        handlers[event] = handlers[event] || [];
+        handlers[event].push(handler);
+      });
+      (global as any).window.removeEventListener = jest.fn();
+
+      await renderEditor('diagram', 0, 0);
+      mockView.dispatch.mockClear();
+
+      const preventDefault = jest.fn();
+      fireWindowKeydown(handlers, { key: 'm', ctrlKey: true, shiftKey: true, preventDefault });
+
+      expect(mockView.dispatch).toHaveBeenCalledTimes(1);
+      const mermaidCall = mockView.dispatch.mock.calls[0][0];
+      expect(mermaidCall.changes.insert).toBe(
+        `${MARKDOWN_INSERT_TOKENS.mermaid[0]}${MARKDOWN_INSERT_DEFAULTS.mermaid}${MARKDOWN_INSERT_TOKENS.mermaid[1]}`
+      );
+      expect(preventDefault).toHaveBeenCalled();
+    });
+
   });
 
   it('renders preview content with mermaid and image adjustments', async () => {

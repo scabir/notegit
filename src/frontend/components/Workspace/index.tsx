@@ -10,6 +10,7 @@ import {
 } from '@mui/icons-material';
 import { FileTreeView } from '../FileTreeView';
 import { MarkdownEditor } from '../MarkdownEditor';
+import { ShortcutHelper, type ShortcutHelperHandle } from '../ShortcutHelper';
 import { TextEditor } from '../TextEditor';
 import { StatusBar } from '../StatusBar';
 import { SettingsDialog } from '../SettingsDialog';
@@ -63,6 +64,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const resizeStartWidth = React.useRef(0);
 
   const fileContentCacheRef = React.useRef<Map<string, string>>(new Map());
+  const shortcutHelperRef = React.useRef<ShortcutHelperHandle | null>(null);
 
   const [activeProfileName, setActiveProfileName] = useState<string>('');
   const [appVersion, setAppVersion] = useState<string>('');
@@ -72,7 +74,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
   useEffect(() => {
     loadWorkspace();
-  }, []);
+  }, [shortcutHelperRef]);
 
   useEffect(() => {
     if (!isS3Repo || !appSettings) {
@@ -166,6 +168,9 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'f') {
         e.preventDefault();
         setRepoSearchDialogOpen(true);
+      } else if (e.key === 'F1') {
+        e.preventDefault();
+        shortcutHelperRef.current?.openMenu();
       }
     };
 
@@ -716,6 +721,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
               <SettingsIcon />
             </IconButton>
           </Tooltip>
+          <ShortcutHelper ref={shortcutHelperRef} />
         </Toolbar>
       </AppBar>
 
@@ -749,12 +755,12 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
               onChange={handleEditorChange}
             />
           ) : (
-            <MarkdownEditor
-              file={fileContent}
-              repoPath={repoPath}
-              onSave={handleSaveFile}
-              onChange={handleEditorChange}
-            />
+          <MarkdownEditor
+            file={fileContent}
+            repoPath={repoPath}
+            onSave={handleSaveFile}
+            onChange={handleEditorChange}
+          />
           )}
         </Box>
 

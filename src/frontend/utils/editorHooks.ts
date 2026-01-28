@@ -212,7 +212,7 @@ export const useEditorGlobalShortcuts = ({
       if (enableSaveShortcut && (e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
         onSave?.();
-      } else if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+      } else if ((e.metaKey || e.ctrlKey) && e.key === 'f' && !e.shiftKey) {
         e.preventDefault();
         onOpenFind?.();
       }

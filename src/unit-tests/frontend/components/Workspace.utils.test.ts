@@ -8,9 +8,9 @@ describe('Workspace utils', () => {
   });
 
   it('builds header title with profile and version', () => {
-    const title = buildHeaderTitle('MyProfile', '2.1.1');
+    const title = buildHeaderTitle('MyProfile', '2.1.2');
     expect(title).toContain(WORKSPACE_TEXT.appName);
     expect(title).toContain('MyProfile');
-    expect(title).toContain('2.1.1');
+    expect(title).toContain('2.1.2');
   });
 });

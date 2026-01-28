@@ -44,18 +44,153 @@ const flattenText = (node: any): string => {
   return node.children ? node.children.map(flattenText).join('') : '';
 };
 
+let treeKeyHandlers: Record<string, any> = {};
+
 describe('FileTreeView toolbar actions', () => {
   beforeEach(() => {
+    treeKeyHandlers = {};
     (global as any).window = {
       notegitApi: {
         dialog: {
-          showOpenDialog: jest.fn(),
+          showOpenDialog: jest.fn().mockResolvedValue({ canceled: true, filePaths: [] }),
         },
       },
       confirm: jest.fn(),
       alert: jest.fn(),
+      addEventListener: jest.fn((event: string, handler: any) => {
+        treeKeyHandlers[event] = handler;
+      }),
+      removeEventListener: jest.fn(),
     };
     (global as any).alert = (global as any).window.alert;
+  });
+
+  const createTreeRenderer = (overrides: Record<string, any> = {}) =>
+    TestRenderer.create(
+      React.createElement(FileTreeView, {
+        tree,
+        selectedFile: null,
+        onSelectFile: jest.fn(),
+        onCreateFile: jest.fn(),
+        onCreateFolder: jest.fn(),
+        onDelete: jest.fn(),
+        onRename: jest.fn(),
+        onImport: jest.fn(),
+        isS3Repo: false,
+        ...overrides,
+      })
+    );
+
+  describe('keyboard shortcuts', () => {
+    const fireShortcut = (event: Partial<KeyboardEvent>) => {
+      const handler = treeKeyHandlers.keydown;
+      if (!handler) {
+        throw new Error('Keyboard handler not registered');
+      }
+      act(() => {
+        handler({
+          key: event.key || '',
+          ctrlKey: event.ctrlKey || false,
+          metaKey: event.metaKey || false,
+          shiftKey: event.shiftKey || false,
+          preventDefault: event.preventDefault || jest.fn(),
+          target: event.target || null,
+        });
+      });
+    };
+
+    it('opens the create file dialog with Ctrl+A', () => {
+      const renderer = createTreeRenderer();
+      const preventDefault = jest.fn();
+      fireShortcut({ key: 'a', ctrlKey: true, preventDefault });
+
+      const fileDialog = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'create-file-dialog'
+      );
+      expect(fileDialog.props.open).toBe(true);
+      expect(preventDefault).toHaveBeenCalled();
+    });
+
+    it('opens the create folder dialog with Ctrl+D', () => {
+      const renderer = createTreeRenderer();
+      const preventDefault = jest.fn();
+      fireShortcut({ key: 'd', ctrlKey: true, preventDefault });
+
+      const folderDialog = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'create-folder-dialog'
+      );
+      expect(folderDialog.props.open).toBe(true);
+      expect(preventDefault).toHaveBeenCalled();
+    });
+
+    it('triggers delete with the Delete key', async () => {
+      const onDelete = jest.fn().mockResolvedValue(undefined);
+      const renderer = createTreeRenderer({ onDelete });
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder/note.md');
+      });
+
+      (global as any).window.confirm = jest.fn().mockReturnValue(true);
+      const preventDefault = jest.fn();
+      fireShortcut({ key: 'Delete', preventDefault });
+
+      expect(onDelete).toHaveBeenCalledWith('folder/note.md');
+      expect(preventDefault).toHaveBeenCalled();
+    });
+
+    it('opens the import dialog with Ctrl+I', () => {
+      const renderer = createTreeRenderer();
+      const preventDefault = jest.fn();
+      fireShortcut({ key: 'i', ctrlKey: true, preventDefault });
+
+      expect((global as any).window.notegitApi.dialog.showOpenDialog).toHaveBeenCalled();
+      expect(preventDefault).toHaveBeenCalled();
+    });
+
+    it('opens the rename dialog with Ctrl+R and F2', () => {
+      const renderer = createTreeRenderer();
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder/note.md');
+      });
+
+      const preventDefault = jest.fn();
+      fireShortcut({ key: 'r', ctrlKey: true, preventDefault });
+
+      let renameDialog = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'rename-dialog'
+      );
+      expect(renameDialog.props.open).toBe(true);
+      expect(preventDefault).toHaveBeenCalled();
+
+      act(() => {
+        renameDialog.props.onClose();
+      });
+
+      const preventDefaultF2 = jest.fn();
+      fireShortcut({ key: 'F2', preventDefault: preventDefaultF2 });
+      renameDialog = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'rename-dialog'
+      );
+      expect(renameDialog.props.open).toBe(true);
+      expect(preventDefaultF2).toHaveBeenCalled();
+    });
+
+    it('opens the move dialog with Ctrl+M', () => {
+      const renderer = createTreeRenderer();
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder/note.md');
+      });
+
+      const preventDefault = jest.fn();
+      fireShortcut({ key: 'm', ctrlKey: true, preventDefault });
+
+      const moveDialog = renderer.root.findByType(MoveToFolderDialog);
+      expect(moveDialog.props.open).toBe(true);
+      expect(preventDefault).toHaveBeenCalled();
+    });
   });
 
   it('opens move dialog from toolbar for selected node', () => {
@@ -360,15 +495,24 @@ describe('FileTreeView toolbar actions', () => {
 
     expect(onSelectFile).toHaveBeenCalledWith('folder/note.md', 'file');
 
-    const clearButton = getTooltipButton(renderer, FILE_TREE_TEXT.clearSelection);
-    expect(clearButton.props.disabled).toBe(false);
+    const renameButton = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
+    expect(renameButton.props.disabled).toBe(false);
+
+    const container = renderer.root.findAll(
+      (node) => node.props.className === 'tree-container'
+    )[0];
 
     act(() => {
-      clearButton.props.onClick();
+      container.props.onClick({
+        target: {
+          classList: { contains: (value: string) => value === 'tree-container' },
+          closest: () => null,
+        },
+      });
     });
 
-    const clearButtonAfter = getTooltipButton(renderer, FILE_TREE_TEXT.clearSelection);
-    expect(clearButtonAfter.props.disabled).toBe(true);
+    const renameButtonAfter = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
+    expect(renameButtonAfter.props.disabled).toBe(true);
   });
 
   it('creates a file inside the selected folder', async () => {
@@ -1003,8 +1147,8 @@ describe('FileTreeView toolbar actions', () => {
     });
 
     expect(onDelete).toHaveBeenCalledWith('folder/note.md');
-    const clearButtonAfter = getTooltipButton(renderer, FILE_TREE_TEXT.clearSelection);
-    expect(clearButtonAfter.props.disabled).toBe(true);
+    const renameButtonAfter = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
+    expect(renameButtonAfter.props.disabled).toBe(true);
   });
 
   it('expands folders when selectedFile is nested', async () => {
@@ -1318,8 +1462,8 @@ describe('FileTreeView toolbar actions', () => {
       });
     });
 
-    const clearButtonAfter = getTooltipButton(renderer, FILE_TREE_TEXT.clearSelection);
-    expect(clearButtonAfter.props.disabled).toBe(true);
+    const renameButtonAfter = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
+    expect(renameButtonAfter.props.disabled).toBe(true);
   });
 
   it('shows creation location for selected file parent', () => {

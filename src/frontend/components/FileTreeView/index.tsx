@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { TreeView, TreeItem } from '@mui/x-tree-view';
 import {
   Box,
@@ -22,7 +22,6 @@ import {
   Delete as DeleteIcon,
   FileUpload as ImportIcon,
   DriveFileRenameOutline as RenameIcon,
-  Clear as ClearIcon,
   DriveFileMove as MoveIcon,
 } from '@mui/icons-material';
 import { MoveToFolderDialog } from '../MoveToFolderDialog';
@@ -59,6 +58,15 @@ export function FileTreeView({
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedNode, setSelectedNode] = useState<FileTreeNode | null>(null);
   const [expanded, setExpanded] = useState<string[]>([]);
+  const treeContainerRef = useRef<HTMLDivElement | null>(null);
+  const shortcutHandlersRef = useRef({
+    openFileDialog: () => {},
+    openFolderDialog: () => {},
+    handleDelete: () => {},
+    handleImportFile: () => {},
+    handleOpenRenameDialog: () => {},
+    handleOpenMoveDialog: () => {},
+  });
 
   React.useEffect(() => {
     if (selectedFile) {
@@ -344,6 +352,79 @@ export function FileTreeView({
     }
   };
 
+  React.useEffect(() => {
+    shortcutHandlersRef.current = {
+      openFileDialog: handleOpenFileDialog,
+      openFolderDialog: handleOpenFolderDialog,
+      handleDelete,
+      handleImportFile,
+      handleOpenRenameDialog,
+      handleOpenMoveDialog,
+    };
+  }, [
+    handleOpenFileDialog,
+    handleOpenFolderDialog,
+    handleDelete,
+    handleImportFile,
+    handleOpenRenameDialog,
+    handleOpenMoveDialog,
+  ]);
+
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      const container = treeContainerRef.current;
+      if (container && event.target instanceof Node && !container.contains(event.target)) {
+        return;
+      }
+
+      const { openFileDialog, openFolderDialog, handleDelete: deleteHandler, handleImportFile: importHandler, handleOpenRenameDialog: renameHandler, handleOpenMoveDialog: moveHandler } = shortcutHandlersRef.current;
+      const mod = event.metaKey || event.ctrlKey;
+      const key = event.key;
+
+      if (mod && key.toLowerCase() === 'a') {
+        event.preventDefault();
+        openFileDialog();
+        return;
+      }
+
+      if (mod && key.toLowerCase() === 'd') {
+        event.preventDefault();
+        openFolderDialog();
+        return;
+      }
+
+      if (mod && key.toLowerCase() === 'i') {
+        event.preventDefault();
+        importHandler();
+        return;
+      }
+
+      if ((mod && key.toLowerCase() === 'r') || key === 'F2') {
+        event.preventDefault();
+        renameHandler();
+        return;
+      }
+
+      if (mod && key.toLowerCase() === 'm') {
+        event.preventDefault();
+        moveHandler();
+        return;
+      }
+
+      if (key === 'Delete') {
+        event.preventDefault();
+        deleteHandler();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const renderTree = (node: FileTreeNode, _parentPath: string = '') => {
     const isExpanded = expanded.includes(node.id);
 
@@ -388,11 +469,8 @@ export function FileTreeView({
       if (node.type === 'file') {
         onSelectFile(node.path, node.type);
       }
+      treeContainerRef.current?.focus();
     }
-  };
-
-  const handleClearSelection = () => {
-    setSelectedNode(null);
   };
 
   const handleContainerClick = (e: React.MouseEvent) => {
@@ -404,6 +482,7 @@ export function FileTreeView({
       (!target.closest('.MuiTreeItem-root') && !target.closest('.MuiTreeView-root'))
     ) {
       setSelectedNode(null);
+      treeContainerRef.current?.focus();
     }
   };
 
@@ -472,24 +551,14 @@ export function FileTreeView({
           </span>
         </Tooltip>
         <Box sx={{ flexGrow: 1 }} />
-        <Tooltip title={FILE_TREE_TEXT.clearSelection}>
-          <span>
-            <IconButton
-              size="small"
-              onClick={handleClearSelection}
-              disabled={!selectedNode}
-              color={selectedNode ? 'primary' : 'default'}
-            >
-              <ClearIcon fontSize="small" />
-            </IconButton>
-          </span>
-        </Tooltip>
       </Toolbar>
 
       <Box
         className="tree-container"
         sx={treeContainerSx}
         onClick={handleContainerClick}
+        ref={treeContainerRef}
+        tabIndex={0}
       >
         <TreeView
           defaultCollapseIcon={<span />}
@@ -506,6 +575,7 @@ export function FileTreeView({
       </Box>
 
       <Dialog
+        data-testid="create-file-dialog"
         open={createFileDialogOpen}
         onClose={() => {
           setCreateFileDialogOpen(false);
@@ -566,6 +636,7 @@ export function FileTreeView({
       </Dialog>
 
       <Dialog
+        data-testid="create-folder-dialog"
         open={createFolderDialogOpen}
         onClose={() => {
           setCreateFolderDialogOpen(false);
@@ -625,6 +696,7 @@ export function FileTreeView({
       </Dialog>
 
       <Dialog
+        data-testid="rename-dialog"
         open={renameDialogOpen}
         onClose={() => {
           setRenameDialogOpen(false);

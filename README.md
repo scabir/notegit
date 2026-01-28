@@ -2,7 +2,7 @@
 
 A Git- or S3-backed Markdown note-taking desktop app built with Electron and React.
 
-**Version**: 2.1.1  
+**Version**: 2.1.2  
 **License**: MIT
 
 ## Overview
@@ -12,6 +12,7 @@ A Git- or S3-backed Markdown note-taking desktop app built with Electron and Rea
 - Fast search, find/replace, import/export
 - Encrypted credentials, auto-save, and sync
 - macOS, Windows, Linux
+- Keyboard shortcuts populate the tree view (add/import/rename/move/delete) and the editor, and a question-mark help icon sits to the right of the Settings button (or press `F1`) to open the shortcut helper with every shortcut listed.
 
 ## Quick start
 
