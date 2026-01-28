@@ -2,8 +2,8 @@
 
 Complete guide to using notegit - your Git- and S3-backed markdown note-taking application.
 
-**Version**: 2.1.1  
-**Last Updated**: November 17, 2025
+**Version**: 2.1.2  
+**Last Updated**: January 28, 2026
 
 ---
 
@@ -210,47 +210,71 @@ Your data is stored in:
 
 ## Keyboard Shortcuts
 
-### Global Shortcuts
+### Shortcut helper
+
+Click the question mark icon to the right of the **Settings** button in the top toolbar (or press `F1`) to open the shortcuts helper. It lists every tree, editor, and global shortcut and stays open until you close it, so you can review the combinations before committing to a change.
+
+### File tree shortcuts
 
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl/Cmd+S` | Save current file |
-| `Ctrl/Cmd+P` | Open quick file search |
-| `Ctrl/Cmd+K` | Open quick file search (alternative) |
-| `Ctrl/Cmd+F` | Find in current file |
-| `Ctrl/Cmd+Shift+F` | Find in repository |
-| `Ctrl/Cmd+,` | Open settings |
-| `Ctrl/Cmd+Q` | Quit application |
+| `Ctrl/Cmd + A` | Add a new file (placed in the current folder or root) |
+| `Ctrl/Cmd + D` | Create a new folder inside the selected directory |
+| `Delete` | Remove the selected file or folder |
+| `Ctrl/Cmd + I` | Import a file into the selected folder |
+| `Ctrl/Cmd + R` / `F2` | Rename the selected file or folder |
+| `Ctrl/Cmd + M` | Move the selected item to another folder via the picker |
 
-### Editor Shortcuts
+Clicking empty space in the tree clears the selection so you can start a new action from the root; the toolbar no longer has a dedicated clear-selection button, but the same behavior is provided by this click target.
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl/Cmd+B` | Bold |
-| `Ctrl/Cmd+I` | Italic |
-| `Ctrl/Cmd+Z` | Undo |
-| `Ctrl/Cmd+Shift+Z` | Redo |
-| `Tab` | Indent |
-| `Shift+Tab` | Outdent |
-
-### Find & Replace Shortcuts
+### Markdown editor shortcuts
 
 | Shortcut | Action |
 |----------|--------|
-| `Enter` | Find next |
-| `Shift+Enter` | Find previous |
-| `Esc` | Close find bar |
-| `Ctrl/Cmd+H` | Open replace (in some contexts) |
+| `Ctrl/Cmd + B` | Bold |
+| `Ctrl/Cmd + T` | Italic |
+| `Ctrl/Cmd + H` | Heading (`## `) |
+| ``Ctrl/Cmd + ` `` | Wrap the selection in inline code |
+| `Ctrl/Cmd + Shift + {` / `}` | Surround text with triple backticks for code blocks |
+| `Ctrl/Cmd + L` | Insert a link template |
+| `Ctrl/Cmd + Shift + T` | Insert a markdown table skeleton |
+| `Ctrl/Cmd + Shift + F` | Insert a numbered footnote marker plus definition |
+| `Ctrl/Cmd + Shift + L` | Toggle a task list for the selection |
+| `Ctrl/Cmd + Shift + H` | Highlight text with `==` markers |
+| `Ctrl/Cmd + Shift + D` | Insert a definition list pair |
+| `Ctrl/Cmd + Shift + M` | Insert a Mermaid diagram block |
 
-### Tree Navigation
+### Global shortcuts
 
 | Shortcut | Action |
 |----------|--------|
-| `↑` `↓` | Navigate tree |
-| `Enter` | Open selected file |
-| `Delete` | Delete selected item |
+| `Ctrl/Cmd + S` | Save the current note |
+| `Ctrl/Cmd + P` | Open quick file search |
+| `Ctrl/Cmd + K` | Alternate quick search key |
+| `Ctrl/Cmd + F` | Find inside the current file |
+| `Ctrl/Cmd + Shift + F` | Search across the repository |
+| `Ctrl/Cmd + ,` | Open settings |
+| `Ctrl/Cmd + Q` | Quit the application |
+| `F1` | Show or hide the shortcut helper |
+
+### Find & replace shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Enter` | Highlight the next match |
+| `Shift+Enter` | Highlight the previous match |
+| `Esc` | Close the find bar |
+
+### Tree navigation
+
+| Shortcut | Action |
+|----------|--------|
+| `↑` / `↓` | Move through the tree view |
+| `Enter` | Open the selected file |
+| `Delete` | Prompt to delete the selected item |
 
 ---
+
 
 ## Troubleshooting
 
@@ -288,7 +312,7 @@ Open an issue at [GitHub Issues](https://github.com/scabir/notegit/issues) with 
 
 ## About notegit
 
-**Version**: 2.1.1  
+**Version**: 2.1.2  
 **Author**: Suleyman Cabir Ataman, PhD  
 **GitHub**: [github.com/scabir/notegit](https://github.com/scabir/notegit)  
 **License**: MIT

@@ -4,7 +4,6 @@ export const FILE_TREE_TEXT = {
   importFile: 'Import File',
   rename: 'Rename',
   delete: 'Delete',
-  clearSelection: 'Clear selection (create in root)',
   moveToFolder: 'Move to folder',
   createFileTitle: 'Create New File',
   createFolderTitle: 'Create New Folder',

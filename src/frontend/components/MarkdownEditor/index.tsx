@@ -10,7 +10,6 @@ import {
   FormatListBulleted as ListIcon,
   FormatListNumbered as NumberedListIcon,
   Code as CodeIcon,
-  Title as HeadingIcon,
   FormatQuote as QuoteIcon,
   Link as LinkIcon,
   TableChart as TableIcon,
@@ -141,7 +140,6 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     onOpenFind: handleOpenFind,
     enableSaveShortcut: true,
   });
-
   const insertMarkdown = useCallback((before: string, after: string = '', defaultText: string = '') => {
     if (!editorRef.current) return;
 
@@ -340,6 +338,152 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
 
     view.focus();
   }, []);
+  const formatHandlersRef = useRef({
+    formatBold,
+    formatItalic,
+    formatHeading,
+    formatCode,
+    formatCodeBlock,
+    formatLink,
+    formatTable,
+    formatFootnote,
+    formatTaskList,
+    formatHighlight,
+    formatDefinitionList,
+    formatMermaid,
+  });
+
+  React.useEffect(() => {
+    formatHandlersRef.current = {
+      formatBold,
+      formatItalic,
+      formatHeading,
+      formatCode,
+      formatCodeBlock,
+      formatLink,
+      formatTable,
+      formatFootnote,
+      formatTaskList,
+      formatHighlight,
+      formatDefinitionList,
+      formatMermaid,
+    };
+  }, [
+    formatBold,
+    formatItalic,
+    formatHeading,
+    formatCode,
+    formatCodeBlock,
+    formatLink,
+    formatTable,
+    formatFootnote,
+    formatTaskList,
+    formatHighlight,
+    formatDefinitionList,
+    formatMermaid,
+  ]);
+
+  React.useEffect(() => {
+    const handleEditorShortcut = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      const view = editorRef.current?.view;
+      if (!view) {
+        return;
+      }
+
+      const editorDom = view.dom;
+      if (editorDom && event.target instanceof Node && !editorDom.contains(event.target)) {
+        return;
+      }
+
+      const handlers = formatHandlersRef.current;
+      const mod = event.metaKey || event.ctrlKey;
+      const shift = event.shiftKey;
+      const key = event.key;
+
+      if (!mod) {
+        return;
+      }
+
+      if (shift && key.toLowerCase() === 't') {
+        event.preventDefault();
+        handlers.formatTable();
+        return;
+      }
+
+      if (shift && key.toLowerCase() === 'f') {
+        event.preventDefault();
+        handlers.formatFootnote();
+        return;
+      }
+
+      if (shift && key.toLowerCase() === 'l') {
+        event.preventDefault();
+        handlers.formatTaskList();
+        return;
+      }
+
+      if (shift && key.toLowerCase() === 'h') {
+        event.preventDefault();
+        handlers.formatHighlight();
+        return;
+      }
+
+      if (shift && key.toLowerCase() === 'd') {
+        event.preventDefault();
+        handlers.formatDefinitionList();
+        return;
+      }
+
+      if (shift && key.toLowerCase() === 'm') {
+        event.preventDefault();
+        handlers.formatMermaid();
+        return;
+      }
+
+      if (key === '{' || key === '}') {
+        event.preventDefault();
+        handlers.formatCodeBlock();
+        return;
+      }
+
+      if (!shift && key.toLowerCase() === 'b') {
+        event.preventDefault();
+        handlers.formatBold();
+        return;
+      }
+
+      if (!shift && key.toLowerCase() === 't') {
+        event.preventDefault();
+        handlers.formatItalic();
+        return;
+      }
+
+      if (!shift && key.toLowerCase() === 'h') {
+        event.preventDefault();
+        handlers.formatHeading();
+        return;
+      }
+
+      if (!shift && key === '`') {
+        event.preventDefault();
+        handlers.formatCode();
+        return;
+      }
+
+      if (!shift && key.toLowerCase() === 'l') {
+        event.preventDefault();
+        handlers.formatLink();
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handleEditorShortcut);
+    return () => window.removeEventListener('keydown', handleEditorShortcut);
+  }, []);
 
   const handleOpenExtras = (event: React.MouseEvent<HTMLElement>) => {
     setExtrasAnchorEl(event.currentTarget);
@@ -521,7 +665,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
           </Tooltip>
           <Tooltip title={MARKDOWN_EDITOR_TEXT.headingTooltip}>
             <IconButton size="small" onClick={formatHeading}>
-              <HeadingIcon fontSize="small" />
+              <Box sx={{ fontSize: '0.85rem', fontWeight: 700 }}>H</Box>
             </IconButton>
           </Tooltip>
           <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
@@ -606,6 +750,7 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
               <CheatSheetIcon fontSize="small" />
             </IconButton>
           </Tooltip>
+          <Box sx={{ flexGrow: 1 }} />
           <Menu
             id="markdown-extras-menu"
             anchorEl={extrasAnchorEl}
@@ -744,3 +889,5 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     </Box>
   );
 }
+
+MarkdownEditor.displayName = 'MarkdownEditor';

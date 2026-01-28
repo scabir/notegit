@@ -6,6 +6,7 @@ export const WORKSPACE_TEXT = {
   syncTooltip: 'Sync',
   commitPushTooltip: 'Commit and Push',
   settingsTooltip: 'Settings',
+  shortcutsTooltip: 'Keyboard Shortcuts',
   savingLabel: 'Saving...',
   savedLabel: 'Saved',
   errorLabel: 'Error',

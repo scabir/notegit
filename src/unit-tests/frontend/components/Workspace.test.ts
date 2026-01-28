@@ -224,7 +224,7 @@ describe('Workspace', () => {
 
     const text = flattenText(renderer!.toJSON());
     expect(text).toContain('Work');
-    expect(text).toContain('2.1.1');
+    expect(text).toContain('2.1.2');
   });
 
   it('loads a selected markdown file into the markdown editor', async () => {

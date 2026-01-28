@@ -30,3 +30,4 @@ Thumbs.db
 # Electron
 electron-builder.yml
 prompts/
+lint_output.txt
