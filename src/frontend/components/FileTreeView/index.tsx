@@ -1,50 +1,30 @@
 import React, { useRef, useState } from 'react';
 import { TreeView, TreeItem } from '@mui/x-tree-view';
-import {
-  Box,
-  IconButton,
-  Toolbar,
-  Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Typography,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-} from '@mui/material';
+import { Box } from '@mui/material';
 import {
   Folder as FolderIcon,
   Add as PlusIcon,
   Remove as MinusIcon,
   CreateNewFolder as CreateFolderIcon,
-  NoteAdd as NoteAddIcon,
   Delete as DeleteIcon,
   FileUpload as ImportIcon,
   DriveFileRenameOutline as RenameIcon,
   DriveFileMove as MoveIcon,
   StarBorder as FavoriteBorderIcon,
   Star as FavoriteIcon,
+  NoteAdd as NoteAddIcon,
 } from '@mui/icons-material';
 import { MoveToFolderDialog } from '../MoveToFolderDialog';
 import type { FileTreeNode } from '../../../shared/types';
 import { FILE_TREE_TEXT, INVALID_NAME_CHARS, FAVORITES_STORAGE_KEY } from './constants';
-import {
-  rootSx,
-  toolbarSx,
-  treeContainerSx,
-  treeItemLabelSx,
-  dialogInfoSx,
-  dialogErrorSx,
-  favoritesSectionSx,
-  favoriteListSx,
-  favoriteItemSx,
-} from './styles';
+import { rootSx, treeContainerSx, treeItemLabelSx } from './styles';
 import { getFileIcon, normalizeName, findNode, findNodeByPath, getParentPath } from './utils';
-import type { FileTreeViewProps } from './types';
+import type { FileTreeViewProps, ContextMenuItem, TreeContextMenuState, FavoriteMenuState } from './types';
+import { FileTreeToolbar } from './Toolbar';
+import { FavoritesBar } from './FavoritesBar';
+import { DialogCreateItem } from './DialogCreateItem';
+import { DialogRename } from './DialogRename';
+import { ContextMenus } from './ContextMenus';
 
 const readFavoritesFromStorage = (): string[] => {
   if (typeof window === 'undefined' || !window.localStorage) {
@@ -96,15 +76,8 @@ export function FileTreeView({
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedNode, setSelectedNode] = useState<FileTreeNode | null>(null);
   const [favorites, setFavorites] = useState<string[]>(() => readFavoritesFromStorage());
-  const [favoriteMenuState, setFavoriteMenuState] = useState<{
-    anchorEl: HTMLElement | null;
-    path: string | null;
-  } | null>(null);
-  const [treeContextMenuState, setTreeContextMenuState] = useState<{
-    node: FileTreeNode | null;
-    mode: 'node' | 'empty';
-    position: { top: number; left: number } | null;
-  } | null>(null);
+  const [favoriteMenuState, setFavoriteMenuState] = useState<FavoriteMenuState | null>(null);
+  const [treeContextMenuState, setTreeContextMenuState] = useState<TreeContextMenuState | null>(null);
   const [expanded, setExpanded] = useState<string[]>([]);
   const treeContainerRef = useRef<HTMLDivElement | null>(null);
   const shortcutHandlersRef = useRef({
@@ -726,226 +699,104 @@ export function FileTreeView({
   const selectedNodeIsFavorite = !!selectedNode && favorites.includes(selectedNode.path);
   const treeContextMenuMode = treeContextMenuState?.mode;
   const treeContextMenuNode = treeContextMenuState?.node || null;
-  const showNodeContextMenu = treeContextMenuMode === 'node';
-  const showEmptyContextMenu = treeContextMenuMode === 'empty';
   const contextNodeIsFavorite = Boolean(treeContextMenuNode && favorites.includes(treeContextMenuNode.path));
-  const treeContextMenuPosition = treeContextMenuState?.position || null;
+  const creationLocationText = getCreationLocationText();
+  const fileHelperText = !newItemName.includes('.') ? FILE_TREE_TEXT.fileExtensionHint : ' ';
+
+  const emptyContextMenuItems: ContextMenuItem[] = [
+    {
+      label: FILE_TREE_TEXT.newFile,
+      icon: <NoteAddIcon fontSize="small" />,
+      action: () => {
+        handleCloseTreeContextMenu();
+        handleOpenFileDialog();
+      },
+      testId: 'tree-context-new-file',
+    },
+    {
+      label: FILE_TREE_TEXT.newFolder,
+      icon: <CreateFolderIcon fontSize="small" />,
+      action: () => {
+        handleCloseTreeContextMenu();
+        handleOpenFolderDialog();
+      },
+      testId: 'tree-context-new-folder',
+    },
+    {
+      label: FILE_TREE_TEXT.importFile,
+      icon: <ImportIcon fontSize="small" />,
+      action: () => {
+        handleCloseTreeContextMenu();
+        handleImportFile();
+      },
+      testId: 'tree-context-import',
+    },
+  ];
+
+  const nodeContextMenuItems: ContextMenuItem[] = [
+    {
+      label: FILE_TREE_TEXT.rename,
+      icon: <RenameIcon fontSize="small" />,
+      action: () => handleTreeContextMenuAction('rename', treeContextMenuNode),
+      testId: 'tree-context-rename',
+    },
+    {
+      label: FILE_TREE_TEXT.moveToFolder,
+      icon: <MoveIcon fontSize="small" />,
+      action: () => handleTreeContextMenuAction('move', treeContextMenuNode),
+      testId: 'tree-context-move',
+    },
+    {
+      label: contextNodeIsFavorite ? FILE_TREE_TEXT.removeFromFavorites : FILE_TREE_TEXT.addToFavorites,
+      icon: contextNodeIsFavorite ? (
+        <FavoriteIcon fontSize="small" />
+      ) : (
+        <FavoriteBorderIcon fontSize="small" />
+      ),
+      action: () => handleTreeContextMenuAction('favorite', treeContextMenuNode),
+      testId: 'tree-context-favorite',
+    },
+    {
+      label: FILE_TREE_TEXT.delete,
+      icon: <DeleteIcon fontSize="small" />,
+      action: () => handleTreeContextMenuAction('delete', treeContextMenuNode),
+      testId: 'tree-context-delete',
+    },
+  ];
 
   return (
     <Box sx={rootSx}>
-      <Toolbar variant="dense" sx={toolbarSx}>
-        <Tooltip title={FILE_TREE_TEXT.newFile}>
-          <IconButton size="small" onClick={handleOpenFileDialog}>
-            <NoteAddIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={FILE_TREE_TEXT.newFolder}>
-          <IconButton size="small" onClick={handleOpenFolderDialog}>
-            <CreateFolderIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={FILE_TREE_TEXT.importFile}>
-          <IconButton size="small" onClick={handleImportFile}>
-            <ImportIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={FILE_TREE_TEXT.rename}>
-          <span>
-            <IconButton
-              size="small"
-              onClick={() => handleOpenRenameDialog()}
-              disabled={!selectedNode}
-            >
-              <RenameIcon fontSize="small" />
-            </IconButton>
-          </span>
-        </Tooltip>
-        <Tooltip title={selectedNodeIsFavorite ? FILE_TREE_TEXT.removeFromFavorites : FILE_TREE_TEXT.addToFavorites}>
-          <span>
-            <IconButton
-              size="small"
-              onClick={() => handleToggleFavorite()}
-              disabled={!selectedNode}
-              color={selectedNodeIsFavorite ? 'primary' : 'default'}
-            >
-              {selectedNodeIsFavorite ? (
-                <FavoriteIcon fontSize="small" />
-              ) : (
-                <FavoriteBorderIcon fontSize="small" />
-              )}
-            </IconButton>
-          </span>
-        </Tooltip>
-        <Tooltip title={FILE_TREE_TEXT.moveToFolder}>
-          <span>
-            <IconButton
-              size="small"
-              onClick={() => handleOpenMoveDialog()}
-              disabled={!selectedNode}
-            >
-              <MoveIcon fontSize="small" />
-            </IconButton>
-          </span>
-        </Tooltip>
-        <Tooltip title={FILE_TREE_TEXT.delete}>
-          <span>
-            <IconButton
-              size="small"
-              onClick={() => handleDelete()}
-              disabled={!selectedNode}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </span>
-        </Tooltip>
-        <Box sx={{ flexGrow: 1 }} />
-      </Toolbar>
+      <FileTreeToolbar
+        onNewFile={handleOpenFileDialog}
+        onNewFolder={handleOpenFolderDialog}
+        onImport={handleImportFile}
+        onRename={() => handleOpenRenameDialog()}
+        onMove={() => handleOpenMoveDialog()}
+        onDelete={() => handleDelete()}
+        onToggleFavorite={handleToggleFavorite}
+        favoriteSelected={selectedNodeIsFavorite}
+        actionEnabled={Boolean(selectedNode)}
+      />
 
       {favoriteNodes.length > 0 && (
-        <Box sx={favoritesSectionSx} data-testid="favorites-section">
-          <Typography variant="caption" color="text.secondary">
-            {FILE_TREE_TEXT.favoritesTitle}
-          </Typography>
-          <Box sx={favoriteListSx}>
-            {favoriteNodes.map((node) => (
-              <Tooltip
-                key={node.path}
-                title={node.path}
-                placement="top"
-                arrow
-              >
-                <Button
-                  size="small"
-                  variant="text"
-                  disableRipple
-                  onClick={() => handleFavoriteClick(node)}
-                  onContextMenu={(event) => handleFavoriteContextMenu(event, node.path)}
-                  sx={favoriteItemSx}
-                >
-                  {node.name}
-                </Button>
-              </Tooltip>
-            ))}
-          </Box>
-        </Box>
+        <FavoritesBar
+          favorites={favoriteNodes}
+          onSelect={handleFavoriteClick}
+          onContextMenu={handleFavoriteContextMenu}
+        />
       )}
 
-      <Menu
-        id="favorite-context-menu"
-        anchorEl={favoriteMenuState?.anchorEl || null}
-        data-testid="favorite-context-menu"
-        open={Boolean(favoriteMenuState?.anchorEl)}
-        onClose={handleCloseFavoriteMenu}
-        MenuListProps={{ 'aria-label': 'Favorite actions' }}
-      >
-        <MenuItem
-          data-testid="favorite-context-menu-remove"
-          onClick={handleRemoveFavorite}
-        >
-          <ListItemIcon>
-            <FavoriteIcon fontSize="small" />
-          </ListItemIcon>
-          {FILE_TREE_TEXT.favoritesContextMenuItem}
-        </MenuItem>
-      </Menu>
-
-      <Menu
-        id="tree-context-menu-empty"
-        data-testid="tree-context-menu-empty"
-        anchorReference="anchorPosition"
-        anchorPosition={treeContextMenuPosition || undefined}
-        open={showEmptyContextMenu}
-        onClose={handleCloseTreeContextMenu}
-        MenuListProps={{ 'aria-label': 'Tree background actions' }}
-      >
-        <MenuItem
-          data-testid="tree-context-new-file"
-          onClick={() => {
-            handleCloseTreeContextMenu();
-            handleOpenFileDialog();
-          }}
-        >
-          <ListItemIcon>
-            <NoteAddIcon fontSize="small" />
-          </ListItemIcon>
-          {FILE_TREE_TEXT.newFile}
-        </MenuItem>
-        <MenuItem
-          data-testid="tree-context-new-folder"
-          onClick={() => {
-            handleCloseTreeContextMenu();
-            handleOpenFolderDialog();
-          }}
-        >
-          <ListItemIcon>
-            <CreateFolderIcon fontSize="small" />
-          </ListItemIcon>
-          {FILE_TREE_TEXT.newFolder}
-        </MenuItem>
-        <MenuItem
-          data-testid="tree-context-import"
-          onClick={() => {
-            handleCloseTreeContextMenu();
-            handleImportFile();
-          }}
-        >
-          <ListItemIcon>
-            <ImportIcon fontSize="small" />
-          </ListItemIcon>
-          {FILE_TREE_TEXT.importFile}
-        </MenuItem>
-      </Menu>
-
-      <Menu
-        id="tree-context-menu"
-        data-testid="tree-context-menu"
-        anchorReference="anchorPosition"
-        anchorPosition={treeContextMenuPosition || undefined}
-        open={showNodeContextMenu}
-        onClose={handleCloseTreeContextMenu}
-        MenuListProps={{ 'aria-label': 'Tree item actions' }}
-      >
-        <MenuItem
-          data-testid="tree-context-rename"
-          onClick={() => handleTreeContextMenuAction('rename', treeContextMenuNode)}
-        >
-          <ListItemIcon>
-            <RenameIcon fontSize="small" />
-          </ListItemIcon>
-          {FILE_TREE_TEXT.rename}
-        </MenuItem>
-        <MenuItem
-          data-testid="tree-context-move"
-          onClick={() => handleTreeContextMenuAction('move', treeContextMenuNode)}
-        >
-          <ListItemIcon>
-            <MoveIcon fontSize="small" />
-          </ListItemIcon>
-          {FILE_TREE_TEXT.moveToFolder}
-        </MenuItem>
-        <MenuItem
-          data-testid="tree-context-favorite"
-          onClick={() => handleTreeContextMenuAction('favorite', treeContextMenuNode)}
-        >
-          <ListItemIcon>
-            {contextNodeIsFavorite ? (
-              <FavoriteIcon fontSize="small" />
-            ) : (
-              <FavoriteBorderIcon fontSize="small" />
-            )}
-          </ListItemIcon>
-          {contextNodeIsFavorite ? FILE_TREE_TEXT.removeFromFavorites : FILE_TREE_TEXT.addToFavorites}
-        </MenuItem>
-        <MenuItem
-          data-testid="tree-context-delete"
-          onClick={() => handleTreeContextMenuAction('delete', treeContextMenuNode)}
-        >
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" />
-          </ListItemIcon>
-          {FILE_TREE_TEXT.delete}
-        </MenuItem>
-      </Menu>
+      <ContextMenus
+        favoriteMenuState={favoriteMenuState}
+        onCloseFavoriteMenu={handleCloseFavoriteMenu}
+        onRemoveFavorite={handleRemoveFavorite}
+        favoriteMenuLabel={FILE_TREE_TEXT.favoritesContextMenuItem}
+        favoriteMenuIcon={<FavoriteIcon fontSize="small" />}
+        treeContextMenuState={treeContextMenuState}
+        onCloseTreeContextMenu={handleCloseTreeContextMenu}
+        emptyContextMenuItems={emptyContextMenuItems}
+        nodeContextMenuItems={nodeContextMenuItems}
+      />
 
       <Box
         className="tree-container"
@@ -969,183 +820,77 @@ export function FileTreeView({
         </TreeView>
       </Box>
 
-      <Dialog
-        data-testid="create-file-dialog"
+      <DialogCreateItem
+        testId="create-file-dialog"
         open={createFileDialogOpen}
+        title={FILE_TREE_TEXT.createFileTitle}
+        label={FILE_TREE_TEXT.fileNameLabel}
+        helperText={fileHelperText}
+        placeholder={FILE_TREE_TEXT.filePlaceholder}
+        creationLocationText={creationLocationText}
+        value={newItemName}
+        errorMessage={errorMessage}
+        creating={creating}
+        onChange={(value) => {
+          setNewItemName(value);
+          setErrorMessage('');
+        }}
         onClose={() => {
           setCreateFileDialogOpen(false);
           setErrorMessage('');
         }}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>{FILE_TREE_TEXT.createFileTitle}</DialogTitle>
-        <DialogContent>
-          <Box sx={dialogInfoSx}>
-            <Typography variant="caption" color="text.secondary">
-              {getCreationLocationText()}
-            </Typography>
-          </Box>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={FILE_TREE_TEXT.fileNameLabel}
-            fullWidth
-            value={newItemName}
-            onChange={(e) => {
-              setNewItemName(e.target.value);
-              setErrorMessage('');
-            }}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && !creating) {
-                handleCreateFile();
-              }
-            }}
-            placeholder={FILE_TREE_TEXT.filePlaceholder}
-            helperText={!newItemName.includes('.') ? FILE_TREE_TEXT.fileExtensionHint : ' '}
-            error={!!errorMessage}
-          />
-          {errorMessage && (
-            <Box sx={dialogErrorSx}>
-              {errorMessage}
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setCreateFileDialogOpen(false);
-              setErrorMessage('');
-            }}
-          >
-            {FILE_TREE_TEXT.cancel}
-          </Button>
-          <Button
-            onClick={handleCreateFile}
-            disabled={creating || !newItemName.trim()}
-            variant="contained"
-          >
-            {creating ? FILE_TREE_TEXT.creating : FILE_TREE_TEXT.create}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onCreate={handleCreateFile}
+        cancelLabel={FILE_TREE_TEXT.cancel}
+        confirmLabel={FILE_TREE_TEXT.create}
+        loadingLabel={FILE_TREE_TEXT.creating}
+      />
 
-      <Dialog
-        data-testid="create-folder-dialog"
+      <DialogCreateItem
+        testId="create-folder-dialog"
         open={createFolderDialogOpen}
+        title={FILE_TREE_TEXT.createFolderTitle}
+        label={FILE_TREE_TEXT.folderNameLabel}
+        placeholder={FILE_TREE_TEXT.folderPlaceholder}
+        creationLocationText={creationLocationText}
+        value={newItemName}
+        errorMessage={errorMessage}
+        creating={creating}
+        onChange={(value) => {
+          setNewItemName(value);
+          setErrorMessage('');
+        }}
         onClose={() => {
           setCreateFolderDialogOpen(false);
           setErrorMessage('');
         }}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>{FILE_TREE_TEXT.createFolderTitle}</DialogTitle>
-        <DialogContent>
-          <Box sx={dialogInfoSx}>
-            <Typography variant="caption" color="text.secondary">
-              {getCreationLocationText()}
-            </Typography>
-          </Box>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={FILE_TREE_TEXT.folderNameLabel}
-            fullWidth
-            value={newItemName}
-            onChange={(e) => {
-              setNewItemName(e.target.value);
-              setErrorMessage('');
-            }}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && !creating) {
-                handleCreateFolder();
-              }
-            }}
-            placeholder={FILE_TREE_TEXT.folderPlaceholder}
-            error={!!errorMessage}
-          />
-          {errorMessage && (
-            <Box sx={dialogErrorSx}>
-              {errorMessage}
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setCreateFolderDialogOpen(false);
-              setErrorMessage('');
-            }}
-          >
-            {FILE_TREE_TEXT.cancel}
-          </Button>
-          <Button
-            onClick={handleCreateFolder}
-            disabled={creating || !newItemName.trim()}
-            variant="contained"
-          >
-            {creating ? FILE_TREE_TEXT.creating : FILE_TREE_TEXT.create}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onCreate={handleCreateFolder}
+        cancelLabel={FILE_TREE_TEXT.cancel}
+        confirmLabel={FILE_TREE_TEXT.create}
+        loadingLabel={FILE_TREE_TEXT.creating}
+      />
 
-      <Dialog
-        data-testid="rename-dialog"
+      <DialogRename
+        testId="rename-dialog"
         open={renameDialogOpen}
         onClose={() => {
           setRenameDialogOpen(false);
           setErrorMessage('');
         }}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          {selectedNode?.type === 'folder' ? FILE_TREE_TEXT.renameFolderTitle : FILE_TREE_TEXT.renameFileTitle}
-        </DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={FILE_TREE_TEXT.newNameLabel}
-            fullWidth
-            value={newItemName}
-            onChange={(e) => {
-              setNewItemName(e.target.value);
-              setErrorMessage('');
-            }}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && !creating) {
-                handleRename();
-              }
-            }}
-            placeholder={selectedNode?.name || ''}
-            error={!!errorMessage}
-          />
-          {errorMessage && (
-            <Box sx={dialogErrorSx}>
-              {errorMessage}
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setRenameDialogOpen(false);
-              setErrorMessage('');
-            }}
-          >
-            {FILE_TREE_TEXT.cancel}
-          </Button>
-          <Button
-            onClick={handleRename}
-            disabled={creating || !newItemName.trim()}
-            variant="contained"
-          >
-            {creating ? FILE_TREE_TEXT.renaming : FILE_TREE_TEXT.renameAction}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        title={selectedNode?.type === 'folder' ? FILE_TREE_TEXT.renameFolderTitle : FILE_TREE_TEXT.renameFileTitle}
+        label={FILE_TREE_TEXT.newNameLabel}
+        value={newItemName}
+        onChange={(value) => {
+          setNewItemName(value);
+          setErrorMessage('');
+        }}
+        onSubmit={handleRename}
+        errorMessage={errorMessage}
+        creating={creating}
+        placeholder={selectedNode?.name || ''}
+        cancelLabel={FILE_TREE_TEXT.cancel}
+        confirmLabel={FILE_TREE_TEXT.renameAction}
+        loadingLabel={FILE_TREE_TEXT.renaming}
+      />
 
       <MoveToFolderDialog
         open={moveDialogOpen}
