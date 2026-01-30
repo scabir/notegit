@@ -1,9 +1,10 @@
 import { Code as CodeIcon } from '@mui/icons-material';
 import type { TechStackItem } from './types';
+import versionInfo from '../../../../version.json';
 
 export const APP_INFO = {
   name: 'notegit',
-  version: '2.1.2',
+  version: versionInfo.version,
   description: 'A Git- or S3-backed Markdown note-taking desktop application built with Electron',
   author: 'Suleyman Cabir Ataman',
   githubUrl: 'https://github.com/scabir',

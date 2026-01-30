@@ -2,7 +2,7 @@
 
 A Git- or S3-backed Markdown note-taking desktop app built with Electron and React.
 
-**Version**: 2.1.2  
+**Version**: 2.2.1  
 **License**: MIT
 
 ## Overview
@@ -13,6 +13,9 @@ A Git- or S3-backed Markdown note-taking desktop app built with Electron and Rea
 - Encrypted credentials, auto-save, and sync
 - macOS, Windows, Linux
 - Keyboard shortcuts populate the tree view (add/import/rename/move/delete) and the editor, and a question-mark help icon sits to the right of the Settings button (or press `F1`) to open the shortcut helper with every shortcut listed.
+- Favorites bar above the tree keeps starred files/folders handy (activate via the star icon or `Ctrl/Cmd + Shift + S` and use the context menu to remove items).
+- Right-click any tree entry to rename, move, favorite/unfavorite, or delete it with the matching toolbar icon.
+- Right-click the empty tree background (when nothing is selected) to reveal New File, New Folder, and Import actions.
 
 ## Quick start
 

@@ -2,7 +2,7 @@
 
 Complete guide to using notegit - your Git- and S3-backed markdown note-taking application.
 
-**Version**: 2.1.2  
+**Version**: 2.2.1  
 **Last Updated**: January 28, 2026
 
 ---
@@ -224,6 +224,9 @@ Click the question mark icon to the right of the **Settings** button in the top 
 | `Ctrl/Cmd + I` | Import a file into the selected folder |
 | `Ctrl/Cmd + R` / `F2` | Rename the selected file or folder |
 | `Ctrl/Cmd + M` | Move the selected item to another folder via the picker |
+| `Ctrl/Cmd + Shift + S` | Toggle favorite on the selected item and surface it in the favorites bar |
+
+Right-click any file or folder in the tree to open a context menu that mirrors the toolbar actions (rename, move, favorite/unfavorite, delete) along with their icons; if nothing is selected, right-clicking the empty tree background still shows New File, New Folder, and Import options (also with icons).
 
 Clicking empty space in the tree clears the selection so you can start a new action from the root; the toolbar no longer has a dedicated clear-selection button, but the same behavior is provided by this click target.
 
@@ -256,6 +259,12 @@ Clicking empty space in the tree clears the selection so you can start a new act
 | `Ctrl/Cmd + ,` | Open settings |
 | `Ctrl/Cmd + Q` | Quit the application |
 | `F1` | Show or hide the shortcut helper |
+
+### Favorites bar
+
+- A favorites strip sits immediately above the tree view, listing starred files and folders by name only (hover any entry to reveal the full path).
+- Toggle the bracketed star icon in the tree toolbar or press `Ctrl/Cmd + Shift + S` when a node is selected to add or remove it from the strip.
+- Right-click a favorite, choose “Remove from favorites,” and it will disappear without needing to select a new node.
 
 ### Find & replace shortcuts
 
@@ -312,7 +321,7 @@ Open an issue at [GitHub Issues](https://github.com/scabir/notegit/issues) with 
 
 ## About notegit
 
-**Version**: 2.1.2  
+**Version**: 2.2.1  
 **Author**: Suleyman Cabir Ataman, PhD  
 **GitHub**: [github.com/scabir/notegit](https://github.com/scabir/notegit)  
 **License**: MIT

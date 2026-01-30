@@ -5,6 +5,7 @@ import { Workspace } from '../../../frontend/components/Workspace';
 import type { RepoStatus } from '../../../shared/types';
 import { FileType } from '../../../shared/types';
 import { WORKSPACE_TEXT } from '../../../frontend/components/Workspace/constants';
+import versionInfo from '../../../../version.json';
 
 const FileTreeViewMock = jest.fn((_props: any) => null);
 const MarkdownEditorMock = jest.fn((_props: any) => null);
@@ -224,7 +225,7 @@ describe('Workspace', () => {
 
     const text = flattenText(renderer!.toJSON());
     expect(text).toContain('Work');
-    expect(text).toContain('2.1.2');
+    expect(text).toContain(versionInfo.version);
   });
 
   it('loads a selected markdown file into the markdown editor', async () => {
