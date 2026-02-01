@@ -56,6 +56,8 @@ export interface NotegitApi {
     getAppSettings: () => Promise<ApiResponse<AppSettings>>;
     updateAppSettings: (settings: Partial<AppSettings>) => Promise<ApiResponse<void>>;
     updateRepoSettings: (settings: RepoSettings) => Promise<ApiResponse<void>>;
+    getFavorites: () => Promise<ApiResponse<string[]>>;
+    updateFavorites: (favorites: string[]) => Promise<ApiResponse<void>>;
     checkGitInstalled: () => Promise<ApiResponse<boolean>>;
     getProfiles: () => Promise<ApiResponse<Profile[]>>;
     getActiveProfileId: () => Promise<ApiResponse<string | null>>;

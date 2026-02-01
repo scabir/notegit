@@ -89,11 +89,20 @@ const fireShortcut = (event: Partial<KeyboardEvent>) => {
 };
 
 describe('FileTreeView toolbar actions', () => {
+  const renderers: TestRenderer.ReactTestRenderer[] = [];
+  const flushPromises = () => new Promise((resolve) => setImmediate(resolve));
+  let consoleErrorSpy: jest.SpyInstance;
+
   beforeEach(() => {
     treeKeyHandlers = {};
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     (global as any).window = {
       localStorage: createLocalStorageMock(),
       notegitApi: {
+        config: {
+          getFavorites: jest.fn().mockResolvedValue({ ok: true, data: [] }),
+          updateFavorites: jest.fn().mockResolvedValue({ ok: true }),
+        },
         dialog: {
           showOpenDialog: jest.fn().mockResolvedValue({ canceled: true, filePaths: [] }),
         },
@@ -108,21 +117,35 @@ describe('FileTreeView toolbar actions', () => {
     (global as any).alert = (global as any).window.alert;
   });
 
-  const createTreeRenderer = (overrides: Record<string, any> = {}) =>
-    TestRenderer.create(
-      React.createElement(FileTreeView, {
-        tree,
-        selectedFile: null,
-        onSelectFile: jest.fn(),
-        onCreateFile: jest.fn(),
-        onCreateFolder: jest.fn(),
-        onDelete: jest.fn(),
-        onRename: jest.fn(),
-        onImport: jest.fn(),
-        isS3Repo: false,
-        ...overrides,
-      })
-    );
+  afterEach(async () => {
+    await act(async () => {
+      await flushPromises();
+    });
+    renderers.splice(0).forEach((renderer) => renderer.unmount());
+    consoleErrorSpy.mockRestore();
+  });
+
+  const createTreeRenderer = (overrides: Record<string, any> = {}) => {
+    let renderer: TestRenderer.ReactTestRenderer;
+    act(() => {
+      renderer = TestRenderer.create(
+        React.createElement(FileTreeView, {
+          tree,
+          selectedFile: null,
+          onSelectFile: jest.fn(),
+          onCreateFile: jest.fn(),
+          onCreateFolder: jest.fn(),
+          onDelete: jest.fn(),
+          onRename: jest.fn(),
+          onImport: jest.fn(),
+          isS3Repo: false,
+          ...overrides,
+        })
+      );
+    });
+    renderers.push(renderer!);
+    return renderer!;
+  };
 
   const openTreeContextMenu = (renderer: TestRenderer.ReactTestRenderer, nodeId: string) => {
     const label = renderer.root.find(
@@ -280,6 +303,71 @@ describe('FileTreeView toolbar actions', () => {
 
       act(() => favoriteItem?.props.onClick());
       expect(onSelectFile).toHaveBeenCalledWith('folder/note.md', 'file');
+
+      const treeViewAfter = renderer.root.findByType(TreeView);
+      expect(treeViewAfter.props.selected).toBe('folder/note.md');
+    });
+
+    it('opens the editor when a favorite file is clicked', () => {
+      const onSelectFile = jest.fn();
+      const renderer = createTreeRenderer({ onSelectFile });
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder/note.md');
+      });
+
+      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
+      act(() => favoriteButton.props.onClick());
+
+      const favoriteItem = renderer.root
+        .findAllByType(Button)
+        .find((button) => flattenText(button) === 'note.md');
+      expect(favoriteItem).toBeDefined();
+
+      act(() => favoriteItem?.props.onClick());
+      expect(onSelectFile).toHaveBeenCalledWith('folder/note.md', 'file');
+    });
+
+    it('selects the tree node when a favorite file is clicked', () => {
+      const renderer = createTreeRenderer();
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder/note.md');
+      });
+
+      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
+      act(() => favoriteButton.props.onClick());
+
+      const favoriteItem = renderer.root
+        .findAllByType(Button)
+        .find((button) => flattenText(button) === 'note.md');
+      expect(favoriteItem).toBeDefined();
+
+      act(() => favoriteItem?.props.onClick());
+
+      const treeViewAfter = renderer.root.findByType(TreeView);
+      expect(treeViewAfter.props.selected).toBe('folder/note.md');
+    });
+
+    it('expands a favorited folder when selected from favorites', () => {
+      const renderer = createTreeRenderer();
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder');
+      });
+
+      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
+      act(() => favoriteButton.props.onClick());
+
+      const favoriteItem = renderer.root
+        .findAllByType(Button)
+        .find((button) => flattenText(button) === 'folder');
+      expect(favoriteItem).toBeDefined();
+
+      act(() => favoriteItem?.props.onClick());
+
+      const treeViewAfter = renderer.root.findByType(TreeView);
+      expect(treeViewAfter.props.expanded).toContain('folder');
     });
 
     it('toggles favorites using the configured keyboard shortcut', () => {

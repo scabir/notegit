@@ -1,10 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { TreeView, TreeItem } from '@mui/x-tree-view';
+import { TreeView } from '@mui/x-tree-view';
 import { Box } from '@mui/material';
 import {
-  Folder as FolderIcon,
-  Add as PlusIcon,
-  Remove as MinusIcon,
   CreateNewFolder as CreateFolderIcon,
   Delete as DeleteIcon,
   FileUpload as ImportIcon,
@@ -16,45 +13,19 @@ import {
 } from '@mui/icons-material';
 import { MoveToFolderDialog } from '../MoveToFolderDialog';
 import type { FileTreeNode } from '../../../shared/types';
-import { FILE_TREE_TEXT, INVALID_NAME_CHARS, FAVORITES_STORAGE_KEY } from './constants';
+import { FILE_TREE_TEXT, INVALID_NAME_CHARS } from './constants';
 import { rootSx, treeContainerSx, treeItemLabelSx } from './styles';
-import { getFileIcon, normalizeName, findNode, findNodeByPath, getParentPath } from './utils';
-import type { FileTreeViewProps, ContextMenuItem, TreeContextMenuState, FavoriteMenuState } from './types';
+import { normalizeName, findNode, findNodeByPath, getParentPath } from './utils';
+import type { FileTreeViewProps, ContextMenuItem } from './types';
 import { FileTreeToolbar } from './Toolbar';
 import { FavoritesBar } from './FavoritesBar';
 import { DialogCreateItem } from './DialogCreateItem';
 import { DialogRename } from './DialogRename';
 import { ContextMenus } from './ContextMenus';
-
-const readFavoritesFromStorage = (): string[] => {
-  if (typeof window === 'undefined' || !window.localStorage) {
-    return [];
-  }
-
-  const stored = window.localStorage.getItem(FAVORITES_STORAGE_KEY);
-  if (!stored) {
-    return [];
-  }
-
-  try {
-    const parsed = JSON.parse(stored);
-    if (Array.isArray(parsed)) {
-      return parsed.filter((entry) => typeof entry === 'string');
-    }
-  } catch {
-    // ignore invalid JSON
-  }
-
-  return [];
-};
-
-const writeFavoritesToStorage = (favorites: string[]): void => {
-  if (typeof window === 'undefined' || !window.localStorage) {
-    return;
-  }
-
-  window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
-};
+import { renderTreeItems } from './TreeRenderer';
+import { useFavorites } from './hooks/useFavorites';
+import { useTreeContextMenu } from './hooks/useTreeContextMenu';
+import { useFileTreeShortcuts } from './hooks/useFileTreeShortcuts';
 
 export function FileTreeView({
   tree,
@@ -75,20 +46,24 @@ export function FileTreeView({
   const [creating, setCreating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedNode, setSelectedNode] = useState<FileTreeNode | null>(null);
-  const [favorites, setFavorites] = useState<string[]>(() => readFavoritesFromStorage());
-  const [favoriteMenuState, setFavoriteMenuState] = useState<FavoriteMenuState | null>(null);
-  const [treeContextMenuState, setTreeContextMenuState] = useState<TreeContextMenuState | null>(null);
+  const selectedNodeForActions = React.useMemo(() => {
+    if (selectedNode) return selectedNode;
+    if (!selectedFile) return null;
+    return findNodeByPath(tree, selectedFile);
+  }, [selectedFile, selectedNode, tree]);
+  const {
+    favoriteNodes,
+    favoriteMenuState,
+    toggleFavorite,
+    handleFavoriteContextMenu,
+    handleCloseFavoriteMenu,
+    handleRemoveFavorite,
+    selectedNodeIsFavorite,
+    updateFavoritesForPathChange,
+    removeFavoritesUnderPath,
+  } = useFavorites(tree, selectedNodeForActions);
   const [expanded, setExpanded] = useState<string[]>([]);
   const treeContainerRef = useRef<HTMLDivElement | null>(null);
-  const shortcutHandlersRef = useRef({
-    openFileDialog: () => {},
-    openFolderDialog: () => {},
-    handleDelete: () => {},
-    handleImportFile: () => {},
-    handleOpenRenameDialog: () => {},
-    handleOpenMoveDialog: () => {},
-    handleToggleFavorite: () => {},
-  });
 
   React.useEffect(() => {
     if (selectedFile) {
@@ -110,15 +85,15 @@ export function FileTreeView({
   }, [selectedFile]);
 
   React.useEffect(() => {
-    writeFavoritesToStorage(favorites);
-  }, [favorites]);
+    if (!selectedFile) return;
+    if (selectedNode?.type === 'folder') return;
+    if (selectedNode?.path === selectedFile) return;
 
-  React.useEffect(() => {
-    setFavorites((prev) => {
-      const filtered = prev.filter((path) => Boolean(findNodeByPath(tree, path)));
-      return filtered.length === prev.length ? prev : filtered;
-    });
-  }, [tree]);
+    const node = findNodeByPath(tree, selectedFile);
+    if (node) {
+      setSelectedNode(node);
+    }
+  }, [selectedFile, selectedNode, tree]);
 
   const handleOpenFileDialog = () => {
     setNewItemName('');
@@ -133,7 +108,7 @@ export function FileTreeView({
   };
 
   const handleOpenRenameDialog = (node?: FileTreeNode) => {
-    const targetNode = node ?? selectedNode;
+    const targetNode = node ?? selectedNodeForActions;
     if (!targetNode) return;
 
     setSelectedNode(targetNode);
@@ -144,50 +119,10 @@ export function FileTreeView({
     setRenameDialogOpen(true);
   };
   const handleOpenMoveDialog = (node?: FileTreeNode) => {
-    const targetNode = node ?? selectedNode;
+    const targetNode = node ?? selectedNodeForActions;
     if (!targetNode) return;
     setSelectedNode(targetNode);
     setMoveDialogOpen(true);
-  };
-
-  const handleToggleFavorite = (node?: FileTreeNode) => {
-    const targetNode = node ?? selectedNode;
-    if (!targetNode) return;
-
-    setFavorites((prev) => {
-      const exists = prev.includes(targetNode.path);
-      if (exists) {
-        return prev.filter((path) => path !== targetNode.path);
-      }
-      return [...prev, targetNode.path];
-    });
-  };
-
-  const updateFavoritesForPathChange = (oldPath: string, newPath: string) => {
-    setFavorites((prev) => {
-      let updated = false;
-      const newValues = prev.map((path) => {
-        if (path === oldPath) {
-          updated = true;
-          return newPath;
-        }
-        if (path.startsWith(`${oldPath}/`)) {
-          updated = true;
-          return path.replace(oldPath, newPath);
-        }
-        return path;
-      });
-      return updated ? newValues : prev;
-    });
-  };
-
-  const removeFavoritesUnderPath = (pathToRemove: string) => {
-    setFavorites((prev) => {
-      const filtered = prev.filter(
-        (path) => path !== pathToRemove && !path.startsWith(`${pathToRemove}/`)
-      );
-      return filtered.length === prev.length ? prev : filtered;
-    });
   };
 
   const handleCreateFile = async () => {
@@ -211,13 +146,14 @@ export function FileTreeView({
       let parentPath = '';
       let parentNodeId: string | null = null;
 
-      if (selectedNode) {
-        if (selectedNode.type === 'folder') {
-          parentPath = selectedNode.path;
-          parentNodeId = selectedNode.id;
+      const targetNode = selectedNodeForActions;
+      if (targetNode) {
+        if (targetNode.type === 'folder') {
+          parentPath = targetNode.path;
+          parentNodeId = targetNode.id;
         } else {
-          const lastSlash = selectedNode.path.lastIndexOf('/');
-          parentPath = lastSlash > 0 ? selectedNode.path.substring(0, lastSlash) : '';
+          const lastSlash = targetNode.path.lastIndexOf('/');
+          parentPath = lastSlash > 0 ? targetNode.path.substring(0, lastSlash) : '';
 
           if (parentPath) {
             const parentNode = findNodeByPath(tree, parentPath);
@@ -269,13 +205,14 @@ export function FileTreeView({
       let parentPath = '';
       let parentNodeId: string | null = null;
 
-      if (selectedNode) {
-        if (selectedNode.type === 'folder') {
-          parentPath = selectedNode.path;
-          parentNodeId = selectedNode.id;
+      const targetNode = selectedNodeForActions;
+      if (targetNode) {
+        if (targetNode.type === 'folder') {
+          parentPath = targetNode.path;
+          parentNodeId = targetNode.id;
         } else {
-          const lastSlash = selectedNode.path.lastIndexOf('/');
-          parentPath = lastSlash > 0 ? selectedNode.path.substring(0, lastSlash) : '';
+          const lastSlash = targetNode.path.lastIndexOf('/');
+          parentPath = lastSlash > 0 ? targetNode.path.substring(0, lastSlash) : '';
 
           if (parentPath) {
             const parentNode = findNodeByPath(tree, parentPath);
@@ -361,7 +298,7 @@ export function FileTreeView({
   };
 
   const handleDelete = async (node?: FileTreeNode) => {
-    const targetNode = node ?? selectedNode;
+    const targetNode = node ?? selectedNodeForActions;
     if (!targetNode) return;
 
     const itemType = targetNode.type === 'folder' ? 'folder' : 'file';
@@ -401,12 +338,13 @@ export function FileTreeView({
       const fileName = normalizeName(rawFileName, isS3Repo);
 
       let targetPath = fileName;
-      if (selectedNode) {
-        if (selectedNode.type === 'folder') {
-          targetPath = `${selectedNode.path}/${fileName}`;
+      const targetNode = selectedNodeForActions;
+      if (targetNode) {
+        if (targetNode.type === 'folder') {
+          targetPath = `${targetNode.path}/${fileName}`;
         } else {
-          const lastSlash = selectedNode.path.lastIndexOf('/');
-          const parentPath = lastSlash > 0 ? selectedNode.path.substring(0, lastSlash) : '';
+          const lastSlash = targetNode.path.lastIndexOf('/');
+          const parentPath = lastSlash > 0 ? targetNode.path.substring(0, lastSlash) : '';
           targetPath = parentPath ? `${parentPath}/${fileName}` : fileName;
         }
       }
@@ -435,130 +373,6 @@ export function FileTreeView({
     }
   };
 
-  React.useEffect(() => {
-    shortcutHandlersRef.current = {
-      openFileDialog: handleOpenFileDialog,
-      openFolderDialog: handleOpenFolderDialog,
-      handleDelete,
-      handleImportFile,
-      handleOpenRenameDialog,
-      handleOpenMoveDialog,
-      handleToggleFavorite,
-    };
-  }, [
-    handleOpenFileDialog,
-    handleOpenFolderDialog,
-    handleDelete,
-    handleImportFile,
-    handleOpenRenameDialog,
-    handleOpenMoveDialog,
-    handleToggleFavorite,
-  ]);
-
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) {
-        return;
-      }
-
-      const container = treeContainerRef.current;
-      if (container && event.target instanceof Node && !container.contains(event.target)) {
-        return;
-      }
-
-      const { openFileDialog, openFolderDialog, handleDelete: deleteHandler, handleImportFile: importHandler, handleOpenRenameDialog: renameHandler, handleOpenMoveDialog: moveHandler, handleToggleFavorite: toggleFavoriteHandler } = shortcutHandlersRef.current;
-      const mod = event.metaKey || event.ctrlKey;
-      const shift = event.shiftKey;
-      const key = event.key;
-
-      if (mod && key.toLowerCase() === 'a') {
-        event.preventDefault();
-        openFileDialog();
-        return;
-      }
-
-      if (mod && key.toLowerCase() === 'd') {
-        event.preventDefault();
-        openFolderDialog();
-        return;
-      }
-
-      if (mod && key.toLowerCase() === 'i') {
-        event.preventDefault();
-        importHandler();
-        return;
-      }
-
-      if ((mod && key.toLowerCase() === 'r') || key === 'F2') {
-        event.preventDefault();
-        renameHandler();
-        return;
-      }
-
-      if (mod && key.toLowerCase() === 'm') {
-        event.preventDefault();
-        moveHandler();
-        return;
-      }
-
-      if (mod && shift && key.toLowerCase() === 's') {
-        event.preventDefault();
-        toggleFavoriteHandler();
-        return;
-      }
-
-      if (key === 'Delete') {
-        event.preventDefault();
-        deleteHandler();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  const renderTree = (node: FileTreeNode, _parentPath: string = '') => {
-    const isExpanded = expanded.includes(node.id);
-
-    let icon;
-    if (node.type === 'folder') {
-      icon = (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mr: 1 }}>
-          {isExpanded ? (
-            <MinusIcon fontSize="small" sx={{ color: 'primary.main' }} />
-          ) : (
-            <PlusIcon fontSize="small" sx={{ color: 'primary.main' }} />
-          )}
-          <FolderIcon fontSize="small" />
-        </Box>
-      );
-    } else {
-      icon = getFileIcon(node.fileType);
-    }
-
-    const children = node.children || [];
-
-    return (
-      <TreeItem
-        key={node.id}
-        nodeId={node.id}
-        label={
-          <Box
-            sx={treeItemLabelSx}
-            onContextMenu={(event) => handleTreeContextMenu(event, node)}
-            data-node-id={node.id}
-            data-node-path={node.path}
-          >
-            <span style={{ flex: 1 }}>{node.name}</span>
-          </Box>
-        }
-        icon={icon}
-      >
-        {children.map((child) => renderTree(child, node.path))}
-      </TreeItem>
-    );
-  };
-
   const handleNodeSelect = (_event: React.SyntheticEvent, nodeId: string) => {
     const node = findNode(tree, nodeId);
     if (node) {
@@ -575,7 +389,6 @@ export function FileTreeView({
 
     if (
       target.classList.contains('tree-container') ||
-      target.classList.contains('MuiBox-root') ||
       (!target.closest('.MuiTreeItem-root') && !target.closest('.MuiTreeView-root'))
     ) {
       setSelectedNode(null);
@@ -583,125 +396,72 @@ export function FileTreeView({
     }
   };
 
+  const expandPathToNode = (node: FileTreeNode) => {
+    const pathParts = node.path.split('/').filter(Boolean);
+    const depth = node.type === 'folder' ? pathParts.length : pathParts.length - 1;
+    if (depth <= 0) return;
+
+    const foldersToExpand = Array.from({ length: depth }, (_, index) =>
+      pathParts.slice(0, index + 1).join('/')
+    );
+
+    setExpanded((prev) => {
+      const nextExpanded = new Set([...prev, ...foldersToExpand]);
+      return Array.from(nextExpanded);
+    });
+  };
+
   const handleFavoriteClick = (node: FileTreeNode) => {
-    setSelectedNode(node);
-    treeContainerRef.current?.focus();
-
-    const parentPath = getParentPath(node.path);
-    if (parentPath) {
-      const parentNode = findNodeByPath(tree, parentPath);
-      if (parentNode) {
-        setExpanded((prev) => (prev.includes(parentNode.id) ? prev : [...prev, parentNode.id]));
-      }
-    }
-
-    if (node.type === 'file') {
-      onSelectFile(node.path, 'file');
-    }
+    const targetNode = findNodeByPath(tree, node.path) ?? node;
+    expandPathToNode(targetNode);
+    handleNodeSelect({} as React.SyntheticEvent, targetNode.id);
   };
 
-  const handleFavoriteContextMenu = (
-    event: React.MouseEvent<HTMLElement>,
-    path: string,
-  ) => {
-    event.preventDefault();
-    setFavoriteMenuState({
-      anchorEl: event.currentTarget,
-      path,
-    });
-  };
+  const {
+    treeContextMenuState,
+    handleTreeContextMenu,
+    handleCloseTreeContextMenu,
+    handleTreeContextMenuAction,
+  } = useTreeContextMenu({
+    treeContainerRef,
+    selectedNode,
+    setSelectedNode,
+    onRename: handleOpenRenameDialog,
+    onMove: handleOpenMoveDialog,
+    onToggleFavorite: toggleFavorite,
+    onDelete: handleDelete,
+    onContextMenuOpen: handleCloseFavoriteMenu,
+  });
 
-  const handleCloseFavoriteMenu = () => {
-    setFavoriteMenuState(null);
-  };
-
-  const handleRemoveFavorite = () => {
-    if (!favoriteMenuState?.path) return;
-    setFavorites((prev) => prev.filter((path) => path !== favoriteMenuState.path));
-    handleCloseFavoriteMenu();
-  };
-
-  const handleTreeContextMenu = (event: React.MouseEvent<HTMLElement>, node?: FileTreeNode) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const position = { top: event.clientY, left: event.clientX };
-
-    if (node) {
-      setSelectedNode(node);
-      treeContainerRef.current?.focus();
-      setTreeContextMenuState({
-        node,
-        mode: 'node',
-        position,
-      });
-      setFavoriteMenuState(null);
-      return;
-    }
-
-    if (selectedNode) {
-      return;
-    }
-
-    treeContainerRef.current?.focus();
-    setTreeContextMenuState({
-      node: null,
-      mode: 'empty',
-      position,
-    });
-    setFavoriteMenuState(null);
-  };
-
-  const handleCloseTreeContextMenu = () => {
-    setTreeContextMenuState(null);
-  };
-
-  const handleTreeContextMenuAction = (
-    action: 'rename' | 'move' | 'favorite' | 'delete',
-    node: FileTreeNode | null
-  ) => {
-    handleCloseTreeContextMenu();
-    if (!node) return;
-
-    switch (action) {
-      case 'rename':
-        handleOpenRenameDialog(node);
-        break;
-      case 'move':
-        handleOpenMoveDialog(node);
-        break;
-      case 'favorite':
-        handleToggleFavorite(node);
-        break;
-      case 'delete':
-        handleDelete(node);
-        break;
-    }
-  };
-
+  useFileTreeShortcuts(treeContainerRef, {
+    openFileDialog: handleOpenFileDialog,
+    openFolderDialog: handleOpenFolderDialog,
+    handleDelete,
+    handleImportFile,
+    handleOpenRenameDialog,
+    handleOpenMoveDialog,
+    handleToggleFavorite: toggleFavorite,
+  });
   const getCreationLocationText = () => {
-    if (!selectedNode) {
+    if (!selectedNodeForActions) {
       return FILE_TREE_TEXT.createLocationRoot;
     }
-    if (selectedNode.type === 'folder') {
-      return `${FILE_TREE_TEXT.createLocationPrefix}${selectedNode.path || 'root'}`;
+    if (selectedNodeForActions.type === 'folder') {
+      return `${FILE_TREE_TEXT.createLocationPrefix}${selectedNodeForActions.path || 'root'}`;
     }
-    const parentPath = getParentPath(selectedNode.path);
+    const parentPath = getParentPath(selectedNodeForActions.path);
     return parentPath
       ? `${FILE_TREE_TEXT.createLocationPrefix}${parentPath}`
       : FILE_TREE_TEXT.createLocationRoot;
   };
 
-  const favoriteNodes = favorites
-    .map((path) => findNodeByPath(tree, path))
-    .filter((node): node is FileTreeNode => Boolean(node));
-
-  const selectedNodeIsFavorite = !!selectedNode && favorites.includes(selectedNode.path);
-  const treeContextMenuMode = treeContextMenuState?.mode;
   const treeContextMenuNode = treeContextMenuState?.node || null;
-  const contextNodeIsFavorite = Boolean(treeContextMenuNode && favorites.includes(treeContextMenuNode.path));
+  const contextNodeIsFavorite = Boolean(
+    treeContextMenuNode && favoriteNodes.some((node) => node.path === treeContextMenuNode.path)
+  );
   const creationLocationText = getCreationLocationText();
   const fileHelperText = !newItemName.includes('.') ? FILE_TREE_TEXT.fileExtensionHint : ' ';
+  const selectedNodeId = selectedNodeForActions?.id ?? selectedFile ?? undefined;
 
   const emptyContextMenuItems: ContextMenuItem[] = [
     {
@@ -773,9 +533,9 @@ export function FileTreeView({
         onRename={() => handleOpenRenameDialog()}
         onMove={() => handleOpenMoveDialog()}
         onDelete={() => handleDelete()}
-        onToggleFavorite={handleToggleFavorite}
+        onToggleFavorite={toggleFavorite}
         favoriteSelected={selectedNodeIsFavorite}
-        actionEnabled={Boolean(selectedNode)}
+        actionEnabled={Boolean(selectedNodeForActions)}
       />
 
       {favoriteNodes.length > 0 && (
@@ -813,10 +573,15 @@ export function FileTreeView({
           onNodeToggle={(_event: React.SyntheticEvent, nodeIds: string[]) => {
             setExpanded(nodeIds);
           }}
-          selected={selectedFile || undefined}
+          selected={selectedNodeId}
           onNodeSelect={handleNodeSelect}
         >
-          {tree.map((node) => renderTree(node, ''))}
+          {renderTreeItems(tree, {
+            expanded,
+            treeItemLabelSx,
+            handleTreeContextMenu,
+            selectedNodeId,
+          })}
         </TreeView>
       </Box>
 

@@ -3,6 +3,8 @@ import { FsAdapter } from '../../../backend/adapters/FsAdapter';
 import { CryptoAdapter } from '../../../backend/adapters/CryptoAdapter';
 import { DEFAULT_APP_SETTINGS, AuthMethod, RepoSettings, GitRepoSettings, ApiErrorCode, Profile } from '../../../shared/types';
 
+type FsExistsMock = jest.MockedFunction<FsAdapter['exists']>;
+
 jest.mock('../../../backend/adapters/FsAdapter');
 jest.mock('../../../backend/adapters/CryptoAdapter');
 
@@ -432,6 +434,46 @@ describe('ConfigService', () => {
         ])
       );
       expect(configService.setActiveProfileId).toHaveBeenCalledWith('profile-default');
+    });
+  });
+
+  describe('favorites storage', () => {
+    beforeEach(() => {
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+      mockFsAdapter.exists.mockResolvedValue(false);
+      mockFsAdapter.readFile.mockResolvedValue('');
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+    });
+
+    it('returns empty list and creates file when favorites missing', async () => {
+      (mockFsAdapter.exists as FsExistsMock).mockResolvedValue(false);
+
+      const favorites = await configService.getFavorites();
+
+      expect(favorites).toEqual([]);
+      expect(mockFsAdapter.writeFile).toHaveBeenCalledWith(expect.stringContaining('favorites.json'), '[]');
+    });
+
+    it('loads favorites when file exists', async () => {
+      (mockFsAdapter.exists as FsExistsMock).mockImplementation(async (path: string) =>
+        path.includes('favorites.json')
+      );
+      mockFsAdapter.readFile.mockResolvedValue(JSON.stringify(['note.md', 'docs/note.md']));
+
+      const favorites = await configService.getFavorites();
+
+      expect(favorites).toEqual(['note.md', 'docs/note.md']);
+    });
+
+    it('writes favorites via updateFavorites', async () => {
+      const favoritesList = ['note.md'];
+
+      await configService.updateFavorites(favoritesList);
+
+      expect(mockFsAdapter.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('favorites.json'),
+        JSON.stringify(favoritesList, null, 2)
+      );
     });
   });
 });
