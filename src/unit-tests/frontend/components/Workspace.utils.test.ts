@@ -1,5 +1,6 @@
 import { buildHeaderTitle, truncateProfileName } from '../../../frontend/components/Workspace/utils';
 import { WORKSPACE_TEXT } from '../../../frontend/components/Workspace/constants';
+import versionInfo from '../../../../version.json';
 
 describe('Workspace utils', () => {
   it('truncates long profile names', () => {
@@ -8,9 +9,9 @@ describe('Workspace utils', () => {
   });
 
   it('builds header title with profile and version', () => {
-    const title = buildHeaderTitle('MyProfile', '2.1.2');
+    const title = buildHeaderTitle('MyProfile', versionInfo.version);
     expect(title).toContain(WORKSPACE_TEXT.appName);
     expect(title).toContain('MyProfile');
-    expect(title).toContain('2.1.2');
+    expect(title).toContain(versionInfo.version);
   });
 });

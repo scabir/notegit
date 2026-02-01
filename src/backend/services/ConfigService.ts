@@ -31,6 +31,7 @@ export class ConfigService {
   private appStatePath: string;
   private profilesPath: string;
   private activeProfilePath: string;
+  private favoritesPath: string;
 
   constructor(
     private fsAdapter: FsAdapter,
@@ -42,6 +43,7 @@ export class ConfigService {
     this.appStatePath = path.join(this.configDir, 'app-state.json');
     this.profilesPath = path.join(this.configDir, 'profiles.json');
     this.activeProfilePath = path.join(this.configDir, 'active-profile.json');
+    this.favoritesPath = path.join(this.configDir, 'favorites.json');
   }
 
   private normalizeRepoSettings(raw: any): RepoSettings {
@@ -163,6 +165,31 @@ export class ConfigService {
 
     await this.fsAdapter.writeFile(this.appSettingsPath, JSON.stringify(updated, null, 2));
     logger.debug('App settings saved');
+  }
+
+  async getFavorites(): Promise<string[]> {
+    try {
+      await this.ensureConfigDir();
+      if (await this.fsAdapter.exists(this.favoritesPath)) {
+        const content = await this.fsAdapter.readFile(this.favoritesPath);
+        const parsed = JSON.parse(content);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((entry) => typeof entry === 'string');
+        }
+      } else {
+        await this.fsAdapter.writeFile(this.favoritesPath, JSON.stringify([], null, 2));
+      }
+    } catch (error: any) {
+      logger.error('Failed to load favorites', { error });
+    }
+    return [];
+  }
+
+  async updateFavorites(favorites: string[]): Promise<void> {
+    logger.info('Updating favorites', { total: favorites.length });
+    await this.ensureConfigDir();
+    await this.fsAdapter.writeFile(this.favoritesPath, JSON.stringify(favorites, null, 2));
+    logger.debug('Favorites saved');
   }
 
   async getRepoSettings(): Promise<RepoSettings | null> {

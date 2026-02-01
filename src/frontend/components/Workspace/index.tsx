@@ -20,7 +20,7 @@ import { RepoSearchDialog } from '../RepoSearchDialog';
 import { HistoryPanel } from '../HistoryPanel';
 import { HistoryViewer } from '../HistoryViewer';
 import type { AppSettings, FileTreeNode, FileContent, RepoStatus } from '../../../shared/types';
-import packageJson from '../../../../package.json';
+import versionInfo from '../../../../version.json';
 import { startS3AutoSync } from '../../utils/s3AutoSync';
 import { WORKSPACE_TEXT } from './constants';
 import {
@@ -67,7 +67,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const shortcutHelperRef = React.useRef<ShortcutHelperHandle | null>(null);
 
   const [activeProfileName, setActiveProfileName] = useState<string>('');
-  const [appVersion, setAppVersion] = useState<string>('');
+  const [appVersion, setAppVersion] = useState<string>(versionInfo.version);
   const isS3Repo = repoStatus?.provider === 's3';
 
   const headerTitle = buildHeaderTitle(activeProfileName, appVersion);
@@ -247,7 +247,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       }
 
       // Set app version from package.json
-      setAppVersion(packageJson.version);
+        setAppVersion(versionInfo.version);
     } catch (error) {
       console.error('Failed to load workspace:', error);
     }

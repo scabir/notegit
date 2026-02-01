@@ -1,6 +1,15 @@
+jest.mock('@mui/material/Menu', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: ({ children }: { children: React.ReactNode }) =>
+      React.createElement('div', null, children),
+  };
+});
+
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { Tooltip, IconButton, Button, TextField } from '@mui/material';
+import { Tooltip, IconButton, Button, TextField, MenuItem } from '@mui/material';
 import { TreeView } from '@mui/x-tree-view';
 import { FileTreeView } from '../../../frontend/components/FileTreeView';
 import { FILE_TREE_TEXT } from '../../../frontend/components/FileTreeView/constants';
@@ -44,13 +53,56 @@ const flattenText = (node: any): string => {
   return node.children ? node.children.map(flattenText).join('') : '';
 };
 
+const createLocalStorageMock = () => {
+  const store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => (key in store ? store[key] : null),
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      Object.keys(store).forEach((key) => delete store[key]);
+    },
+  };
+};
+
 let treeKeyHandlers: Record<string, any> = {};
 
+const fireShortcut = (event: Partial<KeyboardEvent>) => {
+  const handler = treeKeyHandlers.keydown;
+  if (!handler) {
+    throw new Error('Keyboard handler not registered');
+  }
+  act(() => {
+    handler({
+      key: event.key || '',
+      ctrlKey: event.ctrlKey || false,
+      metaKey: event.metaKey || false,
+      shiftKey: event.shiftKey || false,
+      preventDefault: event.preventDefault || jest.fn(),
+      target: event.target || null,
+    });
+  });
+};
+
 describe('FileTreeView toolbar actions', () => {
+  const renderers: TestRenderer.ReactTestRenderer[] = [];
+  const flushPromises = () => new Promise((resolve) => setImmediate(resolve));
+  let consoleErrorSpy: jest.SpyInstance;
+
   beforeEach(() => {
     treeKeyHandlers = {};
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     (global as any).window = {
+      localStorage: createLocalStorageMock(),
       notegitApi: {
+        config: {
+          getFavorites: jest.fn().mockResolvedValue({ ok: true, data: [] }),
+          updateFavorites: jest.fn().mockResolvedValue({ ok: true }),
+        },
         dialog: {
           showOpenDialog: jest.fn().mockResolvedValue({ canceled: true, filePaths: [] }),
         },
@@ -65,39 +117,73 @@ describe('FileTreeView toolbar actions', () => {
     (global as any).alert = (global as any).window.alert;
   });
 
-  const createTreeRenderer = (overrides: Record<string, any> = {}) =>
-    TestRenderer.create(
-      React.createElement(FileTreeView, {
-        tree,
-        selectedFile: null,
-        onSelectFile: jest.fn(),
-        onCreateFile: jest.fn(),
-        onCreateFolder: jest.fn(),
-        onDelete: jest.fn(),
-        onRename: jest.fn(),
-        onImport: jest.fn(),
-        isS3Repo: false,
-        ...overrides,
-      })
+  afterEach(async () => {
+    await act(async () => {
+      await flushPromises();
+    });
+    renderers.splice(0).forEach((renderer) => renderer.unmount());
+    consoleErrorSpy.mockRestore();
+  });
+
+  const createTreeRenderer = (overrides: Record<string, any> = {}) => {
+    let renderer: TestRenderer.ReactTestRenderer;
+    act(() => {
+      renderer = TestRenderer.create(
+        React.createElement(FileTreeView, {
+          tree,
+          selectedFile: null,
+          onSelectFile: jest.fn(),
+          onCreateFile: jest.fn(),
+          onCreateFolder: jest.fn(),
+          onDelete: jest.fn(),
+          onRename: jest.fn(),
+          onImport: jest.fn(),
+          isS3Repo: false,
+          ...overrides,
+        })
+      );
+    });
+    renderers.push(renderer!);
+    return renderer!;
+  };
+
+  const openTreeContextMenu = (renderer: TestRenderer.ReactTestRenderer, nodeId: string) => {
+    const label = renderer.root.find(
+      (node) => node.props && node.props['data-node-id'] === nodeId
     );
 
-  describe('keyboard shortcuts', () => {
-    const fireShortcut = (event: Partial<KeyboardEvent>) => {
-      const handler = treeKeyHandlers.keydown;
-      if (!handler) {
-        throw new Error('Keyboard handler not registered');
-      }
-      act(() => {
-        handler({
-          key: event.key || '',
-          ctrlKey: event.ctrlKey || false,
-          metaKey: event.metaKey || false,
-          shiftKey: event.shiftKey || false,
-          preventDefault: event.preventDefault || jest.fn(),
-          target: event.target || null,
-        });
+    if (!label) {
+      throw new Error(`Tree item label not found: ${nodeId}`);
+    }
+
+    act(() => {
+      label.props.onContextMenu({
+        preventDefault: jest.fn(),
+        stopPropagation: jest.fn(),
+        currentTarget: {} as HTMLElement,
       });
-    };
+    });
+  };
+
+  const openTreeContainerContextMenu = (renderer: TestRenderer.ReactTestRenderer) => {
+    const container = renderer.root.find(
+      (node) => node.props && typeof node.props.className === 'string' && node.props.className.includes('tree-container')
+    );
+
+    if (!container) {
+      throw new Error('Tree container not found');
+    }
+
+    act(() => {
+      container.props.onContextMenu({
+        preventDefault: jest.fn(),
+        stopPropagation: jest.fn(),
+        currentTarget: {} as HTMLElement,
+      });
+    });
+  };
+
+  describe('keyboard shortcuts', () => {
 
     it('opens the create file dialog with Ctrl+A', () => {
       const renderer = createTreeRenderer();
@@ -190,6 +276,235 @@ describe('FileTreeView toolbar actions', () => {
       const moveDialog = renderer.root.findByType(MoveToFolderDialog);
       expect(moveDialog.props.open).toBe(true);
       expect(preventDefault).toHaveBeenCalled();
+    });
+  });
+
+  describe('favorites list', () => {
+    it('adds the selection to favorites via the toolbar and exposes the list', () => {
+      const onSelectFile = jest.fn();
+      const renderer = createTreeRenderer({ onSelectFile });
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder/note.md');
+      });
+
+      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
+      act(() => favoriteButton.props.onClick());
+
+      const favoritesSection = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'favorites-section'
+      );
+      expect(favoritesSection).toBeDefined();
+
+      const favoriteItem = renderer.root
+        .findAllByType(Button)
+        .find((button) => flattenText(button) === 'note.md');
+      expect(favoriteItem).toBeDefined();
+
+      act(() => favoriteItem?.props.onClick());
+      expect(onSelectFile).toHaveBeenCalledWith('folder/note.md', 'file');
+
+      const treeViewAfter = renderer.root.findByType(TreeView);
+      expect(treeViewAfter.props.selected).toBe('folder/note.md');
+    });
+
+    it('opens the editor when a favorite file is clicked', () => {
+      const onSelectFile = jest.fn();
+      const renderer = createTreeRenderer({ onSelectFile });
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder/note.md');
+      });
+
+      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
+      act(() => favoriteButton.props.onClick());
+
+      const favoriteItem = renderer.root
+        .findAllByType(Button)
+        .find((button) => flattenText(button) === 'note.md');
+      expect(favoriteItem).toBeDefined();
+
+      act(() => favoriteItem?.props.onClick());
+      expect(onSelectFile).toHaveBeenCalledWith('folder/note.md', 'file');
+    });
+
+    it('selects the tree node when a favorite file is clicked', () => {
+      const renderer = createTreeRenderer();
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder/note.md');
+      });
+
+      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
+      act(() => favoriteButton.props.onClick());
+
+      const favoriteItem = renderer.root
+        .findAllByType(Button)
+        .find((button) => flattenText(button) === 'note.md');
+      expect(favoriteItem).toBeDefined();
+
+      act(() => favoriteItem?.props.onClick());
+
+      const treeViewAfter = renderer.root.findByType(TreeView);
+      expect(treeViewAfter.props.selected).toBe('folder/note.md');
+    });
+
+    it('expands a favorited folder when selected from favorites', () => {
+      const renderer = createTreeRenderer();
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder');
+      });
+
+      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
+      act(() => favoriteButton.props.onClick());
+
+      const favoriteItem = renderer.root
+        .findAllByType(Button)
+        .find((button) => flattenText(button) === 'folder');
+      expect(favoriteItem).toBeDefined();
+
+      act(() => favoriteItem?.props.onClick());
+
+      const treeViewAfter = renderer.root.findByType(TreeView);
+      expect(treeViewAfter.props.expanded).toContain('folder');
+    });
+
+    it('toggles favorites using the configured keyboard shortcut', () => {
+      const renderer = createTreeRenderer();
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder/note.md');
+      });
+
+      const preventDefault = jest.fn();
+      fireShortcut({ key: 's', ctrlKey: true, shiftKey: true, preventDefault });
+
+      expect(preventDefault).toHaveBeenCalled();
+      const favoritesSection = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'favorites-section'
+      );
+      expect(favoritesSection).toBeDefined();
+    });
+
+    it('removes a favorite via the context menu', () => {
+      const renderer = createTreeRenderer();
+      const treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeSelect(null, 'folder/note.md');
+      });
+
+      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
+      act(() => favoriteButton.props.onClick());
+
+      const favoriteItem = renderer.root
+        .findAllByType(Button)
+        .find((button) => flattenText(button) === 'note.md');
+      expect(favoriteItem).toBeDefined();
+
+      act(() => {
+        favoriteItem?.props.onContextMenu({
+          preventDefault: jest.fn(),
+          currentTarget: {} as HTMLElement,
+        });
+      });
+
+      const menuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'favorite-context-menu-remove'
+      );
+      act(() => menuItem.props.onClick());
+
+      const favoritesSection = renderer.root.findAll(
+        (node) => node.props && node.props['data-testid'] === 'favorites-section'
+      );
+      expect(favoritesSection.length).toBe(0);
+    });
+  });
+
+  describe('tree context menu', () => {
+    it('opens rename from context menu', () => {
+      const renderer = createTreeRenderer();
+      openTreeContextMenu(renderer, 'folder/note.md');
+
+      const renameMenuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-rename'
+      );
+      act(() => renameMenuItem.props.onClick());
+
+      const renameDialog = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'rename-dialog'
+      );
+
+      expect(renameDialog.props.open).toBe(true);
+    });
+
+    it('deletes nodes via context menu', async () => {
+      const onDelete = jest.fn().mockResolvedValue(undefined);
+      const renderer = createTreeRenderer({ onDelete });
+      openTreeContextMenu(renderer, 'folder/note.md');
+
+      (global as any).window.confirm = jest.fn().mockReturnValue(true);
+      const deleteMenuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-delete'
+      );
+
+      await act(async () => deleteMenuItem.props.onClick());
+
+      expect(onDelete).toHaveBeenCalledWith('folder/note.md');
+    });
+  });
+
+  describe('tree background context menu', () => {
+    it('offers create options when no selection exists', () => {
+      const renderer = createTreeRenderer();
+      openTreeContainerContextMenu(renderer);
+
+      const menuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-new-file'
+      );
+      expect(menuItem).toBeDefined();
+    });
+
+    it('opens create file dialog from the context menu', () => {
+      const renderer = createTreeRenderer();
+      openTreeContainerContextMenu(renderer);
+
+      const menuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-new-file'
+      );
+      act(() => menuItem.props.onClick());
+
+      const fileDialog = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'create-file-dialog'
+      );
+      expect(fileDialog.props.open).toBe(true);
+    });
+
+    it('opens create folder dialog from the context menu', () => {
+      const renderer = createTreeRenderer();
+      openTreeContainerContextMenu(renderer);
+
+      const menuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-new-folder'
+      );
+      act(() => menuItem.props.onClick());
+
+      const folderDialog = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'create-folder-dialog'
+      );
+      expect(folderDialog.props.open).toBe(true);
+    });
+
+    it('invokes import when selecting Import from the context menu', () => {
+      const renderer = createTreeRenderer();
+      openTreeContainerContextMenu(renderer);
+
+      const menuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-import'
+      );
+      act(() => menuItem.props.onClick());
+
+      expect((global as any).window.notegitApi.dialog.showOpenDialog).toHaveBeenCalled();
     });
   });
 

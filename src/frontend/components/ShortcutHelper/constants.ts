@@ -13,6 +13,7 @@ export const SHORTCUT_HELPER_SECTIONS = [
       { label: 'Import file', keys: 'Ctrl/Cmd + I' },
       { label: 'Rename selection', keys: 'Ctrl/Cmd + R or F2' },
       { label: 'Move selection', keys: 'Ctrl/Cmd + M' },
+      { label: 'Toggle favorite', keys: 'Ctrl/Cmd + Shift + S' },
     ],
   },
   {

@@ -89,6 +89,26 @@ export function registerConfigHandlers(
     }
   );
 
+  ipcMain.handle('config:getAppSettings', async (): Promise<ApiResponse<AppSettings>> => {
+    try {
+      const settings = await configService.getAppSettings();
+      return {
+        ok: true,
+        data: settings,
+      };
+    } catch (error: any) {
+      logger.error('Failed to get app settings', { error });
+      return {
+        ok: false,
+        error: {
+          code: ApiErrorCode.UNKNOWN_ERROR,
+          message: 'Failed to load application settings',
+          details: error,
+        },
+      };
+    }
+  });
+
   ipcMain.handle('config:checkGitInstalled', async (): Promise<ApiResponse<boolean>> => {
     try {
       const isInstalled = await gitAdapter.checkGitInstalled();
@@ -105,6 +125,44 @@ export function registerConfigHandlers(
     }
   });
 
+  ipcMain.handle('config:getFavorites', async (): Promise<ApiResponse<string[]>> => {
+    try {
+      const favorites = await configService.getFavorites();
+      return {
+        ok: true,
+        data: favorites,
+      };
+    } catch (error: any) {
+      logger.error('Failed to get favorites', { error });
+      return {
+        ok: false,
+        error: {
+          code: ApiErrorCode.UNKNOWN_ERROR,
+          message: 'Failed to load favorites',
+          details: error,
+        },
+      };
+    }
+  });
+
+  ipcMain.handle('config:updateFavorites', async (_event, favorites: string[]): Promise<ApiResponse<void>> => {
+    try {
+      await configService.updateFavorites(favorites);
+      return {
+        ok: true,
+      };
+    } catch (error: any) {
+      logger.error('Failed to update favorites', { error });
+      return {
+        ok: false,
+        error: {
+          code: ApiErrorCode.UNKNOWN_ERROR,
+          message: 'Failed to save favorites',
+          details: error,
+        },
+      };
+    }
+  });
 
   ipcMain.handle('config:getProfiles', async (): Promise<ApiResponse<Profile[]>> => {
     try {

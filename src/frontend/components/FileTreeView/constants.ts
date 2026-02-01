@@ -22,6 +22,11 @@ export const FILE_TREE_TEXT = {
   creating: 'Creating...',
   renameAction: 'Rename',
   renaming: 'Renaming...',
+  favoritesTitle: 'Favorites',
+  addToFavorites: 'Add selection to favorites',
+  removeFromFavorites: 'Remove selection from favorites',
+  favoritesContextMenuItem: 'Remove from favorites',
 } as const;
 
 export const INVALID_NAME_CHARS = /[<>:"/\\|?*]/;
+export const FAVORITES_STORAGE_KEY = 'notegit-tree-favorites';
