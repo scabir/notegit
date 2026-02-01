@@ -128,6 +128,7 @@ export interface NotegitApi {
   logs: {
     getContent: (logType: 'combined' | 'error') => Promise<ApiResponse<string>>;
     export: (logType: 'combined' | 'error', destPath: string) => Promise<ApiResponse<void>>;
+    getFolder: () => Promise<ApiResponse<string>>;
   };
 }
 

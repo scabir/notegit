@@ -27,7 +27,6 @@ import {
   Snackbar,
   ToggleButtonGroup,
   ToggleButton,
-  Paper,
 } from '@mui/material';
 import {
   Info as InfoIcon,
@@ -36,7 +35,6 @@ import {
   Check as CheckIcon,
   ContentCopy as ContentCopyIcon,
   FolderOpen as FolderOpenIcon,
-  Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { AboutDialog } from '../AboutDialog';
 import type {
@@ -103,9 +101,8 @@ export function SettingsDialog({
   const [newProfileSessionToken, setNewProfileSessionToken] = useState('');
   const [profileCreating, setProfileCreating] = useState(false);
 
-  const [logType, setLogType] = useState<'combined' | 'error'>('combined');
-  const [logContent, setLogContent] = useState<string>('');
-  const [loadingLogs, setLoadingLogs] = useState(false);
+  const [logsFolder, setLogsFolder] = useState<string>('');
+  const [loadingLogsFolder, setLoadingLogsFolder] = useState(false);
   const [copySnackbarOpen, setCopySnackbarOpen] = useState(false);
   const repoProvider: RepoProviderType = (repoSettings.provider as RepoProviderType) || 'git';
   const gitRepoSettings = repoSettings as Partial<GitRepoSettings>;
@@ -409,30 +406,34 @@ export function SettingsDialog({
     }
   };
 
-  const loadLogs = React.useCallback(async () => {
-    setLoadingLogs(true);
+  const loadLogsFolder = React.useCallback(async () => {
+    if (!open || tabValue !== 4) {
+      return;
+    }
+    setLoadingLogsFolder(true);
     try {
-      const response = await window.notegitApi.logs.getContent(logType);
+      const response = await window.notegitApi.logs.getFolder();
       if (response.ok && response.data) {
-        setLogContent(response.data);
+        setLogsFolder(response.data);
       } else {
-        setLogContent(`Error loading logs: ${response.error?.message || 'Unknown error'}`);
+        setError(response.error?.message || 'Failed to load logs folder');
       }
     } catch (err: any) {
-      setLogContent(`Error loading logs: ${err.message}`);
+      setError(err.message || 'Failed to load logs folder');
     } finally {
-      setLoadingLogs(false);
+      setLoadingLogsFolder(false);
     }
-  }, [logType]);
+  }, [open, tabValue]);
 
   useEffect(() => {
-    if (open && tabValue === 4) {
-      loadLogs();
-    }
-  }, [open, tabValue, logType, loadLogs]);
+    loadLogsFolder();
+  }, [loadLogsFolder]);
 
-  const handleCopyLogs = () => {
-    navigator.clipboard.writeText(logContent);
+  const handleCopyLogsFolder = () => {
+    if (!logsFolder) {
+      return;
+    }
+    navigator.clipboard.writeText(logsFolder);
     setCopySnackbarOpen(true);
   };
 
@@ -450,35 +451,12 @@ export function SettingsDialog({
     }
   };
 
-  const handleExportLogs = async () => {
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const result = await window.notegitApi.dialog.showSaveDialog({
-        title: 'Export Logs',
-        defaultPath: `notegit-${logType}-logs.log`,
-        filters: [
-          { name: 'Log Files', extensions: ['log'] },
-          { name: 'Text Files', extensions: ['txt'] },
-          { name: 'All Files', extensions: ['*'] },
-        ],
-      });
-
-      if (result.canceled || !result.filePath) {
-        return;
-      }
-
-      const response = await window.notegitApi.logs.export(logType, result.filePath);
-
-      if (response.ok) {
-        setSuccess(`Logs exported successfully to ${result.filePath}`);
-      } else {
-        setError(response.error?.message || 'Failed to export logs');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to export logs');
+  const handleOpenLogsFolder = async () => {
+    if (!logsFolder) {
+      return;
     }
+    const { shell } = window.require('electron');
+    await shell.openPath(logsFolder);
   };
 
   const getProfileSecondary = (profile: Profile): string => {
@@ -1191,76 +1169,32 @@ export function SettingsDialog({
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography variant="h6">Application Logs</Typography>
             <Alert severity="info">
-              View application logs for troubleshooting. Logs are stored locally and include Git/S3 operations, errors, and sync events.
+              Logs are stored locally by day and include Git/S3 operations, errors, and sync events.
             </Alert>
 
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <ToggleButtonGroup
-                value={logType}
-                exclusive
-                onChange={(_, newValue) => newValue && setLogType(newValue)}
-                size="small"
-              >
-                <ToggleButton value="combined">Combined Logs</ToggleButton>
-                <ToggleButton value="error">Error Logs</ToggleButton>
-              </ToggleButtonGroup>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <TextField
+                label="Logs Folder"
+                value={logsFolder}
+                fullWidth
+                InputProps={{ readOnly: true }}
+              />
               <Button
                 variant="outlined"
-                startIcon={<RefreshIcon />}
-                onClick={loadLogs}
-                disabled={loadingLogs}
-                size="small"
+                startIcon={<FolderOpenIcon />}
+                onClick={handleOpenLogsFolder}
+                disabled={!logsFolder || loadingLogsFolder}
               >
-                Refresh
+                Open Folder
               </Button>
-              <Button
-                variant="outlined"
-                startIcon={<ContentCopyIcon />}
-                onClick={handleCopyLogs}
-                disabled={!logContent || loadingLogs}
-                size="small"
+              <IconButton
+                aria-label="copy logs folder"
+                onClick={handleCopyLogsFolder}
+                disabled={!logsFolder || loadingLogsFolder}
               >
-                Copy to Clipboard
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<ContentCopyIcon />}
-                onClick={handleExportLogs}
-                disabled={!logContent || loadingLogs}
-                size="small"
-              >
-                Export Logs
-              </Button>
+                <ContentCopyIcon />
+              </IconButton>
             </Box>
-
-            <Paper
-              variant="outlined"
-              sx={{
-                p: 2,
-                maxHeight: '400px',
-                overflow: 'auto',
-                backgroundColor: 'background.default',
-              }}
-            >
-              {loadingLogs ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                  <CircularProgress />
-                </Box>
-              ) : (
-                <Typography
-                  component="pre"
-                  sx={{
-                    fontFamily: 'monospace',
-                    fontSize: '12px',
-                    margin: 0,
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                  }}
-                >
-                  {logContent || 'No logs available'}
-                </Typography>
-              )}
-            </Paper>
           </Box>
         </TabPanel>
       </DialogContent>

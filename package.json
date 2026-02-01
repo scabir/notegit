@@ -87,7 +87,8 @@
     "remark-gfm": "^4.0.0",
     "simple-git": "^3.21.0",
     "unist-util-visit": "^5.0.0",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

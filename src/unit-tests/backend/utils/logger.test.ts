@@ -10,6 +10,7 @@ const format = {
   json: jest.fn(() => 'json'),
   colorize: jest.fn(() => 'colorize'),
   simple: jest.fn(() => 'simple'),
+  printf: jest.fn((fn) => fn),
 };
 
 const transports = {
@@ -32,6 +33,7 @@ describe('logger', () => {
       format,
       transports,
     }));
+    jest.doMock('winston-daily-rotate-file', () => jest.fn());
 
     return jest.isolateModules(() => require('../../../backend/utils/logger'));
   };

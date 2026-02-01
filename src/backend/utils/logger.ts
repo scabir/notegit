@@ -1,8 +1,23 @@
 import * as winston from 'winston';
 import * as path from 'path';
+import * as fs from 'fs';
 import { app } from 'electron';
+import DailyRotateFile from 'winston-daily-rotate-file';
+
 const userDataPath = app.getPath('userData');
 const logsDir = path.join(userDataPath, 'logs');
+
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
+
+const logFormat = winston.format.printf((info) => {
+  const { timestamp, level, message, stack, ...meta } = info as winston.Logform.TransformableInfo;
+  const metaKeys = Object.keys(meta);
+  const metaString = metaKeys.length > 0 ? ` ${JSON.stringify(meta)}` : '';
+  const baseMessage = stack ? `${message}\n${stack}` : message;
+  return `${timestamp} [${String(level).toUpperCase()}] ${baseMessage}${metaString}`;
+});
 
 export const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
@@ -10,20 +25,22 @@ export const logger = winston.createLogger({
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),
     winston.format.splat(),
-    winston.format.json()
+    logFormat
   ),
   defaultMeta: { service: 'notegit' },
   transports: [
-    new winston.transports.File({
-      filename: path.join(logsDir, 'combined.log'),
-      maxsize: 5242880,
-      maxFiles: 5,
+    new DailyRotateFile({
+      filename: path.join(logsDir, 'combined-%DATE%.log'),
+      datePattern: 'YYYY-MM-DD',
+      maxSize: '5m',
+      maxFiles: '14d',
     }),
-    new winston.transports.File({
-      filename: path.join(logsDir, 'error.log'),
+    new DailyRotateFile({
+      filename: path.join(logsDir, 'error-%DATE%.log'),
       level: 'error',
-      maxsize: 5242880,
-      maxFiles: 5,
+      datePattern: 'YYYY-MM-DD',
+      maxSize: '5m',
+      maxFiles: '14d',
     }),
   ],
 });

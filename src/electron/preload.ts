@@ -65,6 +65,7 @@ const api: NotegitApi = {
   logs: {
     getContent: (logType) => ipcRenderer.invoke('logs:getContent', logType),
     export: (logType, destPath) => ipcRenderer.invoke('logs:export', logType, destPath),
+    getFolder: () => ipcRenderer.invoke('logs:getFolder'),
   },
 };
 
