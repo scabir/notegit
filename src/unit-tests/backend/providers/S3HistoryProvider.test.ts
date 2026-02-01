@@ -41,6 +41,36 @@ describe('S3HistoryProvider', () => {
     expect(history[1].hash).toBe('v1');
   });
 
+
+  it('rejects when not configured', async () => {
+    const s3Adapter = {
+      configure: jest.fn(),
+      listObjectVersions: jest.fn(),
+      getObject: jest.fn(),
+    };
+
+    const provider = new S3HistoryProvider(s3Adapter as any);
+
+    await expect(provider.getForFile('file.md')).rejects.toMatchObject({
+      code: ApiErrorCode.VALIDATION_ERROR,
+    });
+  });
+
+  it('handles empty prefixes when building keys', async () => {
+    const s3Adapter = {
+      configure: jest.fn(),
+      listObjectVersions: jest.fn().mockResolvedValue([]),
+      getObject: jest.fn(),
+    };
+
+    const provider = new S3HistoryProvider(s3Adapter as any);
+    provider.configure({ ...baseSettings, prefix: '' });
+
+    await provider.getForFile('file.md');
+
+    expect(s3Adapter.listObjectVersions).toHaveBeenCalledWith('file.md');
+  });
+
   it('returns object content for a version', async () => {
     const s3Adapter = {
       configure: jest.fn(),

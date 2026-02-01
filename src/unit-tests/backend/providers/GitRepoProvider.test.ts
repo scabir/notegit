@@ -199,4 +199,62 @@ describe('GitRepoProvider', () => {
     clearIntervalSpy.mockRestore();
     jest.useRealTimers();
   });
+
+  it('fetches from remote and returns status', async () => {
+    const { provider, gitAdapter } = createProvider();
+    provider.configure(baseSettings);
+
+    gitAdapter.init.mockResolvedValue(undefined);
+    gitAdapter.fetch.mockResolvedValue(undefined);
+    gitAdapter.status.mockResolvedValue({ files: [] });
+    gitAdapter.getCurrentBranch.mockResolvedValue('main');
+    gitAdapter.getAheadBehind.mockResolvedValue({ ahead: 0, behind: 0 });
+
+    const status = await provider.fetch();
+
+    expect(gitAdapter.fetch).toHaveBeenCalled();
+    expect(status.branch).toBe('main');
+  });
+
+  it('throws when pulling without settings', async () => {
+    const { provider } = createProvider();
+    (provider as any).repoPath = '/repo';
+
+    await expect(provider.pull()).rejects.toMatchObject({
+      code: ApiErrorCode.VALIDATION_ERROR,
+    });
+  });
+
+  it('pushes without pulling when remote is up to date', async () => {
+    const { provider, gitAdapter } = createProvider();
+    provider.configure(baseSettings);
+
+    gitAdapter.init.mockResolvedValue(undefined);
+    gitAdapter.fetch.mockResolvedValue(undefined);
+    gitAdapter.getAheadBehind.mockResolvedValue({ ahead: 1, behind: 0 });
+    gitAdapter.push.mockResolvedValue(undefined);
+
+    await provider.push();
+
+    expect(gitAdapter.pull).not.toHaveBeenCalled();
+    expect(gitAdapter.push).toHaveBeenCalledWith(baseSettings.pat);
+  });
+
+  it('rethrows non-conflict pull errors', async () => {
+    const { provider, gitAdapter } = createProvider();
+    provider.configure(baseSettings);
+
+    gitAdapter.init.mockResolvedValue(undefined);
+    gitAdapter.fetch.mockResolvedValue(undefined);
+    gitAdapter.getAheadBehind.mockResolvedValue({ ahead: 0, behind: 1 });
+    gitAdapter.pull.mockRejectedValue(new Error('network down'));
+
+    await expect(provider.push()).rejects.toThrow('network down');
+  });
+
+  it('falls back to a hash when extracting repo name', () => {
+    const { provider } = createProvider();
+    const value = (provider as any).extractRepoName('invalid-url');
+    expect(value).toHaveLength(8);
+  });
 });

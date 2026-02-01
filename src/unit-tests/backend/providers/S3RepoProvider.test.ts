@@ -389,4 +389,387 @@ describe('S3RepoProvider', () => {
     setIntervalSpy.mockRestore();
     clearIntervalSpy.mockRestore();
   });
+
+  it('normalizes prefixes and maps keys', () => {
+    const s3Adapter = createAdapter();
+    const provider = new S3RepoProvider(s3Adapter as any);
+    provider.configure({ ...baseSettings, prefix: '/notes/' });
+
+    const normalizedPrefix = (provider as any).normalizedPrefix();
+    expect(normalizedPrefix).toBe('notes/');
+
+    const key = (provider as any).toS3Key('folder/note.md');
+    expect(key).toBe('notes/folder/note.md');
+
+    const relative = (provider as any).fromS3Key('notes/folder/note.md');
+    expect(relative).toBe('folder/note.md');
+  });
+
+  it('ignores special entries when listing local files', async () => {
+    const tempDir = await createTempDir();
+    const settings = { ...baseSettings, localPath: tempDir };
+
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure(settings);
+
+    await fs.mkdir(path.join(tempDir, '.git'), { recursive: true });
+    await fs.mkdir(path.join(tempDir, '.notegit'), { recursive: true });
+    await fs.mkdir(path.join(tempDir, 'sub'), { recursive: true });
+    await fs.writeFile(path.join(tempDir, '.DS_Store'), 'ignore');
+    await fs.writeFile(path.join(tempDir, '.notegit', 's3-sync.json'), '{}');
+    await fs.writeFile(path.join(tempDir, 'note.s3-conflict-20240101-000000.md'), 'conflict');
+    await fs.writeFile(path.join(tempDir, 'keep.md'), 'keep');
+    await fs.writeFile(path.join(tempDir, 'sub', 'keep2.md'), 'keep2');
+
+    const files = await (provider as any).listLocalFiles(tempDir);
+    const sorted = files.sort();
+
+    expect(sorted).toEqual(['keep.md', 'sub/keep2.md']);
+  });
+
+  it('returns null when conflict file already exists', async () => {
+    const tempDir = await createTempDir();
+    const settings = { ...baseSettings, localPath: tempDir };
+
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure(settings);
+
+    const conflictPath = path.join(tempDir, 'note.s3-conflict-20240101-000000.md');
+    await fs.writeFile(conflictPath, 'conflict');
+
+    const resolved = await (provider as any).resolveConflictPath('note.md', '20240101-000000');
+    expect(resolved).toBeNull();
+  });
+
+  it('rejects non-s3 configuration', () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    try {
+      provider.configure({ provider: 'git' } as any);
+      throw new Error('Expected configuration to fail');
+    } catch (error: any) {
+      expect(error.code).toBe(ApiErrorCode.REPO_PROVIDER_MISMATCH);
+    }
+  });
+
+  it('rejects opening without a local path', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    await expect(provider.open({ ...baseSettings, localPath: '' })).rejects.toMatchObject({
+      code: ApiErrorCode.VALIDATION_ERROR,
+    });
+  });
+
+  it('rejects opening non-s3 settings', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    await expect(provider.open({ provider: 'git' } as any)).rejects.toMatchObject({
+      code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
+    });
+  });
+
+  it('returns status using calculated change counts', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+    (provider as any).ensureRepoReady = jest.fn().mockResolvedValue(undefined);
+    (provider as any).calculateChangeCounts = jest
+      .fn()
+      .mockResolvedValue({ localChanges: 2, remoteChanges: 1 });
+
+    const status = await provider.getStatus();
+
+    expect(status.ahead).toBe(2);
+    expect(status.behind).toBe(1);
+    expect(status.needsPull).toBe(true);
+    expect(status.pendingPushCount).toBe(2);
+  });
+
+  it('fetch delegates to getStatus after ensureRepoReady', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+    const ensureRepoReady = jest.fn().mockResolvedValue(undefined);
+    (provider as any).ensureRepoReady = ensureRepoReady;
+    const getStatus = jest.fn().mockResolvedValue({
+      provider: 's3',
+      branch: 'bucket',
+      ahead: 0,
+      behind: 0,
+      hasUncommitted: false,
+      pendingPushCount: 0,
+      needsPull: false,
+      isConnected: true,
+    });
+    (provider as any).getStatus = getStatus;
+
+    await provider.fetch();
+
+    expect(ensureRepoReady).toHaveBeenCalled();
+    expect(getStatus).toHaveBeenCalled();
+  });
+
+  it('schedules a pending sync when a queued sync fails', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+    (provider as any).sync = jest.fn().mockRejectedValue(new Error('boom'));
+    const schedulePendingSync = jest.spyOn(provider as any, 'schedulePendingSync');
+
+    await expect(provider.queueUpload('note.md')).rejects.toThrow('boom');
+    expect(schedulePendingSync).toHaveBeenCalled();
+  });
+
+  it('tracks pending sync requests when already syncing', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+    (provider as any).syncInProgress = true;
+
+    await (provider as any).sync('sync');
+
+    expect((provider as any).pendingSyncRequested).toBe(true);
+  });
+
+  it('collects remote info while ignoring folders and metadata paths', async () => {
+    const s3Adapter = createAdapter({
+      listObjects: jest.fn().mockResolvedValue([
+        { key: 'notes/folder/', lastModified: new Date('2024-01-01T00:00:00Z') },
+        { key: 'notes/.notegit/meta.json', eTag: '"etag-ignore"', lastModified: new Date() },
+        { key: 'notes/keep.md', eTag: '"etag-keep"', lastModified: new Date('2024-01-01T01:00:00Z') },
+      ]),
+    });
+    const provider = new S3RepoProvider(s3Adapter as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+
+    const result = await (provider as any).collectRemoteInfo();
+
+    expect(result.has('keep.md')).toBe(true);
+    expect(result.get('keep.md')?.eTag).toBe('etag-keep');
+  });
+
+  it('counts conflicts and change sets when calculating status', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+    (provider as any).ensureRepoReady = jest.fn().mockResolvedValue(undefined);
+    (provider as any).loadManifest = jest.fn().mockResolvedValue({
+      version: 1,
+      updatedAt: '',
+      files: {
+        'note.md': {
+          localHash: 'base',
+          remoteETag: 'base',
+          deleted: false,
+          conflict: true,
+        },
+        'other.md': {
+          localHash: 'base',
+          remoteETag: 'base',
+          deleted: false,
+        },
+      },
+    });
+    (provider as any).collectLocalInfo = jest.fn().mockResolvedValue(
+      new Map([
+        ['other.md', { relativePath: 'other.md', hash: 'local', mtimeMs: 1 }],
+      ])
+    );
+    (provider as any).collectRemoteInfo = jest.fn().mockResolvedValue(
+      new Map([
+        ['other.md', { key: 'notes/other.md', eTag: 'remote', lastModifiedMs: 2 }],
+      ])
+    );
+
+    const counts = await (provider as any).calculateChangeCounts();
+
+    expect(counts.localChanges).toBe(2);
+    expect(counts.remoteChanges).toBe(2);
+  });
+
+  it('does not schedule pending sync when one is already queued', () => {
+    jest.useFakeTimers();
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+    (provider as any).pendingSyncTimer = {} as any;
+    const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+
+    (provider as any).schedulePendingSync();
+
+    expect(setTimeoutSpy).not.toHaveBeenCalled();
+    setTimeoutSpy.mockRestore();
+    jest.useRealTimers();
+  });
+
+  it('reconciles conflicts when both local and remote changed', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+
+    const localInfo = new Map([
+      ['note.md', { relativePath: 'note.md', hash: 'local', mtimeMs: 100 }],
+    ]);
+    const remoteInfo = new Map([
+      ['note.md', { key: 'notes/note.md', eTag: 'remote', lastModifiedMs: 200 }],
+    ]);
+    const manifest = {
+      version: 1,
+      updatedAt: '',
+      files: {
+        'note.md': {
+          localHash: 'base',
+          localMtimeMs: 50,
+          remoteETag: 'base',
+          remoteLastModifiedMs: 50,
+          deleted: false,
+        },
+      },
+    };
+
+    const createConflictCopy = jest.fn().mockResolvedValue(undefined);
+    (provider as any).createConflictCopy = createConflictCopy;
+
+    await (provider as any).reconcilePath('note.md', localInfo, remoteInfo, manifest, 'sync');
+
+    expect(createConflictCopy).toHaveBeenCalled();
+  });
+
+  it('downloads remote updates when no baseline exists and remote is newer', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+
+    const localInfo = new Map([
+      ['note.md', { relativePath: 'note.md', hash: 'local', mtimeMs: 100 }],
+    ]);
+    const remoteInfo = new Map([
+      ['note.md', { key: 'notes/note.md', eTag: 'remote', lastModifiedMs: 200 }],
+    ]);
+    const manifest = { version: 1, updatedAt: '', files: {} };
+
+    const downloadRemoteFile = jest.fn().mockResolvedValue({
+      relativePath: 'note.md',
+      hash: 'remote',
+      mtimeMs: 200,
+    });
+    const updateManifestEntry = jest.fn();
+    (provider as any).downloadRemoteFile = downloadRemoteFile;
+    (provider as any).updateManifestEntry = updateManifestEntry;
+
+    await (provider as any).reconcilePath('note.md', localInfo, remoteInfo, manifest, 'sync');
+
+    expect(downloadRemoteFile).toHaveBeenCalled();
+    expect(updateManifestEntry).toHaveBeenCalled();
+  });
+
+  it('uploads local updates when no baseline exists and local is newer', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+
+    const localInfo = new Map([
+      ['note.md', { relativePath: 'note.md', hash: 'local', mtimeMs: 300 }],
+    ]);
+    const remoteInfo = new Map([
+      ['note.md', { key: 'notes/note.md', eTag: 'remote', lastModifiedMs: 100 }],
+    ]);
+    const manifest = { version: 1, updatedAt: '', files: {} };
+
+    const uploadLocalFile = jest.fn().mockResolvedValue({
+      key: 'notes/note.md',
+      eTag: 'remote',
+      lastModifiedMs: 300,
+    });
+    const updateManifestEntry = jest.fn();
+    (provider as any).uploadLocalFile = uploadLocalFile;
+    (provider as any).updateManifestEntry = updateManifestEntry;
+
+    await (provider as any).reconcilePath('note.md', localInfo, remoteInfo, manifest, 'sync');
+
+    expect(uploadLocalFile).toHaveBeenCalled();
+    expect(updateManifestEntry).toHaveBeenCalled();
+  });
+
+  it('deletes local files when remote removes a baseline file', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+
+    const localInfo = new Map([
+      ['note.md', { relativePath: 'note.md', hash: 'base', mtimeMs: 100 }],
+    ]);
+    const remoteInfo = new Map<string, any>();
+    const manifest = {
+      version: 1,
+      updatedAt: '',
+      files: {
+        'note.md': {
+          localHash: 'base',
+          localMtimeMs: 100,
+          remoteETag: 'etag',
+          remoteLastModifiedMs: 100,
+          deleted: false,
+        },
+      },
+    };
+
+    const deleteLocalFile = jest.fn().mockResolvedValue(undefined);
+    const markDeleted = jest.fn();
+    (provider as any).deleteLocalFile = deleteLocalFile;
+    (provider as any).markDeleted = markDeleted;
+
+    await (provider as any).reconcilePath('note.md', localInfo, remoteInfo, manifest, 'sync');
+
+    expect(deleteLocalFile).toHaveBeenCalled();
+    expect(markDeleted).toHaveBeenCalled();
+  });
+
+  it('deletes remote files when local baseline is missing', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+
+    const localInfo = new Map<string, any>();
+    const remoteInfo = new Map([
+      ['note.md', { key: 'notes/note.md', eTag: 'etag', lastModifiedMs: 100 }],
+    ]);
+    const manifest = {
+      version: 1,
+      updatedAt: '',
+      files: {
+        'note.md': {
+          localHash: 'base',
+          localMtimeMs: 100,
+          remoteETag: 'etag',
+          remoteLastModifiedMs: 100,
+          deleted: false,
+        },
+      },
+    };
+
+    const deleteRemoteKey = jest.fn().mockResolvedValue(undefined);
+    const markDeleted = jest.fn();
+    (provider as any).deleteRemoteKey = deleteRemoteKey;
+    (provider as any).markDeleted = markDeleted;
+
+    await (provider as any).reconcilePath('note.md', localInfo, remoteInfo, manifest, 'sync');
+
+    expect(deleteRemoteKey).toHaveBeenCalledWith('note.md');
+    expect(markDeleted).toHaveBeenCalled();
+  });
+
+  it('marks deletions when both local and remote are missing', async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: '/tmp/notegit-s3' });
+
+    const localInfo = new Map<string, any>();
+    const remoteInfo = new Map<string, any>();
+    const manifest = {
+      version: 1,
+      updatedAt: '',
+      files: {
+        'note.md': {
+          localHash: 'base',
+          localMtimeMs: 100,
+          remoteETag: 'etag',
+          remoteLastModifiedMs: 100,
+          deleted: false,
+        },
+      },
+    };
+
+    const markDeleted = jest.fn();
+    (provider as any).markDeleted = markDeleted;
+
+    await (provider as any).reconcilePath('note.md', localInfo, remoteInfo, manifest, 'sync');
+
+    expect(markDeleted).toHaveBeenCalled();
+  });
 });
