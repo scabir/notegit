@@ -9,7 +9,7 @@ jest.mock('@mui/material/Menu', () => {
 
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { Tooltip, IconButton, Button, TextField, MenuItem } from '@mui/material';
+import { Tooltip, IconButton, Button, TextField } from '@mui/material';
 import { TreeView } from '@mui/x-tree-view';
 import { FileTreeView } from '../../../frontend/components/FileTreeView';
 import { FILE_TREE_TEXT } from '../../../frontend/components/FileTreeView/constants';
@@ -226,7 +226,7 @@ describe('FileTreeView toolbar actions', () => {
     });
 
     it('opens the import dialog with Ctrl+I', () => {
-      const renderer = createTreeRenderer();
+      createTreeRenderer();
       const preventDefault = jest.fn();
       fireShortcut({ key: 'i', ctrlKey: true, preventDefault });
 

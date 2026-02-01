@@ -464,7 +464,7 @@ describe('MarkdownEditor task list formatting', () => {
       });
       (global as any).window.removeEventListener = jest.fn();
 
-      const { renderer } = await renderEditor('note', 0, 0);
+      await renderEditor('note', 0, 0);
       mockView.dispatch.mockClear();
 
       const preventDefault = jest.fn();
