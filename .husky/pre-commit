@@ -1,4 +1,10 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+pnpm run clean 
+pnpm install 
+pnpm run build
 pnpm lint
+
+pnpm exec eslint . --ext .ts,.tsx --max-warnings=0
+pnpm test

@@ -23,5 +23,5 @@ export const modifiedChipSx: SxProps<Theme> = { height: 24 };
 export const editorContainerSx = (isDark: boolean): SxProps<Theme> => ({
   flexGrow: 1,
   overflow: 'auto',
-  bgcolor: isDark ? '#0d1117' : '#fff',
+  bgcolor: isDark ? '#0d1117' : '#f1f3f6',
 });

@@ -16,6 +16,7 @@ describe('logsHandlers', () => {
     const logsService = {
       getLogContent: jest.fn().mockResolvedValue('content'),
       exportLogs: jest.fn(),
+      getLogsDirectory: jest.fn().mockReturnValue('/logs'),
     } as any;
 
     const { ipcMain, handlers } = createIpcMain();
@@ -31,6 +32,7 @@ describe('logsHandlers', () => {
     const logsService = {
       getLogContent: jest.fn(),
       exportLogs: jest.fn().mockResolvedValue(undefined),
+      getLogsDirectory: jest.fn().mockReturnValue('/logs'),
     } as any;
 
     const { ipcMain, handlers } = createIpcMain();
@@ -46,6 +48,7 @@ describe('logsHandlers', () => {
     const logsService = {
       getLogContent: jest.fn().mockRejectedValue(new Error('fail')),
       exportLogs: jest.fn(),
+      getLogsDirectory: jest.fn().mockReturnValue('/logs'),
     } as any;
 
     const { ipcMain, handlers } = createIpcMain();
@@ -55,5 +58,21 @@ describe('logsHandlers', () => {
 
     expect(response.ok).toBe(false);
     expect(response.error?.message).toBe('fail');
+  });
+
+  it('returns logs folder', async () => {
+    const logsService = {
+      getLogContent: jest.fn(),
+      exportLogs: jest.fn(),
+      getLogsDirectory: jest.fn().mockReturnValue('/logs'),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerLogsHandlers(ipcMain, logsService);
+
+    const response = await handlers['logs:getFolder']();
+
+    expect(response.ok).toBe(true);
+    expect(response.data).toBe('/logs');
   });
 });

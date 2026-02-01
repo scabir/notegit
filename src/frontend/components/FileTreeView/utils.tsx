@@ -8,6 +8,7 @@ import {
   InsertDriveFile as FileIcon,
 } from '@mui/icons-material';
 import type { FileTreeNode, FileType } from '../../../shared/types';
+import { getParentPath } from '../../utils/pathUtils';
 
 export const getFileIcon = (fileType?: FileType) => {
   switch (fileType) {
@@ -53,7 +54,4 @@ export const findNodeByPath = (nodes: FileTreeNode[], path: string): FileTreeNod
   return null;
 };
 
-export const getParentPath = (path: string): string => {
-  const lastSlash = path.lastIndexOf('/');
-  return lastSlash > 0 ? path.substring(0, lastSlash) : '';
-};
+export { getParentPath };

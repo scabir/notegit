@@ -805,6 +805,7 @@ describe('Workspace', () => {
     const text = flattenText(renderer!.toJSON());
     expect(text).toContain(WORKSPACE_TEXT.errorLabel);
     expect(text).toContain('save failed');
+
   });
 
   it('updates selected path when renaming a folder', async () => {
@@ -1201,11 +1202,11 @@ describe('Workspace', () => {
   });
 
   it('logs load errors when workspace initialization fails', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
     (global as any).window.notegitApi.files.listTree = jest.fn().mockRejectedValue(new Error('boom'));
 
+    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      TestRenderer.create(
+      renderer = TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1216,17 +1217,17 @@ describe('Workspace', () => {
       await flushPromises();
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to load workspace:', expect.any(Error));
-    consoleSpy.mockRestore();
+    const text = flattenText(renderer!.toJSON());
+    expect(text).toContain(WORKSPACE_TEXT.errorLabel);
+    expect(text).toContain('Failed to load workspace');
   });
 
   it('logs read errors when file loading throws', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
     (global as any).window.notegitApi.files.read = jest.fn().mockRejectedValue(new Error('read error'));
 
-
+    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      TestRenderer.create(
+      renderer = TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1244,8 +1245,9 @@ describe('Workspace', () => {
       await fileTreeProps.onSelectFile('note.md', 'file');
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to read file:', expect.any(Error));
-    consoleSpy.mockRestore();
+    const text = flattenText(renderer!.toJSON());
+    expect(text).toContain(WORKSPACE_TEXT.errorLabel);
+    expect(text).toContain('Failed to read file');
   });
 
   it('throws when rename responses fail', async () => {

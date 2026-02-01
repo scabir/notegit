@@ -119,6 +119,7 @@ describe('SettingsDialog component', () => {
         logs: {
           getContent: jest.fn().mockResolvedValue({ ok: true, data: 'logs' }),
           export: jest.fn().mockResolvedValue({ ok: true }),
+          getFolder: jest.fn().mockResolvedValue({ ok: true, data: '/logs' }),
         },
         dialog: {
           showSaveDialog: jest.fn(),
@@ -441,12 +442,7 @@ describe('SettingsDialog component', () => {
     expect(shellOpenPath).toHaveBeenCalledWith('/repo');
   });
 
-  it('loads logs and exports them', async () => {
-    (global as any).window.notegitApi.dialog.showSaveDialog = jest.fn().mockResolvedValue({
-      canceled: false,
-      filePath: '/tmp/logs.log',
-    });
-
+  it('loads logs folder and allows open/copy', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
       renderer = TestRenderer.create(
@@ -466,26 +462,34 @@ describe('SettingsDialog component', () => {
       tabs.props.onChange(null, 4);
       await flushPromises();
     });
-    await act(async () => {
-      await flushPromises();
-    });
 
-    expect((global as any).window.notegitApi.logs.getContent).toHaveBeenCalled();
+    expect((global as any).window.notegitApi.logs.getFolder).toHaveBeenCalled();
 
-    const exportLogsButton = renderer!.root
+    const openFolderButton = renderer!.root
       .findAllByType(Button)
-      .find((button) => button.props.children === 'Export Logs');
-    if (!exportLogsButton) {
-      throw new Error('Export Logs button not found');
+      .find((button) => button.props.children === 'Open Folder');
+    if (!openFolderButton) {
+      throw new Error('Open Folder button not found');
     }
 
     await act(async () => {
-      exportLogsButton.props.onClick();
+      openFolderButton.props.onClick();
       await flushPromises();
     });
 
-    expect((global as any).window.notegitApi.logs.getContent).toHaveBeenCalled();
-    expect((global as any).window.notegitApi.logs.export).toHaveBeenCalledWith('combined', '/tmp/logs.log');
+    expect(shellOpenPath).toHaveBeenCalledWith('/logs');
+
+    const copyButtons = renderer!.root.findAllByProps({ 'aria-label': 'copy logs folder' });
+    if (copyButtons.length === 0) {
+      throw new Error('Copy logs folder button not found');
+    }
+
+    await act(async () => {
+      copyButtons[0].props.onClick();
+      await flushPromises();
+    });
+
+    expect((global as any).navigator.clipboard.writeText).toHaveBeenCalledWith('/logs');
   });
 
   it('shows validation error when creating profile without a name', async () => {
@@ -750,7 +754,12 @@ describe('SettingsDialog component', () => {
     expect((global as any).window.notegitApi.config.deleteProfile).toHaveBeenCalledWith('profile-2');
   });
 
-  it('copies logs to clipboard', async () => {
+  it('keeps copy disabled when logs folder is missing', async () => {
+    (global as any).window.notegitApi.logs.getFolder = jest.fn().mockResolvedValue({
+      ok: false,
+      error: { message: 'log path missing' },
+    });
+
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
       renderer = TestRenderer.create(
@@ -766,35 +775,17 @@ describe('SettingsDialog component', () => {
     });
 
     const tabs = renderer!.root.findByType(Tabs);
-    act(() => {
+    await act(async () => {
       tabs.props.onChange(null, 4);
-    });
-
-    const refreshButton = renderer!.root
-      .findAllByType(Button)
-      .find((button) => button.props.children === 'Refresh');
-    if (!refreshButton) {
-      throw new Error('Refresh logs button not found');
-    }
-
-    await act(async () => {
-      refreshButton.props.onClick();
       await flushPromises();
     });
 
-    const copyButton = renderer!.root
-      .findAllByType(Button)
-      .find((button) => button.props.children === 'Copy to Clipboard');
-    if (!copyButton) {
-      throw new Error('Copy logs button not found');
+    const copyButtons = renderer!.root.findAllByProps({ 'aria-label': 'copy logs folder' });
+    if (copyButtons.length === 0) {
+      throw new Error('Copy logs folder button not found');
     }
 
-    await act(async () => {
-      copyButton.props.onClick();
-      await flushPromises();
-    });
-
-    expect((global as any).navigator.clipboard.writeText).toHaveBeenCalledWith('logs');
+    expect(copyButtons[0].props.disabled).toBe(true);
   });
 
   it('shows an error when config load fails', async () => {
@@ -1161,14 +1152,10 @@ describe('SettingsDialog component', () => {
     expect((global as any).window.notegitApi.config.setActiveProfile).not.toHaveBeenCalled();
   });
 
-  it('shows log load errors and skips export when canceled', async () => {
-    (global as any).window.notegitApi.logs.getContent = jest.fn().mockResolvedValue({
+  it('shows log folder load errors', async () => {
+    (global as any).window.notegitApi.logs.getFolder = jest.fn().mockResolvedValue({
       ok: false,
       error: { message: 'log fail' },
-    });
-    (global as any).window.notegitApi.dialog.showSaveDialog = jest.fn().mockResolvedValue({
-      canceled: true,
-      filePath: undefined,
     });
 
     let renderer: TestRenderer.ReactTestRenderer;
@@ -1191,21 +1178,7 @@ describe('SettingsDialog component', () => {
       await flushPromises();
     });
 
-    expect(flattenText(renderer!.toJSON())).toContain('Error loading logs: log fail');
-
-    const exportLogsButton = renderer!.root
-      .findAllByType(Button)
-      .find((button) => button.props.children === 'Export Logs');
-    if (!exportLogsButton) {
-      throw new Error('Export Logs button not found');
-    }
-
-    await act(async () => {
-      exportLogsButton.props.onClick();
-      await flushPromises();
-    });
-
-    expect((global as any).window.notegitApi.logs.export).not.toHaveBeenCalled();
+    expect(flattenText(renderer!.toJSON())).toContain('log fail');
   });
 
   it('shows error when config load throws', async () => {

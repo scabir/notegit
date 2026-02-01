@@ -5,6 +5,7 @@ export const appBarSx: SxProps<Theme> = {
   bottom: 0,
   borderTop: 1,
   borderColor: 'divider',
+  bgcolor: (theme) => (theme.palette.mode === 'light' ? '#e6e9ee' : 'background.paper'),
 };
 
 export const toolbarSx: SxProps<Theme> = { minHeight: 40 };

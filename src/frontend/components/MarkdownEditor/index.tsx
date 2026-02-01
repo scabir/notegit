@@ -159,30 +159,45 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     view.focus();
   }, []);
 
-  const formatBold = () => insertMarkdown(
-    MARKDOWN_INSERT_TOKENS.bold[0],
-    MARKDOWN_INSERT_TOKENS.bold[1],
-    MARKDOWN_INSERT_DEFAULTS.bold,
+  const formatBold = useCallback(
+    () => insertMarkdown(
+      MARKDOWN_INSERT_TOKENS.bold[0],
+      MARKDOWN_INSERT_TOKENS.bold[1],
+      MARKDOWN_INSERT_DEFAULTS.bold,
+    ),
+    [insertMarkdown]
   );
-  const formatItalic = () => insertMarkdown(
-    MARKDOWN_INSERT_TOKENS.italic[0],
-    MARKDOWN_INSERT_TOKENS.italic[1],
-    MARKDOWN_INSERT_DEFAULTS.italic,
+  const formatItalic = useCallback(
+    () => insertMarkdown(
+      MARKDOWN_INSERT_TOKENS.italic[0],
+      MARKDOWN_INSERT_TOKENS.italic[1],
+      MARKDOWN_INSERT_DEFAULTS.italic,
+    ),
+    [insertMarkdown]
   );
-  const formatCode = () => insertMarkdown(
-    MARKDOWN_INSERT_TOKENS.code[0],
-    MARKDOWN_INSERT_TOKENS.code[1],
-    MARKDOWN_INSERT_DEFAULTS.code,
+  const formatCode = useCallback(
+    () => insertMarkdown(
+      MARKDOWN_INSERT_TOKENS.code[0],
+      MARKDOWN_INSERT_TOKENS.code[1],
+      MARKDOWN_INSERT_DEFAULTS.code,
+    ),
+    [insertMarkdown]
   );
-  const formatCodeBlock = () => insertMarkdown(
-    MARKDOWN_INSERT_TOKENS.codeBlock[0],
-    MARKDOWN_INSERT_TOKENS.codeBlock[1],
-    MARKDOWN_INSERT_DEFAULTS.codeBlock,
+  const formatCodeBlock = useCallback(
+    () => insertMarkdown(
+      MARKDOWN_INSERT_TOKENS.codeBlock[0],
+      MARKDOWN_INSERT_TOKENS.codeBlock[1],
+      MARKDOWN_INSERT_DEFAULTS.codeBlock,
+    ),
+    [insertMarkdown]
   );
-  const formatHeading = () => insertMarkdown(
-    MARKDOWN_INSERT_TOKENS.heading[0],
-    MARKDOWN_INSERT_TOKENS.heading[1],
-    MARKDOWN_INSERT_DEFAULTS.heading,
+  const formatHeading = useCallback(
+    () => insertMarkdown(
+      MARKDOWN_INSERT_TOKENS.heading[0],
+      MARKDOWN_INSERT_TOKENS.heading[1],
+      MARKDOWN_INSERT_DEFAULTS.heading,
+    ),
+    [insertMarkdown]
   );
   const formatQuote = () => insertMarkdown(
     MARKDOWN_INSERT_TOKENS.quote[0],
@@ -199,15 +214,21 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     MARKDOWN_INSERT_TOKENS.numbered[1],
     MARKDOWN_INSERT_DEFAULTS.listItem,
   );
-  const formatLink = () => insertMarkdown(
-    MARKDOWN_INSERT_TOKENS.link[0],
-    MARKDOWN_INSERT_TOKENS.link[1],
-    MARKDOWN_INSERT_DEFAULTS.linkText,
+  const formatLink = useCallback(
+    () => insertMarkdown(
+      MARKDOWN_INSERT_TOKENS.link[0],
+      MARKDOWN_INSERT_TOKENS.link[1],
+      MARKDOWN_INSERT_DEFAULTS.linkText,
+    ),
+    [insertMarkdown]
   );
-  const formatTable = () => insertMarkdown(
-    MARKDOWN_INSERT_TOKENS.table[0],
-    MARKDOWN_INSERT_TOKENS.table[1],
-    MARKDOWN_INSERT_DEFAULTS.table,
+  const formatTable = useCallback(
+    () => insertMarkdown(
+      MARKDOWN_INSERT_TOKENS.table[0],
+      MARKDOWN_INSERT_TOKENS.table[1],
+      MARKDOWN_INSERT_DEFAULTS.table,
+    ),
+    [insertMarkdown]
   );
   const formatTaskList = useCallback(() => {
     if (!editorRef.current?.view) return;
@@ -272,15 +293,21 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
     });
     view.focus();
   }, []);
-  const formatHighlight = () => insertMarkdown(
-    MARKDOWN_INSERT_TOKENS.highlight[0],
-    MARKDOWN_INSERT_TOKENS.highlight[1],
-    MARKDOWN_INSERT_DEFAULTS.highlight,
+  const formatHighlight = useCallback(
+    () => insertMarkdown(
+      MARKDOWN_INSERT_TOKENS.highlight[0],
+      MARKDOWN_INSERT_TOKENS.highlight[1],
+      MARKDOWN_INSERT_DEFAULTS.highlight,
+    ),
+    [insertMarkdown]
   );
-  const formatDefinitionList = () => insertMarkdown(
-    MARKDOWN_INSERT_TOKENS.definitionList[0],
-    MARKDOWN_INSERT_TOKENS.definitionList[1],
-    MARKDOWN_INSERT_DEFAULTS.definitionList,
+  const formatDefinitionList = useCallback(
+    () => insertMarkdown(
+      MARKDOWN_INSERT_TOKENS.definitionList[0],
+      MARKDOWN_INSERT_TOKENS.definitionList[1],
+      MARKDOWN_INSERT_DEFAULTS.definitionList,
+    ),
+    [insertMarkdown]
   );
   const formatFootnote = useCallback(() => {
     if (!editorRef.current?.view) return;

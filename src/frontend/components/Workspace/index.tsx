@@ -25,6 +25,7 @@ import { startS3AutoSync } from '../../utils/s3AutoSync';
 import { WORKSPACE_TEXT } from './constants';
 import {
   rootSx,
+  topAppBarSx,
   saveStatusRowSx,
   statusChipSx,
   saveMessageSx,
@@ -57,6 +58,12 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveMessage, setSaveMessage] = useState<string>('');
   const autosaveTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const statusTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const unrefTimeout = (timer: NodeJS.Timeout | null) => {
+    if (timer && typeof (timer as any).unref === 'function') {
+      (timer as any).unref();
+    }
+  };
   const s3AutoSyncCleanupRef = React.useRef<(() => void) | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(300);
   const [isResizing, setIsResizing] = useState(false);
@@ -72,9 +79,69 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
   const headerTitle = buildHeaderTitle(activeProfileName, appVersion);
 
+  const setTransientStatus = React.useCallback(
+    (status: 'idle' | 'saving' | 'saved' | 'error', message: string, timeoutMs = 3000) => {
+      if (statusTimerRef.current) {
+        clearTimeout(statusTimerRef.current);
+      }
+      setSaveStatus(status);
+      setSaveMessage(message);
+      if (timeoutMs > 0) {
+        statusTimerRef.current = setTimeout(() => {
+          setSaveStatus('idle');
+          setSaveMessage('');
+          statusTimerRef.current = null;
+        }, timeoutMs);
+        unrefTimeout(statusTimerRef.current);
+      }
+    },
+    []
+  );
+
+  const loadWorkspace = React.useCallback(async () => {
+    try {
+      // Load file tree
+      const treeResponse = await window.notegitApi.files.listTree();
+      if (treeResponse.ok && treeResponse.data) {
+        setTree(treeResponse.data);
+      }
+
+      // Load repo status
+      const statusResponse = await window.notegitApi.repo.getStatus();
+      if (statusResponse.ok && statusResponse.data) {
+        setRepoStatus(statusResponse.data);
+      }
+
+      // Get repo path and profile info from config
+      const configResponse = await window.notegitApi.config.getFull();
+      if (configResponse.ok && configResponse.data) {
+        const configData = configResponse.data;
+        setAppSettings(configData.appSettings);
+        if (configData.repoSettings?.localPath) {
+          setRepoPath(configData.repoSettings.localPath);
+        }
+
+        // Get active profile name
+        if (configData.activeProfileId && configData.profiles) {
+          const activeProfile = configData.profiles.find(
+            p => p.id === configData.activeProfileId
+          );
+          if (activeProfile) {
+            setActiveProfileName(activeProfile.name);
+          }
+        }
+      }
+
+      // Set app version from package.json
+      setAppVersion(versionInfo.version);
+    } catch (error) {
+      setTransientStatus('error', 'Failed to load workspace', 5000);
+    }
+  }, [setTransientStatus]);
+
   useEffect(() => {
     loadWorkspace();
-  }, [shortcutHelperRef]);
+  }, [loadWorkspace]);
 
   useEffect(() => {
     if (!isS3Repo || !appSettings) {
@@ -138,24 +205,18 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         if (statusResponse.ok && statusResponse.data) {
           setRepoStatus(statusResponse.data);
         }
-
-        setTimeout(() => {
-          if (!isAutosave) {
-            setSaveStatus('idle');
-            setSaveMessage('');
-          }
-        }, 2000);
+        if (!isAutosave) {
+          setTransientStatus('saved', 'Saved locally', 2000);
+        } else {
+          setSaveStatus('saved');
+        }
       } else {
-        setSaveStatus('error');
-        setSaveMessage(response.error?.message || 'Failed to save file');
-        console.error('Failed to save file:', response.error);
+        setTransientStatus('error', response.error?.message || 'Failed to save file', 5000);
       }
     } catch (error: any) {
-      setSaveStatus('error');
-      setSaveMessage(error.message || 'Failed to save file');
-      console.error('Failed to save file:', error);
+      setTransientStatus('error', error.message || 'Failed to save file', 5000);
     }
-  }, [selectedFile]);
+  }, [selectedFile, setTransientStatus]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -179,16 +240,16 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   }, []);
 
   useEffect(() => {
-    if (hasUnsavedChanges && selectedFile && editorContent) {
-      if (autosaveTimerRef.current) {
-        clearTimeout(autosaveTimerRef.current);
-      }
+      if (hasUnsavedChanges && selectedFile && editorContent) {
+        if (autosaveTimerRef.current) {
+          clearTimeout(autosaveTimerRef.current);
+        }
 
-      autosaveTimerRef.current = setTimeout(() => {
-        console.log('Autosave triggered');
-        handleSaveFile(editorContent, true);
-      }, 300000); // 5 minutes
-    }
+        autosaveTimerRef.current = setTimeout(() => {
+          handleSaveFile(editorContent, true);
+        }, 300000); // 5 minutes
+        unrefTimeout(autosaveTimerRef.current);
+      }
 
     return () => {
       if (autosaveTimerRef.current) {
@@ -212,46 +273,9 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges, selectedFile, editorContent, handleSaveFile]);
 
-  const loadWorkspace = async () => {
-    try {
-      // Load file tree
-      const treeResponse = await window.notegitApi.files.listTree();
-      if (treeResponse.ok && treeResponse.data) {
-        setTree(treeResponse.data);
-      }
+  // loadWorkspace moved to useCallback above
 
-      // Load repo status
-      const statusResponse = await window.notegitApi.repo.getStatus();
-      if (statusResponse.ok && statusResponse.data) {
-        setRepoStatus(statusResponse.data);
-      }
-
-      // Get repo path and profile info from config
-      const configResponse = await window.notegitApi.config.getFull();
-      if (configResponse.ok && configResponse.data) {
-        const configData = configResponse.data;
-        setAppSettings(configData.appSettings);
-        if (configData.repoSettings?.localPath) {
-          setRepoPath(configData.repoSettings.localPath);
-        }
-
-        // Get active profile name
-        if (configData.activeProfileId && configData.profiles) {
-          const activeProfile = configData.profiles.find(
-            p => p.id === configData.activeProfileId
-          );
-          if (activeProfile) {
-            setActiveProfileName(activeProfile.name);
-          }
-        }
-      }
-
-      // Set app version from package.json
-        setAppVersion(versionInfo.version);
-    } catch (error) {
-      console.error('Failed to load workspace:', error);
-    }
-  };
+  // setTransientStatus moved above loadWorkspace
 
   const handleSelectFile = async (path: string, type: 'file' | 'folder') => {
     if (type === 'folder') return;
@@ -282,11 +306,11 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           setEditorContent(response.data.content);
           setHasUnsavedChanges(false);
         } else {
-          console.error('Failed to read file:', response.error);
+          setTransientStatus('error', response.error?.message || 'Failed to read file', 5000);
         }
       }
     } catch (error) {
-      console.error('Failed to read file:', error);
+      setTransientStatus('error', 'Failed to read file', 5000);
     }
   };
 
@@ -303,7 +327,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     try {
       const response = await window.notegitApi.repo.pull();
       if (response.ok) {
-        console.log('Pull successful');
+        setTransientStatus('saved', 'Pull successful', 2000);
         await loadWorkspace();
         if (selectedFile) {
           const fileResponse = await window.notegitApi.files.read(selectedFile);
@@ -312,10 +336,10 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           }
         }
       } else {
-        console.error('Failed to pull:', response.error);
+        setTransientStatus('error', response.error?.message || 'Failed to pull', 5000);
       }
     } catch (error) {
-      console.error('Failed to pull:', error);
+      setTransientStatus('error', 'Failed to pull', 5000);
     }
   };
 
@@ -324,12 +348,16 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       const response = await window.notegitApi.repo.fetch();
       if (response.ok && response.data) {
         setRepoStatus(response.data);
-        console.log('Fetch successful', response.data);
+        setTransientStatus('saved', 'Fetch successful', 2000);
+        if (s3AutoSyncCleanupRef.current && response.data.provider !== 's3') {
+          s3AutoSyncCleanupRef.current();
+          s3AutoSyncCleanupRef.current = null;
+        }
       } else {
-        console.error('Failed to fetch:', response.error);
+        setTransientStatus('error', response.error?.message || 'Failed to fetch', 5000);
       }
     } catch (error) {
-      console.error('Failed to fetch:', error);
+      setTransientStatus('error', 'Failed to fetch', 5000);
     }
   };
 
@@ -337,7 +365,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     try {
       const response = await window.notegitApi.repo.push();
       if (response.ok) {
-        console.log('Push successful');
+        setTransientStatus('saved', 'Push successful', 2000);
         if (isS3Repo) {
           await loadWorkspace();
           if (selectedFile) {
@@ -352,159 +380,126 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           setRepoStatus(statusResponse.data);
         }
       } else {
-        console.error('Failed to push:', response.error);
+        setTransientStatus('error', response.error?.message || 'Failed to push', 5000);
       }
     } catch (error) {
-      console.error('Failed to push:', error);
+      setTransientStatus('error', 'Failed to push', 5000);
     }
   };
 
   const handleCreateFile = async (parentPath: string, fileName: string) => {
-    try {
-      const response = await window.notegitApi.files.create(parentPath, fileName);
-      if (response.ok) {
-        console.log('File created successfully');
+    const response = await window.notegitApi.files.create(parentPath, fileName);
+    if (response.ok) {
+      const newFilePath = parentPath ? `${parentPath}/${fileName}` : fileName;
 
-        const newFilePath = parentPath ? `${parentPath}/${fileName}` : fileName;
-
-        const treeResponse = await window.notegitApi.files.listTree();
-        if (treeResponse.ok && treeResponse.data) {
-          setTree(treeResponse.data);
-        }
-
-        await handleSelectFile(newFilePath, 'file');
-      } else {
-        console.error('Failed to create file:', response.error);
-        throw new Error(response.error?.message || 'Failed to create file');
+      const treeResponse = await window.notegitApi.files.listTree();
+      if (treeResponse.ok && treeResponse.data) {
+        setTree(treeResponse.data);
       }
-    } catch (error) {
-      console.error('Failed to create file:', error);
-      throw error;
+
+      await handleSelectFile(newFilePath, 'file');
+      return;
     }
+
+    throw new Error(response.error?.message || 'Failed to create file');
   };
 
   const handleCreateFolder = async (parentPath: string, folderName: string) => {
-    try {
-      const response = await window.notegitApi.files.createFolder(parentPath, folderName);
-      if (response.ok) {
-        console.log('Folder created successfully');
-        const treeResponse = await window.notegitApi.files.listTree();
-        if (treeResponse.ok && treeResponse.data) {
-          setTree(treeResponse.data);
-        }
-      } else {
-        console.error('Failed to create folder:', response.error);
-        throw new Error(response.error?.message || 'Failed to create folder');
+    const response = await window.notegitApi.files.createFolder(parentPath, folderName);
+    if (response.ok) {
+      const treeResponse = await window.notegitApi.files.listTree();
+      if (treeResponse.ok && treeResponse.data) {
+        setTree(treeResponse.data);
       }
-    } catch (error) {
-      console.error('Failed to create folder:', error);
-      throw error;
+      return;
     }
+
+    throw new Error(response.error?.message || 'Failed to create folder');
   };
 
   const handleDelete = async (path: string) => {
-    try {
-      const response = await window.notegitApi.files.delete(path);
-      if (response.ok) {
-        console.log('Deleted successfully');
-        if (selectedFile === path) {
-          setSelectedFile(null);
-          setFileContent(null);
-        }
-        const treeResponse = await window.notegitApi.files.listTree();
-        if (treeResponse.ok && treeResponse.data) {
-          setTree(treeResponse.data);
-        }
-        const statusResponse = await window.notegitApi.repo.getStatus();
-        if (statusResponse.ok && statusResponse.data) {
-          setRepoStatus(statusResponse.data);
-        }
-      } else {
-        console.error('Failed to delete:', response.error);
-        throw new Error(response.error?.message || 'Failed to delete');
+    const response = await window.notegitApi.files.delete(path);
+    if (response.ok) {
+      if (selectedFile === path) {
+        setSelectedFile(null);
+        setFileContent(null);
       }
-    } catch (error) {
-      console.error('Failed to delete:', error);
-      throw error;
+      const treeResponse = await window.notegitApi.files.listTree();
+      if (treeResponse.ok && treeResponse.data) {
+        setTree(treeResponse.data);
+      }
+      const statusResponse = await window.notegitApi.repo.getStatus();
+      if (statusResponse.ok && statusResponse.data) {
+        setRepoStatus(statusResponse.data);
+      }
+      return;
     }
+
+    throw new Error(response.error?.message || 'Failed to delete');
   };
 
   const handleRename = async (oldPath: string, newPath: string) => {
-    try {
-      const response = await window.notegitApi.files.rename(oldPath, newPath);
-      if (response.ok) {
-        console.log('Renamed/moved successfully');
-
-        if (selectedFile === oldPath) {
-          setSelectedFile(newPath);
-          if (fileContent) {
-            setFileContent({
-              ...fileContent,
-              path: newPath,
-            });
-          }
+    const response = await window.notegitApi.files.rename(oldPath, newPath);
+    if (response.ok) {
+      if (selectedFile === oldPath) {
+        setSelectedFile(newPath);
+        if (fileContent) {
+          setFileContent({
+            ...fileContent,
+            path: newPath,
+          });
         }
-        else if (selectedFile && selectedFile.startsWith(oldPath + '/')) {
-          const newSelectedPath = selectedFile.replace(oldPath + '/', newPath + '/');
-          setSelectedFile(newSelectedPath);
-          if (fileContent) {
-            setFileContent({
-              ...fileContent,
-              path: newSelectedPath,
-            });
-          }
-        }
-
-        if (!isS3Repo) {
-          try {
-            await window.notegitApi.files.commitAll(
-              `Move: ${oldPath} -> ${newPath}`
-            );
-            console.log('Move committed successfully');
-          } catch (commitError) {
-            console.warn('Failed to auto-commit move:', commitError);
-          }
-        }
-
-        const treeResponse = await window.notegitApi.files.listTree();
-        if (treeResponse.ok && treeResponse.data) {
-          setTree(treeResponse.data);
-        }
-        const statusResponse = await window.notegitApi.repo.getStatus();
-        if (statusResponse.ok && statusResponse.data) {
-          setRepoStatus(statusResponse.data);
-        }
-      } else {
-        console.error('Failed to rename:', response.error);
-        throw new Error(response.error?.message || 'Failed to rename');
       }
-    } catch (error) {
-      console.error('Failed to rename:', error);
-      throw error;
+      else if (selectedFile && selectedFile.startsWith(oldPath + '/')) {
+        const newSelectedPath = selectedFile.replace(oldPath + '/', newPath + '/');
+        setSelectedFile(newSelectedPath);
+        if (fileContent) {
+          setFileContent({
+            ...fileContent,
+            path: newSelectedPath,
+          });
+        }
+      }
+
+      if (!isS3Repo) {
+        try {
+          await window.notegitApi.files.commitAll(
+            `Move: ${oldPath} -> ${newPath}`
+          );
+        } catch (commitError) {
+          setTransientStatus('error', 'Failed to auto-commit move', 5000);
+        }
+      }
+
+      const treeResponse = await window.notegitApi.files.listTree();
+      if (treeResponse.ok && treeResponse.data) {
+        setTree(treeResponse.data);
+      }
+      const statusResponse = await window.notegitApi.repo.getStatus();
+      if (statusResponse.ok && statusResponse.data) {
+        setRepoStatus(statusResponse.data);
+      }
+      return;
     }
+
+    throw new Error(response.error?.message || 'Failed to rename');
   };
 
   const handleImport = async (sourcePath: string, targetPath: string) => {
-    try {
-      const response = await window.notegitApi.files.import(sourcePath, targetPath);
-      if (response.ok) {
-        console.log('File imported successfully');
-        const treeResponse = await window.notegitApi.files.listTree();
-        if (treeResponse.ok && treeResponse.data) {
-          setTree(treeResponse.data);
-        }
-        const statusResponse = await window.notegitApi.repo.getStatus();
-        if (statusResponse.ok && statusResponse.data) {
-          setRepoStatus(statusResponse.data);
-        }
-      } else {
-        console.error('Failed to import file:', response.error);
-        throw new Error(response.error?.message || 'Failed to import file');
+    const response = await window.notegitApi.files.import(sourcePath, targetPath);
+    if (response.ok) {
+      const treeResponse = await window.notegitApi.files.listTree();
+      if (treeResponse.ok && treeResponse.data) {
+        setTree(treeResponse.data);
       }
-    } catch (error) {
-      console.error('Failed to import file:', error);
-      throw error;
+      const statusResponse = await window.notegitApi.repo.getStatus();
+      if (statusResponse.ok && statusResponse.data) {
+        setRepoStatus(statusResponse.data);
+      }
+      return;
     }
+
+    throw new Error(response.error?.message || 'Failed to import file');
   };
 
   const handleEditorChange = (content: string, hasChanges: boolean) => {
@@ -545,7 +540,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         } else {
           setSaveStatus('error');
           setSaveMessage(response.error?.message || 'Failed to sync');
-          console.error('Failed to sync:', response.error);
         }
       } else {
         const response = await window.notegitApi.files.commitAndPushAll();
@@ -561,7 +555,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         } else {
           setSaveStatus('error');
           setSaveMessage(response.error?.message || 'Failed to commit and push');
-          console.error('Failed to commit and push:', response.error);
         }
       }
 
@@ -577,7 +570,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     } catch (error: any) {
       setSaveStatus('error');
       setSaveMessage(error.message || (isS3Repo ? 'Failed to sync' : 'Failed to commit and push'));
-      console.error(isS3Repo ? 'Failed to sync:' : 'Failed to commit and push:', error);
 
       setTimeout(() => {
         setSaveStatus('idle');
@@ -590,9 +582,8 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     await handleSelectFile(filePath, 'file');
   };
 
-  const handleSelectMatchFromRepoSearch = async (filePath: string, lineNumber: number) => {
+  const handleSelectMatchFromRepoSearch = async (filePath: string, _lineNumber: number) => {
     await handleSelectFile(filePath, 'file');
-    console.log(`Opening ${filePath} at line ${lineNumber}`);
   };
 
   const handleViewVersion = (commitHash: string, commitMessage: string) => {
@@ -639,9 +630,22 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
     };
   }, [isResizing]);
 
+  useEffect(() => {
+    return () => {
+      if (statusTimerRef.current) {
+        clearTimeout(statusTimerRef.current);
+        statusTimerRef.current = null;
+      }
+      if (autosaveTimerRef.current) {
+        clearTimeout(autosaveTimerRef.current);
+        autosaveTimerRef.current = null;
+      }
+    };
+  }, []);
+
   return (
     <Box sx={rootSx}>
-      <AppBar position="static" color="default" elevation={1}>
+      <AppBar position="static" color="default" elevation={1} sx={topAppBarSx}>
         <Toolbar variant="dense">
           <Typography variant="h6" component="div">
             {headerTitle}
@@ -678,6 +682,22 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
                   {saveMessage}
                 </Typography>
               )}
+              <Typography
+                variant="caption"
+                sx={{
+                  position: 'absolute',
+                  width: 1,
+                  height: 1,
+                  overflow: 'hidden',
+                  clip: 'rect(1px, 1px, 1px, 1px)',
+                }}
+              >
+                {`${saveStatus === 'error'
+                  ? WORKSPACE_TEXT.errorLabel
+                  : saveStatus === 'saved'
+                  ? WORKSPACE_TEXT.savedLabel
+                  : WORKSPACE_TEXT.savingLabel} ${saveMessage || ''}`}
+              </Typography>
             </Box>
           )}
 

@@ -18,9 +18,20 @@ function App() {
       ? (prefersDarkMode ? 'dark' : 'light')
       : themeMode;
       
+    const lightBackground = {
+      default: '#f5f6f8',
+      paper: '#eef0f3',
+    };
+
     return createTheme({
       palette: {
         mode,
+        ...(mode === 'light'
+          ? {
+              background: lightBackground,
+              divider: '#d7dbe2',
+            }
+          : {}),
       },
     });
   }, [themeMode, prefersDarkMode]);
@@ -182,4 +193,3 @@ function App() {
 }
 
 export default App;
-

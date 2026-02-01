@@ -2,6 +2,12 @@ import type { SxProps, Theme } from '@mui/material/styles';
 
 export const rootSx: SxProps<Theme> = { height: '100vh', display: 'flex', flexDirection: 'column' };
 
+export const topAppBarSx: SxProps<Theme> = {
+  bgcolor: (theme) => (theme.palette.mode === 'light' ? '#e6e9ee' : 'background.paper'),
+  borderBottom: 1,
+  borderColor: 'divider',
+};
+
 export const saveStatusRowSx: SxProps<Theme> = {
   ml: 2,
   display: 'flex',

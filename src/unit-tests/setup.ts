@@ -22,7 +22,6 @@ Object.defineProperty(global, 'window', {
 
 const originalConsoleError = console.error;
 console.error = (...args: any[]) => {
-
   const stringArgs = args.filter((arg) => typeof arg === 'string') as string[];
   const combined = stringArgs.join(' ');
   if (

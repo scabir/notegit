@@ -77,7 +77,7 @@ export const previewPaperSx = (isDark: boolean): SxProps<Theme> => ({
 
 export const codeMirrorContainerSx = (isDark: boolean): SxProps<Theme> => ({
   height: '100%',
-  bgcolor: isDark ? '#0d1117' : '#fff',
+  bgcolor: isDark ? '#0d1117' : '#f1f3f6',
 });
 
 export const dialogActionsSx: SxProps<Theme> = { px: 3, py: 2 };

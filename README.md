@@ -2,7 +2,7 @@
 
 A Git- or S3-backed Markdown note-taking desktop app built with Electron and React.
 
-**Version**: 2.2.1  
+**Version**: 2.2.2  
 **License**: MIT
 
 ## Overview

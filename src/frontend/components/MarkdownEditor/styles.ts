@@ -43,7 +43,7 @@ export const editorPaneSx = (
 ): SxProps<Theme> => ({
   width: viewMode === 'split' ? `${editorWidth}%` : '100%',
   overflow: 'auto',
-  bgcolor: isDark ? '#0d1117' : '#fff',
+  bgcolor: isDark ? '#0d1117' : '#f1f3f6',
   transition: viewMode === 'split' ? 'none' : 'width 0.3s ease',
 });
 

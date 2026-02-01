@@ -37,4 +37,20 @@ export function registerLogsHandlers(ipcMain: IpcMain, logsService: LogsService)
             };
         }
     });
+
+    ipcMain.handle('logs:getFolder', async (): Promise<ApiResponse<string>> => {
+        try {
+            return { ok: true, data: logsService.getLogsDirectory() };
+        } catch (error: any) {
+            logger.error('Failed to get logs folder', { error });
+            return {
+                ok: false,
+                error: {
+                    code: error.code || 'UNKNOWN_ERROR',
+                    message: error.message || 'Failed to get logs folder',
+                    details: error,
+                },
+            };
+        }
+    });
 }

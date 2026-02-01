@@ -14,11 +14,8 @@ export class LogsService {
 
     async getLogContent(logType: 'combined' | 'error'): Promise<string> {
         try {
-            const logFilePath = this.getLogFilePath(logType);
-
-            try {
-                await fs.access(logFilePath);
-            } catch {
+            const logFilePath = await this.getLatestLogFilePath(logType);
+            if (!logFilePath) {
                 return `No ${logType} logs yet.`;
             }
 
@@ -35,18 +32,40 @@ export class LogsService {
         }
     }
 
-    getLogFilePath(logType: 'combined' | 'error'): string {
-        const fileName = logType === 'combined' ? 'combined.log' : 'error.log';
-        return path.join(this.logsDir, fileName);
+    getLogsDirectory(): string {
+        return this.logsDir;
+    }
+
+    private getLogFilePrefix(logType: 'combined' | 'error'): string {
+        return logType === 'combined' ? 'combined-' : 'error-';
+    }
+
+    private async getLatestLogFilePath(logType: 'combined' | 'error'): Promise<string | null> {
+        try {
+            const entries = await fs.readdir(this.logsDir);
+            const prefix = this.getLogFilePrefix(logType);
+            const candidates = entries
+                .filter((name) => name.startsWith(prefix) && name.endsWith('.log'))
+                .sort();
+
+            if (candidates.length === 0) {
+                return null;
+            }
+
+            const latest = candidates[candidates.length - 1];
+            return path.join(this.logsDir, latest);
+        } catch (error: any) {
+            if (error?.code === 'ENOENT') {
+                return null;
+            }
+            throw error;
+        }
     }
 
     async exportLogs(logType: 'combined' | 'error', destPath: string): Promise<void> {
         try {
-            const logFilePath = this.getLogFilePath(logType);
-
-            try {
-                await fs.access(logFilePath);
-            } catch {
+            const logFilePath = await this.getLatestLogFilePath(logType);
+            if (!logFilePath) {
                 throw this.createError(
                     ApiErrorCode.FS_NOT_FOUND,
                     `Log file not found: ${logType}`,
@@ -59,6 +78,9 @@ export class LogsService {
             logger.info('Logs exported successfully', { logType, destPath });
         } catch (error: any) {
             logger.error('Failed to export logs', { logType, destPath, error });
+            if (error?.code === ApiErrorCode.FS_NOT_FOUND) {
+                throw error;
+            }
             throw this.createError(
                 ApiErrorCode.UNKNOWN_ERROR,
                 `Failed to export ${logType} log: ${error.message}`,
