@@ -7,6 +7,7 @@ export const treeContainerSx: SxProps<Theme> = {
   overflow: 'auto',
   p: 1,
   position: 'relative',
+  bgcolor: (theme) => (theme.palette.mode === 'light' ? '#eef0f3' : 'background.paper'),
 };
 
 export const treeItemLabelSx: SxProps<Theme> = {

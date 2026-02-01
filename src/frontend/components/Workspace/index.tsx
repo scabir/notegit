@@ -25,6 +25,7 @@ import { startS3AutoSync } from '../../utils/s3AutoSync';
 import { WORKSPACE_TEXT } from './constants';
 import {
   rootSx,
+  topAppBarSx,
   saveStatusRowSx,
   statusChipSx,
   saveMessageSx,
@@ -641,7 +642,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
   return (
     <Box sx={rootSx}>
-      <AppBar position="static" color="default" elevation={1}>
+      <AppBar position="static" color="default" elevation={1} sx={topAppBarSx}>
         <Toolbar variant="dense">
           <Typography variant="h6" component="div">
             {headerTitle}
