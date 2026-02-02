@@ -17,9 +17,12 @@ export const topAppBarSx: SxProps<Theme> = {
 export const toolbarSx: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
-  flexWrap: 'wrap',
-  gap: 1,
+  flexWrap: 'nowrap',
+  gap: 0.5,
   minWidth: 0,
+  width: '100%',
+  boxSizing: 'border-box',
+  overflow: 'hidden',
 };
 
 export const titleSx: SxProps<Theme> = {
@@ -37,6 +40,7 @@ export const saveStatusRowSx: SxProps<Theme> = {
   gap: 1,
   flexShrink: 1,
   minWidth: 0,
+  maxWidth: '50%',
 };
 
 export const statusChipSx: SxProps<Theme> = { height: 24 };
