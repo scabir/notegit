@@ -202,8 +202,9 @@ describe('Workspace', () => {
   });
 
   it('loads workspace data and passes props to child components', async () => {
+    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      TestRenderer.create(
+      renderer = TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -230,6 +231,7 @@ describe('Workspace', () => {
   });
 
   it('loads a selected markdown file into the markdown editor', async () => {
+    let renderer: TestRenderer.ReactTestRenderer;
     const readFile = jest.fn().mockResolvedValue({
       ok: true,
       data: {
@@ -241,7 +243,7 @@ describe('Workspace', () => {
     (global as any).window.notegitApi.files.read = readFile;
 
     await act(async () => {
-      TestRenderer.create(
+      renderer = TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
