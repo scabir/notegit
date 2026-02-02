@@ -137,6 +137,7 @@ describe('FileTreeView toolbar actions', () => {
           onCreateFolder: jest.fn(),
           onDelete: jest.fn(),
           onRename: jest.fn(),
+          onDuplicate: jest.fn(),
           onImport: jest.fn(),
           isS3Repo: false,
           ...overrides,
@@ -451,6 +452,20 @@ describe('FileTreeView toolbar actions', () => {
       await act(async () => deleteMenuItem.props.onClick());
 
       expect(onDelete).toHaveBeenCalledWith('folder/note.md');
+    });
+
+    it('duplicates file via context menu', async () => {
+      const onDuplicate = jest.fn().mockResolvedValue('folder/note(1).md');
+      const renderer = createTreeRenderer({ onDuplicate });
+      openTreeContextMenu(renderer, 'folder/note.md');
+
+      const duplicateMenuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-duplicate'
+      );
+
+      await act(async () => duplicateMenuItem.props.onClick());
+
+      expect(onDuplicate).toHaveBeenCalledWith('folder/note.md');
     });
   });
 

@@ -83,6 +83,7 @@ const getTooltipButton = (renderer: TestRenderer.ReactTestRenderer, title: strin
 
 describe('Workspace', () => {
   beforeEach(() => {
+    jest.useRealTimers();
     FileTreeViewMock.mockClear();
     MarkdownEditorMock.mockClear();
     TextEditorMock.mockClear();
@@ -132,6 +133,7 @@ describe('Workspace', () => {
           createFolder: jest.fn(),
           delete: jest.fn(),
           rename: jest.fn(),
+          duplicate: jest.fn().mockResolvedValue({ ok: true, data: 'note(1).md' }),
           import: jest.fn(),
           commitAll: jest.fn(),
           commitAndPushAll: jest.fn(),
@@ -200,9 +202,8 @@ describe('Workspace', () => {
   });
 
   it('loads workspace data and passes props to child components', async () => {
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -239,9 +240,8 @@ describe('Workspace', () => {
     });
     (global as any).window.notegitApi.files.read = readFile;
 
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -307,6 +307,94 @@ describe('Workspace', () => {
 
     expect((global as any).window.notegitApi.files.create).toHaveBeenCalledWith('', 'new.md');
     expect((global as any).window.notegitApi.files.delete).toHaveBeenCalledWith('note.md');
+  });
+
+  it('duplicates a file and selects the copy', async () => {
+    (global as any).window.notegitApi.files.listTree = jest.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        data: [
+          {
+            id: 'note.md',
+            name: 'note.md',
+            path: 'note.md',
+            type: 'file',
+            fileType: FileType.MARKDOWN,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        data: [
+          {
+            id: 'note.md',
+            name: 'note.md',
+            path: 'note.md',
+            type: 'file',
+            fileType: FileType.MARKDOWN,
+          },
+          {
+            id: 'note(1).md',
+            name: 'note(1).md',
+            path: 'note(1).md',
+            type: 'file',
+            fileType: FileType.MARKDOWN,
+          },
+        ],
+      });
+
+    (global as any).window.notegitApi.files.read = jest.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        data: {
+          path: 'note.md',
+          content: '# Note',
+          type: FileType.MARKDOWN,
+        },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        data: {
+          path: 'note(1).md',
+          content: '# Copy',
+          type: FileType.MARKDOWN,
+        },
+      });
+
+    (global as any).window.notegitApi.files.duplicate = jest.fn().mockResolvedValue({
+      ok: true,
+      data: 'note(1).md',
+    });
+
+    await act(async () => {
+      TestRenderer.create(
+        React.createElement(Workspace, {
+          onThemeChange: jest.fn(),
+        })
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+      await flushPromises();
+    });
+
+    const fileTreeProps =
+      FileTreeViewMock.mock.calls[FileTreeViewMock.mock.calls.length - 1]?.[0];
+
+    await act(async () => {
+      await fileTreeProps.onSelectFile('note.md', 'file');
+      await flushPromises();
+    });
+
+    await act(async () => {
+      await fileTreeProps.onDuplicate('note.md');
+      await flushPromises();
+    });
+
+    expect((global as any).window.notegitApi.files.duplicate).toHaveBeenCalledWith('note.md');
+    const mdProps = MarkdownEditorMock.mock.calls[MarkdownEditorMock.mock.calls.length - 1]?.[0];
+    expect(mdProps.file?.path).toBe('note(1).md');
   });
 
   it('commits and pushes on git repos', async () => {

@@ -10,6 +10,7 @@ import {
   StarBorder as FavoriteBorderIcon,
   Star as FavoriteIcon,
   NoteAdd as NoteAddIcon,
+  ContentCopy as DuplicateIcon,
 } from '@mui/icons-material';
 import { MoveToFolderDialog } from '../MoveToFolderDialog';
 import type { FileTreeNode } from '../../../shared/types';
@@ -35,6 +36,7 @@ export function FileTreeView({
   onCreateFolder,
   onDelete,
   onRename,
+  onDuplicate,
   onImport,
   isS3Repo,
 }: FileTreeViewProps) {
@@ -430,6 +432,11 @@ export function FileTreeView({
     onMove: handleOpenMoveDialog,
     onToggleFavorite: toggleFavorite,
     onDelete: handleDelete,
+    onDuplicate: onDuplicate
+      ? async (node) => {
+          await onDuplicate(node.path);
+        }
+      : undefined,
     onContextMenuOpen: handleCloseFavoriteMenu,
   });
 
@@ -441,6 +448,10 @@ export function FileTreeView({
     handleOpenRenameDialog,
     handleOpenMoveDialog,
     handleToggleFavorite: toggleFavorite,
+    handleDuplicate:
+      onDuplicate && selectedNodeForActions && selectedNodeForActions.type === 'file'
+        ? () => onDuplicate(selectedNodeForActions.path)
+        : undefined,
   });
   const getCreationLocationText = () => {
     if (!selectedNodeForActions) {
@@ -516,13 +527,21 @@ export function FileTreeView({
       action: () => handleTreeContextMenuAction('favorite', treeContextMenuNode),
       testId: 'tree-context-favorite',
     },
+    treeContextMenuNode?.type === 'file'
+      ? {
+          label: FILE_TREE_TEXT.duplicate,
+          icon: <DuplicateIcon fontSize="small" />,
+          action: () => handleTreeContextMenuAction('duplicate', treeContextMenuNode),
+          testId: 'tree-context-duplicate',
+        }
+      : null,
     {
       label: FILE_TREE_TEXT.delete,
       icon: <DeleteIcon fontSize="small" />,
       action: () => handleTreeContextMenuAction('delete', treeContextMenuNode),
       testId: 'tree-context-delete',
     },
-  ];
+  ].filter(Boolean) as ContextMenuItem[];
 
   return (
     <Box sx={rootSx}>

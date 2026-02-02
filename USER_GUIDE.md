@@ -2,7 +2,7 @@
 
 Complete guide to using notegit - your Git- and S3-backed markdown note-taking application.
 
-**Version**: 2.2.2  
+**Version**: 2.2.3  
 **Last Updated**: January 28, 2026
 
 ---
@@ -220,10 +220,11 @@ Click the question mark icon to the right of the **Settings** button in the top 
 |----------|--------|
 | `Ctrl/Cmd + A` | Add a new file (placed in the current folder or root) |
 | `Ctrl/Cmd + D` | Create a new folder inside the selected directory |
-| `Delete` | Remove the selected file or folder |
+| `Delete` / `Cmd + Delete` (mac) | Remove the selected file or folder |
 | `Ctrl/Cmd + I` | Import a file into the selected folder |
 | `Ctrl/Cmd + R` / `F2` | Rename the selected file or folder |
 | `Ctrl/Cmd + M` | Move the selected item to another folder via the picker |
+| `Ctrl/Cmd + Shift + U` | Duplicate the selected file in place |
 | `Ctrl/Cmd + Shift + S` | Toggle favorite on the selected item and surface it in the favorites bar |
 
 Right-click any file or folder in the tree to open a context menu that mirrors the toolbar actions (rename, move, favorite/unfavorite, delete) along with their icons; if nothing is selected, right-clicking the empty tree background still shows New File, New Folder, and Import options (also with icons).
@@ -321,7 +322,7 @@ Open an issue at [GitHub Issues](https://github.com/scabir/notegit/issues) with 
 
 ## About notegit
 
-**Version**: 2.2.2  
+**Version**: 2.2.3  
 **Author**: Suleyman Cabir Ataman, PhD  
 **GitHub**: [github.com/scabir/notegit](https://github.com/scabir/notegit)  
 **License**: MIT

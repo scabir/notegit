@@ -349,6 +349,31 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
   );
 
   ipcMain.handle(
+    'files:duplicate',
+    async (_event, repoPath: string): Promise<ApiResponse<string>> => {
+      try {
+        const duplicatedPath = await filesService.duplicateFile(repoPath);
+        return {
+          ok: true,
+          data: duplicatedPath,
+        };
+      } catch (error: any) {
+        logger.error('Failed to duplicate file', { repoPath, error });
+        return {
+          ok: false,
+          error: error.code
+            ? error
+            : {
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: error.message || 'Failed to duplicate file',
+                details: error,
+              },
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
     'files:import',
     async (_event, sourcePath: string, targetPath: string): Promise<ApiResponse<void>> => {
       try {

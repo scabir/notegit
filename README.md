@@ -2,7 +2,7 @@
 
 A Git- or S3-backed Markdown note-taking desktop app built with Electron and React.
 
-**Version**: 2.2.2  
+**Version**: 2.2.3  
 **License**: MIT
 
 ## Overview
@@ -27,16 +27,12 @@ A Git- or S3-backed Markdown note-taking desktop app built with Electron and Rea
 
 Prereqs: Node.js 18+, pnpm, Git (for Git repos), S3 credentials (for S3 repos).
 
-```bash
-pnpm install
-pnpm run dev
-```
+This is a single command does everything necessarry and runs. Divide and use it.
 
-Build and run:
+However, if you want to install it to your machine, check the setup procedures.
 
 ```bash
-pnpm run build
-pnpm start
+pnpm run clean && pnpm install  && pnpm run build && pnpm lint && pnpm test && pnpm start
 ```
 
 ## Docs

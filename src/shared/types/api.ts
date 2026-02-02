@@ -94,6 +94,7 @@ export interface NotegitApi {
     delete: (path: string) => Promise<ApiResponse<void>>;
     rename: (oldPath: string, newPath: string) => Promise<ApiResponse<void>>;
     saveAs: (repoPath: string, destPath: string) => Promise<ApiResponse<void>>;
+    duplicate: (repoPath: string) => Promise<ApiResponse<string>>;
     import: (sourcePath: string, targetPath: string) => Promise<ApiResponse<void>>;
   };
   dialog: {

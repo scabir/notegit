@@ -9,6 +9,7 @@ export interface FileTreeViewProps {
   onCreateFolder: (parentPath: string, folderName: string) => Promise<void>;
   onDelete: (path: string) => Promise<void>;
   onRename: (oldPath: string, newPath: string) => Promise<void>;
+  onDuplicate?: (path: string) => Promise<string | void>;
   onImport: (sourcePath: string, targetPath: string) => Promise<void>;
   isS3Repo: boolean;
 }

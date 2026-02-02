@@ -4,6 +4,7 @@ import { ConfigService } from '../../../backend/services/ConfigService';
 import { GitAdapter } from '../../../backend/adapters/GitAdapter';
 import { FileType, AuthMethod, ApiErrorCode } from '../../../shared/types';
 import { Stats } from 'fs';
+import * as path from 'path';
 
 jest.mock('../../../backend/adapters/FsAdapter');
 jest.mock('../../../backend/services/ConfigService');
@@ -687,6 +688,36 @@ describe('FilesService', () => {
         '/source/file.txt',
         '/repo/folder/my-file.txt'
       );
+    });
+  });
+
+  describe('duplicateFile', () => {
+    beforeEach(async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: 'git',
+        localPath: '/repo',
+        remoteUrl: 'url',
+        branch: 'main',
+        pat: 'token',
+        authMethod: AuthMethod.PAT,
+      });
+      await filesService.init();
+    });
+
+    it('duplicates with incremented name', async () => {
+      mockFsAdapter.stat.mockResolvedValue({ isFile: () => true } as any);
+      mockFsAdapter.exists.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+      mockFsAdapter.copyFile.mockResolvedValue(undefined);
+
+      const result = await filesService.duplicateFile('note.md');
+
+      expect(mockFsAdapter.copyFile).toHaveBeenCalledWith('/repo/note.md', '/repo/note(2).md');
+      expect(result).toBe(path.join('note(2).md'));
+    });
+
+    it('throws when source is not a file', async () => {
+      mockFsAdapter.stat.mockResolvedValue({ isFile: () => false } as any);
+      await expect(filesService.duplicateFile('folder')).rejects.toBeTruthy();
     });
   });
 
