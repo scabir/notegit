@@ -26,6 +26,7 @@ import { WORKSPACE_TEXT } from './constants';
 import {
   rootSx,
   topAppBarSx,
+  toolbarSx,
   saveStatusRowSx,
   statusChipSx,
   saveMessageSx,
@@ -34,6 +35,7 @@ import {
   sidebarSx,
   resizeHandleSx,
   editorPaneSx,
+  titleSx,
 } from './styles';
 import { buildHeaderTitle } from './utils';
 import type { WorkspaceProps } from './types';
@@ -678,8 +680,8 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   return (
     <Box sx={rootSx}>
       <AppBar position="static" color="default" elevation={1} sx={topAppBarSx}>
-        <Toolbar variant="dense">
-          <Typography variant="h6" component="div">
+        <Toolbar variant="dense" sx={toolbarSx}>
+          <Typography variant="h6" component="div" noWrap sx={titleSx}>
             {headerTitle}
           </Typography>
 

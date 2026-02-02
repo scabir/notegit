@@ -1,11 +1,36 @@
 import type { SxProps, Theme } from '@mui/material/styles';
 
-export const rootSx: SxProps<Theme> = { height: '100vh', display: 'flex', flexDirection: 'column' };
+export const rootSx: SxProps<Theme> = {
+  height: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+};
 
 export const topAppBarSx: SxProps<Theme> = {
   bgcolor: (theme) => (theme.palette.mode === 'light' ? '#e6e9ee' : 'background.paper'),
   borderBottom: 1,
   borderColor: 'divider',
+  overflow: 'hidden',
+};
+
+export const toolbarSx: SxProps<Theme> = {
+  display: 'flex',
+  alignItems: 'center',
+  flexWrap: 'nowrap',
+  gap: 0.5,
+  minWidth: 0,
+  width: '100%',
+  boxSizing: 'border-box',
+  overflow: 'hidden',
+};
+
+export const titleSx: SxProps<Theme> = {
+  minWidth: 0,
+  flexShrink: 1,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
 };
 
 export const saveStatusRowSx: SxProps<Theme> = {
@@ -13,16 +38,27 @@ export const saveStatusRowSx: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
   gap: 1,
+  flexShrink: 1,
+  minWidth: 0,
+  maxWidth: '50%',
 };
 
 export const statusChipSx: SxProps<Theme> = { height: 24 };
-export const saveMessageSx: SxProps<Theme> = { maxWidth: 300 };
-export const spacerSx: SxProps<Theme> = { flexGrow: 1 };
+export const saveMessageSx: SxProps<Theme> = {
+  maxWidth: 300,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  flexShrink: 1,
+  minWidth: 0,
+};
+export const spacerSx: SxProps<Theme> = { flexGrow: 1, minWidth: 0 };
 
 export const mainContentSx: SxProps<Theme> = {
   display: 'flex',
   flexGrow: 1,
   overflow: 'hidden',
+  minWidth: 0,
   pb: '40px',
 };
 

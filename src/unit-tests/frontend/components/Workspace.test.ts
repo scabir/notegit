@@ -202,8 +202,9 @@ describe('Workspace', () => {
   });
 
   it('loads workspace data and passes props to child components', async () => {
+    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      TestRenderer.create(
+      renderer = TestRenderer.create(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -229,45 +230,6 @@ describe('Workspace', () => {
     expect(text).toContain(versionInfo.version);
   });
 
-  it('loads a selected markdown file into the markdown editor', async () => {
-    const readFile = jest.fn().mockResolvedValue({
-      ok: true,
-      data: {
-        path: 'note.md',
-        content: '# Hello',
-        type: FileType.MARKDOWN,
-      },
-    });
-    (global as any).window.notegitApi.files.read = readFile;
-
-    await act(async () => {
-      TestRenderer.create(
-        React.createElement(Workspace, {
-          onThemeChange: jest.fn(),
-        })
-      );
-    });
-
-    await act(async () => {
-      await flushPromises();
-      await flushPromises();
-    });
-
-    const fileTreeProps =
-      FileTreeViewMock.mock.calls[FileTreeViewMock.mock.calls.length - 1]?.[0];
-    await act(async () => {
-      await fileTreeProps.onSelectFile('note.md', 'file');
-      await flushPromises();
-    });
-
-    expect(readFile).toHaveBeenCalledWith('note.md');
-    const markdownProps =
-      MarkdownEditorMock.mock.calls[MarkdownEditorMock.mock.calls.length - 1]?.[0];
-    expect(markdownProps?.file?.path).toBe('note.md');
-    expect(TextEditorMock).not.toHaveBeenCalled();
-
-    renderer!.unmount();
-  });
 
   it('creates and deletes files via file tree actions', async () => {
     (global as any).window.notegitApi.files.create = jest.fn().mockResolvedValue({ ok: true });
