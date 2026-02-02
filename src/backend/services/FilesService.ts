@@ -322,6 +322,34 @@ export class FilesService {
     }
   }
 
+  async duplicateFile(repoPath: string): Promise<string> {
+    await this.ensureRepoPath();
+
+    const normalizedPath = this.normalizeNewPathForProvider(repoPath);
+    const fullRepoPath = path.join(this.repoPath!, normalizedPath);
+
+    const stats = await this.fsAdapter.stat(fullRepoPath);
+    if (!stats.isFile()) {
+      throw this.createError(ApiErrorCode.UNKNOWN_ERROR, 'Only files can be duplicated');
+    }
+
+    const { dir, name, ext } = path.parse(normalizedPath);
+    let counter = 1;
+    let newRelativePath = path.join(dir, `${name}(${counter})${ext}`);
+    let fullNewPath = path.join(this.repoPath!, newRelativePath);
+
+    while (await this.fsAdapter.exists(fullNewPath)) {
+      counter += 1;
+      newRelativePath = path.join(dir, `${name}(${counter})${ext}`);
+      fullNewPath = path.join(this.repoPath!, newRelativePath);
+    }
+
+    await this.fsAdapter.copyFile(fullRepoPath, fullNewPath);
+    logger.info('File duplicated', { source: normalizedPath, target: newRelativePath });
+
+    return newRelativePath;
+  }
+
   async importFile(sourcePath: string, targetPath: string): Promise<void> {
     await this.ensureRepoPath();
 

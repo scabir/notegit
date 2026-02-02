@@ -3,7 +3,7 @@ import type { MouseEvent } from 'react';
 import type { FileTreeNode } from '../../../../shared/types';
 import type { TreeContextMenuState } from '../types';
 
-export type TreeContextMenuAction = 'rename' | 'move' | 'favorite' | 'delete';
+export type TreeContextMenuAction = 'rename' | 'move' | 'favorite' | 'delete' | 'duplicate';
 
 type UseTreeContextMenuParams = {
   treeContainerRef: React.RefObject<HTMLDivElement>;
@@ -13,6 +13,7 @@ type UseTreeContextMenuParams = {
   onMove: (node: FileTreeNode) => void;
   onToggleFavorite: (node: FileTreeNode) => void;
   onDelete: (node: FileTreeNode) => void;
+  onDuplicate?: (node: FileTreeNode) => void;
   onContextMenuOpen?: () => void;
 };
 
@@ -24,6 +25,7 @@ export function useTreeContextMenu({
   onMove,
   onToggleFavorite,
   onDelete,
+  onDuplicate,
   onContextMenuOpen,
 }: UseTreeContextMenuParams) {
   const [treeContextMenuState, setTreeContextMenuState] = useState<TreeContextMenuState | null>(null);
@@ -89,9 +91,12 @@ export function useTreeContextMenu({
         case 'delete':
           onDelete(node);
           break;
+        case 'duplicate':
+          onDuplicate?.(node);
+          break;
       }
     },
-    [handleCloseTreeContextMenu, onDelete, onMove, onRename, onToggleFavorite]
+    [handleCloseTreeContextMenu, onDelete, onDuplicate, onMove, onRename, onToggleFavorite]
   );
 
   return {

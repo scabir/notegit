@@ -380,6 +380,23 @@ describe('filesHandlers', () => {
     expect(importError.error?.message).toBe('import fail');
   });
 
+  it('duplicates files', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      saveFileAs: jest.fn(),
+      importFile: jest.fn(),
+      duplicateFile: jest.fn().mockResolvedValue('note(1).md'),
+    } as any;
+    const repoService = {} as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const duplicateResponse = await handlers['files:duplicate'](null, 'note.md');
+    expect(filesService.duplicateFile).toHaveBeenCalledWith('note.md');
+    expect(duplicateResponse.ok).toBe(true);
+    expect(duplicateResponse.data).toBe('note(1).md');
+  });
+
   it('adds extra file count to commit message when more than five changes', async () => {
     const { ipcMain, handlers } = createIpcMain();
     const filesService = {

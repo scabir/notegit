@@ -345,6 +345,20 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
   const handleFetch = async () => {
     try {
+      if (isS3Repo && appSettings?.s3AutoSyncEnabled && !s3AutoSyncCleanupRef.current) {
+        s3AutoSyncCleanupRef.current = startS3AutoSync(
+          appSettings.s3AutoSyncEnabled,
+          appSettings.s3AutoSyncIntervalSec,
+          {
+            startAutoPush: window.notegitApi.repo.startAutoPush,
+            getStatus: window.notegitApi.repo.getStatus,
+            listTree: window.notegitApi.files.listTree,
+            setStatus: setRepoStatus,
+            setTree,
+          }
+        );
+      }
+
       const response = await window.notegitApi.repo.fetch();
       if (response.ok && response.data) {
         setRepoStatus(response.data);
@@ -510,6 +524,24 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const handleSaveAll = async () => {
     if (hasUnsavedChanges && selectedFile) {
       await handleSaveFile(editorContent);
+    }
+  };
+
+  const handleDuplicate = async (path: string): Promise<string | void> => {
+    try {
+      const response = await window.notegitApi.files.duplicate(path);
+      if (response.ok && response.data) {
+        const treeResponse = await window.notegitApi.files.listTree();
+        if (treeResponse.ok && treeResponse.data) {
+          setTree(treeResponse.data);
+        }
+        await handleSelectFile(response.data, 'file');
+        return response.data;
+      }
+      throw new Error(response.error?.message || 'Failed to duplicate file');
+    } catch (error: any) {
+      setTransientStatus('error', error.message || 'Failed to duplicate file', 5000);
+      throw error;
     }
   };
 
@@ -757,6 +789,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             onCreateFolder={handleCreateFolder}
             onDelete={handleDelete}
             onRename={handleRename}
+            onDuplicate={handleDuplicate}
             onImport={handleImport}
             isS3Repo={isS3Repo}
           />
