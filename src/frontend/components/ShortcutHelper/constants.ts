@@ -15,6 +15,7 @@ export const SHORTCUT_HELPER_SECTIONS = [
       { label: 'Move selection', keys: 'Ctrl/Cmd + M' },
       { label: 'Duplicate file', keys: 'Ctrl/Cmd + Shift + U' },
       { label: 'Toggle favorite', keys: 'Ctrl/Cmd + Shift + S' },
+      { label: 'Collapse all folders', keys: 'Ctrl/Cmd + Shift + E' },
     ],
   },
   {

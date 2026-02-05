@@ -17,6 +17,7 @@ describe('useFileTreeShortcuts', () => {
       handleOpenRenameDialog: jest.fn(),
       handleOpenMoveDialog: jest.fn(),
       handleToggleFavorite: jest.fn(),
+      handleCollapseAll: jest.fn(),
     };
 
     const listeners: Record<string, (event: any) => void> = {};
@@ -118,9 +119,20 @@ describe('useFileTreeShortcuts', () => {
       preventDefault: jest.fn(),
     });
 
+    listeners.keydown({
+      defaultPrevented: false,
+      target: child,
+      key: 'e',
+      ctrlKey: true,
+      metaKey: false,
+      shiftKey: true,
+      preventDefault: jest.fn(),
+    });
+
     expect(handlers.openFileDialog).toHaveBeenCalled();
     expect(handlers.handleOpenRenameDialog).toHaveBeenCalled();
     expect(handlers.handleDelete).toHaveBeenCalled();
     expect(handlers.handleToggleFavorite).toHaveBeenCalled();
+    expect(handlers.handleCollapseAll).toHaveBeenCalled();
   });
 });

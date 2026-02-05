@@ -38,6 +38,7 @@ export function FileTreeView({
   onRename,
   onDuplicate,
   onImport,
+  onCollapseAll,
   onNavigateBack = () => {},
   onNavigateForward = () => {},
   canNavigateBack = false,
@@ -401,6 +402,11 @@ export function FileTreeView({
     }
   };
 
+  const handleCollapseAll = React.useCallback(() => {
+    setExpanded([]);
+    onCollapseAll?.();
+  }, [onCollapseAll]);
+
   const expandPathToNode = (node: FileTreeNode) => {
     const pathParts = node.path.split('/').filter(Boolean);
     const depth = node.type === 'folder' ? pathParts.length : pathParts.length - 1;
@@ -451,6 +457,7 @@ export function FileTreeView({
     handleOpenRenameDialog,
     handleOpenMoveDialog,
     handleToggleFavorite: toggleFavorite,
+    handleCollapseAll,
     handleDuplicate:
       onDuplicate && selectedNodeForActions && selectedNodeForActions.type === 'file'
         ? () => onDuplicate(selectedNodeForActions.path)
@@ -556,6 +563,7 @@ export function FileTreeView({
         onNewFile={handleOpenFileDialog}
         onNewFolder={handleOpenFolderDialog}
         onImport={handleImportFile}
+        onCollapseAll={handleCollapseAll}
       />
 
       {favoriteNodes.length > 0 && (

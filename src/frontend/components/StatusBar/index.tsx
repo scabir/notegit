@@ -97,7 +97,9 @@ export function StatusBar({ status, onFetch, onPull, onPush, hasUnsavedChanges =
             color={syncStatus.color}
           />
 
-          {!isLocal && status.hasUncommitted && (
+          {!isLocal &&
+            status.hasUncommitted &&
+            syncStatus.label !== (isS3 ? STATUS_TEXT.unsynced : STATUS_TEXT.uncommitted) && (
             <Chip
               label={isS3 ? STATUS_TEXT.unsynced : STATUS_TEXT.uncommitted}
               size="small"

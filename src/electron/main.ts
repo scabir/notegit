@@ -1,8 +1,22 @@
-import { app, BrowserWindow, ipcMain, nativeImage } from 'electron';
+import { app, BrowserWindow, ipcMain, nativeImage, Menu } from 'electron';
 import * as path from 'path';
 import { createBackend } from '../backend';
 
 let mainWindow: BrowserWindow | null = null;
+const shouldOpenDevTools = process.argv.includes('--devtools') || process.argv.includes('--console');
+
+app.setName('Notegit');
+app.name = 'Notegit';
+
+const createAppMenu = () => {
+  const menu = Menu.buildFromTemplate([
+    {
+      label: app.getName(),
+      submenu: [{ role: 'close' }],
+    },
+  ]);
+  Menu.setApplicationMenu(menu);
+};
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -18,9 +32,12 @@ function createWindow() {
 
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '../../frontend/index.html'));
+  }
+
+  if (process.env.NODE_ENV === 'development' || shouldOpenDevTools) {
+    mainWindow.webContents.openDevTools();
   }
 
   mainWindow.on('closed', () => {
@@ -43,6 +60,10 @@ if (!gotTheLock) {
   });
 
   app.on('ready', () => {
+    app.setName('Notegit');
+    app.name = 'Notegit';
+    app.setAboutPanelOptions({ applicationName: 'Notegit' });
+    createAppMenu();
     if (process.platform === 'darwin' && !app.isPackaged) {
       const iconPath = path.join(app.getAppPath(), 'src', 'electron', 'resources', 'notegit.png');
       const icon = nativeImage.createFromPath(iconPath);

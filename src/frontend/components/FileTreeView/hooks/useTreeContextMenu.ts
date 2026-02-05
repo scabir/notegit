@@ -56,7 +56,7 @@ export function useTreeContextMenu({
       }
 
       if (selectedNode) {
-        return;
+        setSelectedNode(null);
       }
 
       treeContainerRef.current?.focus();

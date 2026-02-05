@@ -4,15 +4,20 @@ import * as path from 'path';
 import { Stats } from 'fs';
 import { ApiError, ApiErrorCode } from '../../shared/types';
 
+const ENCODING_UTF8 = 'utf-8';
+const ERROR_CODE_NOT_FOUND = 'ENOENT';
+const ERROR_CODE_PERMISSION = 'EACCES';
+const ERROR_CODE_EXISTS = 'EEXIST';
+
 export class FsAdapter {
   async readFile(filePath: string): Promise<string> {
     try {
-      return await fs.readFile(filePath, 'utf-8');
+      return await fs.readFile(filePath, ENCODING_UTF8);
     } catch (error: any) {
-      if (error.code === 'ENOENT') {
+      if (error.code === ERROR_CODE_NOT_FOUND) {
         throw this.createError(ApiErrorCode.FS_NOT_FOUND, `File not found: ${filePath}`, error);
       }
-      if (error.code === 'EACCES') {
+      if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${filePath}`,
@@ -27,9 +32,9 @@ export class FsAdapter {
     try {
       const dir = path.dirname(filePath);
       await this.mkdir(dir, { recursive: true });
-      await fs.writeFile(filePath, content, 'utf-8');
+      await fs.writeFile(filePath, content, ENCODING_UTF8);
     } catch (error: any) {
-      if (error.code === 'EACCES') {
+      if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${filePath}`,
@@ -44,10 +49,10 @@ export class FsAdapter {
     try {
       await fs.unlink(filePath);
     } catch (error: any) {
-      if (error.code === 'ENOENT') {
+      if (error.code === ERROR_CODE_NOT_FOUND) {
         throw this.createError(ApiErrorCode.FS_NOT_FOUND, `File not found: ${filePath}`, error);
       }
-      if (error.code === 'EACCES') {
+      if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${filePath}`,
@@ -66,10 +71,10 @@ export class FsAdapter {
     try {
       await fs.rename(oldPath, newPath);
     } catch (error: any) {
-      if (error.code === 'ENOENT') {
+      if (error.code === ERROR_CODE_NOT_FOUND) {
         throw this.createError(ApiErrorCode.FS_NOT_FOUND, `File not found: ${oldPath}`, error);
       }
-      if (error.code === 'EACCES') {
+      if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${oldPath}`,
@@ -88,10 +93,10 @@ export class FsAdapter {
     try {
       await fs.mkdir(dirPath, options);
     } catch (error: any) {
-      if (error.code === 'EEXIST') {
+      if (error.code === ERROR_CODE_EXISTS) {
         return;
       }
-      if (error.code === 'EACCES') {
+      if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${dirPath}`,
@@ -110,10 +115,10 @@ export class FsAdapter {
     try {
       await fs.rm(dirPath, { recursive: options?.recursive ?? true, force: true });
     } catch (error: any) {
-      if (error.code === 'ENOENT') {
+      if (error.code === ERROR_CODE_NOT_FOUND) {
         throw this.createError(ApiErrorCode.FS_NOT_FOUND, `Directory not found: ${dirPath}`, error);
       }
-      if (error.code === 'EACCES') {
+      if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${dirPath}`,
@@ -132,10 +137,10 @@ export class FsAdapter {
     try {
       return await fs.readdir(dirPath);
     } catch (error: any) {
-      if (error.code === 'ENOENT') {
+      if (error.code === ERROR_CODE_NOT_FOUND) {
         throw this.createError(ApiErrorCode.FS_NOT_FOUND, `Directory not found: ${dirPath}`, error);
       }
-      if (error.code === 'EACCES') {
+      if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${dirPath}`,
@@ -154,7 +159,7 @@ export class FsAdapter {
     try {
       return await fs.stat(filePath);
     } catch (error: any) {
-      if (error.code === 'ENOENT') {
+      if (error.code === ERROR_CODE_NOT_FOUND) {
         throw this.createError(ApiErrorCode.FS_NOT_FOUND, `Path not found: ${filePath}`, error);
       }
       throw this.createError(ApiErrorCode.UNKNOWN_ERROR, `Failed to stat: ${filePath}`, error);
@@ -176,10 +181,10 @@ export class FsAdapter {
       await this.mkdir(destDir, { recursive: true });
       await fs.copyFile(src, dest);
     } catch (error: any) {
-      if (error.code === 'ENOENT') {
+      if (error.code === ERROR_CODE_NOT_FOUND) {
         throw this.createError(ApiErrorCode.FS_NOT_FOUND, `Source file not found: ${src}`, error);
       }
-      if (error.code === 'EACCES') {
+      if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied`,
@@ -206,4 +211,3 @@ export class FsAdapter {
     };
   }
 }
-

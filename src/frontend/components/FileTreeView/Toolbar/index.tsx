@@ -6,6 +6,7 @@ import {
   NoteAdd as NoteAddIcon,
   CreateNewFolder as CreateFolderIcon,
   FileUpload as ImportIcon,
+  UnfoldLess as CollapseAllIcon,
 } from '@mui/icons-material';
 import { TOOLBAR_TEXT } from './constants';
 import { toolbarSx } from './styles';
@@ -25,6 +26,7 @@ type FileTreeToolbarProps = {
   onNewFile: () => void;
   onNewFolder: () => void;
   onImport: () => void;
+  onCollapseAll: () => void;
 };
 
 const ToolbarButton = ({ tooltip, icon, onClick, disabled = false }: ToolbarAction) => (
@@ -45,6 +47,7 @@ export function FileTreeToolbar({
   onNewFile,
   onNewFolder,
   onImport,
+  onCollapseAll,
 }: FileTreeToolbarProps) {
   const actions: ToolbarAction[] = [
     {
@@ -61,6 +64,11 @@ export function FileTreeToolbar({
       tooltip: TOOLBAR_TEXT.importFile,
       icon: <ImportIcon fontSize="small" />,
       onClick: onImport,
+    },
+    {
+      tooltip: TOOLBAR_TEXT.collapseAll,
+      icon: <CollapseAllIcon fontSize="small" />,
+      onClick: onCollapseAll,
     },
   ];
 

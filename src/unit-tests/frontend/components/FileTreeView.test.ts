@@ -323,6 +323,21 @@ describe('FileTreeView toolbar actions', () => {
       expect(moveDialog.props.open).toBe(true);
       expect(preventDefault).toHaveBeenCalled();
     });
+
+    it('collapses all folders with Ctrl/Cmd+Shift+E', () => {
+      const renderer = createTreeRenderer();
+      let treeView = renderer.root.findByType(TreeView);
+      act(() => {
+        treeView.props.onNodeToggle(null, ['folder']);
+      });
+
+      const preventDefault = jest.fn();
+      fireShortcut({ key: 'e', ctrlKey: true, shiftKey: true, preventDefault });
+
+      treeView = renderer.root.findByType(TreeView);
+      expect(treeView.props.expanded).toEqual([]);
+      expect(preventDefault).toHaveBeenCalled();
+    });
   });
 
   describe('favorites list', () => {
@@ -730,6 +745,35 @@ describe('FileTreeView toolbar actions', () => {
     });
 
     expect(onImport).toHaveBeenCalledWith('/tmp/import.md', 'folder/import.md');
+  });
+
+  it('collapses all folders from the toolbar', () => {
+    const renderer = TestRenderer.create(
+      React.createElement(FileTreeView, {
+        tree,
+        selectedFile: null,
+        onSelectFile: jest.fn(),
+        onCreateFile: jest.fn(),
+        onCreateFolder: jest.fn(),
+        onDelete: jest.fn(),
+        onRename: jest.fn(),
+        onImport: jest.fn(),
+        isS3Repo: false,
+      })
+    );
+
+    let treeView = renderer.root.findByType(TreeView);
+    act(() => {
+      treeView.props.onNodeToggle(null, ['folder']);
+    });
+
+    const collapseButton = getTooltipButton(renderer, FILE_TREE_TEXT.collapseAll);
+    act(() => {
+      collapseButton.props.onClick();
+    });
+
+    treeView = renderer.root.findByType(TreeView);
+    expect(treeView.props.expanded).toEqual([]);
   });
 
   it('renames a selected file', async () => {

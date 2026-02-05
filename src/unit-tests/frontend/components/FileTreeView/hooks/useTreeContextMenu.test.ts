@@ -81,7 +81,7 @@ describe('useTreeContextMenu', () => {
     expect(ref.current?.treeContextMenuState?.position).toEqual({ top: 20, left: 10 });
   });
 
-  it('does not open an empty menu when a selection already exists', () => {
+  it('clears selection and opens the empty menu when a selection already exists', () => {
     const ref = React.createRef<HookHandle>();
     const setSelectedNode = jest.fn();
 
@@ -108,7 +108,11 @@ describe('useTreeContextMenu', () => {
       );
     });
 
-    expect(ref.current?.treeContextMenuState).toBeNull();
+    expect(ref.current?.treeContextMenuState).toEqual({
+      node: null,
+      mode: 'empty',
+      position: { top: 0, left: 0 },
+    });
   });
 
   it('opens the empty menu when nothing is selected', () => {

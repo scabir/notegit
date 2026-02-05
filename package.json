@@ -1,6 +1,6 @@
 {
   "name": "notegit",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "packageManager": "pnpm@10.28.0",
   "description": "A Git-backed Markdown note-taking desktop application",
   "main": "dist/electron/electron/main.js",
@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "concurrently \"pnpm run dev:frontend\" \"pnpm run dev:electron\"",
     "dev:frontend": "vite",
-    "dev:electron": "wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .",
+    "dev:electron": "pnpm run build:electron && wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .",
     "build": "pnpm run build:frontend && pnpm run build:backend && pnpm run build:electron && pnpm run fix-imports",
     "build:frontend": "vite build",
     "build:backend": "tsc -p tsconfig.backend.json",
