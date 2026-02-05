@@ -21,6 +21,14 @@ pnpm run build
 pnpm start
 ```
 
+### Dev console (optional)
+
+Launch the app with DevTools open:
+
+```bash
+pnpm start -- --devtools
+```
+
 ## Packaging
 
 Build scripts live in `setup/`:
