@@ -44,6 +44,22 @@ describe('logsHandlers', () => {
     expect(logsService.exportLogs).toHaveBeenCalledWith('error', '/tmp/out.log');
   });
 
+  it('returns error when export fails', async () => {
+    const logsService = {
+      getLogContent: jest.fn(),
+      exportLogs: jest.fn().mockRejectedValue(new Error('failed')),
+      getLogsDirectory: jest.fn().mockReturnValue('/logs'),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerLogsHandlers(ipcMain, logsService);
+
+    const response = await handlers['logs:export'](null, 'error', '/tmp/out.log');
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.message).toBe('failed');
+  });
+
   it('returns error when log fetch fails', async () => {
     const logsService = {
       getLogContent: jest.fn().mockRejectedValue(new Error('fail')),
@@ -74,5 +90,23 @@ describe('logsHandlers', () => {
 
     expect(response.ok).toBe(true);
     expect(response.data).toBe('/logs');
+  });
+
+  it('returns error when logs folder lookup fails', async () => {
+    const logsService = {
+      getLogContent: jest.fn(),
+      exportLogs: jest.fn(),
+      getLogsDirectory: jest.fn().mockImplementation(() => {
+        throw new Error('folder missing');
+      }),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerLogsHandlers(ipcMain, logsService);
+
+    const response = await handlers['logs:getFolder']();
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.message).toBe('folder missing');
   });
 });

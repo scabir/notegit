@@ -112,6 +112,72 @@ describe('HistoryViewer', () => {
 
     expect(flattenText(renderer!.toJSON())).toContain('Boom');
   });
+
+  it('shows an error when load throws', async () => {
+    const getVersion = jest.fn().mockRejectedValue(new Error('Crash'));
+    (global as any).window.notegitApi.history.getVersion = getVersion;
+
+    let renderer: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        React.createElement(HistoryViewer, {
+          open: true,
+          filePath: 'notes/note.md',
+          commitHash: 'abc123',
+          commitMessage: 'Update note',
+          repoPath: '/repo',
+          onClose: jest.fn(),
+        })
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+    });
+
+    expect(flattenText(renderer!.toJSON())).toContain('Crash');
+  });
+
+  it('toggles between preview and source views', async () => {
+    const getVersion = jest.fn().mockResolvedValue({ ok: true, data: '# Title' });
+    (global as any).window.notegitApi.history.getVersion = getVersion;
+
+    let renderer: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        React.createElement(HistoryViewer, {
+          open: true,
+          filePath: 'notes/note.md',
+          commitHash: 'abc123',
+          commitMessage: 'Update note',
+          repoPath: '/repo',
+          onClose: jest.fn(),
+        })
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+    });
+
+    const sourceButton = findButtonByText(renderer!, HISTORY_VIEWER_TEXT.source);
+    const previewButton = findButtonByText(renderer!, HISTORY_VIEWER_TEXT.preview);
+    if (!sourceButton || !previewButton) {
+      throw new Error('View toggle buttons not found');
+    }
+
+    act(() => {
+      sourceButton.props.onClick();
+    });
+
+    expect(renderer!.root.findAllByProps({ 'data-testid': 'codemirror' }).length).toBe(1);
+
+    act(() => {
+      previewButton.props.onClick();
+    });
+
+    expect(renderer!.root.findAllByProps({ 'data-testid': 'codemirror' }).length).toBe(0);
+  });
 });
 
 describe('HistoryViewer utils', () => {

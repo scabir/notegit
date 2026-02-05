@@ -1,7 +1,7 @@
 import { ConfigService } from '../../../backend/services/ConfigService';
 import { FsAdapter } from '../../../backend/adapters/FsAdapter';
 import { CryptoAdapter } from '../../../backend/adapters/CryptoAdapter';
-import { DEFAULT_APP_SETTINGS, AuthMethod, RepoSettings, GitRepoSettings, ApiErrorCode, Profile, REPO_PROVIDERS } from '../../../shared/types';
+import { DEFAULT_APP_SETTINGS, AuthMethod, RepoSettings, GitRepoSettings, S3RepoSettings, ApiErrorCode, Profile, REPO_PROVIDERS } from '../../../shared/types';
 
 type FsExistsMock = jest.MockedFunction<FsAdapter['exists']>;
 
@@ -80,6 +80,17 @@ describe('ConfigService', () => {
       await configService.getFull();
 
       expect(mockFsAdapter.mkdir).toHaveBeenCalled();
+    });
+  });
+
+  describe('getAppSettings', () => {
+    it('returns defaults when loading fails', async () => {
+      mockFsAdapter.exists.mockResolvedValue(true);
+      mockFsAdapter.readFile.mockRejectedValue(new Error('bad settings'));
+
+      const settings = await configService.getAppSettings();
+
+      expect(settings).toEqual(DEFAULT_APP_SETTINGS);
     });
   });
 
@@ -224,6 +235,45 @@ describe('ConfigService', () => {
       });
       expect(mockCryptoAdapter.decrypt).not.toHaveBeenCalled();
     });
+
+    it('decrypts s3 credentials when loading', async () => {
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) => {
+        return filePath.includes('repo-settings.json');
+      });
+      mockFsAdapter.readFile.mockResolvedValue(
+        JSON.stringify({
+          provider: REPO_PROVIDERS.s3,
+          bucket: 'bucket',
+          region: 'region',
+          prefix: '',
+          localPath: '/repo',
+          accessKeyId: 'enc-ak',
+          secretAccessKey: 'enc-sk',
+          sessionToken: 'enc-st',
+        })
+      );
+      mockCryptoAdapter.decrypt.mockImplementation((value) => `dec-${value}`);
+
+      const settings = await configService.getRepoSettings();
+
+      expect(settings).toMatchObject({
+        provider: REPO_PROVIDERS.s3,
+        accessKeyId: 'dec-enc-ak',
+        secretAccessKey: 'dec-enc-sk',
+        sessionToken: 'dec-enc-st',
+      });
+    });
+
+    it('returns null when repo settings fail to load', async () => {
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) => {
+        return filePath.includes('repo-settings.json');
+      });
+      mockFsAdapter.readFile.mockRejectedValue(new Error('bad json'));
+
+      const settings = await configService.getRepoSettings();
+
+      expect(settings).toBeNull();
+    });
   });
 
   describe('updateRepoSettings', () => {
@@ -252,6 +302,49 @@ describe('ConfigService', () => {
       const savedData = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
       expect(savedData.pat).toBe(encryptedPat);
       expect(savedData.remoteUrl).toBe(settings.remoteUrl);
+    });
+
+    it('should encrypt s3 credentials before saving', async () => {
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+      jest.spyOn(configService, 'getRepoSettings').mockResolvedValue(null);
+
+      mockCryptoAdapter.encrypt.mockImplementation((value) => `enc-${value}`);
+
+      const settings: RepoSettings = {
+        provider: REPO_PROVIDERS.s3,
+        bucket: 'bucket',
+        region: 'region',
+        prefix: '',
+        localPath: '/repo',
+        accessKeyId: 'access',
+        secretAccessKey: 'secret',
+        sessionToken: 'token',
+      };
+
+      await configService.updateRepoSettings(settings);
+
+      const savedData = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
+      expect(savedData.accessKeyId).toBe('enc-access');
+      expect(savedData.secretAccessKey).toBe('enc-secret');
+      expect(savedData.sessionToken).toBe('enc-token');
+    });
+
+    it('should not encrypt local settings', async () => {
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+      jest.spyOn(configService, 'getRepoSettings').mockResolvedValue(null);
+
+      const settings: RepoSettings = {
+        provider: REPO_PROVIDERS.local,
+        localPath: '/local',
+      };
+
+      await configService.updateRepoSettings(settings);
+
+      const savedData = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
+      expect(savedData).toMatchObject(settings);
+      expect(mockCryptoAdapter.encrypt).not.toHaveBeenCalled();
     });
 
     it('throws when provider is changed', async () => {
@@ -300,6 +393,30 @@ describe('ConfigService', () => {
     });
   });
 
+  describe('app state storage', () => {
+    it('returns defaults when app state is invalid', async () => {
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) =>
+        filePath.includes('app-state.json')
+      );
+      mockFsAdapter.readFile.mockResolvedValue('{bad');
+
+      const state = await configService.getAppState();
+
+      expect(state).toEqual({ expandedFolders: [] });
+    });
+
+    it('updates app state', async () => {
+      mockFsAdapter.exists.mockResolvedValue(false);
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+
+      await configService.updateAppState({ expandedFolders: ['notes'] });
+
+      const savedData = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
+      expect(savedData.expandedFolders).toEqual(['notes']);
+    });
+  });
+
   describe('profiles management', () => {
     it('saves profiles with encrypted values', async () => {
       mockFsAdapter.mkdir.mockResolvedValue(undefined);
@@ -329,6 +446,24 @@ describe('ConfigService', () => {
       expect(saved[0].repoSettings.pat).toBe('enc:token');
     });
 
+    it('returns empty list when profiles fail to load', async () => {
+      mockFsAdapter.exists.mockResolvedValue(true);
+      mockFsAdapter.readFile.mockRejectedValue(new Error('bad profiles'));
+
+      const profiles = await configService.getProfiles();
+
+      expect(profiles).toEqual([]);
+    });
+
+    it('returns null when active profile id fails to load', async () => {
+      mockFsAdapter.exists.mockResolvedValue(true);
+      mockFsAdapter.readFile.mockRejectedValue(new Error('bad active'));
+
+      const activeId = await configService.getActiveProfileId();
+
+      expect(activeId).toBeNull();
+    });
+
     it('sets active profile id', async () => {
       mockFsAdapter.mkdir.mockResolvedValue(undefined);
       mockFsAdapter.writeFile.mockResolvedValue(undefined);
@@ -336,6 +471,58 @@ describe('ConfigService', () => {
       await configService.setActiveProfileId('profile-1');
 
       expect(mockFsAdapter.writeFile).toHaveBeenCalled();
+    });
+
+    it('creates a git profile by default', async () => {
+      mockFsAdapter.exists.mockResolvedValue(false);
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+      mockCryptoAdapter.encrypt.mockImplementation((value) => `enc:${value}`);
+
+      const profile = await configService.createProfile('Git Profile', {
+        remoteUrl: 'https://github.com/user/repo.git',
+        branch: 'main',
+        pat: 'token',
+        authMethod: AuthMethod.PAT,
+      } as any);
+
+      const gitSettings = profile.repoSettings as GitRepoSettings;
+      expect(gitSettings.provider).toBe(REPO_PROVIDERS.git);
+      expect(gitSettings.remoteUrl).toBe('https://github.com/user/repo.git');
+      expect(gitSettings.localPath).toContain('/tmp/notegit-test/repos');
+    });
+
+    it('creates a local profile', async () => {
+      mockFsAdapter.exists.mockResolvedValue(false);
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+
+      const profile = await configService.createProfile('Local Notes', {
+        provider: REPO_PROVIDERS.local,
+      } as any);
+
+      expect(profile.repoSettings.provider).toBe(REPO_PROVIDERS.local);
+      expect(profile.repoSettings.localPath).toContain('local-notes-local');
+    });
+
+    it('creates an s3 profile', async () => {
+      mockFsAdapter.exists.mockResolvedValue(false);
+      mockFsAdapter.mkdir.mockResolvedValue(undefined);
+      mockFsAdapter.writeFile.mockResolvedValue(undefined);
+
+      const profile = await configService.createProfile('S3 Profile', {
+        provider: REPO_PROVIDERS.s3,
+        bucket: 'bucket',
+        region: 'region',
+        accessKeyId: 'access',
+        secretAccessKey: 'secret',
+        prefix: 'notes',
+      } as any);
+
+      const s3Settings = profile.repoSettings as S3RepoSettings;
+      expect(s3Settings.provider).toBe(REPO_PROVIDERS.s3);
+      expect(s3Settings.bucket).toBe('bucket');
+      expect(s3Settings.prefix).toBe('notes');
     });
 
     it('validates required s3 fields when creating profile', async () => {
@@ -357,6 +544,34 @@ describe('ConfigService', () => {
 
       await expect(configService.updateProfile('missing', { name: 'New' })).rejects.toThrow(
         'Profile not found'
+      );
+    });
+
+    it('updates an existing profile', async () => {
+      const profiles: Profile[] = [
+        {
+          id: 'profile-1',
+          name: 'Profile',
+          repoSettings: {
+            provider: REPO_PROVIDERS.git,
+            remoteUrl: 'https://github.com/user/repo.git',
+            branch: 'main',
+            localPath: '/repo',
+            pat: 'token',
+            authMethod: AuthMethod.PAT,
+          },
+          createdAt: Date.now(),
+          lastUsedAt: Date.now(),
+        },
+      ];
+
+      jest.spyOn(configService, 'getProfiles').mockResolvedValue(profiles);
+      jest.spyOn(configService, 'saveProfiles').mockResolvedValue(undefined);
+
+      await configService.updateProfile('profile-1', { name: 'Updated' });
+
+      expect(configService.saveProfiles).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ id: 'profile-1', name: 'Updated' })])
       );
     });
 
@@ -419,6 +634,27 @@ describe('ConfigService', () => {
       expect(configService.saveProfiles).toHaveBeenCalledWith([]);
       expect(configService.setActiveProfileId).toHaveBeenCalledWith(null);
     });
+
+    it('throws when deleting an unknown profile', async () => {
+      jest.spyOn(configService, 'getProfiles').mockResolvedValue([
+        {
+          id: 'profile-1',
+          name: 'Profile',
+          repoSettings: {
+            provider: REPO_PROVIDERS.git,
+            remoteUrl: 'https://github.com/user/repo.git',
+            branch: 'main',
+            localPath: '/repo',
+            pat: 'token',
+            authMethod: AuthMethod.PAT,
+          },
+          createdAt: Date.now(),
+          lastUsedAt: Date.now(),
+        },
+      ]);
+
+      await expect(configService.deleteProfile('missing')).rejects.toThrow('Profile not found');
+    });
   });
 
   describe('migrateToProfiles', () => {
@@ -453,6 +689,67 @@ describe('ConfigService', () => {
         ])
       );
       expect(configService.setActiveProfileId).toHaveBeenCalledWith('profile-default');
+    });
+
+    it('returns early when profiles already exist', async () => {
+      jest.spyOn(configService, 'getProfiles').mockResolvedValue([
+        {
+          id: 'profile-1',
+          name: 'Profile',
+          repoSettings: {
+            provider: REPO_PROVIDERS.git,
+            remoteUrl: 'https://github.com/user/repo.git',
+            branch: 'main',
+            localPath: '/repo',
+            pat: 'token',
+            authMethod: AuthMethod.PAT,
+          },
+          createdAt: Date.now(),
+          lastUsedAt: Date.now(),
+        },
+      ]);
+      jest.spyOn(configService, 'getActiveProfileId').mockResolvedValue(null);
+
+      await configService.migrateToProfiles();
+
+      expect(mockFsAdapter.exists).not.toHaveBeenCalled();
+    });
+
+    it('derives profile name from local path when migrating', async () => {
+      jest.spyOn(configService, 'getProfiles').mockResolvedValue([]);
+      jest.spyOn(configService, 'getActiveProfileId').mockResolvedValue(null);
+
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) => {
+        return filePath.includes('repo-settings.json');
+      });
+      mockFsAdapter.readFile.mockResolvedValue(
+        JSON.stringify({
+          provider: REPO_PROVIDERS.local,
+          localPath: '/tmp/my-notes',
+        })
+      );
+
+      const saveProfiles = jest.spyOn(configService, 'saveProfiles').mockResolvedValue(undefined);
+      const setActiveProfileId = jest.spyOn(configService, 'setActiveProfileId').mockResolvedValue(undefined);
+
+      await configService.migrateToProfiles();
+
+      expect(saveProfiles).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ name: 'my-notes' })])
+      );
+      expect(setActiveProfileId).toHaveBeenCalled();
+    });
+
+    it('handles migration errors without throwing', async () => {
+      jest.spyOn(configService, 'getProfiles').mockResolvedValue([]);
+      jest.spyOn(configService, 'getActiveProfileId').mockResolvedValue(null);
+
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) => {
+        return filePath.includes('repo-settings.json');
+      });
+      mockFsAdapter.readFile.mockRejectedValue(new Error('fail'));
+
+      await expect(configService.migrateToProfiles()).resolves.toBeUndefined();
     });
   });
 
@@ -493,6 +790,15 @@ describe('ConfigService', () => {
         expect.stringContaining('favorites.json'),
         JSON.stringify(favoritesList, null, 2)
       );
+    });
+
+    it('returns empty list when favorites fail to load', async () => {
+      (mockFsAdapter.exists as FsExistsMock).mockResolvedValue(true);
+      mockFsAdapter.readFile.mockRejectedValue(new Error('read failed'));
+
+      const favorites = await configService.getFavorites();
+
+      expect(favorites).toEqual([]);
     });
   });
 });
