@@ -15,7 +15,7 @@ export class S3HistoryProvider implements HistoryProvider {
   readonly type = REPO_PROVIDERS.s3;
   private settings: S3RepoSettings | null = null;
 
-  constructor(private s3Adapter: S3Adapter) {}
+  constructor(private s3Adapter: S3Adapter) { }
 
   configure(settings: RepoSettings): void {
     if (settings.provider !== REPO_PROVIDERS.s3) {

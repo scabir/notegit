@@ -19,11 +19,11 @@ import {
   REPO_PROVIDERS,
 } from '../../shared/types';
 import { logger } from '../utils/logger';
-import { 
-  slugifyProfileName, 
-  getDefaultReposBaseDir, 
+import {
+  slugifyProfileName,
+  getDefaultReposBaseDir,
   extractRepoNameFromUrl,
-  findUniqueFolderName 
+  findUniqueFolderName
 } from '../utils/profileHelpers';
 
 export class ConfigService {
@@ -53,8 +53,8 @@ export class ConfigService {
       raw?.provider === REPO_PROVIDERS.s3
         ? REPO_PROVIDERS.s3
         : raw?.provider === REPO_PROVIDERS.local
-        ? REPO_PROVIDERS.local
-        : REPO_PROVIDERS.git;
+          ? REPO_PROVIDERS.local
+          : REPO_PROVIDERS.git;
     if (provider === REPO_PROVIDERS.s3) {
       return {
         provider: REPO_PROVIDERS.s3,
@@ -143,7 +143,7 @@ export class ConfigService {
 
   async getFull(): Promise<FullConfig> {
     logger.info('Loading full configuration');
-    
+
     await this.ensureConfigDir();
     await this.migrateToProfiles();
 
@@ -164,7 +164,7 @@ export class ConfigService {
 
   async getAppSettings(): Promise<AppSettings> {
     try {
-    if (await this.fsAdapter.exists(this.appSettingsPath)) {
+      if (await this.fsAdapter.exists(this.appSettingsPath)) {
         const content = await this.fsAdapter.readFile(this.appSettingsPath);
         const settings = JSON.parse(content);
         logger.debug('Loaded app settings', { settings });
@@ -179,7 +179,7 @@ export class ConfigService {
 
   async updateAppSettings(settings: Partial<AppSettings>): Promise<void> {
     logger.info('Updating app settings', { settings });
-    
+
     await this.ensureConfigDir();
 
     const current = await this.getAppSettings();
@@ -219,19 +219,19 @@ export class ConfigService {
     if (activeProfileId) {
       const profiles = await this.getProfiles();
       const activeProfile = profiles.find(p => p.id === activeProfileId);
-    if (activeProfile) {
+      if (activeProfile) {
         logger.debug('Loaded repo settings from active profile');
         return activeProfile.repoSettings;
       }
     }
 
     try {
-    if (await this.fsAdapter.exists(this.repoSettingsPath)) {
+      if (await this.fsAdapter.exists(this.repoSettingsPath)) {
         const content = await this.fsAdapter.readFile(this.repoSettingsPath);
         const rawSettings = JSON.parse(content);
         const settings = this.normalizeRepoSettings(rawSettings);
         const decrypted = this.decryptRepoSettings(settings);
-        
+
         logger.debug('Loaded repo settings');
         return decrypted;
       }
@@ -258,7 +258,7 @@ export class ConfigService {
       bucket: settings.provider === REPO_PROVIDERS.s3 ? settings.bucket : undefined,
       region: settings.provider === REPO_PROVIDERS.s3 ? settings.region : undefined,
     });
-    
+
     await this.ensureConfigDir();
 
     const toSave = this.encryptRepoSettings(settings);
@@ -268,7 +268,7 @@ export class ConfigService {
 
   async getAppState(): Promise<AppStateSnapshot> {
     try {
-    if (await this.fsAdapter.exists(this.appStatePath)) {
+      if (await this.fsAdapter.exists(this.appStatePath)) {
         const content = await this.fsAdapter.readFile(this.appStatePath);
         const state = JSON.parse(content);
         logger.debug('Loaded app state', { state });
@@ -293,7 +293,7 @@ export class ConfigService {
 
   async clearRepoSettings(): Promise<void> {
     logger.info('Clearing repo settings');
-    
+
     if (await this.fsAdapter.exists(this.repoSettingsPath)) {
       await this.fsAdapter.deleteFile(this.repoSettingsPath);
     }
@@ -302,7 +302,7 @@ export class ConfigService {
 
   async getProfiles(): Promise<Profile[]> {
     try {
-    if (await this.fsAdapter.exists(this.profilesPath)) {
+      if (await this.fsAdapter.exists(this.profilesPath)) {
         const content = await this.fsAdapter.readFile(this.profilesPath);
         const profiles = JSON.parse(content);
         const hydrated = profiles.map((profile: Profile) => {
@@ -312,7 +312,7 @@ export class ConfigService {
             repoSettings: this.decryptRepoSettings(normalizedSettings),
           };
         });
-        
+
         logger.debug('Loaded profiles', { count: profiles.length });
         return hydrated;
       }
@@ -325,7 +325,7 @@ export class ConfigService {
 
   async saveProfiles(profiles: Profile[]): Promise<void> {
     logger.info('Saving profiles', { count: profiles.length });
-    
+
     await this.ensureConfigDir();
 
     const toSave = profiles.map(profile => ({
@@ -339,7 +339,7 @@ export class ConfigService {
 
   async getActiveProfileId(): Promise<string | null> {
     try {
-    if (await this.fsAdapter.exists(this.activeProfilePath)) {
+      if (await this.fsAdapter.exists(this.activeProfilePath)) {
         const content = await this.fsAdapter.readFile(this.activeProfilePath);
         const data = JSON.parse(content);
         logger.debug('Loaded active profile ID', { id: data.activeProfileId });
@@ -354,34 +354,34 @@ export class ConfigService {
 
   async setActiveProfileId(profileId: string | null): Promise<void> {
     logger.info('Setting active profile ID', { profileId });
-    
+
     await this.ensureConfigDir();
 
     await this.fsAdapter.writeFile(
       this.activeProfilePath,
       JSON.stringify({ activeProfileId: profileId }, null, 2)
     );
-    
+
     logger.debug('Active profile ID saved');
   }
 
   async createProfile(name: string, repoSettings: Partial<RepoSettings>): Promise<Profile> {
     logger.info('Creating new profile', { name });
-    
+
     const profiles = await this.getProfiles();
-    
+
     const provider = this.resolveProviderType(repoSettings);
     const baseName = slugifyProfileName(name);
     const baseDir = getDefaultReposBaseDir();
-    
+
     await this.fsAdapter.mkdir(baseDir, { recursive: true });
-    
+
     const baseFolderName = this.getProfileBaseFolderName(baseName, provider);
     const folderName = await findUniqueFolderName(baseDir, baseFolderName, this.fsAdapter);
     const localPath = path.join(baseDir, folderName);
-    
+
     logger.info('Assigned local path for profile', { name, localPath });
-    
+
     let fullRepoSettings: RepoSettings;
     if (provider === REPO_PROVIDERS.git) {
       fullRepoSettings = this.buildGitProfileSettings(repoSettings, localPath);
@@ -390,7 +390,7 @@ export class ConfigService {
     } else {
       fullRepoSettings = this.buildLocalProfileSettings(localPath);
     }
-    
+
     const newProfile: Profile = {
       id: `profile-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       name,
@@ -401,7 +401,7 @@ export class ConfigService {
 
     profiles.push(newProfile);
     await this.saveProfiles(profiles);
-    
+
     logger.info('Profile created', { id: newProfile.id });
     return newProfile;
   }
@@ -474,10 +474,10 @@ export class ConfigService {
 
   async updateProfile(profileId: string, updates: Partial<Omit<Profile, 'id'>>): Promise<void> {
     logger.info('Updating profile', { profileId });
-    
+
     const profiles = await this.getProfiles();
     const index = profiles.findIndex(p => p.id === profileId);
-    
+
     if (index === -1) {
       throw new Error(`Profile not found: ${profileId}`);
     }
@@ -501,49 +501,49 @@ export class ConfigService {
 
   async deleteProfile(profileId: string): Promise<void> {
     logger.info('Deleting profile', { profileId });
-    
+
     const profiles = await this.getProfiles();
     const filtered = profiles.filter(p => p.id !== profileId);
-    
+
     if (filtered.length === profiles.length) {
       throw new Error(`Profile not found: ${profileId}`);
     }
 
     await this.saveProfiles(filtered);
-    
+
     const activeId = await this.getActiveProfileId();
     if (activeId === profileId) {
       await this.setActiveProfileId(null);
     }
-    
+
     logger.info('Profile deleted');
   }
 
   async migrateToProfiles(): Promise<void> {
     const profiles = await this.getProfiles();
     const activeProfileId = await this.getActiveProfileId();
-    
+
     if (profiles.length > 0 || activeProfileId) {
       return;
     }
 
     try {
-    if (await this.fsAdapter.exists(this.repoSettingsPath)) {
+      if (await this.fsAdapter.exists(this.repoSettingsPath)) {
         logger.info('Migrating legacy repo settings to first profile');
-        
+
         const content = await this.fsAdapter.readFile(this.repoSettingsPath);
         const rawSettings = JSON.parse(content);
         const normalizedSettings = this.normalizeRepoSettings(rawSettings);
         const repoSettings = this.decryptRepoSettings(normalizedSettings);
 
         let profileName = 'Default Profile';
-        
-    if (repoSettings.provider === REPO_PROVIDERS.git && repoSettings.remoteUrl) {
-      profileName = extractRepoNameFromUrl(repoSettings.remoteUrl);
-    } else if (repoSettings.localPath) {
-      profileName = path.basename(repoSettings.localPath);
+
+        if (repoSettings.provider === REPO_PROVIDERS.git && repoSettings.remoteUrl) {
+          profileName = extractRepoNameFromUrl(repoSettings.remoteUrl);
+        } else if (repoSettings.localPath) {
+          profileName = path.basename(repoSettings.localPath);
         }
-        
+
         logger.info('Derived profile name for migration', { profileName });
 
         const firstProfile: Profile = {
@@ -556,7 +556,7 @@ export class ConfigService {
 
         await this.saveProfiles([firstProfile]);
         await this.setActiveProfileId(firstProfile.id);
-        
+
         logger.info('Migration complete: created profile from legacy settings', { profileName });
       }
     } catch (error) {

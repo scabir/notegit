@@ -25,10 +25,10 @@ export function registerHistoryHandlers(ipcMain: IpcMain, historyService: Histor
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to get file history',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to get file history',
+              details: error,
+            },
         };
       }
     }
@@ -50,10 +50,10 @@ export function registerHistoryHandlers(ipcMain: IpcMain, historyService: Histor
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to get file version',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to get file version',
+              details: error,
+            },
         };
       }
     }
@@ -75,13 +75,12 @@ export function registerHistoryHandlers(ipcMain: IpcMain, historyService: Histor
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to get diff',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to get diff',
+              details: error,
+            },
         };
       }
     }
   );
 }
-

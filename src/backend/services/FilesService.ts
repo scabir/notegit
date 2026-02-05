@@ -21,7 +21,7 @@ export class FilesService {
   constructor(
     private fsAdapter: FsAdapter,
     private configService: ConfigService
-  ) {}
+  ) { }
 
   setGitAdapter(gitAdapter: GitAdapter): void {
     this.gitAdapter = gitAdapter;
@@ -102,11 +102,11 @@ export class FilesService {
 
     try {
       await this.gitAdapter.init(this.repoPath!);
-      
+
       await this.gitAdapter.add(filePath);
-      
+
       await this.gitAdapter.commit(message);
-      
+
       logger.info('File committed', { filePath, message });
     } catch (error: any) {
       logger.error('Failed to commit file', { filePath, error });
@@ -128,11 +128,11 @@ export class FilesService {
 
     try {
       await this.gitAdapter.init(this.repoPath!);
-      
+
       await this.gitAdapter.add('.');
-      
+
       await this.gitAdapter.commit(message);
-      
+
       logger.info('All changes committed', { message });
     } catch (error: any) {
       logger.error('Failed to commit all changes', { error });
@@ -154,9 +154,9 @@ export class FilesService {
 
     try {
       await this.gitAdapter.init(this.repoPath!);
-      
+
       const status = await this.gitAdapter.status();
-      
+
       return {
         modified: status.modified || [],
         added: status.created || [],
@@ -169,8 +169,8 @@ export class FilesService {
   }
 
   async saveWithGitWorkflow(
-    filePath: string, 
-    content: string, 
+    filePath: string,
+    content: string,
     isAutosave: boolean = false
   ): Promise<{ pullFailed?: boolean; pushFailed?: boolean; conflictDetected?: boolean }> {
     await this.ensureRepoPath();
@@ -185,8 +185,8 @@ export class FilesService {
     }
 
     const fileName = path.basename(filePath);
-    const commitMessage = isAutosave 
-      ? `Autosave: ${fileName}` 
+    const commitMessage = isAutosave
+      ? `Autosave: ${fileName}`
       : `Update note: ${fileName}`;
 
     const result: { pullFailed?: boolean; pushFailed?: boolean; conflictDetected?: boolean } = {};
@@ -211,14 +211,14 @@ export class FilesService {
       } catch (pullError: any) {
         logger.error('Pull failed', { error: pullError });
         result.pullFailed = true;
-        
-    if (pullError.message && pullError.message.toLowerCase().includes('conflict')) {
+
+        if (pullError.message && pullError.message.toLowerCase().includes('conflict')) {
           result.conflictDetected = true;
           logger.warn('Conflict detected during pull', { filePath });
         }
       }
 
-    if (!result.conflictDetected) {
+      if (!result.conflictDetected) {
         try {
           await this.gitAdapter.push();
           logger.info('Push successful', { filePath });
@@ -244,7 +244,7 @@ export class FilesService {
 
     try {
       let content = '';
-    if (fileName.endsWith('.md')) {
+      if (fileName.endsWith('.md')) {
         content = `# ${fileName.replace('.md', '')}\n\n`;
       }
 
@@ -279,13 +279,13 @@ export class FilesService {
 
     try {
       const stats = await this.fsAdapter.stat(fullPath);
-      
-    if (stats.isDirectory()) {
+
+      if (stats.isDirectory()) {
         await this.fsAdapter.rmdir(fullPath, { recursive: true });
       } else {
         await this.fsAdapter.deleteFile(fullPath);
       }
-      
+
       logger.info('Path deleted', { filePath });
     } catch (error: any) {
       logger.error('Failed to delete path', { filePath, error });
@@ -375,7 +375,7 @@ export class FilesService {
     const nodes: FileTreeNode[] = [];
 
     for (const entry of entries) {
-    if (entry.startsWith('.')) {
+      if (entry.startsWith('.')) {
         continue;
       }
 
@@ -385,7 +385,7 @@ export class FilesService {
       try {
         const stats = await this.fsAdapter.stat(fullPath);
 
-    if (stats.isDirectory()) {
+        if (stats.isDirectory()) {
           const children = await this.buildTree(fullPath, entryRelativePath);
 
           nodes.push({
@@ -413,7 +413,7 @@ export class FilesService {
     }
 
     nodes.sort((a, b) => {
-    if (a.type !== b.type) {
+      if (a.type !== b.type) {
         return a.type === 'folder' ? -1 : 1;
       }
       return a.name.localeCompare(b.name);
@@ -477,7 +477,7 @@ export class FilesService {
   private countNodes(nodes: FileTreeNode[]): number {
     let count = nodes.length;
     for (const node of nodes) {
-    if (node.children) {
+      if (node.children) {
         count += this.countNodes(node.children);
       }
     }

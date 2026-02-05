@@ -14,7 +14,7 @@ export class LocalRepoProvider implements RepoProvider {
   private settings: LocalRepoSettings | null = null;
   private repoPath: string | null = null;
 
-  constructor(private fsAdapter: FsAdapter) {}
+  constructor(private fsAdapter: FsAdapter) { }
 
   configure(settings: RepoSettings): void {
     if (settings.provider !== REPO_PROVIDERS.local) {

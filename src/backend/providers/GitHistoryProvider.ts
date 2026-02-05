@@ -15,7 +15,7 @@ export class GitHistoryProvider implements HistoryProvider {
   private settings: GitRepoSettings | null = null;
   private repoPath: string | null = null;
 
-  constructor(private gitAdapter: GitAdapter) {}
+  constructor(private gitAdapter: GitAdapter) { }
 
   configure(settings: RepoSettings): void {
     if (settings.provider !== REPO_PROVIDERS.git) {

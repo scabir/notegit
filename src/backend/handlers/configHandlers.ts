@@ -80,10 +80,10 @@ export function registerConfigHandlers(
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: 'Failed to update repository settings',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: 'Failed to update repository settings',
+              details: error,
+            },
         };
       }
     }
@@ -226,10 +226,10 @@ export function registerConfigHandlers(
             error: prepareError.code
               ? prepareError
               : {
-                  code: ApiErrorCode.UNKNOWN_ERROR,
-                  message: `Failed to prepare repository: ${prepareError.message || 'Unknown error'}`,
-                  details: prepareError,
-                },
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: `Failed to prepare repository: ${prepareError.message || 'Unknown error'}`,
+                details: prepareError,
+              },
           };
         }
 
@@ -244,10 +244,10 @@ export function registerConfigHandlers(
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: `Failed to create profile: ${error.message || 'Unknown error'}`,
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: `Failed to create profile: ${error.message || 'Unknown error'}`,
+              details: error,
+            },
         };
       }
     }

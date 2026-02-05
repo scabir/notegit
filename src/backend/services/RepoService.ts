@@ -43,7 +43,7 @@ export class RepoService {
     private providers: Record<RepoProviderType, RepoProvider>,
     private fsAdapter: FsAdapter,
     private configService: ConfigService
-  ) {}
+  ) { }
 
   setFilesService(filesService: FilesService): void {
     this.filesService = filesService;

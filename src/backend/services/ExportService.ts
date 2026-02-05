@@ -14,7 +14,7 @@ export class ExportService {
   constructor(
     private fsAdapter: FsAdapter,
     private configService: ConfigService
-  ) {}
+  ) { }
 
   async init(): Promise<void> {
     const repoSettings = await this.configService.getRepoSettings();
@@ -41,7 +41,7 @@ export class ExportService {
         properties: ['createDirectory', 'showOverwriteConfirmation'],
       });
 
-    if (result.canceled || !result.filePath) {
+      if (result.canceled || !result.filePath) {
         throw this.createError(
           ApiErrorCode.VALIDATION_ERROR,
           'Export cancelled by user',
@@ -56,7 +56,7 @@ export class ExportService {
       logger.info('Note exported successfully', { exportPath });
       return exportPath;
     } catch (error: any) {
-    if (error.code === ApiErrorCode.VALIDATION_ERROR) {
+      if (error.code === ApiErrorCode.VALIDATION_ERROR) {
         throw error;
       }
       logger.error('Failed to export note', { fileName, error });
@@ -83,7 +83,7 @@ export class ExportService {
         properties: ['createDirectory', 'showOverwriteConfirmation'],
       });
 
-    if (result.canceled || !result.filePath) {
+      if (result.canceled || !result.filePath) {
         throw this.createError(
           ApiErrorCode.VALIDATION_ERROR,
           'Export cancelled by user',
@@ -98,7 +98,7 @@ export class ExportService {
       logger.info('Repository exported as zip', { zipPath });
       return zipPath;
     } catch (error: any) {
-    if (error.code === ApiErrorCode.VALIDATION_ERROR) {
+      if (error.code === ApiErrorCode.VALIDATION_ERROR) {
         throw error;
       }
       logger.error('Failed to export repository as zip', { error });
@@ -122,19 +122,19 @@ export class ExportService {
           zipPath,
           bytes: archive.pointer(),
         });
-  resolve();
+        resolve();
       });
 
       archive.on('error', (err) => {
         logger.error('Zip archive error', { err });
-  reject(err);
+        reject(err);
       });
 
       archive.on('warning', (err) => {
-    if (err.code === 'ENOENT') {
+        if (err.code === 'ENOENT') {
           logger.warn('Zip archive warning', { err });
         } else {
-  reject(err);
+          reject(err);
         }
       });
 

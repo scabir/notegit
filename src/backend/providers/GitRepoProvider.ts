@@ -23,7 +23,7 @@ export class GitRepoProvider implements RepoProvider {
   constructor(
     private gitAdapter: GitAdapter,
     private fsAdapter: FsAdapter
-  ) {}
+  ) { }
 
   configure(settings: RepoSettings): void {
     if (settings.provider !== REPO_PROVIDERS.git) {

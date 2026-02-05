@@ -20,10 +20,10 @@ export function registerSearchHandlers(ipcMain: IpcMain, searchService: SearchSe
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to search',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to search',
+              details: error,
+            },
         };
       }
     }
@@ -46,10 +46,10 @@ export function registerSearchHandlers(ipcMain: IpcMain, searchService: SearchSe
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to perform repo-wide search',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to perform repo-wide search',
+              details: error,
+            },
         };
       }
     }
@@ -77,10 +77,10 @@ export function registerSearchHandlers(ipcMain: IpcMain, searchService: SearchSe
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to perform repo-wide replace',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to perform repo-wide replace',
+              details: error,
+            },
         };
       }
     }
