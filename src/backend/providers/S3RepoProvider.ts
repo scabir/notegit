@@ -8,6 +8,7 @@ import {
   ApiError,
   ApiErrorCode,
   S3RepoSettings,
+  REPO_PROVIDERS,
 } from '../../shared/types';
 import { logger } from '../utils/logger';
 import type { RepoProvider } from './types';
@@ -46,7 +47,7 @@ type RemoteFileInfo = {
 };
 
 export class S3RepoProvider implements RepoProvider {
-  readonly type = 's3';
+  readonly type = REPO_PROVIDERS.s3;
   private readonly conflictSuffix = 's3-conflict';
   private readonly manifestFolder = '.notegit';
   private readonly manifestFile = 's3-sync.json';
@@ -63,7 +64,7 @@ export class S3RepoProvider implements RepoProvider {
   constructor(private s3Adapter: S3Adapter) { }
 
   configure(settings: RepoSettings): void {
-    if (settings.provider !== 's3') {
+    if (settings.provider !== REPO_PROVIDERS.s3) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
         'S3RepoProvider configured with non-s3 settings',
@@ -77,7 +78,7 @@ export class S3RepoProvider implements RepoProvider {
   }
 
   async open(settings: RepoSettings): Promise<{ localPath: string }> {
-    if (settings.provider !== 's3') {
+    if (settings.provider !== REPO_PROVIDERS.s3) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
         'S3RepoProvider cannot open non-s3 repository',
@@ -119,7 +120,7 @@ export class S3RepoProvider implements RepoProvider {
     const { localChanges, remoteChanges } = await this.calculateChangeCounts();
 
     const status: RepoStatus = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       branch: this.getDisplayName(),
       ahead: localChanges,
       behind: remoteChanges,
@@ -778,7 +779,7 @@ export class S3RepoProvider implements RepoProvider {
 
   private getDisplayName(): string {
     if (!this.settings) {
-      return 's3';
+      return REPO_PROVIDERS.s3;
     }
     const prefix = this.settings.prefix ? `/${this.settings.prefix}` : '';
     return `${this.settings.bucket}${prefix}`;

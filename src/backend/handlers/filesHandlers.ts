@@ -4,6 +4,7 @@ import {
   FileTreeNode,
   FileContent,
   ApiErrorCode,
+  REPO_PROVIDERS,
 } from '../../shared/types';
 import { FilesService } from '../services/FilesService';
 import { logger } from '../utils/logger';
@@ -24,10 +25,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
         error: error.code
           ? error
           : {
-              code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || 'Failed to list files',
-              details: error,
-            },
+            code: ApiErrorCode.UNKNOWN_ERROR,
+            message: error.message || 'Failed to list files',
+            details: error,
+          },
       };
     }
   });
@@ -46,10 +47,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
         error: error.code
           ? error
           : {
-              code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || 'Failed to read file',
-              details: error,
-            },
+            code: ApiErrorCode.UNKNOWN_ERROR,
+            message: error.message || 'Failed to read file',
+            details: error,
+          },
       };
     }
   });
@@ -74,10 +75,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to save file',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to save file',
+              details: error,
+            },
         };
       }
     }
@@ -106,10 +107,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to save with Git workflow',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to save with Git workflow',
+              details: error,
+            },
         };
       }
     }
@@ -130,10 +131,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to commit file',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to commit file',
+              details: error,
+            },
         };
       }
     }
@@ -154,10 +155,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to commit all changes',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to commit all changes',
+              details: error,
+            },
         };
       }
     }
@@ -169,14 +170,25 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
       try {
         const statusResponse = await repoService.getStatus();
 
-        if (statusResponse.provider !== 'git') {
+        if (statusResponse.provider === REPO_PROVIDERS.s3) {
           await repoService.push();
           return {
             ok: true,
             data: { message: 'Synced successfully' },
           };
         }
-        
+
+        if (statusResponse.provider === REPO_PROVIDERS.local) {
+          return {
+            ok: false,
+            error: {
+              code: ApiErrorCode.VALIDATION_ERROR,
+              message: 'Local repositories do not support sync',
+              details: { provider: statusResponse.provider },
+            },
+          };
+        }
+
         if (!statusResponse.hasUncommitted) {
           return {
             ok: true,
@@ -190,7 +202,7 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           ...gitStatus.added,
           ...gitStatus.deleted,
         ].slice(0, 5);
-        
+
         let commitMessage = 'Update: ';
         if (changedFiles.length > 0) {
           commitMessage += changedFiles.join(', ');
@@ -202,7 +214,7 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
         }
 
         await filesService.commitAll(commitMessage);
-        
+
         await repoService.push();
 
         return {
@@ -216,10 +228,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to commit and push changes',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to commit and push changes',
+              details: error,
+            },
         };
       }
     }
@@ -240,10 +252,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to create file',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to create file',
+              details: error,
+            },
         };
       }
     }
@@ -264,10 +276,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to create folder',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to create folder',
+              details: error,
+            },
         };
       }
     }
@@ -289,10 +301,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
         error: error.code
           ? error
           : {
-              code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || 'Failed to delete',
-              details: error,
-            },
+            code: ApiErrorCode.UNKNOWN_ERROR,
+            message: error.message || 'Failed to delete',
+            details: error,
+          },
       };
     }
   });
@@ -315,10 +327,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to rename',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to rename',
+              details: error,
+            },
         };
       }
     }
@@ -339,10 +351,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to save file',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to save file',
+              details: error,
+            },
         };
       }
     }
@@ -364,10 +376,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to duplicate file',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to duplicate file',
+              details: error,
+            },
         };
       }
     }
@@ -388,10 +400,10 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to import file',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to import file',
+              details: error,
+            },
         };
       }
     }

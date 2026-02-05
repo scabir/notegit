@@ -1,10 +1,10 @@
 import * as path from 'path';
 import { GitRepoProvider } from '../../../backend/providers/GitRepoProvider';
-import { ApiErrorCode, AuthMethod, GitRepoSettings } from '../../../shared/types';
+import { ApiErrorCode, AuthMethod, GitRepoSettings, REPO_PROVIDERS } from '../../../shared/types';
 
 describe('GitRepoProvider', () => {
   const baseSettings: GitRepoSettings = {
-    provider: 'git',
+    provider: REPO_PROVIDERS.git,
     remoteUrl: 'https://github.com/user/my-notes.git',
     branch: 'main',
     pat: 'token',
@@ -40,7 +40,7 @@ describe('GitRepoProvider', () => {
     const { provider } = createProvider();
 
     await expect(
-      provider.open({ provider: 's3' } as any)
+      provider.open({ provider: REPO_PROVIDERS.s3 } as any)
     ).rejects.toMatchObject({
       code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
     });
@@ -115,7 +115,7 @@ describe('GitRepoProvider', () => {
     const status = await provider.getStatus();
 
     expect(status).toMatchObject({
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       branch: 'main',
       ahead: 2,
       behind: 1,

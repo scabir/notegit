@@ -5,4 +5,5 @@ export interface StatusBarProps {
   onFetch: () => void;
   onPull: () => void;
   onPush: () => void;
+  hasUnsavedChanges?: boolean;
 }

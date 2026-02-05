@@ -41,6 +41,20 @@ describe('exportHandlers', () => {
     expect(response.error?.code).toBe(ApiErrorCode.VALIDATION_ERROR);
   });
 
+  it('returns error for note export failures', async () => {
+    const exportService = {
+      exportNote: jest.fn().mockRejectedValue(new Error('disk full')),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerExportHandlers(ipcMain, exportService);
+
+    const response = await handlers['export:note'](null, 'note.md', 'content', 'md');
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.message).toBe('disk full');
+  });
+
   it('exports repo zip successfully', async () => {
     const exportService = {
       exportRepoAsZip: jest.fn().mockResolvedValue('/tmp/repo.zip'),
@@ -67,5 +81,19 @@ describe('exportHandlers', () => {
 
     expect(response.ok).toBe(false);
     expect(response.error?.code).toBe(ApiErrorCode.VALIDATION_ERROR);
+  });
+
+  it('returns error for repo export failures', async () => {
+    const exportService = {
+      exportRepoAsZip: jest.fn().mockRejectedValue(new Error('no space')),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerExportHandlers(ipcMain, exportService);
+
+    const response = await handlers['export:repoZip'](null);
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.message).toBe('no space');
   });
 });

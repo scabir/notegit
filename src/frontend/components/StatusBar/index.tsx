@@ -8,17 +8,34 @@ import {
   CloudSync as CloudSyncIcon,
 } from '@mui/icons-material';
 import { STATUS_TEXT } from './constants';
+import { REPO_PROVIDERS } from '../../../shared/types';
 import { appBarSx, toolbarSx, statusRowSx, branchLabelSx, actionsRowSx } from './styles';
 import type { StatusBarProps } from './types';
 
-export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
+export function StatusBar({ status, onFetch, onPull, onPush, hasUnsavedChanges = false }: StatusBarProps) {
   if (!status) {
     return null;
   }
 
-  const isS3 = status.provider === 's3';
+  const isS3 = status.provider === REPO_PROVIDERS.s3;
+  const isLocal = status.provider === REPO_PROVIDERS.local;
+  const showRemoteActions = status.provider === REPO_PROVIDERS.git;
 
   const getSyncStatus = () => {
+    if (isLocal) {
+      return hasUnsavedChanges
+        ? {
+          icon: <CloudOffIcon fontSize="small" />,
+          label: STATUS_TEXT.uncommitted,
+          color: 'warning' as const,
+        }
+        : {
+          icon: <CloudDoneIcon fontSize="small" />,
+          label: STATUS_TEXT.saved,
+          color: 'success' as const,
+        };
+    }
+
     if (status.pendingPushCount > 0) {
       return {
         icon: <CloudOffIcon fontSize="small" />,
@@ -66,10 +83,12 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
     <AppBar position="fixed" color="default" sx={appBarSx}>
       <Toolbar variant="dense" sx={toolbarSx}>
         <Box sx={statusRowSx}>
-          <Typography variant="body2" sx={branchLabelSx}>
-            {isS3 ? STATUS_TEXT.bucketLabel : STATUS_TEXT.branchLabel}:{' '}
-            <strong>{status.branch}</strong>
-          </Typography>
+          {!isLocal && (
+            <Typography variant="body2" sx={branchLabelSx}>
+              {isS3 ? STATUS_TEXT.bucketLabel : STATUS_TEXT.branchLabel}:{' '}
+              <strong>{status.branch}</strong>
+            </Typography>
+          )}
 
           <Chip
             icon={syncStatus.icon}
@@ -78,7 +97,7 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
             color={syncStatus.color}
           />
 
-          {status.hasUncommitted && (
+          {!isLocal && status.hasUncommitted && (
             <Chip
               label={isS3 ? STATUS_TEXT.unsynced : STATUS_TEXT.uncommitted}
               size="small"
@@ -88,7 +107,7 @@ export function StatusBar({ status, onFetch, onPull, onPush }: StatusBarProps) {
           )}
         </Box>
 
-        {!isS3 && (
+        {showRemoteActions && (
           <Box sx={actionsRowSx}>
             <Tooltip title={STATUS_TEXT.fetchTooltip}>
               <IconButton size="small" onClick={onFetch}>

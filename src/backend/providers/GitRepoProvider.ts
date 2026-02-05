@@ -8,12 +8,13 @@ import {
   ApiError,
   ApiErrorCode,
   GitRepoSettings,
+  REPO_PROVIDERS,
 } from '../../shared/types';
 import { logger } from '../utils/logger';
 import type { RepoProvider } from './types';
 
 export class GitRepoProvider implements RepoProvider {
-  readonly type = 'git' as const;
+  readonly type = REPO_PROVIDERS.git;
   private settings: GitRepoSettings | null = null;
   private repoPath: string | null = null;
   private autoSyncTimer: NodeJS.Timeout | null = null;
@@ -22,10 +23,10 @@ export class GitRepoProvider implements RepoProvider {
   constructor(
     private gitAdapter: GitAdapter,
     private fsAdapter: FsAdapter
-  ) {}
+  ) { }
 
   configure(settings: RepoSettings): void {
-    if (settings.provider !== 'git') {
+    if (settings.provider !== REPO_PROVIDERS.git) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
         'GitRepoProvider configured with non-git settings',
@@ -38,7 +39,7 @@ export class GitRepoProvider implements RepoProvider {
   }
 
   async open(settings: RepoSettings): Promise<{ localPath: string }> {
-    if (settings.provider !== 'git') {
+    if (settings.provider !== REPO_PROVIDERS.git) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
         'GitRepoProvider cannot open non-git repository',
@@ -115,7 +116,7 @@ export class GitRepoProvider implements RepoProvider {
     const { ahead, behind } = await this.gitAdapter.getAheadBehind();
 
     const status: RepoStatus = {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       branch,
       ahead,
       behind,

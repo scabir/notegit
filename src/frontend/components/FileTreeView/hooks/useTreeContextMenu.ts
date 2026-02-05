@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
 import type { FileTreeNode } from '../../../../shared/types';
 import type { TreeContextMenuState } from '../types';
@@ -29,6 +29,11 @@ export function useTreeContextMenu({
   onContextMenuOpen,
 }: UseTreeContextMenuParams) {
   const [treeContextMenuState, setTreeContextMenuState] = useState<TreeContextMenuState | null>(null);
+  const selectedNodeRef = useRef<FileTreeNode | null>(selectedNode);
+
+  useEffect(() => {
+    selectedNodeRef.current = selectedNode;
+  }, [selectedNode]);
 
   const handleTreeContextMenu = useCallback(
     (event: MouseEvent<HTMLElement>, node?: FileTreeNode) => {
@@ -76,23 +81,24 @@ export function useTreeContextMenu({
   const handleTreeContextMenuAction = useCallback(
     (action: TreeContextMenuAction, node: FileTreeNode | null) => {
       handleCloseTreeContextMenu();
-      if (!node) return;
+      const targetNode = node ?? selectedNodeRef.current;
+      if (!targetNode) return;
 
       switch (action) {
         case 'rename':
-          onRename(node);
+          onRename(targetNode);
           break;
         case 'move':
-          onMove(node);
+          onMove(targetNode);
           break;
         case 'favorite':
-          onToggleFavorite(node);
+          onToggleFavorite(targetNode);
           break;
         case 'delete':
-          onDelete(node);
+          onDelete(targetNode);
           break;
         case 'duplicate':
-          onDuplicate?.(node);
+          onDuplicate?.(targetNode);
           break;
       }
     },

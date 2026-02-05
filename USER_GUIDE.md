@@ -1,9 +1,9 @@
 # notegit User Guide
 
-Complete guide to using notegit - your Git- and S3-backed markdown note-taking application.
+Complete guide to using notegit - your Git-, S3-, or local-backed markdown note-taking application.
 
-**Version**: 2.2.4  
-**Last Updated**: January 28, 2026
+**Version**: 2.3.1  
+**Last Updated**: February 5, 2026
 
 ---
 
@@ -29,9 +29,9 @@ Complete guide to using notegit - your Git- and S3-backed markdown note-taking a
 ### System Requirements
 
 - **Operating System**: macOS 10.13+, Windows 10+, or Linux (Ubuntu 18.04+)
-- **Git**: Required for Git repositories (not needed for S3-only workflows)
+- **Git**: Required for Git repositories (not needed for S3 or Local workflows)
 - **AWS S3**: Optional for S3 repositories (bucket with versioning enabled + credentials)
-- **Internet Connection**: Required for initial repository setup and syncing
+- **Internet Connection**: Required for Git/S3 setup and syncing (not required for Local)
 
 ### First Launch
 
@@ -48,7 +48,7 @@ Complete guide to using notegit - your Git- and S3-backed markdown note-taking a
 - Authentication (PAT or SSH key)
 - Branch name (default: `main`)
 
-For S3 repositories, see **Connecting to an S3 Bucket** below. For PAT/SSH setup, use your Git provider docs.
+For S3 repositories, see **Connecting to an S3 Bucket** below. For Local repositories, see **Connecting to a Local Repository**. For PAT/SSH setup, use your Git provider docs.
 
 ### Connecting in notegit
 
@@ -81,6 +81,20 @@ Notes: **Prefix** scopes notes to a folder (e.g., `notes/`). Credentials are sto
 
 ---
 
+### Connecting to a Local Repository
+
+Local repositories are stored on your device only and do not sync.
+
+Steps:
+1. Click **Connect to Repository**
+2. **Repository type**: Local
+3. Enter a **Local Repository Name**
+4. Click **Connect**
+
+Notes: notegit creates a folder in its app data directory for the local repository.
+
+---
+
 ## Creating and Editing Notes
 
 ### Creating Notes
@@ -104,6 +118,7 @@ For S3 repositories, spaces in file or folder names are replaced with `-`.
 - Auto-save: every 5 minutes by default (configurable)
 - Git: save → commit → pull → push
 - S3: save locally and upload immediately; background sync continues
+- Local: save to disk only (no sync)
 
 ### Images
 
@@ -161,6 +176,11 @@ Git operations apply to Git repositories only.
 - Auto-push retries when offline
 - Conflicts require an external Git client to resolve
 
+### Local Repositories
+
+- Local repositories do not sync and do not show fetch/pull/push controls
+- Saving writes directly to disk
+
 ### S3 Sync Behavior
 
 - S3 repositories do not use commits or pull/push buttons
@@ -176,6 +196,7 @@ Git operations apply to Git repositories only.
 - Click an entry to view a read-only version
 - S3 history requires bucket versioning and uses object versions
 - Diff view is not available for S3 history
+- Local repositories do not provide history
 
 ---
 
@@ -191,7 +212,7 @@ Git operations apply to Git repositories only.
 
 - **Open Settings**: gear icon or `Ctrl/Cmd+,`
 - **App settings**: theme, auto-save, S3 auto sync (S3 profiles)
-- **Repository settings**: Git URL/branch or S3 bucket/region/prefix + credentials
+- **Repository settings**: Git URL/branch, S3 bucket/region/prefix + credentials, or Local info
 - **Export**: current note or repository ZIP
 
 ### Data Location
@@ -291,6 +312,7 @@ Clicking empty space in the tree clears the selection so you can start a new act
 - Authentication failed: verify URL/branch/credentials and repo access
 - S3 versioning required: enable bucket versioning in AWS
 - S3 changes not syncing: check S3 Auto Sync toggle/interval and credentials
+- Local repo not syncing: expected behavior (local-only mode)
 - Push fails or conflicts (Git): resolve in a Git client, then pull again
 - Mermaid not rendering: ensure `.md` file, a fenced code block with `mermaid`, and Preview/Split View
 - Slow performance: large repos or many files

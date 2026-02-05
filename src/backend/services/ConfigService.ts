@@ -8,6 +8,7 @@ import {
   RepoSettings,
   GitRepoSettings,
   S3RepoSettings,
+  LocalRepoSettings,
   RepoProviderType,
   AppStateSnapshot,
   Profile,
@@ -15,13 +16,14 @@ import {
   ApiErrorCode,
   DEFAULT_APP_SETTINGS,
   DEFAULT_APP_STATE,
+  REPO_PROVIDERS,
 } from '../../shared/types';
 import { logger } from '../utils/logger';
-import { 
-  slugifyProfileName, 
-  getDefaultReposBaseDir, 
+import {
+  slugifyProfileName,
+  getDefaultReposBaseDir,
   extractRepoNameFromUrl,
-  findUniqueFolderName 
+  findUniqueFolderName
 } from '../utils/profileHelpers';
 
 export class ConfigService {
@@ -47,10 +49,15 @@ export class ConfigService {
   }
 
   private normalizeRepoSettings(raw: any): RepoSettings {
-    const provider: RepoProviderType = raw?.provider === 's3' ? 's3' : 'git';
-    if (provider === 's3') {
+    const provider: RepoProviderType =
+      raw?.provider === REPO_PROVIDERS.s3
+        ? REPO_PROVIDERS.s3
+        : raw?.provider === REPO_PROVIDERS.local
+          ? REPO_PROVIDERS.local
+          : REPO_PROVIDERS.git;
+    if (provider === REPO_PROVIDERS.s3) {
       return {
-        provider: 's3',
+        provider: REPO_PROVIDERS.s3,
         bucket: raw?.bucket || '',
         region: raw?.region || '',
         prefix: raw?.prefix || '',
@@ -61,8 +68,15 @@ export class ConfigService {
       };
     }
 
+    if (provider === REPO_PROVIDERS.local) {
+      return {
+        provider: REPO_PROVIDERS.local,
+        localPath: raw?.localPath || '',
+      };
+    }
+
     return {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       remoteUrl: raw?.remoteUrl || '',
       branch: raw?.branch || 'main',
       localPath: raw?.localPath || '',
@@ -72,7 +86,7 @@ export class ConfigService {
   }
 
   private decryptRepoSettings(settings: RepoSettings): RepoSettings {
-    if (settings.provider === 's3') {
+    if (settings.provider === REPO_PROVIDERS.s3) {
       const decrypted: S3RepoSettings = { ...settings };
       if (decrypted.accessKeyId) {
         decrypted.accessKeyId = this.cryptoAdapter.decrypt(decrypted.accessKeyId);
@@ -86,6 +100,10 @@ export class ConfigService {
       return decrypted;
     }
 
+    if (settings.provider === REPO_PROVIDERS.local) {
+      return settings;
+    }
+
     const decrypted: GitRepoSettings = { ...settings };
     if (decrypted.pat) {
       decrypted.pat = this.cryptoAdapter.decrypt(decrypted.pat);
@@ -94,7 +112,7 @@ export class ConfigService {
   }
 
   private encryptRepoSettings(settings: RepoSettings): RepoSettings {
-    if (settings.provider === 's3') {
+    if (settings.provider === REPO_PROVIDERS.s3) {
       const encrypted: S3RepoSettings = { ...settings };
       if (encrypted.accessKeyId) {
         encrypted.accessKeyId = this.cryptoAdapter.encrypt(encrypted.accessKeyId);
@@ -106,6 +124,10 @@ export class ConfigService {
         encrypted.sessionToken = this.cryptoAdapter.encrypt(encrypted.sessionToken);
       }
       return encrypted;
+    }
+
+    if (settings.provider === REPO_PROVIDERS.local) {
+      return settings;
     }
 
     const encrypted: GitRepoSettings = { ...settings };
@@ -121,7 +143,7 @@ export class ConfigService {
 
   async getFull(): Promise<FullConfig> {
     logger.info('Loading full configuration');
-    
+
     await this.ensureConfigDir();
     await this.migrateToProfiles();
 
@@ -142,7 +164,7 @@ export class ConfigService {
 
   async getAppSettings(): Promise<AppSettings> {
     try {
-    if (await this.fsAdapter.exists(this.appSettingsPath)) {
+      if (await this.fsAdapter.exists(this.appSettingsPath)) {
         const content = await this.fsAdapter.readFile(this.appSettingsPath);
         const settings = JSON.parse(content);
         logger.debug('Loaded app settings', { settings });
@@ -157,7 +179,7 @@ export class ConfigService {
 
   async updateAppSettings(settings: Partial<AppSettings>): Promise<void> {
     logger.info('Updating app settings', { settings });
-    
+
     await this.ensureConfigDir();
 
     const current = await this.getAppSettings();
@@ -197,19 +219,19 @@ export class ConfigService {
     if (activeProfileId) {
       const profiles = await this.getProfiles();
       const activeProfile = profiles.find(p => p.id === activeProfileId);
-    if (activeProfile) {
+      if (activeProfile) {
         logger.debug('Loaded repo settings from active profile');
         return activeProfile.repoSettings;
       }
     }
 
     try {
-    if (await this.fsAdapter.exists(this.repoSettingsPath)) {
+      if (await this.fsAdapter.exists(this.repoSettingsPath)) {
         const content = await this.fsAdapter.readFile(this.repoSettingsPath);
         const rawSettings = JSON.parse(content);
         const settings = this.normalizeRepoSettings(rawSettings);
         const decrypted = this.decryptRepoSettings(settings);
-        
+
         logger.debug('Loaded repo settings');
         return decrypted;
       }
@@ -232,11 +254,11 @@ export class ConfigService {
 
     logger.info('Updating repo settings', {
       provider: settings.provider,
-      remoteUrl: settings.provider === 'git' ? settings.remoteUrl : undefined,
-      bucket: settings.provider === 's3' ? settings.bucket : undefined,
-      region: settings.provider === 's3' ? settings.region : undefined,
+      remoteUrl: settings.provider === REPO_PROVIDERS.git ? settings.remoteUrl : undefined,
+      bucket: settings.provider === REPO_PROVIDERS.s3 ? settings.bucket : undefined,
+      region: settings.provider === REPO_PROVIDERS.s3 ? settings.region : undefined,
     });
-    
+
     await this.ensureConfigDir();
 
     const toSave = this.encryptRepoSettings(settings);
@@ -246,7 +268,7 @@ export class ConfigService {
 
   async getAppState(): Promise<AppStateSnapshot> {
     try {
-    if (await this.fsAdapter.exists(this.appStatePath)) {
+      if (await this.fsAdapter.exists(this.appStatePath)) {
         const content = await this.fsAdapter.readFile(this.appStatePath);
         const state = JSON.parse(content);
         logger.debug('Loaded app state', { state });
@@ -271,7 +293,7 @@ export class ConfigService {
 
   async clearRepoSettings(): Promise<void> {
     logger.info('Clearing repo settings');
-    
+
     if (await this.fsAdapter.exists(this.repoSettingsPath)) {
       await this.fsAdapter.deleteFile(this.repoSettingsPath);
     }
@@ -280,7 +302,7 @@ export class ConfigService {
 
   async getProfiles(): Promise<Profile[]> {
     try {
-    if (await this.fsAdapter.exists(this.profilesPath)) {
+      if (await this.fsAdapter.exists(this.profilesPath)) {
         const content = await this.fsAdapter.readFile(this.profilesPath);
         const profiles = JSON.parse(content);
         const hydrated = profiles.map((profile: Profile) => {
@@ -290,7 +312,7 @@ export class ConfigService {
             repoSettings: this.decryptRepoSettings(normalizedSettings),
           };
         });
-        
+
         logger.debug('Loaded profiles', { count: profiles.length });
         return hydrated;
       }
@@ -303,7 +325,7 @@ export class ConfigService {
 
   async saveProfiles(profiles: Profile[]): Promise<void> {
     logger.info('Saving profiles', { count: profiles.length });
-    
+
     await this.ensureConfigDir();
 
     const toSave = profiles.map(profile => ({
@@ -317,7 +339,7 @@ export class ConfigService {
 
   async getActiveProfileId(): Promise<string | null> {
     try {
-    if (await this.fsAdapter.exists(this.activeProfilePath)) {
+      if (await this.fsAdapter.exists(this.activeProfilePath)) {
         const content = await this.fsAdapter.readFile(this.activeProfilePath);
         const data = JSON.parse(content);
         logger.debug('Loaded active profile ID', { id: data.activeProfileId });
@@ -332,66 +354,43 @@ export class ConfigService {
 
   async setActiveProfileId(profileId: string | null): Promise<void> {
     logger.info('Setting active profile ID', { profileId });
-    
+
     await this.ensureConfigDir();
 
     await this.fsAdapter.writeFile(
       this.activeProfilePath,
       JSON.stringify({ activeProfileId: profileId }, null, 2)
     );
-    
+
     logger.debug('Active profile ID saved');
   }
 
   async createProfile(name: string, repoSettings: Partial<RepoSettings>): Promise<Profile> {
     logger.info('Creating new profile', { name });
-    
+
     const profiles = await this.getProfiles();
-    
-    const provider: RepoProviderType = repoSettings.provider === 's3' ? 's3' : 'git';
+
+    const provider = this.resolveProviderType(repoSettings);
     const baseName = slugifyProfileName(name);
     const baseDir = getDefaultReposBaseDir();
-    
+
     await this.fsAdapter.mkdir(baseDir, { recursive: true });
-    
-    const baseFolderName = provider === 's3' ? `${baseName}-s3` : baseName;
+
+    const baseFolderName = this.getProfileBaseFolderName(baseName, provider);
     const folderName = await findUniqueFolderName(baseDir, baseFolderName, this.fsAdapter);
     const localPath = path.join(baseDir, folderName);
-    
-    logger.info('Assigned local path for profile', { name, localPath });
-    
-    let fullRepoSettings: RepoSettings;
-    if (provider === 'git') {
-      const gitSettings = repoSettings as Partial<GitRepoSettings>;
-      fullRepoSettings = {
-        provider: 'git',
-        remoteUrl: gitSettings.remoteUrl || '',
-        branch: gitSettings.branch || 'main',
-        localPath,
-        pat: gitSettings.pat || '',
-        authMethod: gitSettings.authMethod || AuthMethod.PAT,
-      };
-    } else {
-      const s3Settings = repoSettings as Partial<S3RepoSettings>;
-      if (!s3Settings.bucket || !s3Settings.region || !s3Settings.accessKeyId || !s3Settings.secretAccessKey) {
-        throw {
-          code: ApiErrorCode.VALIDATION_ERROR,
-          message: 'S3 bucket, region, access key, and secret are required',
-        };
-      }
 
-      fullRepoSettings = {
-        provider: 's3',
-        bucket: s3Settings.bucket,
-        region: s3Settings.region,
-        prefix: s3Settings.prefix || '',
-        localPath,
-        accessKeyId: s3Settings.accessKeyId,
-        secretAccessKey: s3Settings.secretAccessKey,
-        sessionToken: s3Settings.sessionToken || '',
-      };
+    logger.info('Assigned local path for profile', { name, localPath });
+
+    let fullRepoSettings: RepoSettings;
+    if (provider === REPO_PROVIDERS.git) {
+      fullRepoSettings = this.buildGitProfileSettings(repoSettings, localPath);
+    } else if (provider === REPO_PROVIDERS.s3) {
+      fullRepoSettings = this.buildS3ProfileSettings(repoSettings, localPath);
+    } else {
+      fullRepoSettings = this.buildLocalProfileSettings(localPath);
     }
-    
+
     const newProfile: Profile = {
       id: `profile-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       name,
@@ -402,17 +401,83 @@ export class ConfigService {
 
     profiles.push(newProfile);
     await this.saveProfiles(profiles);
-    
+
     logger.info('Profile created', { id: newProfile.id });
     return newProfile;
   }
 
+  private resolveProviderType(repoSettings: Partial<RepoSettings>): RepoProviderType {
+    if (repoSettings.provider === REPO_PROVIDERS.s3) {
+      return REPO_PROVIDERS.s3;
+    }
+    if (repoSettings.provider === REPO_PROVIDERS.local) {
+      return REPO_PROVIDERS.local;
+    }
+    return REPO_PROVIDERS.git;
+  }
+
+  private getProfileBaseFolderName(baseName: string, provider: RepoProviderType): string {
+    if (provider === REPO_PROVIDERS.s3) {
+      return `${baseName}-s3`;
+    }
+    if (provider === REPO_PROVIDERS.local) {
+      return `${baseName}-local`;
+    }
+    return baseName;
+  }
+
+  private buildGitProfileSettings(
+    repoSettings: Partial<RepoSettings>,
+    localPath: string
+  ): GitRepoSettings {
+    const gitSettings = repoSettings as Partial<GitRepoSettings>;
+    return {
+      provider: REPO_PROVIDERS.git,
+      remoteUrl: gitSettings.remoteUrl || '',
+      branch: gitSettings.branch || 'main',
+      localPath,
+      pat: gitSettings.pat || '',
+      authMethod: gitSettings.authMethod || AuthMethod.PAT,
+    };
+  }
+
+  private buildS3ProfileSettings(
+    repoSettings: Partial<RepoSettings>,
+    localPath: string
+  ): S3RepoSettings {
+    const s3Settings = repoSettings as Partial<S3RepoSettings>;
+    if (!s3Settings.bucket || !s3Settings.region || !s3Settings.accessKeyId || !s3Settings.secretAccessKey) {
+      throw {
+        code: ApiErrorCode.VALIDATION_ERROR,
+        message: 'S3 bucket, region, access key, and secret are required',
+      };
+    }
+
+    return {
+      provider: REPO_PROVIDERS.s3,
+      bucket: s3Settings.bucket,
+      region: s3Settings.region,
+      prefix: s3Settings.prefix || '',
+      localPath,
+      accessKeyId: s3Settings.accessKeyId,
+      secretAccessKey: s3Settings.secretAccessKey,
+      sessionToken: s3Settings.sessionToken || '',
+    };
+  }
+
+  private buildLocalProfileSettings(localPath: string): LocalRepoSettings {
+    return {
+      provider: REPO_PROVIDERS.local,
+      localPath,
+    };
+  }
+
   async updateProfile(profileId: string, updates: Partial<Omit<Profile, 'id'>>): Promise<void> {
     logger.info('Updating profile', { profileId });
-    
+
     const profiles = await this.getProfiles();
     const index = profiles.findIndex(p => p.id === profileId);
-    
+
     if (index === -1) {
       throw new Error(`Profile not found: ${profileId}`);
     }
@@ -436,49 +501,49 @@ export class ConfigService {
 
   async deleteProfile(profileId: string): Promise<void> {
     logger.info('Deleting profile', { profileId });
-    
+
     const profiles = await this.getProfiles();
     const filtered = profiles.filter(p => p.id !== profileId);
-    
+
     if (filtered.length === profiles.length) {
       throw new Error(`Profile not found: ${profileId}`);
     }
 
     await this.saveProfiles(filtered);
-    
+
     const activeId = await this.getActiveProfileId();
     if (activeId === profileId) {
       await this.setActiveProfileId(null);
     }
-    
+
     logger.info('Profile deleted');
   }
 
   async migrateToProfiles(): Promise<void> {
     const profiles = await this.getProfiles();
     const activeProfileId = await this.getActiveProfileId();
-    
+
     if (profiles.length > 0 || activeProfileId) {
       return;
     }
 
     try {
-    if (await this.fsAdapter.exists(this.repoSettingsPath)) {
+      if (await this.fsAdapter.exists(this.repoSettingsPath)) {
         logger.info('Migrating legacy repo settings to first profile');
-        
+
         const content = await this.fsAdapter.readFile(this.repoSettingsPath);
         const rawSettings = JSON.parse(content);
         const normalizedSettings = this.normalizeRepoSettings(rawSettings);
         const repoSettings = this.decryptRepoSettings(normalizedSettings);
 
         let profileName = 'Default Profile';
-        
-    if (repoSettings.provider === 'git' && repoSettings.remoteUrl) {
+
+        if (repoSettings.provider === REPO_PROVIDERS.git && repoSettings.remoteUrl) {
           profileName = extractRepoNameFromUrl(repoSettings.remoteUrl);
         } else if (repoSettings.localPath) {
           profileName = path.basename(repoSettings.localPath);
         }
-        
+
         logger.info('Derived profile name for migration', { profileName });
 
         const firstProfile: Profile = {
@@ -491,7 +556,7 @@ export class ConfigService {
 
         await this.saveProfiles([firstProfile]);
         await this.setActiveProfileId(firstProfile.id);
-        
+
         logger.info('Migration complete: created profile from legacy settings', { profileName });
       }
     } catch (error) {

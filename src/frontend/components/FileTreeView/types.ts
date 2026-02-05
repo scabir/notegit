@@ -11,6 +11,10 @@ export interface FileTreeViewProps {
   onRename: (oldPath: string, newPath: string) => Promise<void>;
   onDuplicate?: (path: string) => Promise<string | void>;
   onImport: (sourcePath: string, targetPath: string) => Promise<void>;
+  onNavigateBack?: () => void;
+  onNavigateForward?: () => void;
+  canNavigateBack?: boolean;
+  canNavigateForward?: boolean;
   isS3Repo: boolean;
 }
 

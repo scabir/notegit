@@ -1,5 +1,5 @@
 import { S3Adapter } from '../../../backend/adapters/S3Adapter';
-import { ApiErrorCode } from '../../../shared/types';
+import { ApiErrorCode, REPO_PROVIDERS } from '../../../shared/types';
 import { Readable } from 'stream';
 
 jest.mock('@aws-sdk/client-s3', () => {
@@ -26,7 +26,7 @@ describe('S3Adapter', () => {
     sendMock.mockReset();
     adapter = new S3Adapter();
     adapter.configure({
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       bucket: 'notes-bucket',
       region: 'us-east-1',
       prefix: '',

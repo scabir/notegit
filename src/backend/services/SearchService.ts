@@ -61,8 +61,8 @@ export class SearchService {
     try {
       const files = await this.getAllSearchableFiles(this.repoPath!);
 
-    for (const filePath of files) {
-    if (results.length >= maxResults) break;
+      for (const filePath of files) {
+        if (results.length >= maxResults) break;
 
         const fileName = path.basename(filePath);
         const fileNameLower = fileName.toLowerCase();
@@ -82,10 +82,10 @@ export class SearchService {
         const lines = content.split('\n');
         const contentLower = content.toLowerCase();
 
-    if (contentLower.includes(queryLower)) {
-    for (let i = 0; i < lines.length; i++) {
+        if (contentLower.includes(queryLower)) {
+          for (let i = 0; i < lines.length; i++) {
             const lineLower = lines[i].toLowerCase();
-    if (lineLower.includes(queryLower)) {
+            if (lineLower.includes(queryLower)) {
               matches.push({
                 lineNumber: i + 1,
                 lineContent: lines[i],
@@ -93,12 +93,12 @@ export class SearchService {
                 contextAfter: i < lines.length - 1 ? lines[i + 1] : '',
               });
 
-    if (matches.length >= 5) break;
+              if (matches.length >= 5) break;
             }
           }
         }
 
-    if (matches.length > 0 || fileNameMatches) {
+        if (matches.length > 0 || fileNameMatches) {
           const relativePath = path.relative(this.repoPath!, filePath);
           results.push({
             filePath: relativePath,
@@ -127,25 +127,25 @@ export class SearchService {
       try {
         const entries = await this.fsAdapter.readdir(currentPath);
 
-    for (const entryName of entries) {
+        for (const entryName of entries) {
           const fullPath = path.join(currentPath, entryName);
 
-    if (entryName.startsWith('.')) {
+          if (entryName.startsWith('.')) {
             continue;
           }
 
-    if (entryName === 'node_modules' || entryName === 'dist' || entryName === 'build') {
+          if (entryName === 'node_modules' || entryName === 'dist' || entryName === 'build') {
             continue;
           }
 
           try {
             const stats = await this.fsAdapter.stat(fullPath);
-            
-    if (stats.isDirectory()) {
+
+            if (stats.isDirectory()) {
               await processDirectory(fullPath);
             } else {
               const ext = path.extname(entryName).toLowerCase();
-    if (ext === '.md' || ext === '.txt' || ext === '.markdown') {
+              if (ext === '.md' || ext === '.txt' || ext === '.markdown') {
                 files.push(fullPath);
               }
             }
@@ -180,7 +180,7 @@ export class SearchService {
     try {
       const files = await this.getAllMarkdownFiles(this.repoPath!);
 
-    for (const filePath of files) {
+      for (const filePath of files) {
         const relativePath = path.relative(this.repoPath!, filePath);
         const fileMatches: RepoWideMatch[] = [];
 
@@ -188,11 +188,11 @@ export class SearchService {
           const content = await this.fsAdapter.readFile(filePath);
           const lines = content.split('\n');
 
-    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+          for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
             const line = lines[lineIndex];
             const matches = this.findMatchesInLine(line, query, caseSensitive, useRegex);
 
-    for (const match of matches) {
+            for (const match of matches) {
               fileMatches.push({
                 lineNumber: lineIndex + 1,
                 lineContent: line,
@@ -204,7 +204,7 @@ export class SearchService {
             }
           }
 
-    if (fileMatches.length > 0) {
+          if (fileMatches.length > 0) {
             results.push({
               filePath: relativePath,
               fileName: path.basename(filePath),
@@ -252,7 +252,7 @@ export class SearchService {
     let filesToProcess: string[] = [];
 
     try {
-    if (options.filePaths && options.filePaths.length > 0) {
+      if (options.filePaths && options.filePaths.length > 0) {
         filesToProcess = options.filePaths.map((relPath) =>
           path.join(this.repoPath!, relPath)
         );
@@ -267,14 +267,14 @@ export class SearchService {
         errors: [],
       };
 
-    for (const filePath of filesToProcess) {
+      for (const filePath of filesToProcess) {
         result.filesProcessed++;
 
         try {
           const content = await this.fsAdapter.readFile(filePath);
           const newContent = this.replaceInContent(content, query, replacement, caseSensitive, useRegex);
 
-    if (newContent !== content) {
+          if (newContent !== content) {
             await this.fsAdapter.writeFile(filePath, newContent);
             result.filesModified++;
 
@@ -315,25 +315,25 @@ export class SearchService {
       try {
         const entries = await this.fsAdapter.readdir(currentPath);
 
-    for (const entryName of entries) {
+        for (const entryName of entries) {
           const fullPath = path.join(currentPath, entryName);
 
-    if (entryName.startsWith('.')) {
+          if (entryName.startsWith('.')) {
             continue;
           }
 
-    if (entryName === 'node_modules' || entryName === 'dist' || entryName === 'build') {
+          if (entryName === 'node_modules' || entryName === 'dist' || entryName === 'build') {
             continue;
           }
 
           try {
             const stats = await this.fsAdapter.stat(fullPath);
 
-    if (stats.isDirectory()) {
+            if (stats.isDirectory()) {
               await processDirectory(fullPath);
             } else {
               const ext = path.extname(entryName).toLowerCase();
-    if (ext === '.md' || ext === '.markdown') {
+              if (ext === '.md' || ext === '.markdown') {
                 files.push(fullPath);
               }
             }
@@ -365,7 +365,7 @@ export class SearchService {
         const regex = new RegExp(query, flags);
         let match;
 
-    while ((match = regex.exec(line)) !== null) {
+        while ((match = regex.exec(line)) !== null) {
           matches.push({
             start: match.index,
             end: match.index + match[0].length,
@@ -379,7 +379,7 @@ export class SearchService {
       const searchQuery = caseSensitive ? query : query.toLowerCase();
       let index = 0;
 
-    while ((index = searchLine.indexOf(searchQuery, index)) !== -1) {
+      while ((index = searchLine.indexOf(searchQuery, index)) !== -1) {
         matches.push({
           start: index,
           end: index + query.length,
@@ -405,7 +405,7 @@ export class SearchService {
         const regex = new RegExp(query, flags);
         let match;
 
-    while ((match = regex.exec(content)) !== null) {
+        while ((match = regex.exec(content)) !== null) {
           matches.push({
             start: match.index,
             end: match.index + match[0].length,
@@ -419,7 +419,7 @@ export class SearchService {
       const searchQuery = caseSensitive ? query : query.toLowerCase();
       let index = 0;
 
-    while ((index = searchContent.indexOf(searchQuery, index)) !== -1) {
+      while ((index = searchContent.indexOf(searchQuery, index)) !== -1) {
         matches.push({
           start: index,
           end: index + query.length,
@@ -447,7 +447,7 @@ export class SearchService {
         return this.replaceInContent(content, query, replacement, caseSensitive, false);
       }
     } else {
-    if (caseSensitive) {
+      if (caseSensitive) {
         return content.split(query).join(replacement);
       } else {
         const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');

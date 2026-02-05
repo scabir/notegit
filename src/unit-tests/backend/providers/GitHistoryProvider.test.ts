@@ -1,9 +1,9 @@
 import { GitHistoryProvider } from '../../../backend/providers/GitHistoryProvider';
-import { ApiErrorCode, AuthMethod, GitRepoSettings } from '../../../shared/types';
+import { ApiErrorCode, AuthMethod, GitRepoSettings, REPO_PROVIDERS } from '../../../shared/types';
 
 describe('GitHistoryProvider', () => {
   const baseSettings: GitRepoSettings = {
-    provider: 'git',
+    provider: REPO_PROVIDERS.git,
     remoteUrl: 'https://example.com/repo.git',
     branch: 'main',
     pat: 'token',

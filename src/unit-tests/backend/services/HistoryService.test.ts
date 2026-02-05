@@ -2,7 +2,7 @@ import { HistoryService } from '../../../backend/services/HistoryService';
 import { GitAdapter } from '../../../backend/adapters/GitAdapter';
 import { ConfigService } from '../../../backend/services/ConfigService';
 import { GitHistoryProvider } from '../../../backend/providers/GitHistoryProvider';
-import { AuthMethod } from '../../../shared/types';
+import { AuthMethod, REPO_PROVIDERS } from '../../../shared/types';
 
 jest.mock('../../../backend/adapters/GitAdapter');
 jest.mock('../../../backend/services/ConfigService');
@@ -12,7 +12,14 @@ describe('HistoryService', () => {
   let mockGitAdapter: jest.Mocked<GitAdapter>;
   let mockConfigService: jest.Mocked<ConfigService>;
   let mockS3HistoryProvider: jest.Mocked<{
-    type: 's3';
+    type: typeof REPO_PROVIDERS.s3;
+    configure: jest.Mock;
+    getForFile: jest.Mock;
+    getVersion: jest.Mock;
+    getDiff: jest.Mock;
+  }>;
+  let mockLocalHistoryProvider: jest.Mocked<{
+    type: typeof REPO_PROVIDERS.local;
     configure: jest.Mock;
     getForFile: jest.Mock;
     getVersion: jest.Mock;
@@ -25,7 +32,14 @@ describe('HistoryService', () => {
 
     const gitHistoryProvider = new GitHistoryProvider(mockGitAdapter);
     mockS3HistoryProvider = {
-      type: 's3',
+      type: REPO_PROVIDERS.s3,
+      configure: jest.fn(),
+      getForFile: jest.fn(),
+      getVersion: jest.fn(),
+      getDiff: jest.fn(),
+    } as any;
+    mockLocalHistoryProvider = {
+      type: REPO_PROVIDERS.local,
       configure: jest.fn(),
       getForFile: jest.fn(),
       getVersion: jest.fn(),
@@ -33,7 +47,7 @@ describe('HistoryService', () => {
     } as any;
 
     historyService = new HistoryService(
-      { git: gitHistoryProvider, s3: mockS3HistoryProvider },
+      { git: gitHistoryProvider, s3: mockS3HistoryProvider, local: mockLocalHistoryProvider },
       mockConfigService
     );
 
@@ -43,7 +57,7 @@ describe('HistoryService', () => {
   describe('init', () => {
     it('should initialize with repo path from config', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/path/to/repo',
         remoteUrl: 'https://github.com/user/repo.git',
         branch: 'main',
@@ -60,7 +74,7 @@ describe('HistoryService', () => {
   describe('getForFile', () => {
     it('should get commit history for a file', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -99,7 +113,7 @@ describe('HistoryService', () => {
 
     it('should return empty array when no history', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -119,7 +133,7 @@ describe('HistoryService', () => {
   describe('getVersion', () => {
     it('should get file content at specific commit', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -140,7 +154,7 @@ describe('HistoryService', () => {
   describe('getDiff', () => {
     it('should get diff between two commits', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -176,7 +190,7 @@ index abc123..def456 100644
 
     it('should handle diff with multiple hunks', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -206,7 +220,7 @@ index abc123..def456 100644
 
     it('should return empty array for no changes', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -226,7 +240,7 @@ index abc123..def456 100644
   describe('s3 provider selection', () => {
     it('uses the s3 provider when repo settings are s3', async () => {
       const repoSettings = {
-        provider: 's3',
+        provider: REPO_PROVIDERS.s3,
         localPath: '/repo',
         bucket: 'notes-bucket',
         region: 'us-east-1',
@@ -243,6 +257,23 @@ index abc123..def456 100644
 
       expect(mockS3HistoryProvider.configure).toHaveBeenCalledWith(repoSettings);
       expect(mockS3HistoryProvider.getForFile).toHaveBeenCalledWith('notes/file.md');
+    });
+  });
+
+  describe('local provider selection', () => {
+    it('uses the local provider when repo settings are local', async () => {
+      const repoSettings = {
+        provider: REPO_PROVIDERS.local,
+        localPath: '/repo',
+      };
+
+      mockConfigService.getRepoSettings.mockResolvedValue(repoSettings as any);
+      mockLocalHistoryProvider.getForFile.mockResolvedValue([]);
+
+      await historyService.getForFile('notes/file.md');
+
+      expect(mockLocalHistoryProvider.configure).toHaveBeenCalledWith(repoSettings);
+      expect(mockLocalHistoryProvider.getForFile).toHaveBeenCalledWith('notes/file.md');
     });
   });
 });

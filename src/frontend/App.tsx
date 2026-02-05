@@ -3,12 +3,15 @@ import { ThemeProvider, createTheme, CssBaseline, useMediaQuery } from '@mui/mat
 import { Box, Typography, Button, Alert, CircularProgress } from '@mui/material';
 import { RepoSetupDialog } from './components/RepoSetupDialog';
 import { Workspace } from './components/Workspace';
+import type { RepoProviderType } from '../shared/types';
+import { REPO_PROVIDERS } from '../shared/types';
 
 function App() {
   const [loading, setLoading] = useState(true);
   const [setupDialogOpen, setSetupDialogOpen] = useState(false);
   const [gitInstalled, setGitInstalled] = useState<boolean | null>(null);
   const [hasRepo, setHasRepo] = useState(false);
+  const [repoProvider, setRepoProvider] = useState<RepoProviderType | null>(null);
   const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('system');
   
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -52,8 +55,10 @@ function App() {
       const configResponse = await window.notegitApi.config.getFull();
       if (configResponse.ok && configResponse.data?.repoSettings) {
         setHasRepo(true);
+        setRepoProvider(configResponse.data.repoSettings.provider || null);
       } else {
         setHasRepo(false);
+        setRepoProvider(null);
       }
       
       if (configResponse.ok && configResponse.data?.appSettings?.theme) {
@@ -98,7 +103,7 @@ function App() {
     );
   }
 
-  if (gitInstalled === false) {
+  if (gitInstalled === false && repoProvider === REPO_PROVIDERS.git) {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />

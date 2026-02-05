@@ -14,10 +14,16 @@ export interface EditorPreferences {
   showPreview: boolean;
 }
 
-export type RepoProviderType = 'git' | 's3';
+export const REPO_PROVIDERS = {
+  git: 'git',
+  s3: 's3',
+  local: 'local',
+} as const;
+
+export type RepoProviderType = (typeof REPO_PROVIDERS)[keyof typeof REPO_PROVIDERS];
 
 export interface GitRepoSettings {
-  provider: 'git';
+  provider: typeof REPO_PROVIDERS.git;
   remoteUrl: string;
   branch: string;
   localPath: string;
@@ -26,7 +32,7 @@ export interface GitRepoSettings {
 }
 
 export interface S3RepoSettings {
-  provider: 's3';
+  provider: typeof REPO_PROVIDERS.s3;
   bucket: string;
   region: string;
   prefix?: string;
@@ -36,7 +42,12 @@ export interface S3RepoSettings {
   sessionToken?: string;
 }
 
-export type RepoSettings = GitRepoSettings | S3RepoSettings;
+export interface LocalRepoSettings {
+  provider: typeof REPO_PROVIDERS.local;
+  localPath: string;
+}
+
+export type RepoSettings = GitRepoSettings | S3RepoSettings | LocalRepoSettings;
 
 export enum AuthMethod {
   PAT = 'pat',

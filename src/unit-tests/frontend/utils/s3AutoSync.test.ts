@@ -1,4 +1,5 @@
 import { getS3AutoSyncIntervalMs, startS3AutoSync } from '../../../frontend/utils/s3AutoSync';
+import { REPO_PROVIDERS } from '../../../shared/types';
 
 const flushPromises = async () => {
   await Promise.resolve();
@@ -21,7 +22,7 @@ describe('s3AutoSync', () => {
       getStatus: jest.fn().mockResolvedValue({
         ok: true,
         data: {
-          provider: 's3',
+          provider: REPO_PROVIDERS.s3,
           branch: 'bucket',
           ahead: 0,
           behind: 0,

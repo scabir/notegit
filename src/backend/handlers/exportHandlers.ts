@@ -36,10 +36,10 @@ export function registerExportHandlers(ipcMain: IpcMain, exportService: ExportSe
           error: error.code
             ? error
             : {
-                code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || 'Failed to export note',
-                details: error,
-              },
+              code: ApiErrorCode.UNKNOWN_ERROR,
+              message: error.message || 'Failed to export note',
+              details: error,
+            },
         };
       }
     }
@@ -70,10 +70,10 @@ export function registerExportHandlers(ipcMain: IpcMain, exportService: ExportSe
         error: error.code
           ? error
           : {
-              code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || 'Failed to export repository as zip',
-              details: error,
-            },
+            code: ApiErrorCode.UNKNOWN_ERROR,
+            message: error.message || 'Failed to export repository as zip',
+            details: error,
+          },
       };
     }
   });

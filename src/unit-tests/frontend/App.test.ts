@@ -1,6 +1,7 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import App from '../../frontend/App';
+import { REPO_PROVIDERS } from '../../shared/types';
 
 jest.mock('@mui/material', () => {
   const React = require('react');
@@ -44,9 +45,22 @@ describe('App', () => {
     };
   });
 
-  it('shows git missing message when git is not installed', async () => {
+  it('shows git missing message when git is not installed and repo is git', async () => {
     (global as any).window.notegitApi.config.checkGitInstalled.mockResolvedValue({ ok: true, data: false });
-    (global as any).window.notegitApi.config.getFull.mockResolvedValue({ ok: true, data: { repoSettings: null } });
+    (global as any).window.notegitApi.config.getFull.mockResolvedValue({
+      ok: true,
+      data: {
+        repoSettings: {
+          provider: REPO_PROVIDERS.git,
+          remoteUrl: 'https://github.com/example/repo.git',
+          branch: 'main',
+          localPath: '/repo',
+          pat: 'token',
+          authMethod: 'pat',
+        },
+        appSettings: { theme: 'system' },
+      },
+    });
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -61,7 +75,7 @@ describe('App', () => {
   });
 
   it('shows repo setup when no repository is connected', async () => {
-    (global as any).window.notegitApi.config.checkGitInstalled.mockResolvedValue({ ok: true, data: true });
+    (global as any).window.notegitApi.config.checkGitInstalled.mockResolvedValue({ ok: true, data: false });
     (global as any).window.notegitApi.config.getFull.mockResolvedValue({
       ok: true,
       data: { repoSettings: null, appSettings: { theme: 'system' } },
@@ -79,13 +93,39 @@ describe('App', () => {
     expect(flattenText(renderer!.toJSON())).toContain('Connect to Repository');
   });
 
+  it('renders workspace when local repo is configured without git', async () => {
+    (global as any).window.notegitApi.config.checkGitInstalled.mockResolvedValue({ ok: true, data: false });
+    (global as any).window.notegitApi.config.getFull.mockResolvedValue({
+      ok: true,
+      data: {
+        repoSettings: {
+          provider: REPO_PROVIDERS.local,
+          localPath: '/repo',
+        },
+        appSettings: { theme: 'system' },
+      },
+    });
+
+    let renderer: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(React.createElement(App));
+    });
+
+    await act(async () => {
+      await flushPromises();
+    });
+
+    const workspace = renderer!.root.findByProps({ 'data-testid': 'workspace' });
+    expect(workspace).toBeTruthy();
+  });
+
   it('renders workspace when a repo is configured', async () => {
     (global as any).window.notegitApi.config.checkGitInstalled.mockResolvedValue({ ok: true, data: true });
     (global as any).window.notegitApi.config.getFull.mockResolvedValue({
       ok: true,
       data: {
         repoSettings: {
-          provider: 'git',
+          provider: REPO_PROVIDERS.git,
           remoteUrl: 'https://github.com/example/repo.git',
           branch: 'main',
           localPath: '/repo',

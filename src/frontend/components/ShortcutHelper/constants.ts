@@ -38,6 +38,8 @@ export const SHORTCUT_HELPER_SECTIONS = [
     title: 'Global',
     shortcuts: [
       { label: 'Save current note', keys: 'Ctrl/Cmd + S' },
+      { label: 'Navigate back', keys: 'Ctrl/Cmd + Left' },
+      { label: 'Navigate forward', keys: 'Ctrl/Cmd + Right' },
       { label: 'Quick file search', keys: 'Ctrl/Cmd + P' },
       { label: 'Quick search alternative', keys: 'Ctrl/Cmd + K' },
       { label: 'Find in file', keys: 'Ctrl/Cmd + F' },

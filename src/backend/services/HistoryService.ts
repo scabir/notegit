@@ -16,7 +16,7 @@ export class HistoryService {
   constructor(
     private providers: Record<RepoProviderType, HistoryProvider>,
     private configService: ConfigService
-  ) {}
+  ) { }
 
   async init(): Promise<void> {
     await this.ensureProvider();

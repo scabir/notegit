@@ -15,6 +15,8 @@ import {
   AuthMethod,
   GitRepoSettings,
   S3RepoSettings,
+  LocalRepoSettings,
+  REPO_PROVIDERS,
 } from '../../shared/types';
 import { logger } from '../utils/logger';
 import {
@@ -23,6 +25,8 @@ import {
   extractRepoNameFromUrl,
   findUniqueFolderName,
 } from '../utils/profileHelpers';
+
+const DEFAULT_LOCAL_REPO_NAME = 'local-repo';
 
 interface OpenRepoOptions {
   updateConfig?: boolean;
@@ -39,7 +43,7 @@ export class RepoService {
     private providers: Record<RepoProviderType, RepoProvider>,
     private fsAdapter: FsAdapter,
     private configService: ConfigService
-  ) {}
+  ) { }
 
   setFilesService(filesService: FilesService): void {
     this.filesService = filesService;
@@ -209,10 +213,10 @@ export class RepoService {
   }
 
   private normalizeSettings(settings: RepoSettings): RepoSettings {
-    if (settings.provider === 's3') {
+    if (settings.provider === REPO_PROVIDERS.s3) {
       const s3Settings = settings as S3RepoSettings;
       return {
-        provider: 's3',
+        provider: REPO_PROVIDERS.s3,
         bucket: s3Settings.bucket || '',
         region: s3Settings.region || '',
         prefix: s3Settings.prefix || '',
@@ -223,9 +227,17 @@ export class RepoService {
       };
     }
 
+    if (settings.provider === REPO_PROVIDERS.local) {
+      const localSettings = settings as LocalRepoSettings;
+      return {
+        provider: REPO_PROVIDERS.local,
+        localPath: localSettings.localPath || '',
+      };
+    }
+
     const gitSettings = settings as GitRepoSettings;
     return {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       remoteUrl: gitSettings.remoteUrl || '',
       branch: gitSettings.branch || 'main',
       localPath: gitSettings.localPath || '',
@@ -235,14 +247,25 @@ export class RepoService {
   }
 
   private async ensureLocalPath(settings: RepoSettings): Promise<RepoSettings> {
+    const baseDir = getDefaultReposBaseDir();
+    await this.fsAdapter.mkdir(baseDir, { recursive: true });
+
+    if (settings.provider === REPO_PROVIDERS.local) {
+      const localSettings = settings as LocalRepoSettings;
+      const rawName = localSettings.localPath?.trim();
+      const baseName = rawName ? slugifyProfileName(rawName) : DEFAULT_LOCAL_REPO_NAME;
+      const folderName = await findUniqueFolderName(baseDir, baseName, this.fsAdapter);
+      return {
+        ...settings,
+        localPath: path.join(baseDir, folderName),
+      };
+    }
+
     if (settings.localPath) {
       return settings;
     }
 
-    const baseDir = getDefaultReposBaseDir();
-    await this.fsAdapter.mkdir(baseDir, { recursive: true });
-
-    if (settings.provider === 'git') {
+    if (settings.provider === REPO_PROVIDERS.git) {
       const repoName = extractRepoNameFromUrl(settings.remoteUrl);
       const folderName = await findUniqueFolderName(baseDir, repoName, this.fsAdapter);
       return {
@@ -286,7 +309,7 @@ export class RepoService {
 
   async queueS3Delete(path: string): Promise<void> {
     const provider = await this.ensureActiveProvider();
-    if (provider.type !== 's3') {
+    if (provider.type !== REPO_PROVIDERS.s3) {
       return;
     }
 
@@ -296,7 +319,7 @@ export class RepoService {
 
   async queueS3Move(oldPath: string, newPath: string): Promise<void> {
     const provider = await this.ensureActiveProvider();
-    if (provider.type !== 's3') {
+    if (provider.type !== REPO_PROVIDERS.s3) {
       return;
     }
 
@@ -307,7 +330,7 @@ export class RepoService {
 
   async queueS3Upload(path: string): Promise<void> {
     const provider = await this.ensureActiveProvider();
-    if (provider.type !== 's3') {
+    if (provider.type !== REPO_PROVIDERS.s3) {
       return;
     }
 
@@ -327,7 +350,11 @@ export class RepoService {
   }
 
   private async applyAutoSyncSettings(provider: RepoProvider): Promise<void> {
-    if (provider.type !== 's3') {
+    if (provider.type === REPO_PROVIDERS.local) {
+      return;
+    }
+
+    if (provider.type !== REPO_PROVIDERS.s3) {
       provider.startAutoSync();
       return;
     }

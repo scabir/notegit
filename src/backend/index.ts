@@ -14,6 +14,8 @@ import { GitRepoProvider } from './providers/GitRepoProvider';
 import { S3RepoProvider } from './providers/S3RepoProvider';
 import { GitHistoryProvider } from './providers/GitHistoryProvider';
 import { S3HistoryProvider } from './providers/S3HistoryProvider';
+import { LocalRepoProvider } from './providers/LocalRepoProvider';
+import { LocalHistoryProvider } from './providers/LocalHistoryProvider';
 import { registerConfigHandlers } from './handlers/configHandlers';
 import { registerRepoHandlers } from './handlers/repoHandlers';
 import { registerFilesHandlers } from './handlers/filesHandlers';
@@ -35,16 +37,18 @@ export function createBackend(ipcMain: IpcMain): void {
   const configService = new ConfigService(fsAdapter, cryptoAdapter);
   const gitRepoProvider = new GitRepoProvider(gitAdapter, fsAdapter);
   const s3RepoProvider = new S3RepoProvider(s3Adapter);
+  const localRepoProvider = new LocalRepoProvider(fsAdapter);
   const repoService = new RepoService(
-    { git: gitRepoProvider, s3: s3RepoProvider },
+    { git: gitRepoProvider, s3: s3RepoProvider, local: localRepoProvider },
     fsAdapter,
     configService
   );
   const filesService = new FilesService(fsAdapter, configService);
   const gitHistoryProvider = new GitHistoryProvider(gitAdapter);
   const s3HistoryProvider = new S3HistoryProvider(s3Adapter);
+  const localHistoryProvider = new LocalHistoryProvider();
   const historyService = new HistoryService(
-    { git: gitHistoryProvider, s3: s3HistoryProvider },
+    { git: gitHistoryProvider, s3: s3HistoryProvider, local: localHistoryProvider },
     configService
   );
   const searchService = new SearchService(fsAdapter);

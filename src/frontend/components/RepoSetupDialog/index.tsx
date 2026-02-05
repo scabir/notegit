@@ -14,12 +14,13 @@ import {
   ToggleButton,
 } from '@mui/material';
 import type { RepoSettings, AuthMethod, RepoProviderType } from '../../../shared/types';
+import { REPO_PROVIDERS } from '../../../shared/types';
 import { REPO_SETUP_TEXT } from './constants';
 import { contentStackSx, repoTypeRowSx, patTitleSx, patListSx } from './styles';
 import type { RepoSetupDialogProps } from './types';
 
 export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogProps) {
-  const [provider, setProvider] = useState<RepoProviderType>('git');
+  const [provider, setProvider] = useState<RepoProviderType>(REPO_PROVIDERS.git);
   const [remoteUrl, setRemoteUrl] = useState('');
   const [branch, setBranch] = useState('main');
   const [pat, setPat] = useState('');
@@ -29,6 +30,7 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
   const [accessKeyId, setAccessKeyId] = useState('');
   const [secretAccessKey, setSecretAccessKey] = useState('');
   const [sessionToken, setSessionToken] = useState('');
+  const [localName, setLocalName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +41,7 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
     try {
       let settings: RepoSettings;
 
-      if (provider === 'git') {
+      if (provider === REPO_PROVIDERS.git) {
         if (!remoteUrl || !branch || !pat) {
           setError(REPO_SETUP_TEXT.gitRequired);
           setLoading(false);
@@ -47,14 +49,14 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
         }
 
         settings = {
-          provider: 'git',
+          provider: REPO_PROVIDERS.git,
           remoteUrl,
           branch,
           pat,
           localPath: '',
           authMethod: 'pat' as AuthMethod,
         };
-      } else {
+      } else if (provider === REPO_PROVIDERS.s3) {
         if (!bucket || !region || !accessKeyId || !secretAccessKey) {
           setError(REPO_SETUP_TEXT.s3Required);
           setLoading(false);
@@ -62,7 +64,7 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
         }
 
         settings = {
-          provider: 's3',
+          provider: REPO_PROVIDERS.s3,
           bucket,
           region,
           prefix,
@@ -70,6 +72,17 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
           accessKeyId,
           secretAccessKey,
           sessionToken,
+        };
+      } else {
+        if (!localName.trim()) {
+          setError(REPO_SETUP_TEXT.localRequired);
+          setLoading(false);
+          return;
+        }
+
+        settings = {
+          provider: REPO_PROVIDERS.local,
+          localPath: localName.trim(),
         };
       }
 
@@ -109,12 +122,13 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
               onChange={(_, value) => value && setProvider(value)}
               size="small"
             >
-              <ToggleButton value="git">{REPO_SETUP_TEXT.gitLabel}</ToggleButton>
-              <ToggleButton value="s3">{REPO_SETUP_TEXT.s3Label}</ToggleButton>
+              <ToggleButton value={REPO_PROVIDERS.git}>{REPO_SETUP_TEXT.gitLabel}</ToggleButton>
+              <ToggleButton value={REPO_PROVIDERS.s3}>{REPO_SETUP_TEXT.s3Label}</ToggleButton>
+              <ToggleButton value={REPO_PROVIDERS.local}>{REPO_SETUP_TEXT.localLabel}</ToggleButton>
             </ToggleButtonGroup>
           </Box>
 
-          {provider === 'git' ? (
+          {provider === REPO_PROVIDERS.git ? (
             <>
               <TextField
                 label="Remote URL"
@@ -177,7 +191,7 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
                 </Typography>
               </Alert>
             </>
-          ) : (
+          ) : provider === REPO_PROVIDERS.s3 ? (
             <>
               <TextField
                 label="Bucket"
@@ -240,6 +254,24 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
               <Alert severity="info">
                 <Typography variant="body2">
                   {REPO_SETUP_TEXT.s3Info}
+                </Typography>
+              </Alert>
+            </>
+          ) : (
+            <>
+              <TextField
+                label="Local Repository Name"
+                value={localName}
+                onChange={(e) => setLocalName(e.target.value)}
+                placeholder="My Notes"
+                fullWidth
+                required
+                disabled={loading}
+                helperText="A local folder will be created in your app data directory."
+              />
+              <Alert severity="info">
+                <Typography variant="body2">
+                  {REPO_SETUP_TEXT.localInfo}
                 </Typography>
               </Alert>
             </>

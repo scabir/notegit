@@ -46,7 +46,7 @@ import type {
   GitRepoSettings,
   S3RepoSettings,
 } from '../../../shared/types';
-import { AuthMethod } from '../../../shared/types';
+import { AuthMethod, REPO_PROVIDERS } from '../../../shared/types';
 import { confirmProfileSwitch } from '../../utils/profileSwitch';
 import { SETTINGS_TEXT } from './constants';
 import { tabHeaderSx, alertSx } from './styles';
@@ -89,7 +89,7 @@ export function SettingsDialog({
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
   const [creatingProfile, setCreatingProfile] = useState(false);
   const [newProfileName, setNewProfileName] = useState('');
-  const [newProfileProvider, setNewProfileProvider] = useState<RepoProviderType>('git');
+  const [newProfileProvider, setNewProfileProvider] = useState<RepoProviderType>(REPO_PROVIDERS.git);
   const [newProfileRemoteUrl, setNewProfileRemoteUrl] = useState('');
   const [newProfileBranch, setNewProfileBranch] = useState('main');
   const [newProfilePat, setNewProfilePat] = useState('');
@@ -104,7 +104,7 @@ export function SettingsDialog({
   const [logsFolder, setLogsFolder] = useState<string>('');
   const [loadingLogsFolder, setLoadingLogsFolder] = useState(false);
   const [copySnackbarOpen, setCopySnackbarOpen] = useState(false);
-  const repoProvider: RepoProviderType = (repoSettings.provider as RepoProviderType) || 'git';
+  const repoProvider: RepoProviderType = (repoSettings.provider as RepoProviderType) || REPO_PROVIDERS.git;
   const gitRepoSettings = repoSettings as Partial<GitRepoSettings>;
   const s3RepoSettings = repoSettings as Partial<S3RepoSettings>;
 
@@ -166,6 +166,12 @@ export function SettingsDialog({
   };
 
   const handleSaveRepoSettings = async () => {
+    if (repoProvider === REPO_PROVIDERS.local) {
+      setError(null);
+      setSuccess('Local repositories do not have sync settings');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -173,7 +179,7 @@ export function SettingsDialog({
     try {
       let settingsToSave: RepoSettings;
 
-      if (repoProvider === 'git') {
+      if (repoProvider === REPO_PROVIDERS.git) {
         const gitSettings = repoSettings as Partial<GitRepoSettings>;
         if (!gitSettings.remoteUrl || !gitSettings.branch || !gitSettings.pat) {
           setError('Please fill in all required Git fields');
@@ -182,7 +188,7 @@ export function SettingsDialog({
         }
 
         settingsToSave = {
-          provider: 'git',
+          provider: REPO_PROVIDERS.git,
           remoteUrl: gitSettings.remoteUrl,
           branch: gitSettings.branch,
           localPath: gitSettings.localPath || '',
@@ -198,7 +204,7 @@ export function SettingsDialog({
         }
 
         settingsToSave = {
-          provider: 's3',
+          provider: REPO_PROVIDERS.s3,
           bucket: s3Settings.bucket,
           region: s3Settings.region,
           prefix: s3Settings.prefix,
@@ -314,12 +320,12 @@ export function SettingsDialog({
       return;
     }
 
-    if (newProfileProvider === 'git') {
+    if (newProfileProvider === REPO_PROVIDERS.git) {
       if (!newProfileRemoteUrl || !newProfileBranch || !newProfilePat) {
         setError('All Git repository fields are required');
         return;
       }
-    } else {
+    } else if (newProfileProvider === REPO_PROVIDERS.s3) {
       if (!newProfileBucket || !newProfileRegion || !newProfileAccessKeyId || !newProfileSecretAccessKey) {
         setError('All S3 repository fields are required');
         return;
@@ -331,22 +337,26 @@ export function SettingsDialog({
 
     try {
       const repoSettings: Partial<RepoSettings> =
-        newProfileProvider === 'git'
+        newProfileProvider === REPO_PROVIDERS.git
           ? {
-            provider: 'git',
+            provider: REPO_PROVIDERS.git,
             remoteUrl: newProfileRemoteUrl,
             branch: newProfileBranch,
             pat: newProfilePat,
             authMethod: AuthMethod.PAT,
           }
-          : {
-            provider: 's3',
+          : newProfileProvider === REPO_PROVIDERS.s3
+          ? {
+            provider: REPO_PROVIDERS.s3,
             bucket: newProfileBucket,
             region: newProfileRegion,
             prefix: newProfilePrefix,
             accessKeyId: newProfileAccessKeyId,
             secretAccessKey: newProfileSecretAccessKey,
             sessionToken: newProfileSessionToken,
+          }
+          : {
+            provider: REPO_PROVIDERS.local,
           };
 
       const response = await window.notegitApi.config.createProfile(
@@ -359,7 +369,7 @@ export function SettingsDialog({
         setProfiles([...profiles, response.data]);
         setCreatingProfile(false);
         setNewProfileName('');
-        setNewProfileProvider('git');
+        setNewProfileProvider(REPO_PROVIDERS.git);
         setNewProfileRemoteUrl('');
         setNewProfileBranch('main');
         setNewProfilePat('');
@@ -460,9 +470,13 @@ export function SettingsDialog({
   };
 
   const getProfileSecondary = (profile: Profile): string => {
-    if (profile.repoSettings.provider === 's3') {
+    if (profile.repoSettings.provider === REPO_PROVIDERS.s3) {
       const prefix = profile.repoSettings.prefix ? `/${profile.repoSettings.prefix}` : '';
       return `s3://${profile.repoSettings.bucket}${prefix}`;
+    }
+
+    if (profile.repoSettings.provider === REPO_PROVIDERS.local) {
+      return profile.repoSettings.localPath || 'Local repository';
     }
 
     return profile.repoSettings.remoteUrl;
@@ -537,7 +551,7 @@ export function SettingsDialog({
                 />
               )}
 
-              {repoProvider === 's3' && (
+              {repoProvider === REPO_PROVIDERS.s3 && (
                 <>
                   <FormControlLabel
                     control={
@@ -659,7 +673,7 @@ export function SettingsDialog({
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
               label="Repository Type"
-              value={repoProvider === 'git' ? 'Git' : 'S3'}
+              value={repoProvider === REPO_PROVIDERS.git ? 'Git' : repoProvider === REPO_PROVIDERS.s3 ? 'S3' : 'Local'}
               fullWidth
               InputProps={{
                 readOnly: true,
@@ -667,7 +681,7 @@ export function SettingsDialog({
               variant="filled"
             />
 
-            {repoProvider === 'git' ? (
+            {repoProvider === REPO_PROVIDERS.git ? (
               <>
                 <TextField
                   label="Remote URL"
@@ -675,7 +689,7 @@ export function SettingsDialog({
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
-                      provider: 'git',
+                      provider: REPO_PROVIDERS.git,
                       remoteUrl: e.target.value,
                     })
                   }
@@ -690,7 +704,7 @@ export function SettingsDialog({
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
-                      provider: 'git',
+                      provider: REPO_PROVIDERS.git,
                       branch: e.target.value,
                     })
                   }
@@ -706,7 +720,7 @@ export function SettingsDialog({
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
-                      provider: 'git',
+                      provider: REPO_PROVIDERS.git,
                       pat: e.target.value,
                     })
                   }
@@ -745,7 +759,7 @@ export function SettingsDialog({
                   </Typography>
                 </Alert>
               </>
-            ) : (
+            ) : repoProvider === REPO_PROVIDERS.s3 ? (
               <>
                 <TextField
                   label="Bucket"
@@ -753,7 +767,7 @@ export function SettingsDialog({
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
-                      provider: 's3',
+                      provider: REPO_PROVIDERS.s3,
                       bucket: e.target.value,
                     })
                   }
@@ -768,7 +782,7 @@ export function SettingsDialog({
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
-                      provider: 's3',
+                      provider: REPO_PROVIDERS.s3,
                       region: e.target.value,
                     })
                   }
@@ -783,7 +797,7 @@ export function SettingsDialog({
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
-                      provider: 's3',
+                      provider: REPO_PROVIDERS.s3,
                       prefix: e.target.value,
                     })
                   }
@@ -797,7 +811,7 @@ export function SettingsDialog({
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
-                      provider: 's3',
+                      provider: REPO_PROVIDERS.s3,
                       accessKeyId: e.target.value,
                     })
                   }
@@ -812,7 +826,7 @@ export function SettingsDialog({
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
-                      provider: 's3',
+                      provider: REPO_PROVIDERS.s3,
                       secretAccessKey: e.target.value,
                     })
                   }
@@ -828,7 +842,7 @@ export function SettingsDialog({
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
-                      provider: 's3',
+                      provider: REPO_PROVIDERS.s3,
                       sessionToken: e.target.value,
                     })
                   }
@@ -841,16 +855,24 @@ export function SettingsDialog({
                   </Typography>
                 </Alert>
               </>
+            ) : (
+              <Alert severity="info">
+                <Typography variant="body2">
+                  Local repositories are stored on this device only and do not sync.
+                </Typography>
+              </Alert>
             )}
 
-            <Button
-              variant="contained"
-              onClick={handleSaveRepoSettings}
-              disabled={loading}
-              sx={{ mt: 2 }}
-            >
-              Save Repository Settings
-            </Button>
+            {repoProvider !== REPO_PROVIDERS.local && (
+              <Button
+                variant="contained"
+                onClick={handleSaveRepoSettings}
+                disabled={loading}
+                sx={{ mt: 2 }}
+              >
+                Save Repository Settings
+              </Button>
+            )}
 
             {repoSettings.localPath && (
               <>
@@ -895,7 +917,7 @@ export function SettingsDialog({
             <Typography variant="h6">Profile Management</Typography>
             <Alert severity="info">
               Profiles allow you to work with multiple repositories. Only one profile is active at a time.
-              When creating a new profile, the app will automatically sync the repository. Switching profiles will restart the app.
+              When creating a new profile, the app will prepare the repository. Switching profiles will restart the app.
             </Alert>
 
             <Typography variant="subtitle1" sx={{ mt: 2 }}>Active Profile</Typography>
@@ -956,7 +978,7 @@ export function SettingsDialog({
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <CircularProgress size={20} />
                       <Typography variant="body2">
-                        Creating profile and syncing repository... This may take a few moments.
+                        Creating profile and preparing repository... This may take a few moments.
                       </Typography>
                     </Box>
                   </Alert>
@@ -972,8 +994,9 @@ export function SettingsDialog({
                       onChange={(_, value) => value && setNewProfileProvider(value)}
                       size="small"
                     >
-                      <ToggleButton value="git">Git</ToggleButton>
-                      <ToggleButton value="s3">S3</ToggleButton>
+                      <ToggleButton value={REPO_PROVIDERS.git}>Git</ToggleButton>
+                      <ToggleButton value={REPO_PROVIDERS.s3}>S3</ToggleButton>
+                      <ToggleButton value={REPO_PROVIDERS.local}>Local</ToggleButton>
                     </ToggleButtonGroup>
                   </Box>
                   <TextField
@@ -987,7 +1010,7 @@ export function SettingsDialog({
                     helperText="A local folder will be automatically created based on this name"
                   />
 
-                  {newProfileProvider === 'git' ? (
+                  {newProfileProvider === REPO_PROVIDERS.git ? (
                     <>
                       <TextField
                         label="Remote URL"
@@ -1019,7 +1042,7 @@ export function SettingsDialog({
                         helperText="Your Personal Access Token is stored encrypted"
                       />
                     </>
-                  ) : (
+                  ) : newProfileProvider === REPO_PROVIDERS.s3 ? (
                     <>
                       <TextField
                         label="Bucket"
@@ -1074,6 +1097,10 @@ export function SettingsDialog({
                         disabled={profileCreating}
                       />
                     </>
+                  ) : (
+                    <Alert severity="info">
+                      Local repositories are stored on this device only and do not sync.
+                    </Alert>
                   )}
                   <Box sx={{ display: 'flex', gap: 1 }}>
                     <Button
@@ -1088,7 +1115,7 @@ export function SettingsDialog({
                       onClick={() => {
                         setCreatingProfile(false);
                         setNewProfileName('');
-                        setNewProfileProvider('git');
+                        setNewProfileProvider(REPO_PROVIDERS.git);
                         setNewProfileRemoteUrl('');
                         setNewProfileBranch('main');
                         setNewProfilePat('');
