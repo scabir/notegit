@@ -9,6 +9,7 @@ import {
   ApiError,
   ApiErrorCode,
   RepoProviderType,
+  REPO_PROVIDERS,
 } from '../../shared/types';
 import { logger } from '../utils/logger';
 
@@ -499,7 +500,7 @@ export class FilesService {
 
   private async ensureGitRepo(): Promise<void> {
     const repoSettings = await this.configService.getRepoSettings();
-    if (repoSettings?.provider && repoSettings.provider !== 'git') {
+    if (repoSettings?.provider && repoSettings.provider !== REPO_PROVIDERS.git) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
         'Git operations are only available for Git repositories',
@@ -509,14 +510,14 @@ export class FilesService {
   }
 
   private normalizeNameForProvider(name: string): string {
-    if (this.repoProvider !== 's3') {
+    if (this.repoProvider !== REPO_PROVIDERS.s3) {
       return name;
     }
     return name.replace(/ /g, '-');
   }
 
   private normalizeNewPathForProvider(newPath: string): string {
-    if (this.repoProvider !== 's3') {
+    if (this.repoProvider !== REPO_PROVIDERS.s3) {
       return newPath;
     }
     const lastSlash = newPath.lastIndexOf('/');

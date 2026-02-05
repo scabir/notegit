@@ -6,18 +6,19 @@ import {
   ApiErrorCode,
   RepoSettings,
   S3RepoSettings,
+  REPO_PROVIDERS,
 } from '../../shared/types';
 import { logger } from '../utils/logger';
 import type { HistoryProvider } from './types';
 
 export class S3HistoryProvider implements HistoryProvider {
-  readonly type = 's3' as const;
+  readonly type = REPO_PROVIDERS.s3;
   private settings: S3RepoSettings | null = null;
 
   constructor(private s3Adapter: S3Adapter) {}
 
   configure(settings: RepoSettings): void {
-    if (settings.provider !== 's3') {
+    if (settings.provider !== REPO_PROVIDERS.s3) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
         'S3HistoryProvider configured with non-s3 settings',

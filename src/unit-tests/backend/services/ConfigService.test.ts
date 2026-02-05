@@ -1,7 +1,7 @@
 import { ConfigService } from '../../../backend/services/ConfigService';
 import { FsAdapter } from '../../../backend/adapters/FsAdapter';
 import { CryptoAdapter } from '../../../backend/adapters/CryptoAdapter';
-import { DEFAULT_APP_SETTINGS, AuthMethod, RepoSettings, GitRepoSettings, ApiErrorCode, Profile } from '../../../shared/types';
+import { DEFAULT_APP_SETTINGS, AuthMethod, RepoSettings, GitRepoSettings, ApiErrorCode, Profile, REPO_PROVIDERS } from '../../../shared/types';
 
 type FsExistsMock = jest.MockedFunction<FsAdapter['exists']>;
 
@@ -149,7 +149,7 @@ describe('ConfigService', () => {
 
       mockFsAdapter.readFile.mockResolvedValue(
         JSON.stringify({
-          provider: 'git',
+          provider: REPO_PROVIDERS.git,
           remoteUrl: 'https://github.com/user/repo.git',
           branch: 'main',
           localPath: '/path/to/repo',
@@ -181,7 +181,7 @@ describe('ConfigService', () => {
               id: 'profile-1',
               name: 'Profile',
               repoSettings: {
-                provider: 'git',
+                provider: REPO_PROVIDERS.git,
                 remoteUrl: 'https://github.com/user/repo.git',
                 branch: 'main',
                 localPath: '/repo',
@@ -201,9 +201,28 @@ describe('ConfigService', () => {
       const settings = await configService.getRepoSettings();
 
       expect(settings).toMatchObject({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         pat: 'decrypted',
       });
+    });
+
+    it('loads local repo settings without decryption', async () => {
+      mockFsAdapter.exists.mockResolvedValue(true);
+
+      mockFsAdapter.readFile.mockResolvedValue(
+        JSON.stringify({
+          provider: REPO_PROVIDERS.local,
+          localPath: '/local/repo',
+        })
+      );
+
+      const settings = await configService.getRepoSettings();
+
+      expect(settings).toMatchObject({
+        provider: REPO_PROVIDERS.local,
+        localPath: '/local/repo',
+      });
+      expect(mockCryptoAdapter.decrypt).not.toHaveBeenCalled();
     });
   });
 
@@ -218,7 +237,7 @@ describe('ConfigService', () => {
       mockCryptoAdapter.encrypt.mockReturnValue(encryptedPat);
 
       const settings: RepoSettings = {
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         remoteUrl: 'https://github.com/user/repo.git',
         branch: 'main',
         localPath: '/path/to/repo',
@@ -237,7 +256,7 @@ describe('ConfigService', () => {
 
     it('throws when provider is changed', async () => {
       jest.spyOn(configService, 'getRepoSettings').mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         remoteUrl: 'url',
         branch: 'main',
         localPath: '/repo',
@@ -247,7 +266,7 @@ describe('ConfigService', () => {
 
       await expect(
         configService.updateRepoSettings({
-          provider: 's3',
+          provider: REPO_PROVIDERS.s3,
           bucket: 'bucket',
           region: 'region',
           prefix: '',
@@ -292,7 +311,7 @@ describe('ConfigService', () => {
           id: 'profile-1',
           name: 'Profile',
           repoSettings: {
-            provider: 'git',
+            provider: REPO_PROVIDERS.git,
             remoteUrl: 'https://github.com/user/repo.git',
             branch: 'main',
             localPath: '/repo',
@@ -322,7 +341,7 @@ describe('ConfigService', () => {
     it('validates required s3 fields when creating profile', async () => {
       await expect(
         configService.createProfile('S3', {
-          provider: 's3',
+          provider: REPO_PROVIDERS.s3,
           bucket: '',
           region: '',
           accessKeyId: '',
@@ -347,7 +366,7 @@ describe('ConfigService', () => {
           id: 'profile-1',
           name: 'Profile',
           repoSettings: {
-            provider: 'git',
+            provider: REPO_PROVIDERS.git,
             remoteUrl: 'https://github.com/user/repo.git',
             branch: 'main',
             localPath: '/repo',
@@ -364,7 +383,7 @@ describe('ConfigService', () => {
       await expect(
         configService.updateProfile('profile-1', {
           repoSettings: {
-            provider: 's3',
+            provider: REPO_PROVIDERS.s3,
           } as any,
         })
       ).rejects.toMatchObject({
@@ -378,7 +397,7 @@ describe('ConfigService', () => {
           id: 'profile-1',
           name: 'Profile',
           repoSettings: {
-            provider: 'git',
+            provider: REPO_PROVIDERS.git,
             remoteUrl: 'https://github.com/user/repo.git',
             branch: 'main',
             localPath: '/repo',
@@ -412,7 +431,7 @@ describe('ConfigService', () => {
       });
       mockFsAdapter.readFile.mockResolvedValue(
         JSON.stringify({
-          provider: 'git',
+          provider: REPO_PROVIDERS.git,
           remoteUrl: 'https://github.com/user/repo.git',
           branch: 'main',
           localPath: '/repo',

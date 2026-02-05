@@ -1,4 +1,5 @@
 import { registerFilesHandlers } from '../../../backend/handlers/filesHandlers';
+import { REPO_PROVIDERS } from '../../../shared/types';
 
 describe('filesHandlers', () => {
   const createIpcMain = () => {
@@ -157,14 +158,14 @@ describe('filesHandlers', () => {
     expect(response.error?.message).toBe('commit all failed');
   });
 
-  it('returns synced message for non-git commitAndPushAll', async () => {
+  it('returns synced message for s3 commitAndPushAll', async () => {
     const { ipcMain, handlers } = createIpcMain();
     const filesService = {
       commitAll: jest.fn(),
       getGitStatus: jest.fn(),
     } as any;
     const repoService = {
-      getStatus: jest.fn().mockResolvedValue({ provider: 's3', hasUncommitted: true }),
+      getStatus: jest.fn().mockResolvedValue({ provider: REPO_PROVIDERS.s3, hasUncommitted: true }),
       push: jest.fn().mockResolvedValue(undefined),
     } as any;
 
@@ -178,6 +179,27 @@ describe('filesHandlers', () => {
     expect(filesService.commitAll).not.toHaveBeenCalled();
   });
 
+  it('returns error for local commitAndPushAll', async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      commitAll: jest.fn(),
+      getGitStatus: jest.fn(),
+    } as any;
+    const repoService = {
+      getStatus: jest.fn().mockResolvedValue({ provider: REPO_PROVIDERS.local, hasUncommitted: true }),
+      push: jest.fn(),
+    } as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const response = await handlers['files:commitAndPushAll'](null);
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.message).toBe('Local repositories do not support sync');
+    expect(repoService.push).not.toHaveBeenCalled();
+    expect(filesService.commitAll).not.toHaveBeenCalled();
+  });
+
   it('returns nothing-to-commit message when clean', async () => {
     const { ipcMain, handlers } = createIpcMain();
     const filesService = {
@@ -185,7 +207,7 @@ describe('filesHandlers', () => {
       getGitStatus: jest.fn(),
     } as any;
     const repoService = {
-      getStatus: jest.fn().mockResolvedValue({ provider: 'git', hasUncommitted: false }),
+      getStatus: jest.fn().mockResolvedValue({ provider: REPO_PROVIDERS.git, hasUncommitted: false }),
       push: jest.fn(),
     } as any;
 
@@ -210,7 +232,7 @@ describe('filesHandlers', () => {
       }),
     } as any;
     const repoService = {
-      getStatus: jest.fn().mockResolvedValue({ provider: 'git', hasUncommitted: true }),
+      getStatus: jest.fn().mockResolvedValue({ provider: REPO_PROVIDERS.git, hasUncommitted: true }),
       push: jest.fn().mockResolvedValue(undefined),
     } as any;
 
@@ -408,7 +430,7 @@ describe('filesHandlers', () => {
       }),
     } as any;
     const repoService = {
-      getStatus: jest.fn().mockResolvedValue({ provider: 'git', hasUncommitted: true }),
+      getStatus: jest.fn().mockResolvedValue({ provider: REPO_PROVIDERS.git, hasUncommitted: true }),
       push: jest.fn().mockResolvedValue(undefined),
     } as any;
 
@@ -430,7 +452,7 @@ describe('filesHandlers', () => {
       }),
     } as any;
     const repoService = {
-      getStatus: jest.fn().mockResolvedValue({ provider: 'git', hasUncommitted: true }),
+      getStatus: jest.fn().mockResolvedValue({ provider: REPO_PROVIDERS.git, hasUncommitted: true }),
       push: jest.fn().mockResolvedValue(undefined),
     } as any;
 

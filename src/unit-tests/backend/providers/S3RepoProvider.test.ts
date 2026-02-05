@@ -3,7 +3,7 @@ import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
 import { S3RepoProvider } from '../../../backend/providers/S3RepoProvider';
-import { ApiErrorCode, S3RepoSettings } from '../../../shared/types';
+import { ApiErrorCode, S3RepoSettings, REPO_PROVIDERS } from '../../../shared/types';
 
 const hashContent = (content: string) =>
   crypto.createHash('sha256').update(content).digest('hex');
@@ -44,7 +44,7 @@ const createAdapter = (overrides: AdapterOverrides = {}) => {
 
 describe('S3RepoProvider', () => {
   const baseSettings: S3RepoSettings = {
-    provider: 's3',
+    provider: REPO_PROVIDERS.s3,
     bucket: 'notes-bucket',
     region: 'us-east-1',
     prefix: 'notes',
@@ -444,7 +444,7 @@ describe('S3RepoProvider', () => {
   it('rejects non-s3 configuration', () => {
     const provider = new S3RepoProvider(createAdapter() as any);
     try {
-      provider.configure({ provider: 'git' } as any);
+      provider.configure({ provider: REPO_PROVIDERS.git } as any);
       throw new Error('Expected configuration to fail');
     } catch (error: any) {
       expect(error.code).toBe(ApiErrorCode.REPO_PROVIDER_MISMATCH);
@@ -460,7 +460,7 @@ describe('S3RepoProvider', () => {
 
   it('rejects opening non-s3 settings', async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    await expect(provider.open({ provider: 'git' } as any)).rejects.toMatchObject({
+    await expect(provider.open({ provider: REPO_PROVIDERS.git } as any)).rejects.toMatchObject({
       code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
     });
   });
@@ -487,7 +487,7 @@ describe('S3RepoProvider', () => {
     const ensureRepoReady = jest.fn().mockResolvedValue(undefined);
     (provider as any).ensureRepoReady = ensureRepoReady;
     const getStatus = jest.fn().mockResolvedValue({
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       branch: 'bucket',
       ahead: 0,
       behind: 0,

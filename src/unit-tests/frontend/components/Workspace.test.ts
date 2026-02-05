@@ -3,7 +3,7 @@ import TestRenderer, { act } from 'react-test-renderer';
 import { Tooltip, IconButton } from '@mui/material';
 import { Workspace } from '../../../frontend/components/Workspace';
 import type { RepoStatus } from '../../../shared/types';
-import { FileType } from '../../../shared/types';
+import { FileType, REPO_PROVIDERS } from '../../../shared/types';
 import { WORKSPACE_TEXT } from '../../../frontend/components/Workspace/constants';
 import versionInfo from '../../../../version.json';
 
@@ -17,6 +17,13 @@ const SearchDialogMock = jest.fn((_props: any) => null);
 const RepoSearchDialogMock = jest.fn((_props: any) => null);
 const HistoryPanelMock = jest.fn((_props: any) => null);
 const HistoryViewerMock = jest.fn((_props: any) => null);
+
+const renderers: TestRenderer.ReactTestRenderer[] = [];
+const createRenderer = (element: React.ReactElement) => {
+  const renderer = TestRenderer.create(element);
+  renderers.push(renderer);
+  return renderer;
+};
 
 jest.mock('../../../frontend/components/FileTreeView', () => ({
   FileTreeView: (props: any) => FileTreeViewMock(props),
@@ -96,7 +103,7 @@ describe('Workspace', () => {
     HistoryViewerMock.mockClear();
 
     const repoStatus: RepoStatus = {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       branch: 'main',
       ahead: 0,
       behind: 0,
@@ -163,7 +170,7 @@ describe('Workspace', () => {
                 },
               },
               repoSettings: {
-                provider: 'git',
+                provider: REPO_PROVIDERS.git,
                 remoteUrl: 'https://github.com/example/repo.git',
                 branch: 'main',
                 localPath: '/repo',
@@ -175,7 +182,7 @@ describe('Workspace', () => {
                   id: 'profile-1',
                   name: 'Work',
                   repoSettings: {
-                    provider: 'git',
+                    provider: REPO_PROVIDERS.git,
                     remoteUrl: 'https://github.com/example/repo.git',
                     branch: 'main',
                     localPath: '/repo',
@@ -201,10 +208,19 @@ describe('Workspace', () => {
     };
   });
 
+  afterEach(() => {
+    while (renderers.length > 0) {
+      const renderer = renderers.pop();
+      if (renderer) {
+        renderer.unmount();
+      }
+    }
+  });
+
   it('loads workspace data and passes props to child components', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -223,7 +239,7 @@ describe('Workspace', () => {
 
     expect(StatusBarMock).toHaveBeenCalled();
     const statusProps = StatusBarMock.mock.calls[StatusBarMock.mock.calls.length - 1]?.[0];
-    expect(statusProps?.status.provider).toBe('git');
+    expect(statusProps?.status.provider).toBe(REPO_PROVIDERS.git);
 
     const text = flattenText(renderer!.toJSON());
     expect(text).toContain('Work');
@@ -250,7 +266,7 @@ describe('Workspace', () => {
 
 
     await act(async () => {
-      TestRenderer.create(React.createElement(Workspace, { onThemeChange: jest.fn() }));
+      createRenderer(React.createElement(Workspace, { onThemeChange: jest.fn() }));
     });
 
     await act(async () => {
@@ -329,7 +345,7 @@ describe('Workspace', () => {
     });
 
     await act(async () => {
-      TestRenderer.create(
+      createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -364,7 +380,7 @@ describe('Workspace', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(React.createElement(Workspace, { onThemeChange: jest.fn() }));
+      renderer = createRenderer(React.createElement(Workspace, { onThemeChange: jest.fn() }));
     });
 
     await act(async () => {
@@ -393,7 +409,7 @@ describe('Workspace', () => {
 
   it('syncs when repo is s3', async () => {
     const repoStatus: RepoStatus = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       branch: 'main',
       ahead: 0,
       behind: 0,
@@ -422,7 +438,7 @@ describe('Workspace', () => {
           },
         },
         repoSettings: {
-          provider: 's3',
+          provider: REPO_PROVIDERS.s3,
           bucket: 'bucket',
           region: 'region',
           prefix: '',
@@ -436,7 +452,7 @@ describe('Workspace', () => {
             id: 'profile-1',
             name: 'Work',
             repoSettings: {
-              provider: 's3',
+              provider: REPO_PROVIDERS.s3,
               bucket: 'bucket',
               region: 'region',
               prefix: '',
@@ -456,7 +472,7 @@ describe('Workspace', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(React.createElement(Workspace, { onThemeChange: jest.fn() }));
+      renderer = createRenderer(React.createElement(Workspace, { onThemeChange: jest.fn() }));
     });
 
     await act(async () => {
@@ -496,7 +512,7 @@ describe('Workspace', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -544,7 +560,7 @@ describe('Workspace', () => {
 
 
     await act(async () => {
-      TestRenderer.create(
+      createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -584,7 +600,7 @@ describe('Workspace', () => {
   it('handles status bar actions and search selections', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -656,7 +672,7 @@ describe('Workspace', () => {
   it('triggers autosave and beforeunload save', async () => {
 
     await act(async () => {
-      TestRenderer.create(
+      createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -705,7 +721,7 @@ describe('Workspace', () => {
 
   it('starts s3 auto sync and responds to keyboard shortcuts', async () => {
     const s3Status: RepoStatus = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       branch: 'main',
       ahead: 0,
       behind: 0,
@@ -734,7 +750,7 @@ describe('Workspace', () => {
           },
         },
         repoSettings: {
-          provider: 's3',
+          provider: REPO_PROVIDERS.s3,
           bucket: 'bucket',
           region: 'region',
           prefix: '',
@@ -752,7 +768,7 @@ describe('Workspace', () => {
 
 
     await act(async () => {
-      TestRenderer.create(
+      createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -795,7 +811,7 @@ describe('Workspace', () => {
 
 
     await act(async () => {
-      TestRenderer.create(
+      createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -826,7 +842,7 @@ describe('Workspace', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -872,7 +888,7 @@ describe('Workspace', () => {
 
 
     await act(async () => {
-      TestRenderer.create(
+      createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -906,7 +922,7 @@ describe('Workspace', () => {
   it('saves successfully and clears status after delay', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -953,7 +969,7 @@ describe('Workspace', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -992,7 +1008,7 @@ describe('Workspace', () => {
 
   it('handles s3 sync failures', async () => {
     const repoStatus: RepoStatus = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       branch: 'main',
       ahead: 0,
       behind: 0,
@@ -1021,7 +1037,7 @@ describe('Workspace', () => {
           },
         },
         repoSettings: {
-          provider: 's3',
+          provider: REPO_PROVIDERS.s3,
           bucket: 'bucket',
           region: 'region',
           prefix: '',
@@ -1041,7 +1057,7 @@ describe('Workspace', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1078,7 +1094,7 @@ describe('Workspace', () => {
 
 
     await act(async () => {
-      TestRenderer.create(
+      createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1125,7 +1141,7 @@ describe('Workspace', () => {
   it('registers resize handlers when dragging the divider', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1169,7 +1185,7 @@ describe('Workspace', () => {
     s3AutoSync.startS3AutoSync.mockReturnValue(cleanup);
 
     const s3Status: RepoStatus = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       branch: 'main',
       ahead: 0,
       behind: 0,
@@ -1178,7 +1194,7 @@ describe('Workspace', () => {
       needsPull: false,
     };
     const gitStatus: RepoStatus = {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       branch: 'main',
       ahead: 0,
       behind: 0,
@@ -1212,7 +1228,7 @@ describe('Workspace', () => {
           },
         },
         repoSettings: {
-          provider: 's3',
+          provider: REPO_PROVIDERS.s3,
           bucket: 'bucket',
           region: 'region',
           prefix: '',
@@ -1228,7 +1244,7 @@ describe('Workspace', () => {
 
 
     await act(async () => {
-      TestRenderer.create(
+      createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1256,7 +1272,7 @@ describe('Workspace', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1277,7 +1293,7 @@ describe('Workspace', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1309,7 +1325,7 @@ describe('Workspace', () => {
 
 
     await act(async () => {
-      TestRenderer.create(
+      createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1339,7 +1355,7 @@ describe('Workspace', () => {
 
 
     await act(async () => {
-      TestRenderer.create(
+      createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1362,7 +1378,7 @@ describe('Workspace', () => {
 
   it('shows sync error when push throws', async () => {
     const repoStatus: RepoStatus = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       branch: 'main',
       ahead: 0,
       behind: 0,
@@ -1391,7 +1407,7 @@ describe('Workspace', () => {
           },
         },
         repoSettings: {
-          provider: 's3',
+          provider: REPO_PROVIDERS.s3,
           bucket: 'bucket',
           region: 'region',
           prefix: '',
@@ -1408,7 +1424,7 @@ describe('Workspace', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })
@@ -1438,7 +1454,7 @@ describe('Workspace', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(Workspace, {
           onThemeChange: jest.fn(),
         })

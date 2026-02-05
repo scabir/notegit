@@ -1,4 +1,5 @@
 import { registerConfigHandlers } from '../../../backend/handlers/configHandlers';
+import { REPO_PROVIDERS } from '../../../shared/types';
 
 describe('configHandlers', () => {
   const createIpcMain = () => {
@@ -100,7 +101,7 @@ describe('configHandlers', () => {
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
     const response = await handlers['config:updateRepoSettings'](null, {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       remoteUrl: 'url',
       branch: 'main',
       localPath: '/repo',
@@ -118,7 +119,7 @@ describe('configHandlers', () => {
       id: 'profile-1',
       name: 'Profile',
       repoSettings: {
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         remoteUrl: 'url',
         branch: 'main',
         localPath: '/repo',
@@ -140,7 +141,7 @@ describe('configHandlers', () => {
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
     const response = await handlers['config:createProfile'](null, 'Profile', {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       remoteUrl: 'url',
       branch: 'main',
       pat: 'token',
@@ -226,7 +227,7 @@ describe('configHandlers', () => {
       id: 'profile-2',
       name: 'Profile',
       repoSettings: {
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         remoteUrl: 'url',
         branch: 'main',
         localPath: '/repo',
@@ -248,7 +249,7 @@ describe('configHandlers', () => {
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
     const response = await handlers['config:createProfile'](null, 'Profile', {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       remoteUrl: 'url',
       branch: 'main',
       pat: 'token',

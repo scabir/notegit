@@ -4,6 +4,7 @@ import {
   FileTreeNode,
   FileContent,
   ApiErrorCode,
+  REPO_PROVIDERS,
 } from '../../shared/types';
 import { FilesService } from '../services/FilesService';
 import { logger } from '../utils/logger';
@@ -169,11 +170,22 @@ export function registerFilesHandlers(ipcMain: IpcMain, filesService: FilesServi
       try {
         const statusResponse = await repoService.getStatus();
 
-        if (statusResponse.provider !== 'git') {
+        if (statusResponse.provider === REPO_PROVIDERS.s3) {
           await repoService.push();
           return {
             ok: true,
             data: { message: 'Synced successfully' },
+          };
+        }
+
+        if (statusResponse.provider === REPO_PROVIDERS.local) {
+          return {
+            ok: false,
+            error: {
+              code: ApiErrorCode.VALIDATION_ERROR,
+              message: 'Local repositories do not support sync',
+              details: { provider: statusResponse.provider },
+            },
           };
         }
         

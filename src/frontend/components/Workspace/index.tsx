@@ -20,6 +20,7 @@ import { RepoSearchDialog } from '../RepoSearchDialog';
 import { HistoryPanel } from '../HistoryPanel';
 import { HistoryViewer } from '../HistoryViewer';
 import type { AppSettings, FileTreeNode, FileContent, RepoStatus } from '../../../shared/types';
+import { REPO_PROVIDERS } from '../../../shared/types';
 import versionInfo from '../../../../version.json';
 import { startS3AutoSync } from '../../utils/s3AutoSync';
 import { WORKSPACE_TEXT } from './constants';
@@ -77,7 +78,8 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
   const [activeProfileName, setActiveProfileName] = useState<string>('');
   const [appVersion, setAppVersion] = useState<string>(versionInfo.version);
-  const isS3Repo = repoStatus?.provider === 's3';
+  const isS3Repo = repoStatus?.provider === REPO_PROVIDERS.s3;
+  const isLocalRepo = repoStatus?.provider === REPO_PROVIDERS.local;
 
   const headerTitle = buildHeaderTitle(activeProfileName, appVersion);
 
@@ -365,7 +367,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
       if (response.ok && response.data) {
         setRepoStatus(response.data);
         setTransientStatus('saved', 'Fetch successful', 2000);
-        if (s3AutoSyncCleanupRef.current && response.data.provider !== 's3') {
+        if (s3AutoSyncCleanupRef.current && response.data.provider !== REPO_PROVIDERS.s3) {
           s3AutoSyncCleanupRef.current();
           s3AutoSyncCleanupRef.current = null;
         }
@@ -477,7 +479,7 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         }
       }
 
-      if (!isS3Repo) {
+      if (repoStatus?.provider === REPO_PROVIDERS.git) {
         try {
           await window.notegitApi.files.commitAll(
             `Move: ${oldPath} -> ${newPath}`
@@ -550,6 +552,10 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
 
   const handleCommitAndPush = async () => {
+    if (isLocalRepo) {
+      return;
+    }
+
     if (hasUnsavedChanges && selectedFile) {
       await handleSaveFile(editorContent);
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -743,14 +749,16 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             </IconButton>
           </Tooltip>
 
-          <Tooltip title={WORKSPACE_TEXT.historyTooltip}>
-            <IconButton
-              onClick={handleToggleHistory}
-              color={historyPanelOpen ? 'primary' : 'default'}
-            >
-              <HistoryIcon />
-            </IconButton>
-          </Tooltip>
+          {!isLocalRepo && (
+            <Tooltip title={WORKSPACE_TEXT.historyTooltip}>
+              <IconButton
+                onClick={handleToggleHistory}
+                color={historyPanelOpen ? 'primary' : 'default'}
+              >
+                <HistoryIcon />
+              </IconButton>
+            </Tooltip>
+          )}
 
           <Tooltip title={WORKSPACE_TEXT.saveAllTooltip}>
             <span>
@@ -764,11 +772,13 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             </span>
           </Tooltip>
 
-          <Tooltip title={isS3Repo ? WORKSPACE_TEXT.syncTooltip : WORKSPACE_TEXT.commitPushTooltip}>
-            <IconButton onClick={handleCommitAndPush} color="primary">
-              {isS3Repo ? <CloudSyncIcon /> : <CloudUploadIcon />}
-            </IconButton>
-          </Tooltip>
+          {!isLocalRepo && (
+            <Tooltip title={isS3Repo ? WORKSPACE_TEXT.syncTooltip : WORKSPACE_TEXT.commitPushTooltip}>
+              <IconButton onClick={handleCommitAndPush} color="primary">
+                {isS3Repo ? <CloudSyncIcon /> : <CloudUploadIcon />}
+              </IconButton>
+            </Tooltip>
+          )}
 
           <Tooltip title={WORKSPACE_TEXT.settingsTooltip}>
             <IconButton onClick={() => setSettingsOpen(true)}>
@@ -819,16 +829,22 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
           )}
         </Box>
 
-        {historyPanelOpen && (
-          <HistoryPanel
-            filePath={selectedFile}
-            onViewVersion={handleViewVersion}
-            onClose={() => setHistoryPanelOpen(false)}
-          />
-        )}
+      {historyPanelOpen && !isLocalRepo && (
+        <HistoryPanel
+          filePath={selectedFile}
+          onViewVersion={handleViewVersion}
+          onClose={() => setHistoryPanelOpen(false)}
+        />
+      )}
       </Box>
 
-      <StatusBar status={repoStatus} onFetch={handleFetch} onPull={handlePull} onPush={handlePush} />
+      <StatusBar
+        status={repoStatus}
+        onFetch={handleFetch}
+        onPull={handlePull}
+        onPush={handlePush}
+        hasUnsavedChanges={hasUnsavedChanges}
+      />
 
       <SettingsDialog
         open={settingsOpen}
@@ -861,14 +877,16 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         onSelectMatch={handleSelectMatchFromRepoSearch}
       />
 
-      <HistoryViewer
-        open={historyViewerOpen}
-        filePath={selectedFile}
-        commitHash={viewingCommitHash}
-        commitMessage={viewingCommitMessage}
-        repoPath={repoPath}
-        onClose={() => setHistoryViewerOpen(false)}
-      />
+      {!isLocalRepo && (
+        <HistoryViewer
+          open={historyViewerOpen}
+          filePath={selectedFile}
+          commitHash={viewingCommitHash}
+          commitMessage={viewingCommitMessage}
+          repoPath={repoPath}
+          onClose={() => setHistoryViewerOpen(false)}
+        />
+      )}
     </Box>
   );
 }

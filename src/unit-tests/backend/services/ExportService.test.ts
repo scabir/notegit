@@ -1,7 +1,7 @@
 import { ExportService } from '../../../backend/services/ExportService';
 import { FsAdapter } from '../../../backend/adapters/FsAdapter';
 import { ConfigService } from '../../../backend/services/ConfigService';
-import { ApiErrorCode, AuthMethod } from '../../../shared/types';
+import { ApiErrorCode, AuthMethod, REPO_PROVIDERS } from '../../../shared/types';
 import * as fs from 'fs/promises';
 import { dialog } from 'electron';
 
@@ -65,7 +65,7 @@ describe('ExportService', () => {
     exportService = new ExportService(mockFsAdapter, mockConfigService);
 
     mockConfigService.getRepoSettings.mockResolvedValue({
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       localPath: '/test/repo',
       remoteUrl: 'https://github.com/test/repo.git',
       branch: 'main',

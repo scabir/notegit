@@ -1,11 +1,12 @@
 import { RepoService } from '../../../backend/services/RepoService';
+import { REPO_PROVIDERS } from '../../../shared/types';
 import type { ConfigService } from '../../../backend/services/ConfigService';
 import type { FsAdapter } from '../../../backend/adapters/FsAdapter';
 
 describe('RepoService', () => {
   const createRepoService = () => {
     const gitProvider = {
-      type: 'git',
+      type: REPO_PROVIDERS.git,
       configure: jest.fn(),
       open: jest.fn(),
       getStatus: jest.fn().mockResolvedValue({}),
@@ -17,7 +18,7 @@ describe('RepoService', () => {
     };
 
     const s3Provider = {
-      type: 's3',
+      type: REPO_PROVIDERS.s3,
       configure: jest.fn(),
       open: jest.fn(),
       getStatus: jest.fn().mockResolvedValue({}),
@@ -29,6 +30,18 @@ describe('RepoService', () => {
       queueDelete: jest.fn(),
       queueMove: jest.fn(),
       queueUpload: jest.fn(),
+    };
+
+    const localProvider = {
+      type: REPO_PROVIDERS.local,
+      configure: jest.fn(),
+      open: jest.fn(),
+      getStatus: jest.fn().mockResolvedValue({}),
+      fetch: jest.fn(),
+      pull: jest.fn(),
+      push: jest.fn(),
+      startAutoSync: jest.fn(),
+      stopAutoSync: jest.fn(),
     };
 
     const mockConfigService = {
@@ -43,19 +56,19 @@ describe('RepoService', () => {
     } as unknown as FsAdapter;
 
     const repoService = new RepoService(
-      { git: gitProvider as any, s3: s3Provider as any },
+      { git: gitProvider as any, s3: s3Provider as any, local: localProvider as any },
       mockFsAdapter,
       mockConfigService
     );
 
-    return { repoService, gitProvider, s3Provider, mockConfigService, mockFsAdapter };
+    return { repoService, gitProvider, s3Provider, localProvider, mockConfigService, mockFsAdapter };
   };
 
   it('queueS3Delete uses the s3 provider when repo is s3', async () => {
     const { repoService, s3Provider, mockConfigService } = createRepoService();
 
     const repoSettings = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       localPath: '/repo',
       bucket: 'notes-bucket',
       region: 'us-east-1',
@@ -77,7 +90,7 @@ describe('RepoService', () => {
     const { repoService, s3Provider, mockConfigService } = createRepoService();
 
     const repoSettings = {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       localPath: '/repo',
       remoteUrl: 'url',
       branch: 'main',
@@ -96,7 +109,7 @@ describe('RepoService', () => {
     const { repoService, s3Provider, mockConfigService } = createRepoService();
 
     const repoSettings = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       localPath: '/repo',
       bucket: 'notes-bucket',
       region: 'us-east-1',
@@ -117,7 +130,7 @@ describe('RepoService', () => {
     const { repoService, s3Provider, mockConfigService } = createRepoService();
 
     const repoSettings = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       localPath: '/repo',
       bucket: 'notes-bucket',
       region: 'us-east-1',
@@ -144,7 +157,7 @@ describe('RepoService', () => {
     const { repoService, s3Provider, mockConfigService } = createRepoService();
 
     const repoSettings = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       localPath: '/repo',
       bucket: 'notes-bucket',
       region: 'us-east-1',
@@ -176,7 +189,7 @@ describe('RepoService', () => {
     repoService.setFilesService(filesService);
 
     const response = await repoService.openOrClone({
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       remoteUrl: 'https://github.com/user/repo.git',
       branch: 'main',
       localPath: '',
@@ -191,11 +204,29 @@ describe('RepoService', () => {
     expect(response.tree).toEqual([{ id: 'a.md' }]);
   });
 
+  it('opens a local repo and updates config', async () => {
+    const { repoService, localProvider, mockConfigService } = createRepoService();
+    localProvider.open = jest.fn().mockResolvedValue({ localPath: '/local/repo' });
+
+    await repoService.openOrClone({
+      provider: REPO_PROVIDERS.local,
+      localPath: 'My Notes',
+    } as any);
+
+    expect(localProvider.configure).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: REPO_PROVIDERS.local })
+    );
+    expect(localProvider.open).toHaveBeenCalled();
+    expect(mockConfigService.updateRepoSettings).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: REPO_PROVIDERS.local, localPath: expect.any(String) })
+    );
+  });
+
   it('queues s3 upload when provider is s3', async () => {
     const { repoService, s3Provider, mockConfigService } = createRepoService();
 
     mockConfigService.getRepoSettings = jest.fn().mockResolvedValue({
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       localPath: '/repo',
       bucket: 'notes-bucket',
       region: 'us-east-1',
@@ -212,11 +243,11 @@ describe('RepoService', () => {
 
   it('prepareRepo restores previous provider', async () => {
     const { repoService, gitProvider, s3Provider } = createRepoService();
-    gitProvider.getStatus = jest.fn().mockResolvedValue({ provider: 'git' });
+    gitProvider.getStatus = jest.fn().mockResolvedValue({ provider: REPO_PROVIDERS.git });
     s3Provider.open = jest.fn().mockRejectedValue(new Error('open failed'));
 
     await repoService.openOrClone({
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       remoteUrl: 'https://github.com/user/repo.git',
       branch: 'main',
       localPath: '/repo',
@@ -225,7 +256,7 @@ describe('RepoService', () => {
     } as any);
 
     await repoService.prepareRepo({
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       localPath: '/s3',
       bucket: 'bucket',
       region: 'region',

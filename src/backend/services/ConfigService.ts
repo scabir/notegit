@@ -8,6 +8,7 @@ import {
   RepoSettings,
   GitRepoSettings,
   S3RepoSettings,
+  LocalRepoSettings,
   RepoProviderType,
   AppStateSnapshot,
   Profile,
@@ -15,6 +16,7 @@ import {
   ApiErrorCode,
   DEFAULT_APP_SETTINGS,
   DEFAULT_APP_STATE,
+  REPO_PROVIDERS,
 } from '../../shared/types';
 import { logger } from '../utils/logger';
 import { 
@@ -47,10 +49,15 @@ export class ConfigService {
   }
 
   private normalizeRepoSettings(raw: any): RepoSettings {
-    const provider: RepoProviderType = raw?.provider === 's3' ? 's3' : 'git';
-    if (provider === 's3') {
+    const provider: RepoProviderType =
+      raw?.provider === REPO_PROVIDERS.s3
+        ? REPO_PROVIDERS.s3
+        : raw?.provider === REPO_PROVIDERS.local
+        ? REPO_PROVIDERS.local
+        : REPO_PROVIDERS.git;
+    if (provider === REPO_PROVIDERS.s3) {
       return {
-        provider: 's3',
+        provider: REPO_PROVIDERS.s3,
         bucket: raw?.bucket || '',
         region: raw?.region || '',
         prefix: raw?.prefix || '',
@@ -61,8 +68,15 @@ export class ConfigService {
       };
     }
 
+    if (provider === REPO_PROVIDERS.local) {
+      return {
+        provider: REPO_PROVIDERS.local,
+        localPath: raw?.localPath || '',
+      };
+    }
+
     return {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       remoteUrl: raw?.remoteUrl || '',
       branch: raw?.branch || 'main',
       localPath: raw?.localPath || '',
@@ -72,7 +86,7 @@ export class ConfigService {
   }
 
   private decryptRepoSettings(settings: RepoSettings): RepoSettings {
-    if (settings.provider === 's3') {
+    if (settings.provider === REPO_PROVIDERS.s3) {
       const decrypted: S3RepoSettings = { ...settings };
       if (decrypted.accessKeyId) {
         decrypted.accessKeyId = this.cryptoAdapter.decrypt(decrypted.accessKeyId);
@@ -86,6 +100,10 @@ export class ConfigService {
       return decrypted;
     }
 
+    if (settings.provider === REPO_PROVIDERS.local) {
+      return settings;
+    }
+
     const decrypted: GitRepoSettings = { ...settings };
     if (decrypted.pat) {
       decrypted.pat = this.cryptoAdapter.decrypt(decrypted.pat);
@@ -94,7 +112,7 @@ export class ConfigService {
   }
 
   private encryptRepoSettings(settings: RepoSettings): RepoSettings {
-    if (settings.provider === 's3') {
+    if (settings.provider === REPO_PROVIDERS.s3) {
       const encrypted: S3RepoSettings = { ...settings };
       if (encrypted.accessKeyId) {
         encrypted.accessKeyId = this.cryptoAdapter.encrypt(encrypted.accessKeyId);
@@ -106,6 +124,10 @@ export class ConfigService {
         encrypted.sessionToken = this.cryptoAdapter.encrypt(encrypted.sessionToken);
       }
       return encrypted;
+    }
+
+    if (settings.provider === REPO_PROVIDERS.local) {
+      return settings;
     }
 
     const encrypted: GitRepoSettings = { ...settings };
@@ -232,9 +254,9 @@ export class ConfigService {
 
     logger.info('Updating repo settings', {
       provider: settings.provider,
-      remoteUrl: settings.provider === 'git' ? settings.remoteUrl : undefined,
-      bucket: settings.provider === 's3' ? settings.bucket : undefined,
-      region: settings.provider === 's3' ? settings.region : undefined,
+      remoteUrl: settings.provider === REPO_PROVIDERS.git ? settings.remoteUrl : undefined,
+      bucket: settings.provider === REPO_PROVIDERS.s3 ? settings.bucket : undefined,
+      region: settings.provider === REPO_PROVIDERS.s3 ? settings.region : undefined,
     });
     
     await this.ensureConfigDir();
@@ -348,48 +370,25 @@ export class ConfigService {
     
     const profiles = await this.getProfiles();
     
-    const provider: RepoProviderType = repoSettings.provider === 's3' ? 's3' : 'git';
+    const provider = this.resolveProviderType(repoSettings);
     const baseName = slugifyProfileName(name);
     const baseDir = getDefaultReposBaseDir();
     
     await this.fsAdapter.mkdir(baseDir, { recursive: true });
     
-    const baseFolderName = provider === 's3' ? `${baseName}-s3` : baseName;
+    const baseFolderName = this.getProfileBaseFolderName(baseName, provider);
     const folderName = await findUniqueFolderName(baseDir, baseFolderName, this.fsAdapter);
     const localPath = path.join(baseDir, folderName);
     
     logger.info('Assigned local path for profile', { name, localPath });
     
     let fullRepoSettings: RepoSettings;
-    if (provider === 'git') {
-      const gitSettings = repoSettings as Partial<GitRepoSettings>;
-      fullRepoSettings = {
-        provider: 'git',
-        remoteUrl: gitSettings.remoteUrl || '',
-        branch: gitSettings.branch || 'main',
-        localPath,
-        pat: gitSettings.pat || '',
-        authMethod: gitSettings.authMethod || AuthMethod.PAT,
-      };
+    if (provider === REPO_PROVIDERS.git) {
+      fullRepoSettings = this.buildGitProfileSettings(repoSettings, localPath);
+    } else if (provider === REPO_PROVIDERS.s3) {
+      fullRepoSettings = this.buildS3ProfileSettings(repoSettings, localPath);
     } else {
-      const s3Settings = repoSettings as Partial<S3RepoSettings>;
-      if (!s3Settings.bucket || !s3Settings.region || !s3Settings.accessKeyId || !s3Settings.secretAccessKey) {
-        throw {
-          code: ApiErrorCode.VALIDATION_ERROR,
-          message: 'S3 bucket, region, access key, and secret are required',
-        };
-      }
-
-      fullRepoSettings = {
-        provider: 's3',
-        bucket: s3Settings.bucket,
-        region: s3Settings.region,
-        prefix: s3Settings.prefix || '',
-        localPath,
-        accessKeyId: s3Settings.accessKeyId,
-        secretAccessKey: s3Settings.secretAccessKey,
-        sessionToken: s3Settings.sessionToken || '',
-      };
+      fullRepoSettings = this.buildLocalProfileSettings(localPath);
     }
     
     const newProfile: Profile = {
@@ -405,6 +404,72 @@ export class ConfigService {
     
     logger.info('Profile created', { id: newProfile.id });
     return newProfile;
+  }
+
+  private resolveProviderType(repoSettings: Partial<RepoSettings>): RepoProviderType {
+    if (repoSettings.provider === REPO_PROVIDERS.s3) {
+      return REPO_PROVIDERS.s3;
+    }
+    if (repoSettings.provider === REPO_PROVIDERS.local) {
+      return REPO_PROVIDERS.local;
+    }
+    return REPO_PROVIDERS.git;
+  }
+
+  private getProfileBaseFolderName(baseName: string, provider: RepoProviderType): string {
+    if (provider === REPO_PROVIDERS.s3) {
+      return `${baseName}-s3`;
+    }
+    if (provider === REPO_PROVIDERS.local) {
+      return `${baseName}-local`;
+    }
+    return baseName;
+  }
+
+  private buildGitProfileSettings(
+    repoSettings: Partial<RepoSettings>,
+    localPath: string
+  ): GitRepoSettings {
+    const gitSettings = repoSettings as Partial<GitRepoSettings>;
+    return {
+      provider: REPO_PROVIDERS.git,
+      remoteUrl: gitSettings.remoteUrl || '',
+      branch: gitSettings.branch || 'main',
+      localPath,
+      pat: gitSettings.pat || '',
+      authMethod: gitSettings.authMethod || AuthMethod.PAT,
+    };
+  }
+
+  private buildS3ProfileSettings(
+    repoSettings: Partial<RepoSettings>,
+    localPath: string
+  ): S3RepoSettings {
+    const s3Settings = repoSettings as Partial<S3RepoSettings>;
+    if (!s3Settings.bucket || !s3Settings.region || !s3Settings.accessKeyId || !s3Settings.secretAccessKey) {
+      throw {
+        code: ApiErrorCode.VALIDATION_ERROR,
+        message: 'S3 bucket, region, access key, and secret are required',
+      };
+    }
+
+    return {
+      provider: REPO_PROVIDERS.s3,
+      bucket: s3Settings.bucket,
+      region: s3Settings.region,
+      prefix: s3Settings.prefix || '',
+      localPath,
+      accessKeyId: s3Settings.accessKeyId,
+      secretAccessKey: s3Settings.secretAccessKey,
+      sessionToken: s3Settings.sessionToken || '',
+    };
+  }
+
+  private buildLocalProfileSettings(localPath: string): LocalRepoSettings {
+    return {
+      provider: REPO_PROVIDERS.local,
+      localPath,
+    };
   }
 
   async updateProfile(profileId: string, updates: Partial<Omit<Profile, 'id'>>): Promise<void> {
@@ -473,10 +538,10 @@ export class ConfigService {
 
         let profileName = 'Default Profile';
         
-    if (repoSettings.provider === 'git' && repoSettings.remoteUrl) {
-          profileName = extractRepoNameFromUrl(repoSettings.remoteUrl);
-        } else if (repoSettings.localPath) {
-          profileName = path.basename(repoSettings.localPath);
+    if (repoSettings.provider === REPO_PROVIDERS.git && repoSettings.remoteUrl) {
+      profileName = extractRepoNameFromUrl(repoSettings.remoteUrl);
+    } else if (repoSettings.localPath) {
+      profileName = path.basename(repoSettings.localPath);
         }
         
         logger.info('Derived profile name for migration', { profileName });

@@ -1,6 +1,6 @@
 # notegit
 
-A Git- or S3-backed Markdown note-taking desktop app built with Electron and React.
+A Git-, S3-, or local-backed Markdown note-taking desktop app built with Electron and React.
 
 **Version**: 2.2.4  
 **License**: MIT
@@ -9,6 +9,7 @@ A Git- or S3-backed Markdown note-taking desktop app built with Electron and Rea
 
 - Markdown + text editors with live preview (Mermaid supported in `.md` files)
 - Git or S3 storage with history
+- Local-only mode with no remote sync
 - Fast search, find/replace, import/export
 - Encrypted credentials, auto-save, and sync
 - macOS, Windows, Linux
@@ -19,13 +20,13 @@ A Git- or S3-backed Markdown note-taking desktop app built with Electron and Rea
 
 ## Quick start
 
-- Launch the app and connect a repository (Git or S3)
+- Launch the app and connect a repository (Git, S3, or Local)
   - S3 requires bucket versioning for history
 - Create or open a note and start editing
 
 ## From source (short)
 
-Prereqs: Node.js 18+, pnpm, Git (for Git repos), S3 credentials (for S3 repos).
+Prereqs: Node.js 18+, pnpm, Git (for Git repos), S3 credentials (for S3 repos). Local-only mode requires no external services.
 
 This is a single command does everything necessarry and runs. Divide and use it.
 

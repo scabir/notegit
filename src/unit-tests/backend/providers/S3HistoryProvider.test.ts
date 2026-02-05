@@ -1,9 +1,9 @@
 import { S3HistoryProvider } from '../../../backend/providers/S3HistoryProvider';
-import { ApiErrorCode, S3RepoSettings } from '../../../shared/types';
+import { ApiErrorCode, S3RepoSettings, REPO_PROVIDERS } from '../../../shared/types';
 
 describe('S3HistoryProvider', () => {
   const baseSettings: S3RepoSettings = {
-    provider: 's3',
+    provider: REPO_PROVIDERS.s3,
     bucket: 'notes-bucket',
     region: 'us-east-1',
     prefix: 'notes',

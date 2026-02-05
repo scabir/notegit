@@ -2,7 +2,7 @@ import { FilesService } from '../../../backend/services/FilesService';
 import { FsAdapter } from '../../../backend/adapters/FsAdapter';
 import { ConfigService } from '../../../backend/services/ConfigService';
 import { GitAdapter } from '../../../backend/adapters/GitAdapter';
-import { FileType, AuthMethod, ApiErrorCode } from '../../../shared/types';
+import { FileType, AuthMethod, ApiErrorCode, REPO_PROVIDERS } from '../../../shared/types';
 import { Stats } from 'fs';
 import * as path from 'path';
 
@@ -34,7 +34,7 @@ describe('FilesService', () => {
   describe('init', () => {
     it('should initialize with repo path from config', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/path/to/repo',
         remoteUrl: 'https://github.com/user/repo.git',
         branch: 'main',
@@ -91,7 +91,7 @@ describe('FilesService', () => {
   describe('readFile', () => {
     it('should read file content', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -119,7 +119,7 @@ describe('FilesService', () => {
   describe('saveFile', () => {
     it('should save file content', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -138,7 +138,7 @@ describe('FilesService', () => {
   describe('saveWithGitWorkflow', () => {
     beforeEach(() => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -227,7 +227,7 @@ describe('FilesService', () => {
   describe('createFile', () => {
     it('should create markdown file with default content', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -246,7 +246,7 @@ describe('FilesService', () => {
 
     it('should create empty file for non-markdown files', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -265,7 +265,7 @@ describe('FilesService', () => {
 
     it('should replace spaces in S3 file names', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 's3',
+        provider: REPO_PROVIDERS.s3,
         localPath: '/repo',
         bucket: 'notes-bucket',
         region: 'us-east-1',
@@ -289,7 +289,7 @@ describe('FilesService', () => {
   describe('createFolder', () => {
     it('should create a folder', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -306,7 +306,7 @@ describe('FilesService', () => {
 
     it('should replace spaces in S3 folder names', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 's3',
+        provider: REPO_PROVIDERS.s3,
         localPath: '/repo',
         bucket: 'notes-bucket',
         region: 'us-east-1',
@@ -327,7 +327,7 @@ describe('FilesService', () => {
   describe('deletePath', () => {
     it('should delete a file', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -349,7 +349,7 @@ describe('FilesService', () => {
 
     it('should recursively delete a directory', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -374,7 +374,7 @@ describe('FilesService', () => {
   describe('renamePath', () => {
     it('should rename a file', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -391,7 +391,7 @@ describe('FilesService', () => {
 
     it('should replace spaces in S3 rename targets', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 's3',
+        provider: REPO_PROVIDERS.s3,
         localPath: '/repo',
         bucket: 'notes-bucket',
         region: 'us-east-1',
@@ -415,7 +415,7 @@ describe('FilesService', () => {
   describe('commitFile', () => {
     it('should stage and commit a file', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -438,7 +438,7 @@ describe('FilesService', () => {
   describe('commitAll', () => {
     it('should stage and commit all changes', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -459,7 +459,7 @@ describe('FilesService', () => {
 
     it('should reject commit operations for S3 repositories', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 's3',
+        provider: REPO_PROVIDERS.s3,
         localPath: '/repo',
         bucket: 'notes-bucket',
         region: 'us-east-1',
@@ -478,7 +478,7 @@ describe('FilesService', () => {
   describe('listTree', () => {
     it('should build file tree structure', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -520,7 +520,7 @@ describe('FilesService', () => {
 
     it('should filter hidden files', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -543,7 +543,7 @@ describe('FilesService', () => {
 
     it('should sort folders before files', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -580,7 +580,7 @@ describe('FilesService', () => {
   describe('renamePath', () => {
     beforeEach(async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -668,7 +668,7 @@ describe('FilesService', () => {
   describe('importFile', () => {
     it('should normalize spaces for S3 target paths', async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 's3',
+        provider: REPO_PROVIDERS.s3,
         localPath: '/repo',
         bucket: 'notes-bucket',
         region: 'us-east-1',
@@ -694,7 +694,7 @@ describe('FilesService', () => {
   describe('duplicateFile', () => {
     beforeEach(async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',
@@ -724,7 +724,7 @@ describe('FilesService', () => {
   describe('deletePath', () => {
     beforeEach(async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         localPath: '/repo',
         remoteUrl: 'url',
         branch: 'main',

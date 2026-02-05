@@ -3,7 +3,7 @@ import TestRenderer, { act } from 'react-test-renderer';
 import { Button, Tabs, TextField, ListItemButton, ToggleButtonGroup } from '@mui/material';
 import { SettingsDialog } from '../../../frontend/components/SettingsDialog';
 import type { FullConfig } from '../../../shared/types';
-import { AuthMethod } from '../../../shared/types';
+import { AuthMethod, REPO_PROVIDERS } from '../../../shared/types';
 
 jest.mock('@mui/material', () => {
   const React = require('react');
@@ -55,7 +55,7 @@ const buildConfig = (): FullConfig => ({
     },
   },
   repoSettings: {
-    provider: 'git',
+    provider: REPO_PROVIDERS.git,
     remoteUrl: 'https://github.com/example/repo.git',
     branch: 'main',
     localPath: '/repo',
@@ -67,7 +67,7 @@ const buildConfig = (): FullConfig => ({
       id: 'profile-1',
       name: 'Default',
       repoSettings: {
-        provider: 'git',
+        provider: REPO_PROVIDERS.git,
         remoteUrl: 'https://github.com/example/repo.git',
         branch: 'main',
         localPath: '/repo',
@@ -98,7 +98,7 @@ describe('SettingsDialog component', () => {
               id: 'profile-2',
               name: 'New Profile',
               repoSettings: {
-                provider: 'git',
+                provider: REPO_PROVIDERS.git,
                 remoteUrl: 'https://github.com/example/new.git',
                 branch: 'main',
                 pat: 'token',
@@ -173,7 +173,7 @@ describe('SettingsDialog component', () => {
 
     const updateRepoSettings = (global as any).window.notegitApi.config.updateRepoSettings;
     expect(updateRepoSettings).toHaveBeenCalledWith({
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       remoteUrl: 'https://github.com/example/repo.git',
       branch: 'main',
       localPath: '/repo',
@@ -279,11 +279,86 @@ describe('SettingsDialog component', () => {
 
     const createProfile = (global as any).window.notegitApi.config.createProfile;
     expect(createProfile).toHaveBeenCalledWith('New Profile', {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       remoteUrl: 'https://github.com/example/new.git',
       branch: 'main',
       pat: 'token',
       authMethod: AuthMethod.PAT,
+    });
+  });
+
+  it('creates a new local profile from the profiles tab', async () => {
+    (global as any).window.notegitApi.config.createProfile = jest.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        id: 'profile-local',
+        name: 'Local Profile',
+        repoSettings: {
+          provider: REPO_PROVIDERS.local,
+          localPath: '/repo/local',
+        },
+        createdAt: Date.now(),
+        lastUsedAt: Date.now(),
+      },
+    });
+
+    let renderer: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        React.createElement(SettingsDialog, {
+          open: true,
+          onClose: jest.fn(),
+        })
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+    });
+
+    const tabs = renderer!.root.findByType(Tabs);
+    act(() => {
+      tabs.props.onChange(null, 2);
+    });
+
+    const createNewButton = findButtonByText(renderer!, 'Create New Profile');
+    if (!createNewButton) {
+      throw new Error('Create New Profile button not found');
+    }
+
+    act(() => {
+      createNewButton.props.onClick();
+    });
+
+    const toggleGroup = renderer!.root.findByType(ToggleButtonGroup);
+    act(() => {
+      toggleGroup.props.onChange(null, REPO_PROVIDERS.local);
+    });
+
+    const profileNameField = renderer!.root
+      .findAllByType(TextField)
+      .find((field: any) => field.props.label === 'Profile Name');
+    if (!profileNameField) {
+      throw new Error('Profile Name field not found');
+    }
+
+    act(() => {
+      profileNameField.props.onChange({ target: { value: 'Local Profile' } });
+    });
+
+    const createProfileButton = findButtonByText(renderer!, 'Create Profile');
+    if (!createProfileButton) {
+      throw new Error('Create Profile button not found');
+    }
+
+    await act(async () => {
+      createProfileButton.props.onClick();
+      await flushPromises();
+    });
+
+    const createProfile = (global as any).window.notegitApi.config.createProfile;
+    expect(createProfile).toHaveBeenCalledWith('Local Profile', {
+      provider: REPO_PROVIDERS.local,
     });
   });
 
@@ -541,7 +616,7 @@ describe('SettingsDialog component', () => {
         id: 'profile-3',
         name: 'S3 Profile',
         repoSettings: {
-          provider: 's3',
+          provider: REPO_PROVIDERS.s3,
           bucket: 'bucket',
           region: 'us-east-1',
           prefix: 'notes/',
@@ -585,7 +660,7 @@ describe('SettingsDialog component', () => {
 
     const providerToggle = renderer!.root.findByType(ToggleButtonGroup);
     act(() => {
-      providerToggle.props.onChange(null, 's3');
+      providerToggle.props.onChange(null, REPO_PROVIDERS.s3);
     });
 
     const profileNameField = renderer!.root
@@ -631,7 +706,7 @@ describe('SettingsDialog component', () => {
     });
 
     expect((global as any).window.notegitApi.config.createProfile).toHaveBeenCalledWith('S3 Profile', {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       bucket: 'bucket',
       region: 'us-east-1',
       prefix: 'notes/',
@@ -644,7 +719,7 @@ describe('SettingsDialog component', () => {
   it('saves S3 repository settings', async () => {
     const s3Config = buildConfig();
     s3Config.repoSettings = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       bucket: 'bucket',
       region: 'us-east-1',
       prefix: 'notes/',
@@ -687,7 +762,7 @@ describe('SettingsDialog component', () => {
     });
 
     expect((global as any).window.notegitApi.config.updateRepoSettings).toHaveBeenCalledWith({
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       bucket: 'bucket',
       region: 'us-east-1',
       prefix: 'notes/',
@@ -848,7 +923,7 @@ describe('SettingsDialog component', () => {
   it('shows validation error when git repo settings are incomplete', async () => {
     const gitConfig = buildConfig();
     gitConfig.repoSettings = {
-      provider: 'git',
+      provider: REPO_PROVIDERS.git,
       remoteUrl: '',
       branch: 'main',
       localPath: '/repo',
@@ -929,7 +1004,7 @@ describe('SettingsDialog component', () => {
   it('renders S3 auto sync settings when repo is s3', async () => {
     const s3Config = buildConfig();
     s3Config.repoSettings = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       bucket: 'bucket',
       region: 'region',
       prefix: '',
@@ -1046,7 +1121,7 @@ describe('SettingsDialog component', () => {
   it('shows validation error when s3 repo settings are incomplete', async () => {
     const s3Config = buildConfig();
     s3Config.repoSettings = {
-      provider: 's3',
+      provider: REPO_PROVIDERS.s3,
       bucket: '',
       region: 'region',
       prefix: '',

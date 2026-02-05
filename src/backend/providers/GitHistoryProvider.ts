@@ -6,18 +6,19 @@ import {
   ApiErrorCode,
   RepoSettings,
   GitRepoSettings,
+  REPO_PROVIDERS,
 } from '../../shared/types';
 import type { HistoryProvider } from './types';
 
 export class GitHistoryProvider implements HistoryProvider {
-  readonly type = 'git' as const;
+  readonly type = REPO_PROVIDERS.git;
   private settings: GitRepoSettings | null = null;
   private repoPath: string | null = null;
 
   constructor(private gitAdapter: GitAdapter) {}
 
   configure(settings: RepoSettings): void {
-    if (settings.provider !== 'git') {
+    if (settings.provider !== REPO_PROVIDERS.git) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
         'GitHistoryProvider configured with non-git settings',
