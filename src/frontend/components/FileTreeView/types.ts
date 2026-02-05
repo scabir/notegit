@@ -11,6 +11,7 @@ export interface FileTreeViewProps {
   onRename: (oldPath: string, newPath: string) => Promise<void>;
   onDuplicate?: (path: string) => Promise<string | void>;
   onImport: (sourcePath: string, targetPath: string) => Promise<void>;
+  onCollapseAll?: () => void;
   onNavigateBack?: () => void;
   onNavigateForward?: () => void;
   canNavigateBack?: boolean;

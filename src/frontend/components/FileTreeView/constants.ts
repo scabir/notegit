@@ -2,6 +2,7 @@ export const FILE_TREE_TEXT = {
   newFile: 'New File',
   newFolder: 'New Folder',
   importFile: 'Import File',
+  collapseAll: 'Collapse All',
   rename: 'Rename',
   delete: 'Delete',
   duplicate: 'Duplicate',

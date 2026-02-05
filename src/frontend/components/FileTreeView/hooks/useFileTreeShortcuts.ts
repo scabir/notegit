@@ -9,6 +9,7 @@ export type ShortcutHandlers = {
   handleOpenRenameDialog: () => void;
   handleOpenMoveDialog: () => void;
   handleToggleFavorite: () => void;
+  handleCollapseAll: () => void;
   handleDuplicate?: () => void;
 };
 
@@ -41,6 +42,7 @@ export function useFileTreeShortcuts(
         handleOpenRenameDialog,
         handleOpenMoveDialog,
         handleToggleFavorite,
+        handleCollapseAll,
         handleDuplicate,
       } = handlersRef.current;
       const mod = event.metaKey || event.ctrlKey;
@@ -80,6 +82,12 @@ export function useFileTreeShortcuts(
       if (mod && shift && key.toLowerCase() === 's') {
         event.preventDefault();
         handleToggleFavorite();
+        return;
+      }
+
+      if (mod && shift && key.toLowerCase() === 'e') {
+        event.preventDefault();
+        handleCollapseAll();
         return;
       }
 

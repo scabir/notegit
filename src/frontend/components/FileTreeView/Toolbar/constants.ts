@@ -4,4 +4,5 @@ export const TOOLBAR_TEXT = {
   newFile: 'New File',
   newFolder: 'New Folder',
   importFile: 'Import File',
+  collapseAll: 'Collapse All',
 } as const;
