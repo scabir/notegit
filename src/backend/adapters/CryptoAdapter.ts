@@ -7,6 +7,9 @@ const SALT_LENGTH = 64;
 const TAG_LENGTH = 16;
 const KEY_LENGTH = 32;
 const ITERATIONS = 100000;
+const HASH_ALGORITHM = 'sha512';
+const ENCODING_UTF8 = 'utf8';
+const ENCODING_BASE64 = 'base64';
 
 export class CryptoAdapter {
   private salt: string;
@@ -21,14 +24,14 @@ export class CryptoAdapter {
   encrypt(plaintext: string): string {
     const salt = crypto.randomBytes(SALT_LENGTH);
     
-    const key = crypto.pbkdf2Sync(this.salt, salt, ITERATIONS, KEY_LENGTH, 'sha512');
+    const key = crypto.pbkdf2Sync(this.salt, salt, ITERATIONS, KEY_LENGTH, HASH_ALGORITHM);
     
     const iv = crypto.randomBytes(IV_LENGTH);
     
     const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
     
-    let encrypted = cipher.update(plaintext, 'utf8', 'base64');
-    encrypted += cipher.final('base64');
+    let encrypted = cipher.update(plaintext, ENCODING_UTF8, ENCODING_BASE64);
+    encrypted += cipher.final(ENCODING_BASE64);
     
     const authTag = cipher.getAuthTag();
     
@@ -36,14 +39,14 @@ export class CryptoAdapter {
       salt,
       iv,
       authTag,
-      Buffer.from(encrypted, 'base64'),
+      Buffer.from(encrypted, ENCODING_BASE64),
     ]);
     
-    return result.toString('base64');
+    return result.toString(ENCODING_BASE64);
   }
 
   decrypt(ciphertext: string): string {
-    const buffer = Buffer.from(ciphertext, 'base64');
+    const buffer = Buffer.from(ciphertext, ENCODING_BASE64);
     
     const salt = buffer.subarray(0, SALT_LENGTH);
     const iv = buffer.subarray(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
@@ -53,13 +56,13 @@ export class CryptoAdapter {
     );
     const encrypted = buffer.subarray(SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
     
-    const key = crypto.pbkdf2Sync(this.salt, salt, ITERATIONS, KEY_LENGTH, 'sha512');
+    const key = crypto.pbkdf2Sync(this.salt, salt, ITERATIONS, KEY_LENGTH, HASH_ALGORITHM);
     
     const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
     decipher.setAuthTag(authTag);
     
-    let decrypted = decipher.update(encrypted.toString('base64'), 'base64', 'utf8');
-    decrypted += decipher.final('utf8');
+    let decrypted = decipher.update(encrypted.toString(ENCODING_BASE64), ENCODING_BASE64, ENCODING_UTF8);
+    decrypted += decipher.final(ENCODING_UTF8);
     
     return decrypted;
   }
