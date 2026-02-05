@@ -166,6 +166,51 @@ describe('FileTreeView toolbar actions', () => {
     });
   };
 
+  const selectTreeNode = (renderer: TestRenderer.ReactTestRenderer, nodeId: string) => {
+    const treeView = renderer.root.findByType(TreeView);
+    act(() => {
+      treeView.props.onNodeSelect(null, nodeId);
+    });
+  };
+
+  const openRenameDialogFromContextMenu = (renderer: TestRenderer.ReactTestRenderer, nodeId: string) => {
+    openTreeContextMenu(renderer, nodeId);
+    const renameMenuItem = renderer.root.find(
+      (node) => node.props && node.props['data-testid'] === 'tree-context-rename'
+    );
+    act(() => renameMenuItem.props.onClick());
+  };
+
+  const openMoveDialogFromContextMenu = (renderer: TestRenderer.ReactTestRenderer, nodeId: string) => {
+    openTreeContextMenu(renderer, nodeId);
+    const moveMenuItem = renderer.root.find(
+      (node) => node.props && node.props['data-testid'] === 'tree-context-move'
+    );
+    act(() => moveMenuItem.props.onClick());
+  };
+
+  const triggerDeleteFromContextMenu = async (
+    renderer: TestRenderer.ReactTestRenderer,
+    nodeId: string
+  ) => {
+    selectTreeNode(renderer, nodeId);
+    openTreeContextMenu(renderer, nodeId);
+    const deleteMenuItem = renderer.root.find(
+      (node) => node.props && node.props['data-testid'] === 'tree-context-delete'
+    );
+    await act(async () => {
+      deleteMenuItem.props.onClick();
+    });
+  };
+
+  const triggerFavoriteFromContextMenu = (renderer: TestRenderer.ReactTestRenderer, nodeId: string) => {
+    openTreeContextMenu(renderer, nodeId);
+    const favoriteMenuItem = renderer.root.find(
+      (node) => node.props && node.props['data-testid'] === 'tree-context-favorite'
+    );
+    act(() => favoriteMenuItem.props.onClick());
+  };
+
   const openTreeContainerContextMenu = (renderer: TestRenderer.ReactTestRenderer) => {
     const container = renderer.root.find(
       (node) => node.props && typeof node.props.className === 'string' && node.props.className.includes('tree-container')
@@ -281,16 +326,10 @@ describe('FileTreeView toolbar actions', () => {
   });
 
   describe('favorites list', () => {
-    it('adds the selection to favorites via the toolbar and exposes the list', () => {
+    it('adds the selection to favorites via the context menu and exposes the list', () => {
       const onSelectFile = jest.fn();
       const renderer = createTreeRenderer({ onSelectFile });
-      const treeView = renderer.root.findByType(TreeView);
-      act(() => {
-        treeView.props.onNodeSelect(null, 'folder/note.md');
-      });
-
-      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
-      act(() => favoriteButton.props.onClick());
+      triggerFavoriteFromContextMenu(renderer, 'folder/note.md');
 
       const favoritesSection = renderer.root.find(
         (node) => node.props && node.props['data-testid'] === 'favorites-section'
@@ -312,13 +351,7 @@ describe('FileTreeView toolbar actions', () => {
     it('opens the editor when a favorite file is clicked', () => {
       const onSelectFile = jest.fn();
       const renderer = createTreeRenderer({ onSelectFile });
-      const treeView = renderer.root.findByType(TreeView);
-      act(() => {
-        treeView.props.onNodeSelect(null, 'folder/note.md');
-      });
-
-      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
-      act(() => favoriteButton.props.onClick());
+      triggerFavoriteFromContextMenu(renderer, 'folder/note.md');
 
       const favoriteItem = renderer.root
         .findAllByType(Button)
@@ -331,13 +364,7 @@ describe('FileTreeView toolbar actions', () => {
 
     it('selects the tree node when a favorite file is clicked', () => {
       const renderer = createTreeRenderer();
-      const treeView = renderer.root.findByType(TreeView);
-      act(() => {
-        treeView.props.onNodeSelect(null, 'folder/note.md');
-      });
-
-      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
-      act(() => favoriteButton.props.onClick());
+      triggerFavoriteFromContextMenu(renderer, 'folder/note.md');
 
       const favoriteItem = renderer.root
         .findAllByType(Button)
@@ -352,13 +379,7 @@ describe('FileTreeView toolbar actions', () => {
 
     it('expands a favorited folder when selected from favorites', () => {
       const renderer = createTreeRenderer();
-      const treeView = renderer.root.findByType(TreeView);
-      act(() => {
-        treeView.props.onNodeSelect(null, 'folder');
-      });
-
-      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
-      act(() => favoriteButton.props.onClick());
+      triggerFavoriteFromContextMenu(renderer, 'folder');
 
       const favoriteItem = renderer.root
         .findAllByType(Button)
@@ -390,13 +411,7 @@ describe('FileTreeView toolbar actions', () => {
 
     it('removes a favorite via the context menu', () => {
       const renderer = createTreeRenderer();
-      const treeView = renderer.root.findByType(TreeView);
-      act(() => {
-        treeView.props.onNodeSelect(null, 'folder/note.md');
-      });
-
-      const favoriteButton = getTooltipButton(renderer, FILE_TREE_TEXT.addToFavorites);
-      act(() => favoriteButton.props.onClick());
+      triggerFavoriteFromContextMenu(renderer, 'folder/note.md');
 
       const favoriteItem = renderer.root
         .findAllByType(Button)
@@ -523,7 +538,29 @@ describe('FileTreeView toolbar actions', () => {
     });
   });
 
-  it('opens move dialog from toolbar for selected node', () => {
+  it('invokes back and forward actions from the toolbar', () => {
+    const onNavigateBack = jest.fn();
+    const onNavigateForward = jest.fn();
+    const renderer = createTreeRenderer({
+      onNavigateBack,
+      onNavigateForward,
+      canNavigateBack: true,
+      canNavigateForward: true,
+    });
+
+    const backButton = getTooltipButton(renderer, 'Back');
+    const forwardButton = getTooltipButton(renderer, 'Forward');
+
+    act(() => {
+      backButton.props.onClick();
+      forwardButton.props.onClick();
+    });
+
+    expect(onNavigateBack).toHaveBeenCalled();
+    expect(onNavigateForward).toHaveBeenCalled();
+  });
+
+  it('opens move dialog from context menu for selected node', () => {
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -537,26 +574,7 @@ describe('FileTreeView toolbar actions', () => {
         isS3Repo: false,
       })
     );
-
-    const treeView = renderer.root.findByType(TreeView);
-    act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
-    });
-
-    const moveTooltip = renderer.root
-      .findAllByType(Tooltip)
-      .find((item) => item.props.title === FILE_TREE_TEXT.moveToFolder);
-
-    if (!moveTooltip) {
-      throw new Error('Move tooltip not found');
-    }
-
-    const moveButton = moveTooltip.findByType(IconButton);
-    expect(moveButton.props.disabled).toBe(false);
-
-    act(() => {
-      moveButton.props.onClick();
-    });
+    openMoveDialogFromContextMenu(renderer, 'folder/note.md');
 
     const dialog = renderer.root.findByType(MoveToFolderDialog);
     expect(dialog.props.open).toBe(true);
@@ -653,7 +671,7 @@ describe('FileTreeView toolbar actions', () => {
     expect(flattenText(renderer.toJSON())).toContain('Folder name contains invalid characters');
   });
 
-  it('does not delete when confirmation is rejected', () => {
+  it('does not delete when confirmation is rejected', async () => {
     (global as any).window.confirm = jest.fn().mockReturnValue(false);
     const onDelete = jest.fn();
 
@@ -675,11 +693,7 @@ describe('FileTreeView toolbar actions', () => {
     act(() => {
       treeView.props.onNodeSelect(null, 'folder/note.md');
     });
-
-    const deleteButton = getTooltipButton(renderer, FILE_TREE_TEXT.delete);
-    act(() => {
-      deleteButton.props.onClick();
-    });
+    await triggerDeleteFromContextMenu(renderer, 'folder/note.md');
 
     expect(onDelete).not.toHaveBeenCalled();
   });
@@ -733,16 +747,7 @@ describe('FileTreeView toolbar actions', () => {
         isS3Repo: false,
       })
     );
-
-    const treeView = renderer.root.findByType(TreeView);
-    act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
-    });
-
-    const renameButton = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
-    act(() => {
-      renameButton.props.onClick();
-    });
+    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
 
     const textField = renderer.root
       .findAllByType(TextField)
@@ -783,16 +788,7 @@ describe('FileTreeView toolbar actions', () => {
         isS3Repo: false,
       })
     );
-
-    const treeView = renderer.root.findByType(TreeView);
-    act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
-    });
-
-    const moveButton = getTooltipButton(renderer, FILE_TREE_TEXT.moveToFolder);
-    act(() => {
-      moveButton.props.onClick();
-    });
+    openMoveDialogFromContextMenu(renderer, 'folder/note.md');
 
     const dialog = renderer.root.findByType(MoveToFolderDialog);
     await act(async () => {
@@ -825,9 +821,6 @@ describe('FileTreeView toolbar actions', () => {
 
     expect(onSelectFile).toHaveBeenCalledWith('folder/note.md', 'file');
 
-    const renameButton = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
-    expect(renameButton.props.disabled).toBe(false);
-
     const container = renderer.root.findAll(
       (node) => node.props.className === 'tree-container'
     )[0];
@@ -840,9 +833,6 @@ describe('FileTreeView toolbar actions', () => {
         },
       });
     });
-
-    const renameButtonAfter = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
-    expect(renameButtonAfter.props.disabled).toBe(true);
   });
 
   it('creates a file inside the selected folder', async () => {
@@ -1258,15 +1248,7 @@ describe('FileTreeView toolbar actions', () => {
       })
     );
 
-    const treeView = renderer.root.findByType(TreeView);
-    act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
-    });
-
-    const renameButton = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
-    act(() => {
-      renameButton.props.onClick();
-    });
+    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
 
     const textField = renderer.root
       .findAllByType(TextField)
@@ -1308,15 +1290,7 @@ describe('FileTreeView toolbar actions', () => {
       })
     );
 
-    const treeView = renderer.root.findByType(TreeView);
-    act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
-    });
-
-    const renameButton = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
-    act(() => {
-      renameButton.props.onClick();
-    });
+    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
 
     const textField = renderer.root
       .findAllByType(TextField)
@@ -1360,15 +1334,7 @@ describe('FileTreeView toolbar actions', () => {
       })
     );
 
-    const treeView = renderer.root.findByType(TreeView);
-    act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
-    });
-
-    const renameButton = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
-    act(() => {
-      renameButton.props.onClick();
-    });
+    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
 
     const textField = renderer.root
       .findAllByType(TextField)
@@ -1413,15 +1379,7 @@ describe('FileTreeView toolbar actions', () => {
       })
     );
 
-    const treeView = renderer.root.findByType(TreeView);
-    act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
-    });
-
-    const renameButton = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
-    act(() => {
-      renameButton.props.onClick();
-    });
+    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
 
     const textField = renderer.root
       .findAllByType(TextField)
@@ -1466,19 +1424,9 @@ describe('FileTreeView toolbar actions', () => {
       })
     );
 
-    const treeView = renderer.root.findByType(TreeView);
-    act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
-    });
-
-    const deleteButton = getTooltipButton(renderer, FILE_TREE_TEXT.delete);
-    await act(async () => {
-      deleteButton.props.onClick();
-    });
+    await triggerDeleteFromContextMenu(renderer, 'folder/note.md');
 
     expect(onDelete).toHaveBeenCalledWith('folder/note.md');
-    const renameButtonAfter = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
-    expect(renameButtonAfter.props.disabled).toBe(true);
   });
 
   it('expands folders when selectedFile is nested', async () => {
@@ -1523,15 +1471,7 @@ describe('FileTreeView toolbar actions', () => {
       })
     );
 
-    const treeView = renderer.root.findByType(TreeView);
-    act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
-    });
-
-    const renameButton = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
-    act(() => {
-      renameButton.props.onClick();
-    });
+    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
 
     const textField = renderer.root
       .findAllByType(TextField)
@@ -1577,15 +1517,7 @@ describe('FileTreeView toolbar actions', () => {
       })
     );
 
-    const treeView = renderer.root.findByType(TreeView);
-    act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
-    });
-
-    const deleteButton = getTooltipButton(renderer, FILE_TREE_TEXT.delete);
-    await act(async () => {
-      deleteButton.props.onClick();
-    });
+    await triggerDeleteFromContextMenu(renderer, 'folder/note.md');
 
     expect((global as any).window.alert).toHaveBeenCalled();
   });
@@ -1737,15 +1669,7 @@ describe('FileTreeView toolbar actions', () => {
       })
     );
 
-    const treeView = renderer.root.findByType(TreeView);
-    act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
-    });
-
-    const moveButton = getTooltipButton(renderer, FILE_TREE_TEXT.moveToFolder);
-    act(() => {
-      moveButton.props.onClick();
-    });
+    openMoveDialogFromContextMenu(renderer, 'folder/note.md');
 
     const dialog = renderer.root.findByType(MoveToFolderDialog);
     await act(async () => {
@@ -1792,8 +1716,6 @@ describe('FileTreeView toolbar actions', () => {
       });
     });
 
-    const renameButtonAfter = getTooltipButton(renderer, FILE_TREE_TEXT.rename);
-    expect(renameButtonAfter.props.disabled).toBe(true);
   });
 
   it('shows creation location for selected file parent', () => {

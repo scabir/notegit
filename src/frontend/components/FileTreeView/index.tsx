@@ -38,6 +38,10 @@ export function FileTreeView({
   onRename,
   onDuplicate,
   onImport,
+  onNavigateBack = () => {},
+  onNavigateForward = () => {},
+  canNavigateBack = false,
+  canNavigateForward = false,
   isS3Repo,
 }: FileTreeViewProps) {
   const [createFileDialogOpen, setCreateFileDialogOpen] = useState(false);
@@ -60,7 +64,6 @@ export function FileTreeView({
     handleFavoriteContextMenu,
     handleCloseFavoriteMenu,
     handleRemoveFavorite,
-    selectedNodeIsFavorite,
     updateFavoritesForPathChange,
     removeFavoritesUnderPath,
   } = useFavorites(tree, selectedNodeForActions);
@@ -546,15 +549,13 @@ export function FileTreeView({
   return (
     <Box sx={rootSx}>
       <FileTreeToolbar
+        onBack={onNavigateBack}
+        onForward={onNavigateForward}
+        canGoBack={canNavigateBack}
+        canGoForward={canNavigateForward}
         onNewFile={handleOpenFileDialog}
         onNewFolder={handleOpenFolderDialog}
         onImport={handleImportFile}
-        onRename={() => handleOpenRenameDialog()}
-        onMove={() => handleOpenMoveDialog()}
-        onDelete={() => handleDelete()}
-        onToggleFavorite={toggleFavorite}
-        favoriteSelected={selectedNodeIsFavorite}
-        actionEnabled={Boolean(selectedNodeForActions)}
       />
 
       {favoriteNodes.length > 0 && (

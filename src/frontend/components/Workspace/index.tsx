@@ -41,9 +41,13 @@ import {
 import { buildHeaderTitle } from './utils';
 import type { WorkspaceProps } from './types';
 
+const MAX_NAV_HISTORY = 100;
+
 export function Workspace({ onThemeChange }: WorkspaceProps) {
   const [tree, setTree] = useState<FileTreeNode[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [navigationEntries, setNavigationEntries] = useState<string[]>([]);
+  const [navigationIndex, setNavigationIndex] = useState(-1);
   const [fileContent, setFileContent] = useState<FileContent | null>(null);
   const [repoStatus, setRepoStatus] = useState<RepoStatus | null>(null);
   const [repoPath, setRepoPath] = useState<string | null>(null);
@@ -75,6 +79,8 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
   const fileContentCacheRef = React.useRef<Map<string, string>>(new Map());
   const shortcutHelperRef = React.useRef<ShortcutHelperHandle | null>(null);
+  const navigationEntriesRef = React.useRef<string[]>([]);
+  const navigationIndexRef = React.useRef(-1);
 
   const [activeProfileName, setActiveProfileName] = useState<string>('');
   const [appVersion, setAppVersion] = useState<string>(versionInfo.version);
@@ -82,6 +88,53 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const isLocalRepo = repoStatus?.provider === REPO_PROVIDERS.local;
 
   const headerTitle = buildHeaderTitle(activeProfileName, appVersion);
+
+  useEffect(() => {
+    navigationEntriesRef.current = navigationEntries;
+    navigationIndexRef.current = navigationIndex;
+  }, [navigationEntries, navigationIndex]);
+
+  const canNavigateBack = navigationIndex > 0;
+  const canNavigateForward =
+    navigationIndex >= 0 && navigationIndex < navigationEntries.length - 1;
+
+  const pushNavigationEntry = React.useCallback((path: string) => {
+    if (!path) return;
+    const entries = navigationEntriesRef.current;
+    const currentIndex = navigationIndexRef.current;
+    const current = entries[currentIndex];
+    if (current === path) {
+      return;
+    }
+
+    let nextEntries = entries;
+    if (currentIndex < entries.length - 1) {
+      nextEntries = entries.slice(0, currentIndex + 1);
+    }
+
+    nextEntries = [...nextEntries, path];
+    if (nextEntries.length > MAX_NAV_HISTORY) {
+      const overflow = nextEntries.length - MAX_NAV_HISTORY;
+      nextEntries = nextEntries.slice(overflow);
+    }
+
+    setNavigationEntries(nextEntries);
+    const nextIndex = nextEntries.length - 1;
+    navigationEntriesRef.current = nextEntries;
+    navigationIndexRef.current = nextIndex;
+    setNavigationIndex(nextIndex);
+  }, []);
+
+  const isEditableTarget = React.useCallback((target: EventTarget | null) => {
+    if (typeof HTMLElement === 'undefined' || !(target instanceof HTMLElement)) {
+      return false;
+    }
+    const tag = target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable) {
+      return true;
+    }
+    return Boolean(target.closest('.cm-editor'));
+  }, []);
 
   const setTransientStatus = React.useCallback(
     (status: 'idle' | 'saving' | 'saved' | 'error', message: string, timeoutMs = 3000) => {
@@ -281,42 +334,105 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
   // setTransientStatus moved above loadWorkspace
 
-  const handleSelectFile = async (path: string, type: 'file' | 'folder') => {
-    if (type === 'folder') return;
+  const openFile = React.useCallback(
+    async (
+      path: string,
+      type: 'file' | 'folder',
+      options: { recordHistory?: boolean } = {}
+    ) => {
+      if (type === 'folder') return;
 
-    if (selectedFile && editorContent) {
-      fileContentCacheRef.current.set(selectedFile, editorContent);
-    }
-
-    setSelectedFile(path);
-
-    try {
-      const cachedContent = fileContentCacheRef.current.get(path);
-
-      if (cachedContent !== undefined) {
-        const response = await window.notegitApi.files.read(path);
-        if (response.ok && response.data) {
-          setFileContent({
-            ...response.data,
-            content: cachedContent,
-          });
-          setEditorContent(cachedContent);
-          setHasUnsavedChanges(true);
-        }
-      } else {
-        const response = await window.notegitApi.files.read(path);
-        if (response.ok && response.data) {
-          setFileContent(response.data);
-          setEditorContent(response.data.content);
-          setHasUnsavedChanges(false);
-        } else {
-          setTransientStatus('error', response.error?.message || 'Failed to read file', 5000);
-        }
+      if (options.recordHistory !== false) {
+        pushNavigationEntry(path);
       }
-    } catch (error) {
-      setTransientStatus('error', 'Failed to read file', 5000);
-    }
-  };
+
+      if (selectedFile && editorContent) {
+        fileContentCacheRef.current.set(selectedFile, editorContent);
+      }
+
+      setSelectedFile(path);
+
+      try {
+        const cachedContent = fileContentCacheRef.current.get(path);
+
+        if (cachedContent !== undefined) {
+          const response = await window.notegitApi.files.read(path);
+          if (response.ok && response.data) {
+            setFileContent({
+              ...response.data,
+              content: cachedContent,
+            });
+            setEditorContent(cachedContent);
+            setHasUnsavedChanges(true);
+          }
+        } else {
+          const response = await window.notegitApi.files.read(path);
+          if (response.ok && response.data) {
+            setFileContent(response.data);
+            setEditorContent(response.data.content);
+            setHasUnsavedChanges(false);
+          } else {
+            setTransientStatus('error', response.error?.message || 'Failed to read file', 5000);
+          }
+        }
+      } catch (error) {
+        setTransientStatus('error', 'Failed to read file', 5000);
+      }
+    },
+    [editorContent, pushNavigationEntry, selectedFile, setTransientStatus]
+  );
+
+  const handleSelectFile = React.useCallback(
+    async (path: string, type: 'file' | 'folder') => {
+      await openFile(path, type, { recordHistory: true });
+    },
+    [openFile]
+  );
+
+  const navigateToIndex = React.useCallback(
+    (nextIndex: number) => {
+      const entries = navigationEntriesRef.current;
+      if (nextIndex < 0 || nextIndex >= entries.length) {
+        return;
+      }
+      const target = entries[nextIndex];
+      navigationIndexRef.current = nextIndex;
+      setNavigationIndex(nextIndex);
+      void openFile(target, 'file', { recordHistory: false });
+    },
+    [openFile]
+  );
+
+  const handleNavigateBack = React.useCallback(() => {
+    navigateToIndex(navigationIndexRef.current - 1);
+  }, [navigateToIndex]);
+
+  const handleNavigateForward = React.useCallback(() => {
+    navigateToIndex(navigationIndexRef.current + 1);
+  }, [navigateToIndex]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey)) {
+        return;
+      }
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+        return;
+      }
+      if (isEditableTarget(event.target)) {
+        return;
+      }
+      event.preventDefault();
+      if (event.key === 'ArrowLeft') {
+        handleNavigateBack();
+      } else {
+        handleNavigateForward();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleNavigateBack, handleNavigateForward, isEditableTarget]);
 
 
 
@@ -803,6 +919,10 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
             onRename={handleRename}
             onDuplicate={handleDuplicate}
             onImport={handleImport}
+            onNavigateBack={handleNavigateBack}
+            onNavigateForward={handleNavigateForward}
+            canNavigateBack={canNavigateBack}
+            canNavigateForward={canNavigateForward}
             isS3Repo={isS3Repo}
           />
         </Box>
