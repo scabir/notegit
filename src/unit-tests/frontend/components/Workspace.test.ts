@@ -3,6 +3,7 @@ import TestRenderer, { act } from 'react-test-renderer';
 import { EditorShell } from '../../../frontend/components/EditorShell';
 import type { RepoStatus } from '../../../shared/types';
 import { FileType, REPO_PROVIDERS } from '../../../shared/types';
+import { SIDEBAR_COLLAPSED_WIDTH } from '../../../frontend/components/EditorShell/constants';
 
 const FileTreeViewMock = jest.fn((_props: any) => null);
 const MarkdownEditorMock = jest.fn((_props: any) => null);
@@ -75,6 +76,14 @@ const flushPromises = () => new Promise((resolve) => setImmediate(resolve));
 
 const getStatusBarProps = () =>
   StatusBarMock.mock.calls[StatusBarMock.mock.calls.length - 1]?.[0];
+const getSidebarNode = (renderer: TestRenderer.ReactTestRenderer) =>
+  renderer.root.find(
+    (node) =>
+      node.props?.sx &&
+      node.props.sx.borderRight === 1 &&
+      node.props.sx.borderColor === 'divider' &&
+      typeof node.props.sx.width === 'number'
+  );
 
 describe('EditorShell', () => {
   beforeEach(() => {
@@ -1260,6 +1269,110 @@ describe('EditorShell', () => {
       'mouseup',
       expect.any(Function)
     );
+  });
+
+  it('collapses sidebar width and hides resize handle when tree is collapsed', async () => {
+    let renderer: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = createRenderer(
+        React.createElement(EditorShell, {
+          onThemeChange: jest.fn(),
+        })
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+      await flushPromises();
+    });
+
+    let fileTreeProps =
+      FileTreeViewMock.mock.calls[FileTreeViewMock.mock.calls.length - 1]?.[0];
+    expect(fileTreeProps?.isCollapsed).toBe(false);
+
+    await act(async () => {
+      fileTreeProps.onToggleCollapse();
+    });
+
+    fileTreeProps =
+      FileTreeViewMock.mock.calls[FileTreeViewMock.mock.calls.length - 1]?.[0];
+    expect(fileTreeProps?.isCollapsed).toBe(true);
+
+    const resizeHandlesAfterCollapse = renderer!.root.findAll(
+      (node) =>
+        typeof node.props.onMouseDown === 'function' &&
+        node.props.sx &&
+        node.props.sx.cursor === 'col-resize'
+    );
+    expect(resizeHandlesAfterCollapse.length).toBe(0);
+
+    const sidebarAfterCollapse = renderer!.root.find(
+      (node) => node.props?.sx?.width === SIDEBAR_COLLAPSED_WIDTH
+    );
+    expect(sidebarAfterCollapse).toBeDefined();
+
+    await act(async () => {
+      fileTreeProps.onToggleCollapse();
+    });
+
+    fileTreeProps =
+      FileTreeViewMock.mock.calls[FileTreeViewMock.mock.calls.length - 1]?.[0];
+    expect(fileTreeProps?.isCollapsed).toBe(false);
+  });
+
+  it('hides horizontal overflow on sidebar when tree is collapsed', async () => {
+    let renderer: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = createRenderer(
+        React.createElement(EditorShell, {
+          onThemeChange: jest.fn(),
+        })
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+      await flushPromises();
+    });
+
+    const fileTreeProps =
+      FileTreeViewMock.mock.calls[FileTreeViewMock.mock.calls.length - 1]?.[0];
+    await act(async () => {
+      fileTreeProps.onToggleCollapse();
+    });
+
+    const sidebarAfterCollapse = getSidebarNode(renderer!);
+    expect(sidebarAfterCollapse.props.sx.overflowX).toBe('hidden');
+  });
+
+  it('restores horizontal overflow behavior when tree is expanded again', async () => {
+    let renderer: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = createRenderer(
+        React.createElement(EditorShell, {
+          onThemeChange: jest.fn(),
+        })
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+      await flushPromises();
+    });
+
+    let fileTreeProps =
+      FileTreeViewMock.mock.calls[FileTreeViewMock.mock.calls.length - 1]?.[0];
+    await act(async () => {
+      fileTreeProps.onToggleCollapse();
+    });
+    fileTreeProps =
+      FileTreeViewMock.mock.calls[FileTreeViewMock.mock.calls.length - 1]?.[0];
+    await act(async () => {
+      fileTreeProps.onToggleCollapse();
+    });
+
+    const sidebarAfterExpand = getSidebarNode(renderer!);
+    expect(sidebarAfterExpand.props.sx.overflowX).toBe('auto');
   });
 
   it('cleans up s3 auto sync when switching away from s3', async () => {

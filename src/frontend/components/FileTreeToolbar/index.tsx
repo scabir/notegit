@@ -1,6 +1,7 @@
 import React from 'react';
 import { Toolbar as MuiToolbar, Tooltip, IconButton, Box, Divider } from '@mui/material';
 import {
+  Menu as MenuIcon,
   ArrowBack as BackIcon,
   ArrowForward as ForwardIcon,
   NoteAdd as NoteAddIcon,
@@ -23,6 +24,8 @@ const ToolbarButton = ({ tooltip, icon, onClick, disabled = false }: ToolbarActi
 );
 
 export function FileTreeToolbar({
+  isCollapsed,
+  onToggleCollapse,
   onBack,
   onForward,
   canGoBack,
@@ -32,7 +35,14 @@ export function FileTreeToolbar({
   onImport,
   onCollapseAll,
 }: FileTreeToolbarProps) {
-  const actions: ToolbarAction[] = [
+  const collapseAction: ToolbarAction = {
+    tooltip: isCollapsed ? TOOLBAR_TEXT.expandTree : TOOLBAR_TEXT.collapseTree,
+    icon: <MenuIcon fontSize="small" />,
+    onClick: onToggleCollapse,
+  };
+
+  const actions: ToolbarAction[] = isCollapsed ? [collapseAction] : [
+    collapseAction,
     {
       tooltip: TOOLBAR_TEXT.newFile,
       icon: <NoteAddIcon fontSize="small" />,
@@ -71,7 +81,7 @@ export function FileTreeToolbar({
   ];
 
   return (
-    <MuiToolbar variant="dense" sx={toolbarSx}>
+    <MuiToolbar variant="dense" disableGutters sx={toolbarSx}>
       {actions.map((action) => (
         <ToolbarButton
           key={action.tooltip}
@@ -81,19 +91,23 @@ export function FileTreeToolbar({
           disabled={action.disabled}
         />
       ))}
-      <Box sx={{ flexGrow: 1 }} />
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
-        {navigationActions.map((action) => (
-          <ToolbarButton
-            key={action.tooltip}
-            tooltip={action.tooltip}
-            icon={action.icon}
-            onClick={action.onClick}
-            disabled={action.disabled}
-          />
-        ))}
-      </Box>
+      {!isCollapsed && (
+        <>
+          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+            {navigationActions.map((action) => (
+              <ToolbarButton
+                key={action.tooltip}
+                tooltip={action.tooltip}
+                icon={action.icon}
+                onClick={action.onClick}
+                disabled={action.disabled}
+              />
+            ))}
+          </Box>
+        </>
+      )}
     </MuiToolbar>
   );
 }

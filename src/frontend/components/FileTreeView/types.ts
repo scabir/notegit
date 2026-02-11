@@ -16,6 +16,8 @@ export interface FileTreeViewProps {
   canNavigateBack?: boolean;
   canNavigateForward?: boolean;
   isS3Repo: boolean;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export interface FavoriteMenuState {

@@ -13,6 +13,7 @@ import { Tooltip, IconButton, Button, TextField } from '@mui/material';
 import { TreeView } from '@mui/x-tree-view';
 import { FileTreeView } from '../../../frontend/components/FileTreeView';
 import { FILE_TREE_TEXT } from '../../../frontend/components/FileTreeView/constants';
+import { TOOLBAR_TEXT } from '../../../frontend/components/FileTreeToolbar/constants';
 import { MoveToFolderDialog } from '../../../frontend/components/MoveToFolderDialog';
 import { FileType } from '../../../shared/types';
 
@@ -658,6 +659,51 @@ describe('FileTreeView toolbar actions', () => {
 
     expect(onNavigateBack).toHaveBeenCalled();
     expect(onNavigateForward).toHaveBeenCalled();
+  });
+
+  it('collapses and expands the tree via the hamburger button', () => {
+    const renderer = createTreeRenderer();
+
+    const collapseButton = getTooltipButton(renderer, TOOLBAR_TEXT.collapseTree);
+    act(() => {
+      collapseButton.props.onClick();
+    });
+
+    expect(renderer.root.findAllByType(TreeView)).toHaveLength(0);
+    expect(renderer.root.findAllByType(Tooltip)).toHaveLength(1);
+    expect(() => getTooltipButton(renderer, FILE_TREE_TEXT.newFile)).toThrow();
+    expect(getTooltipButton(renderer, TOOLBAR_TEXT.expandTree)).toBeDefined();
+
+    const expandButton = getTooltipButton(renderer, TOOLBAR_TEXT.expandTree);
+    act(() => {
+      expandButton.props.onClick();
+    });
+
+    expect(renderer.root.findAllByType(TreeView)).toHaveLength(1);
+    expect(getTooltipButton(renderer, FILE_TREE_TEXT.newFile)).toBeDefined();
+  });
+
+  it('invokes controlled collapse callback from hamburger button', () => {
+    const onToggleCollapse = jest.fn();
+    const renderer = createTreeRenderer({
+      isCollapsed: true,
+      onToggleCollapse,
+    });
+
+    const expandButton = getTooltipButton(renderer, TOOLBAR_TEXT.expandTree);
+    act(() => {
+      expandButton.props.onClick();
+    });
+
+    expect(onToggleCollapse).toHaveBeenCalledTimes(1);
+    expect(renderer.root.findAllByType(TreeView)).toHaveLength(0);
+  });
+
+  it('does not register tree shortcuts when tree is collapsed', () => {
+    createTreeRenderer({
+      isCollapsed: true,
+    });
+    expect(treeKeyHandlers.keydown).toBeUndefined();
   });
 
   it('opens move dialog from context menu for selected node', () => {

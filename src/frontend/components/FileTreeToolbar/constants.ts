@@ -1,4 +1,6 @@
 export const TOOLBAR_TEXT = {
+  collapseTree: 'Collapse Tree',
+  expandTree: 'Expand Tree',
   back: 'Back',
   forward: 'Forward',
   newFile: 'New File',

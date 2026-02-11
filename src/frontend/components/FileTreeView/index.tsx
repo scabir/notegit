@@ -35,7 +35,19 @@ export function FileTreeView({
   canNavigateBack = false,
   canNavigateForward = false,
   isS3Repo,
+  isCollapsed,
+  onToggleCollapse,
 }: FileTreeViewProps) {
+  const [internalIsTreeCollapsed, setInternalIsTreeCollapsed] = React.useState(false);
+  const isTreeCollapsed = isCollapsed ?? internalIsTreeCollapsed;
+  const handleToggleCollapse = React.useCallback(() => {
+    if (onToggleCollapse) {
+      onToggleCollapse();
+      return;
+    }
+    setInternalIsTreeCollapsed((prev) => !prev);
+  }, [onToggleCollapse]);
+
   const {
     createFileDialogOpen,
     createFolderDialogOpen,
@@ -156,7 +168,7 @@ export function FileTreeView({
       onDuplicate && selectedNodeForActions && selectedNodeForActions.type === 'file'
         ? () => onDuplicate(selectedNodeForActions.path)
         : undefined,
-  });
+  }, !isTreeCollapsed);
 
   const treeContextMenuNode = treeContextMenuState?.node || null;
   const { contextNodeIsFavorite, creationLocationText, fileHelperText, selectedNodeId } =
@@ -203,6 +215,8 @@ export function FileTreeView({
   return (
     <Box sx={rootSx}>
       <FileTreeToolbar
+        isCollapsed={isTreeCollapsed}
+        onToggleCollapse={handleToggleCollapse}
         onBack={onNavigateBack}
         onForward={onNavigateForward}
         canGoBack={canNavigateBack}
@@ -213,7 +227,7 @@ export function FileTreeView({
         onCollapseAll={handleCollapseAll}
       />
 
-      {favoriteNodes.length > 0 && (
+      {!isTreeCollapsed && favoriteNodes.length > 0 && (
         <FavoritesBar
           favorites={favoriteNodes}
           onSelect={handleFavoriteClick}
@@ -221,68 +235,74 @@ export function FileTreeView({
         />
       )}
 
-      <FileTreeContextMenus
-        favoriteMenuState={favoriteMenuState}
-        onCloseFavoriteMenu={handleCloseFavoriteMenu}
-        onRemoveFavorite={handleRemoveFavorite}
-        favoriteMenuLabel={FILE_TREE_TEXT.favoritesContextMenuItem}
-        favoriteMenuIcon={<FavoriteIcon fontSize="small" />}
-        treeContextMenuState={treeContextMenuState}
-        onCloseTreeContextMenu={handleCloseTreeContextMenu}
-        emptyContextMenuItems={emptyContextMenuItems}
-        nodeContextMenuItems={nodeContextMenuItems}
-      />
+      {!isTreeCollapsed && (
+        <FileTreeContextMenus
+          favoriteMenuState={favoriteMenuState}
+          onCloseFavoriteMenu={handleCloseFavoriteMenu}
+          onRemoveFavorite={handleRemoveFavorite}
+          favoriteMenuLabel={FILE_TREE_TEXT.favoritesContextMenuItem}
+          favoriteMenuIcon={<FavoriteIcon fontSize="small" />}
+          treeContextMenuState={treeContextMenuState}
+          onCloseTreeContextMenu={handleCloseTreeContextMenu}
+          emptyContextMenuItems={emptyContextMenuItems}
+          nodeContextMenuItems={nodeContextMenuItems}
+        />
+      )}
 
-      <FileTreeMain
-        tree={tree}
-        expanded={expanded}
-        selectedNodeId={selectedNodeId}
-        treeContainerRef={treeContainerRef}
-        onContainerClick={handleContainerClick}
-        onTreeContextMenu={handleTreeContextMenu}
-        onNodeSelect={handleNodeSelect}
-        onNodeToggle={handleNodeToggle}
-      />
+      {!isTreeCollapsed && (
+        <FileTreeMain
+          tree={tree}
+          expanded={expanded}
+          selectedNodeId={selectedNodeId}
+          treeContainerRef={treeContainerRef}
+          onContainerClick={handleContainerClick}
+          onTreeContextMenu={handleTreeContextMenu}
+          onNodeSelect={handleNodeSelect}
+          onNodeToggle={handleNodeToggle}
+        />
+      )}
 
-      <FileTreeDialogs
-        text={{
-          createFileTitle: FILE_TREE_TEXT.createFileTitle,
-          createFolderTitle: FILE_TREE_TEXT.createFolderTitle,
-          fileNameLabel: FILE_TREE_TEXT.fileNameLabel,
-          folderNameLabel: FILE_TREE_TEXT.folderNameLabel,
-          filePlaceholder: FILE_TREE_TEXT.filePlaceholder,
-          folderPlaceholder: FILE_TREE_TEXT.folderPlaceholder,
-          cancel: FILE_TREE_TEXT.cancel,
-          create: FILE_TREE_TEXT.create,
-          creating: FILE_TREE_TEXT.creating,
-          renameFolderTitle: FILE_TREE_TEXT.renameFolderTitle,
-          renameFileTitle: FILE_TREE_TEXT.renameFileTitle,
-          newNameLabel: FILE_TREE_TEXT.newNameLabel,
-          renameAction: FILE_TREE_TEXT.renameAction,
-          renaming: FILE_TREE_TEXT.renaming,
-        }}
-        tree={tree}
-        selectedNode={selectedNode}
-        createFileDialogOpen={createFileDialogOpen}
-        createFolderDialogOpen={createFolderDialogOpen}
-        renameDialogOpen={renameDialogOpen}
-        moveDialogOpen={moveDialogOpen}
-        newItemName={newItemName}
-        creating={creating}
-        errorMessage={errorMessage}
-        creationLocationText={creationLocationText}
-        fileHelperText={fileHelperText}
-        onSetName={setNewItemName}
-        onClearError={clearError}
-        onCloseCreateFileDialog={closeCreateFileDialog}
-        onCloseCreateFolderDialog={closeCreateFolderDialog}
-        onCloseRenameDialog={closeRenameDialog}
-        onCloseMoveDialog={closeMoveDialog}
-        onCreateFile={handleCreateFile}
-        onCreateFolder={handleCreateFolder}
-        onRename={handleRename}
-        onMoveToFolder={handleMoveToFolder}
-      />
+      {!isTreeCollapsed && (
+        <FileTreeDialogs
+          text={{
+            createFileTitle: FILE_TREE_TEXT.createFileTitle,
+            createFolderTitle: FILE_TREE_TEXT.createFolderTitle,
+            fileNameLabel: FILE_TREE_TEXT.fileNameLabel,
+            folderNameLabel: FILE_TREE_TEXT.folderNameLabel,
+            filePlaceholder: FILE_TREE_TEXT.filePlaceholder,
+            folderPlaceholder: FILE_TREE_TEXT.folderPlaceholder,
+            cancel: FILE_TREE_TEXT.cancel,
+            create: FILE_TREE_TEXT.create,
+            creating: FILE_TREE_TEXT.creating,
+            renameFolderTitle: FILE_TREE_TEXT.renameFolderTitle,
+            renameFileTitle: FILE_TREE_TEXT.renameFileTitle,
+            newNameLabel: FILE_TREE_TEXT.newNameLabel,
+            renameAction: FILE_TREE_TEXT.renameAction,
+            renaming: FILE_TREE_TEXT.renaming,
+          }}
+          tree={tree}
+          selectedNode={selectedNode}
+          createFileDialogOpen={createFileDialogOpen}
+          createFolderDialogOpen={createFolderDialogOpen}
+          renameDialogOpen={renameDialogOpen}
+          moveDialogOpen={moveDialogOpen}
+          newItemName={newItemName}
+          creating={creating}
+          errorMessage={errorMessage}
+          creationLocationText={creationLocationText}
+          fileHelperText={fileHelperText}
+          onSetName={setNewItemName}
+          onClearError={clearError}
+          onCloseCreateFileDialog={closeCreateFileDialog}
+          onCloseCreateFolderDialog={closeCreateFolderDialog}
+          onCloseRenameDialog={closeRenameDialog}
+          onCloseMoveDialog={closeMoveDialog}
+          onCreateFile={handleCreateFile}
+          onCreateFolder={handleCreateFolder}
+          onRename={handleRename}
+          onMoveToFolder={handleMoveToFolder}
+        />
+      )}
     </Box>
   );
 }

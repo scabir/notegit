@@ -15,14 +15,15 @@ export const mainContentSx: SxProps<Theme> = {
   pb: '40px',
 };
 
-export const sidebarSx = (width: number): SxProps<Theme> => ({
+export const sidebarSx = (width: number, isCollapsed: boolean): SxProps<Theme> => ({
   width,
   minWidth: width,
   maxWidth: width,
   flexShrink: 0,
   borderRight: 1,
   borderColor: 'divider',
-  overflow: 'auto',
+  overflowY: 'auto',
+  overflowX: isCollapsed ? 'hidden' : 'auto',
 });
 
 export const resizeHandleSx = (isResizing: boolean): SxProps<Theme> => ({

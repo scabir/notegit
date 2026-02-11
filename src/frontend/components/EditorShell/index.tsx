@@ -22,6 +22,12 @@ import {
   resizeHandleSx,
   editorPaneSx,
 } from './styles';
+import {
+  SIDEBAR_COLLAPSED_WIDTH,
+  SIDEBAR_DEFAULT_WIDTH,
+  SIDEBAR_MAX_WIDTH,
+  SIDEBAR_MIN_WIDTH,
+} from './constants';
 import { buildHeaderTitle } from './utils';
 import type { EditorShellProps } from './types';
 
@@ -57,10 +63,12 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     }
   };
   const s3AutoSyncCleanupRef = React.useRef<(() => void) | null>(null);
-  const [sidebarWidth, setSidebarWidth] = useState(300);
+  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
+  const [isTreeCollapsed, setIsTreeCollapsed] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const resizeStartX = React.useRef(0);
   const resizeStartWidth = React.useRef(0);
+  const lastExpandedSidebarWidthRef = React.useRef(SIDEBAR_DEFAULT_WIDTH);
 
   const fileContentCacheRef = React.useRef<Map<string, string>>(new Map());
   const shortcutHelperRef = React.useRef<ShortcutHelperHandle | null>(null);
@@ -756,6 +764,9 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   };
 
   const handleResizeStart = (e: React.MouseEvent) => {
+    if (isTreeCollapsed) {
+      return;
+    }
     e.preventDefault();
     setIsResizing(true);
     resizeStartX.current = e.clientX;
@@ -769,9 +780,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       const delta = e.clientX - resizeStartX.current;
       const newWidth = resizeStartWidth.current + delta;
 
-      const MIN_WIDTH = 200;
-      const MAX_WIDTH = 600;
-      const constrainedWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
+      const constrainedWidth = Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, newWidth));
 
       setSidebarWidth(constrainedWidth);
     };
@@ -790,6 +799,30 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   }, [isResizing]);
 
   useEffect(() => {
+    if (!isTreeCollapsed) {
+      lastExpandedSidebarWidthRef.current = sidebarWidth;
+    }
+  }, [isTreeCollapsed, sidebarWidth]);
+
+  const handleToggleTreeCollapse = React.useCallback(() => {
+    setIsTreeCollapsed((prev) => {
+      const next = !prev;
+      if (next) {
+        lastExpandedSidebarWidthRef.current = sidebarWidth;
+        setSidebarWidth(SIDEBAR_COLLAPSED_WIDTH);
+        setIsResizing(false);
+      } else {
+        const restoredWidth = Math.max(
+          SIDEBAR_MIN_WIDTH,
+          Math.min(SIDEBAR_MAX_WIDTH, lastExpandedSidebarWidthRef.current || SIDEBAR_DEFAULT_WIDTH)
+        );
+        setSidebarWidth(restoredWidth);
+      }
+      return next;
+    });
+  }, [sidebarWidth]);
+
+  useEffect(() => {
     return () => {
       if (statusTimerRef.current) {
         clearTimeout(statusTimerRef.current);
@@ -806,7 +839,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     <Box sx={rootSx}>
       <Box sx={mainContentSx}>
         <Box
-          sx={sidebarSx(sidebarWidth)}
+          sx={sidebarSx(sidebarWidth, isTreeCollapsed)}
         >
           <FileTreeView
             tree={tree}
@@ -823,13 +856,17 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
             canNavigateBack={canNavigateBack}
             canNavigateForward={canNavigateForward}
             isS3Repo={isS3Repo}
+            isCollapsed={isTreeCollapsed}
+            onToggleCollapse={handleToggleTreeCollapse}
           />
         </Box>
 
-        <Box
-          onMouseDown={handleResizeStart}
-          sx={resizeHandleSx(isResizing)}
-        />
+        {!isTreeCollapsed && (
+          <Box
+            onMouseDown={handleResizeStart}
+            sx={resizeHandleSx(isResizing)}
+          />
+        )}
 
         <Box sx={editorPaneSx}>
           {fileContent?.type === 'text' ? (
