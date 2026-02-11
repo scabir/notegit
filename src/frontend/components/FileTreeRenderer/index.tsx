@@ -7,8 +7,8 @@ import {
 } from '@mui/icons-material';
 import type { MouseEvent } from 'react';
 import type { SxProps, Theme } from '@mui/material/styles';
-import type { FileTreeNode } from '../../../../shared/types';
-import { getFileIcon } from '../utils';
+import type { FileTreeNode } from '../../../shared/types';
+import { getFileIcon } from './utils';
 import type { RenderTreeParams } from './types';
 
 const getFolderIcon = (isExpanded: boolean) => (

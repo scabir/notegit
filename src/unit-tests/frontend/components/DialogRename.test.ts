@@ -1,7 +1,7 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { TextField } from '@mui/material';
-import { DialogRename } from '../../../frontend/components/FileTreeView/DialogRename';
+import { DialogRename } from '../../../frontend/components/FileTreeDialogRename';
 
 describe('DialogRename', () => {
   it('submits when Enter is pressed', () => {

@@ -1,16 +1,10 @@
 import React from 'react';
 import { Box, Tooltip, Button, Typography } from '@mui/material';
-import type { FileTreeNode } from '../../../../shared/types';
 import { favoritesSectionSx, favoriteListSx, favoriteItemSx } from './styles';
 import { FAVORITES_BAR_TEXT } from './constants';
+import type { FileTreeFavoritesBarProps } from './types';
 
-type FavoritesBarProps = {
-  favorites: FileTreeNode[];
-  onSelect: (node: FileTreeNode) => void;
-  onContextMenu: (event: React.MouseEvent<HTMLElement>, path: string) => void;
-};
-
-export function FavoritesBar({ favorites, onSelect, onContextMenu }: FavoritesBarProps) {
+export function FavoritesBar({ favorites, onSelect, onContextMenu }: FileTreeFavoritesBarProps) {
   if (favorites.length === 0) {
     return null;
   }

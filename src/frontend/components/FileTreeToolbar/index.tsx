@@ -1,4 +1,4 @@
-import React, { type ReactElement } from 'react';
+import React from 'react';
 import { Toolbar as MuiToolbar, Tooltip, IconButton, Box, Divider } from '@mui/material';
 import {
   ArrowBack as BackIcon,
@@ -10,24 +10,7 @@ import {
 } from '@mui/icons-material';
 import { TOOLBAR_TEXT } from './constants';
 import { toolbarSx } from './styles';
-
-type ToolbarAction = {
-  tooltip: string;
-  icon: ReactElement;
-  onClick: () => void;
-  disabled?: boolean;
-};
-
-type FileTreeToolbarProps = {
-  onBack: () => void;
-  onForward: () => void;
-  canGoBack: boolean;
-  canGoForward: boolean;
-  onNewFile: () => void;
-  onNewFolder: () => void;
-  onImport: () => void;
-  onCollapseAll: () => void;
-};
+import type { ToolbarAction, FileTreeToolbarProps } from './types';
 
 const ToolbarButton = ({ tooltip, icon, onClick, disabled = false }: ToolbarAction) => (
   <Tooltip title={tooltip}>

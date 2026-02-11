@@ -1,21 +1,10 @@
 import React from 'react';
 import { Menu, MenuItem, ListItemIcon } from '@mui/material';
-import type { ContextMenuItem, FavoriteMenuState, TreeContextMenuState } from '../types';
 import { contextMenuSx } from './styles';
+import { FILE_TREE_CONTEXT_MENUS_IDS } from './constants';
+import type { FileTreeContextMenusProps } from './types';
 
-type ContextMenusProps = {
-  favoriteMenuState: FavoriteMenuState | null;
-  onCloseFavoriteMenu: () => void;
-  onRemoveFavorite: () => void;
-  favoriteMenuLabel: string;
-  favoriteMenuIcon: React.ReactElement;
-  treeContextMenuState: TreeContextMenuState | null;
-  onCloseTreeContextMenu: () => void;
-  emptyContextMenuItems: ContextMenuItem[];
-  nodeContextMenuItems: ContextMenuItem[];
-};
-
-export function ContextMenus({
+export function FileTreeContextMenus({
   favoriteMenuState,
   onCloseFavoriteMenu,
   onRemoveFavorite,
@@ -25,7 +14,7 @@ export function ContextMenus({
   onCloseTreeContextMenu,
   emptyContextMenuItems,
   nodeContextMenuItems,
-}: ContextMenusProps) {
+}: FileTreeContextMenusProps) {
   const showEmptyMenu = treeContextMenuState?.mode === 'empty';
   const showNodeMenu = treeContextMenuState?.mode === 'node';
   const anchorPosition = treeContextMenuState?.position || undefined;
@@ -33,22 +22,25 @@ export function ContextMenus({
   return (
     <>
       <Menu
-        id="favorite-context-menu"
+        id={FILE_TREE_CONTEXT_MENUS_IDS.favoriteMenu}
         anchorEl={favoriteMenuState?.anchorEl || null}
         open={Boolean(favoriteMenuState?.anchorEl)}
         onClose={onCloseFavoriteMenu}
         MenuListProps={{ 'aria-label': 'Favorite actions' }}
         sx={contextMenuSx}
       >
-        <MenuItem data-testid="favorite-context-menu-remove" onClick={onRemoveFavorite}>
+        <MenuItem
+          data-testid={FILE_TREE_CONTEXT_MENUS_IDS.favoriteRemove}
+          onClick={onRemoveFavorite}
+        >
           <ListItemIcon>{favoriteMenuIcon}</ListItemIcon>
           {favoriteMenuLabel}
         </MenuItem>
       </Menu>
 
       <Menu
-        id="tree-context-menu-empty"
-        data-testid="tree-context-menu-empty"
+        id={FILE_TREE_CONTEXT_MENUS_IDS.treeEmptyMenu}
+        data-testid={FILE_TREE_CONTEXT_MENUS_IDS.treeEmptyMenu}
         anchorReference="anchorPosition"
         anchorPosition={anchorPosition}
         open={showEmptyMenu}
@@ -65,8 +57,8 @@ export function ContextMenus({
       </Menu>
 
       <Menu
-        id="tree-context-menu"
-        data-testid="tree-context-menu"
+        id={FILE_TREE_CONTEXT_MENUS_IDS.treeNodeMenu}
+        data-testid={FILE_TREE_CONTEXT_MENUS_IDS.treeNodeMenu}
         anchorReference="anchorPosition"
         anchorPosition={anchorPosition}
         open={showNodeMenu}

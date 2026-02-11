@@ -17,13 +17,14 @@ import type { FileTreeNode } from '../../../shared/types';
 import { FILE_TREE_TEXT, INVALID_NAME_CHARS } from './constants';
 import { rootSx, treeContainerSx, treeItemLabelSx } from './styles';
 import { normalizeName, findNode, findNodeByPath, getParentPath } from './utils';
-import type { FileTreeViewProps, ContextMenuItem } from './types';
-import { FileTreeToolbar } from './Toolbar';
-import { FavoritesBar } from './FavoritesBar';
-import { DialogCreateItem } from './DialogCreateItem';
-import { DialogRename } from './DialogRename';
-import { ContextMenus } from './ContextMenus';
-import { renderTreeItems } from './TreeRenderer';
+import type { FileTreeViewProps } from './types';
+import { FileTreeToolbar } from '../FileTreeToolbar';
+import { FavoritesBar } from '../FileTreeFavoritesBar';
+import { DialogCreateItem } from '../FileTreeDialogCreateItem';
+import { DialogRename } from '../FileTreeDialogRename';
+import { FileTreeContextMenus } from '../FileTreeContextMenus';
+import type { ContextMenuItem } from '../FileTreeContextMenus/types';
+import { renderTreeItems } from '../FileTreeRenderer';
 import { useFavorites } from './hooks/useFavorites';
 import { useTreeContextMenu } from './hooks/useTreeContextMenu';
 import { useFileTreeShortcuts } from './hooks/useFileTreeShortcuts';
@@ -596,7 +597,7 @@ export function FileTreeView({
         />
       )}
 
-      <ContextMenus
+      <FileTreeContextMenus
         favoriteMenuState={favoriteMenuState}
         onCloseFavoriteMenu={handleCloseFavoriteMenu}
         onRemoveFavorite={handleRemoveFavorite}
