@@ -51,6 +51,10 @@ export interface OpenOrCloneRepoResponse {
 }
 
 export interface NotegitApi {
+  menu: {
+    onOpenShortcuts: (listener: () => void) => () => void;
+    onOpenAbout: (listener: () => void) => () => void;
+  };
   config: {
     getFull: () => Promise<ApiResponse<FullConfig>>;
     getAppSettings: () => Promise<ApiResponse<AppSettings>>;

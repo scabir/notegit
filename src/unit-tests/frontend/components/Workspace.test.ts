@@ -14,6 +14,7 @@ const SearchDialogMock = jest.fn((_props: any) => null);
 const RepoSearchDialogMock = jest.fn((_props: any) => null);
 const HistoryPanelMock = jest.fn((_props: any) => null);
 const HistoryViewerMock = jest.fn((_props: any) => null);
+const AboutDialogMock = jest.fn((_props: any) => null);
 
 const renderers: TestRenderer.ReactTestRenderer[] = [];
 const createRenderer = (element: React.ReactElement) => {
@@ -62,6 +63,10 @@ jest.mock('../../../frontend/components/HistoryViewer', () => ({
   HistoryViewer: (props: any) => HistoryViewerMock(props),
 }));
 
+jest.mock('../../../frontend/components/AboutDialog', () => ({
+  AboutDialog: (props: any) => AboutDialogMock(props),
+}));
+
 jest.mock('../../../frontend/utils/s3AutoSync', () => ({
   startS3AutoSync: jest.fn(() => () => undefined),
 }));
@@ -84,6 +89,7 @@ describe('EditorShell', () => {
     RepoSearchDialogMock.mockClear();
     HistoryPanelMock.mockClear();
     HistoryViewerMock.mockClear();
+    AboutDialogMock.mockClear();
 
     const repoStatus: RepoStatus = {
       provider: REPO_PROVIDERS.git,
@@ -97,6 +103,10 @@ describe('EditorShell', () => {
 
     (global as any).window = {
       notegitApi: {
+        menu: {
+          onOpenShortcuts: jest.fn(() => jest.fn()),
+          onOpenAbout: jest.fn(() => jest.fn()),
+        },
         files: {
           listTree: jest.fn().mockResolvedValue({
             ok: true,
@@ -698,6 +708,52 @@ describe('EditorShell', () => {
       HistoryViewerMock.mock.calls[HistoryViewerMock.mock.calls.length - 1]?.[0];
     expect(viewerProps.open).toBe(true);
     expect(viewerProps.commitHash).toBe('hash');
+  });
+
+  it('handles shortcuts/about requests from app menu events', async () => {
+    let openShortcutsHandler: (() => void) | undefined;
+    let openAboutHandler: (() => void) | undefined;
+    (global as any).window.notegitApi.menu.onOpenShortcuts = jest.fn((listener: () => void) => {
+      openShortcutsHandler = listener;
+      return jest.fn();
+    });
+    (global as any).window.notegitApi.menu.onOpenAbout = jest.fn((listener: () => void) => {
+      openAboutHandler = listener;
+      return jest.fn();
+    });
+
+    await act(async () => {
+      createRenderer(
+        React.createElement(EditorShell, {
+          onThemeChange: jest.fn(),
+        })
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+      await flushPromises();
+    });
+
+    const statusProps = getStatusBarProps();
+    const openMenu = jest.fn();
+    statusProps.shortcutHelperRef.current = { openMenu };
+
+    if (!openShortcutsHandler || !openAboutHandler) {
+      throw new Error('menu handlers not registered');
+    }
+
+    act(() => {
+      openShortcutsHandler!();
+    });
+    expect(openMenu).toHaveBeenCalled();
+
+    act(() => {
+      openAboutHandler!();
+    });
+
+    const aboutProps = AboutDialogMock.mock.calls[AboutDialogMock.mock.calls.length - 1]?.[0];
+    expect(aboutProps.open).toBe(true);
   });
 
   it('triggers autosave and beforeunload save', async () => {

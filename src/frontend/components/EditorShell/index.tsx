@@ -11,6 +11,7 @@ import { SearchDialog } from '../SearchDialog';
 import { RepoSearchDialog } from '../RepoSearchDialog';
 import { HistoryPanel } from '../HistoryPanel';
 import { HistoryViewer } from '../HistoryViewer';
+import { AboutDialog } from '../AboutDialog';
 import type { AppSettings, FileTreeNode, FileContent, RepoStatus } from '../../../shared/types';
 import { REPO_PROVIDERS } from '../../../shared/types';
 import { startS3AutoSync } from '../../utils/s3AutoSync';
@@ -39,6 +40,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   const [commitDialogOpen, setCommitDialogOpen] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [repoSearchDialogOpen, setRepoSearchDialogOpen] = useState(false);
+  const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
   const [historyViewerOpen, setHistoryViewerOpen] = useState(false);
   const [viewingCommitHash, setViewingCommitHash] = useState<string | null>(null);
@@ -274,6 +276,27 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const handleOpenShortcuts = () => {
+      shortcutHelperRef.current?.openMenu();
+    };
+    const handleOpenAbout = () => {
+      setAboutDialogOpen(true);
+    };
+
+    const offOpenShortcuts = window.notegitApi.menu.onOpenShortcuts(handleOpenShortcuts);
+    const offOpenAbout = window.notegitApi.menu.onOpenAbout(handleOpenAbout);
+
+    return () => {
+      if (typeof offOpenShortcuts === 'function') {
+        offOpenShortcuts();
+      }
+      if (typeof offOpenAbout === 'function') {
+        offOpenAbout();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -893,6 +916,11 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
           onClose={() => setHistoryViewerOpen(false)}
         />
       )}
+
+      <AboutDialog
+        open={aboutDialogOpen}
+        onClose={() => setAboutDialogOpen(false)}
+      />
     </Box>
   );
 }
