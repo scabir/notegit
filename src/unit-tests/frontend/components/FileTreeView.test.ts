@@ -453,6 +453,91 @@ describe('FileTreeView toolbar actions', () => {
   });
 
   describe('tree context menu', () => {
+    it('offers new file and new folder when right-clicking a folder', () => {
+      const renderer = createTreeRenderer();
+      openTreeContextMenu(renderer, 'folder');
+
+      const newFileMenuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-file'
+      );
+      const newFolderMenuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-folder'
+      );
+
+      expect(newFileMenuItem).toBeDefined();
+      expect(newFolderMenuItem).toBeDefined();
+    });
+
+    it('creates a file in the right-clicked folder', async () => {
+      const onCreateFile = jest.fn().mockResolvedValue(undefined);
+      const renderer = createTreeRenderer({ onCreateFile });
+      openTreeContextMenu(renderer, 'folder');
+
+      const newFileMenuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-file'
+      );
+      act(() => newFileMenuItem.props.onClick());
+
+      const textField = renderer.root
+        .findAllByType(TextField)
+        .find((field) => field.props.label === FILE_TREE_TEXT.fileNameLabel);
+      if (!textField) {
+        throw new Error('File name input not found');
+      }
+
+      act(() => {
+        textField.props.onChange({ target: { value: 'from-context' } });
+      });
+
+      const createButton = renderer.root
+        .findAllByType(Button)
+        .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
+      if (!createButton) {
+        throw new Error('Create button not found');
+      }
+
+      await act(async () => {
+        createButton.props.onClick();
+      });
+
+      expect(onCreateFile).toHaveBeenCalledWith('folder', 'from-context.md');
+    });
+
+    it('creates a folder in the right-clicked folder', async () => {
+      const onCreateFolder = jest.fn().mockResolvedValue(undefined);
+      const renderer = createTreeRenderer({ onCreateFolder });
+      openTreeContextMenu(renderer, 'folder');
+
+      const newFolderMenuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-folder'
+      );
+      act(() => newFolderMenuItem.props.onClick());
+
+      const textField = renderer.root
+        .findAllByType(TextField)
+        .find((field) => field.props.label === FILE_TREE_TEXT.folderNameLabel);
+      if (!textField) {
+        throw new Error('Folder name input not found');
+      }
+
+      act(() => {
+        textField.props.onChange({ target: { value: 'nested-from-context' } });
+      });
+
+      const createButton = renderer.root
+        .findAllByType(Button)
+        .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
+      if (!createButton) {
+        throw new Error('Create button not found');
+      }
+
+      await act(async () => {
+        createButton.props.onClick();
+      });
+
+      expect(onCreateFolder).toHaveBeenCalledWith('folder', 'nested-from-context');
+    });
+
     it('opens rename from context menu', () => {
       const renderer = createTreeRenderer();
       openTreeContextMenu(renderer, 'folder/note.md');

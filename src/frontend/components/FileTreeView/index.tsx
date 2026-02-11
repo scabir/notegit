@@ -515,6 +515,28 @@ export function FileTreeView({
   ];
 
   const nodeContextMenuItems: ContextMenuItem[] = [
+    treeContextMenuNode?.type === 'folder'
+      ? {
+          label: FILE_TREE_TEXT.newFile,
+          icon: <NoteAddIcon fontSize="small" />,
+          action: () => {
+            handleCloseTreeContextMenu();
+            handleOpenFileDialog();
+          },
+          testId: 'tree-context-node-new-file',
+        }
+      : null,
+    treeContextMenuNode?.type === 'folder'
+      ? {
+          label: FILE_TREE_TEXT.newFolder,
+          icon: <CreateFolderIcon fontSize="small" />,
+          action: () => {
+            handleCloseTreeContextMenu();
+            handleOpenFolderDialog();
+          },
+          testId: 'tree-context-node-new-folder',
+        }
+      : null,
     {
       label: FILE_TREE_TEXT.rename,
       icon: <RenameIcon fontSize="small" />,
