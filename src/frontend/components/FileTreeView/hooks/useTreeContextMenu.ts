@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
+import type { RefObject } from 'react';
 import type { FileTreeNode } from '../../../../shared/types';
 import type { TreeContextMenuState } from '../types';
 
 export type TreeContextMenuAction = 'rename' | 'move' | 'favorite' | 'delete' | 'duplicate';
 
 type UseTreeContextMenuParams = {
-  treeContainerRef: React.RefObject<HTMLDivElement>;
+  treeContainerRef: RefObject<HTMLDivElement>;
   selectedNode: FileTreeNode | null;
   setSelectedNode: (node: FileTreeNode | null) => void;
   onRename: (node: FileTreeNode) => void;

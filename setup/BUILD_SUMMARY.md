@@ -1,6 +1,6 @@
 # Build Setup Summary
 
-notegit v2.2.3 is ready to be packaged.
+notegit v2.5.0 is ready to be packaged.
 
 ## Included
 

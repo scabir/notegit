@@ -1,7 +1,7 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { TextField } from '@mui/material';
-import { DialogCreateItem } from '../../../frontend/components/FileTreeView/DialogCreateItem';
+import { DialogCreateItem } from '../../../frontend/components/FileTreeDialogCreateItem';
 
 describe('DialogCreateItem', () => {
   it('submits when Enter is pressed', () => {

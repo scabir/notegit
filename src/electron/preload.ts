@@ -1,7 +1,32 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type { NotegitApi } from '../shared/types/api';
 
+const openShortcutsListeners = new Set<() => void>();
+const openAboutListeners = new Set<() => void>();
+
+ipcRenderer.on('menu:open-shortcuts', () => {
+  openShortcutsListeners.forEach((listener) => listener());
+});
+
+ipcRenderer.on('menu:open-about', () => {
+  openAboutListeners.forEach((listener) => listener());
+});
+
 const api: NotegitApi = {
+  menu: {
+    onOpenShortcuts: (listener) => {
+      openShortcutsListeners.add(listener);
+      return () => {
+        openShortcutsListeners.delete(listener);
+      };
+    },
+    onOpenAbout: (listener) => {
+      openAboutListeners.add(listener);
+      return () => {
+        openAboutListeners.delete(listener);
+      };
+    },
+  },
   config: {
     getFull: () => ipcRenderer.invoke('config:getFull'),
     getAppSettings: () => ipcRenderer.invoke('config:getAppSettings'),

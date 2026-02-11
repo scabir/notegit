@@ -18,7 +18,10 @@ jest.mock('@mui/material', () => {
   };
 });
 
-const flushPromises = () => new Promise((resolve) => setImmediate(resolve));
+const flushPromises = async () => {
+  await Promise.resolve();
+  await Promise.resolve();
+};
 
 const findButtonByText = (renderer: TestRenderer.ReactTestRenderer, text: string) => {
   return renderer.root.findAllByType(Button).find((button) => {
@@ -38,6 +41,13 @@ const flattenText = (node: any): string => {
   if (typeof node === 'string') return node;
   if (Array.isArray(node)) return node.map(flattenText).join('');
   return node.children ? node.children.map(flattenText).join('') : '';
+};
+
+const renderers: TestRenderer.ReactTestRenderer[] = [];
+const createRenderer = (element: React.ReactElement) => {
+  const renderer = TestRenderer.create(element);
+  renderers.push(renderer);
+  return renderer;
 };
 
 const buildConfig = (): FullConfig => ({
@@ -85,6 +95,7 @@ describe('SettingsDialog component', () => {
   let shellOpenPath: jest.Mock;
 
   beforeEach(() => {
+    jest.useRealTimers();
     shellOpenPath = jest.fn();
     (global as any).window = {
       notegitApi: {
@@ -141,10 +152,23 @@ describe('SettingsDialog component', () => {
     };
   });
 
+  afterEach(async () => {
+    jest.useRealTimers();
+    await act(async () => {
+      while (renderers.length > 0) {
+        const renderer = renderers.pop();
+        if (renderer) {
+          renderer.unmount();
+        }
+      }
+      await Promise.resolve();
+    });
+  });
+
   it('loads config and saves repository settings', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -185,7 +209,7 @@ describe('SettingsDialog component', () => {
   it('saves app settings from the general tab', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -214,7 +238,7 @@ describe('SettingsDialog component', () => {
   it('creates a new git profile from the profiles tab', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -304,7 +328,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -372,7 +396,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -439,7 +463,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -483,7 +507,7 @@ describe('SettingsDialog component', () => {
   it('copies repo path and opens folder', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -520,7 +544,7 @@ describe('SettingsDialog component', () => {
   it('loads logs folder and allows open/copy', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -570,7 +594,7 @@ describe('SettingsDialog component', () => {
   it('shows validation error when creating profile without a name', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -632,7 +656,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -734,7 +758,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -799,7 +823,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -837,7 +861,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -871,7 +895,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -892,7 +916,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -936,7 +960,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -970,7 +994,7 @@ describe('SettingsDialog component', () => {
   it('shows error when exporting note without content', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1024,7 +1048,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1055,7 +1079,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1088,7 +1112,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1136,7 +1160,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1194,7 +1218,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1235,7 +1259,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1263,7 +1287,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1285,7 +1309,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1317,7 +1341,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1354,7 +1378,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1394,7 +1418,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1456,7 +1480,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1497,7 +1521,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),
@@ -1589,7 +1613,7 @@ describe('SettingsDialog component', () => {
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = TestRenderer.create(
+      renderer = createRenderer(
         React.createElement(SettingsDialog, {
           open: true,
           onClose: jest.fn(),

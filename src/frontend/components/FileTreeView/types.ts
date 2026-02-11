@@ -1,4 +1,3 @@
-import { type ReactElement } from 'react';
 import type { FileTreeNode } from '../../../shared/types';
 
 export interface FileTreeViewProps {
@@ -17,6 +16,8 @@ export interface FileTreeViewProps {
   canNavigateBack?: boolean;
   canNavigateForward?: boolean;
   isS3Repo: boolean;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export interface FavoriteMenuState {
@@ -29,10 +30,3 @@ export interface TreeContextMenuState {
   mode: 'node' | 'empty';
   position: { top: number; left: number } | null;
 }
-
-export type ContextMenuItem = {
-  label: string;
-  icon: ReactElement;
-  action: () => void;
-  testId: string;
-};

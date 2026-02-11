@@ -13,6 +13,7 @@ import { Tooltip, IconButton, Button, TextField } from '@mui/material';
 import { TreeView } from '@mui/x-tree-view';
 import { FileTreeView } from '../../../frontend/components/FileTreeView';
 import { FILE_TREE_TEXT } from '../../../frontend/components/FileTreeView/constants';
+import { TOOLBAR_TEXT } from '../../../frontend/components/FileTreeToolbar/constants';
 import { MoveToFolderDialog } from '../../../frontend/components/MoveToFolderDialog';
 import { FileType } from '../../../shared/types';
 
@@ -453,6 +454,91 @@ describe('FileTreeView toolbar actions', () => {
   });
 
   describe('tree context menu', () => {
+    it('offers new file and new folder when right-clicking a folder', () => {
+      const renderer = createTreeRenderer();
+      openTreeContextMenu(renderer, 'folder');
+
+      const newFileMenuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-file'
+      );
+      const newFolderMenuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-folder'
+      );
+
+      expect(newFileMenuItem).toBeDefined();
+      expect(newFolderMenuItem).toBeDefined();
+    });
+
+    it('creates a file in the right-clicked folder', async () => {
+      const onCreateFile = jest.fn().mockResolvedValue(undefined);
+      const renderer = createTreeRenderer({ onCreateFile });
+      openTreeContextMenu(renderer, 'folder');
+
+      const newFileMenuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-file'
+      );
+      act(() => newFileMenuItem.props.onClick());
+
+      const textField = renderer.root
+        .findAllByType(TextField)
+        .find((field) => field.props.label === FILE_TREE_TEXT.fileNameLabel);
+      if (!textField) {
+        throw new Error('File name input not found');
+      }
+
+      act(() => {
+        textField.props.onChange({ target: { value: 'from-context' } });
+      });
+
+      const createButton = renderer.root
+        .findAllByType(Button)
+        .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
+      if (!createButton) {
+        throw new Error('Create button not found');
+      }
+
+      await act(async () => {
+        createButton.props.onClick();
+      });
+
+      expect(onCreateFile).toHaveBeenCalledWith('folder', 'from-context.md');
+    });
+
+    it('creates a folder in the right-clicked folder', async () => {
+      const onCreateFolder = jest.fn().mockResolvedValue(undefined);
+      const renderer = createTreeRenderer({ onCreateFolder });
+      openTreeContextMenu(renderer, 'folder');
+
+      const newFolderMenuItem = renderer.root.find(
+        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-folder'
+      );
+      act(() => newFolderMenuItem.props.onClick());
+
+      const textField = renderer.root
+        .findAllByType(TextField)
+        .find((field) => field.props.label === FILE_TREE_TEXT.folderNameLabel);
+      if (!textField) {
+        throw new Error('Folder name input not found');
+      }
+
+      act(() => {
+        textField.props.onChange({ target: { value: 'nested-from-context' } });
+      });
+
+      const createButton = renderer.root
+        .findAllByType(Button)
+        .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
+      if (!createButton) {
+        throw new Error('Create button not found');
+      }
+
+      await act(async () => {
+        createButton.props.onClick();
+      });
+
+      expect(onCreateFolder).toHaveBeenCalledWith('folder', 'nested-from-context');
+    });
+
     it('opens rename from context menu', () => {
       const renderer = createTreeRenderer();
       openTreeContextMenu(renderer, 'folder/note.md');
@@ -573,6 +659,51 @@ describe('FileTreeView toolbar actions', () => {
 
     expect(onNavigateBack).toHaveBeenCalled();
     expect(onNavigateForward).toHaveBeenCalled();
+  });
+
+  it('collapses and expands the tree via the hamburger button', () => {
+    const renderer = createTreeRenderer();
+
+    const collapseButton = getTooltipButton(renderer, TOOLBAR_TEXT.collapseTree);
+    act(() => {
+      collapseButton.props.onClick();
+    });
+
+    expect(renderer.root.findAllByType(TreeView)).toHaveLength(0);
+    expect(renderer.root.findAllByType(Tooltip)).toHaveLength(1);
+    expect(() => getTooltipButton(renderer, FILE_TREE_TEXT.newFile)).toThrow();
+    expect(getTooltipButton(renderer, TOOLBAR_TEXT.expandTree)).toBeDefined();
+
+    const expandButton = getTooltipButton(renderer, TOOLBAR_TEXT.expandTree);
+    act(() => {
+      expandButton.props.onClick();
+    });
+
+    expect(renderer.root.findAllByType(TreeView)).toHaveLength(1);
+    expect(getTooltipButton(renderer, FILE_TREE_TEXT.newFile)).toBeDefined();
+  });
+
+  it('invokes controlled collapse callback from hamburger button', () => {
+    const onToggleCollapse = jest.fn();
+    const renderer = createTreeRenderer({
+      isCollapsed: true,
+      onToggleCollapse,
+    });
+
+    const expandButton = getTooltipButton(renderer, TOOLBAR_TEXT.expandTree);
+    act(() => {
+      expandButton.props.onClick();
+    });
+
+    expect(onToggleCollapse).toHaveBeenCalledTimes(1);
+    expect(renderer.root.findAllByType(TreeView)).toHaveLength(0);
+  });
+
+  it('does not register tree shortcuts when tree is collapsed', () => {
+    createTreeRenderer({
+      isCollapsed: true,
+    });
+    expect(treeKeyHandlers.keydown).toBeUndefined();
   });
 
   it('opens move dialog from context menu for selected node', () => {

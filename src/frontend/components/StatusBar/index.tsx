@@ -1,135 +1,178 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Chip, Box, Tooltip } from '@mui/material';
-import {
-  CloudUpload as CloudUploadIcon,
-  CloudDownload as CloudDownloadIcon,
-  CloudOff as CloudOffIcon,
-  CloudDone as CloudDoneIcon,
-  CloudSync as CloudSyncIcon,
-} from '@mui/icons-material';
-import { STATUS_TEXT } from './constants';
+import { AppBar, Toolbar, Box } from '@mui/material';
 import { REPO_PROVIDERS } from '../../../shared/types';
-import { appBarSx, toolbarSx, statusRowSx, branchLabelSx, actionsRowSx } from './styles';
+import { WORKSPACE_TEXT } from '../EditorShell/constants';
+import { ShortcutHelper } from '../ShortcutHelper';
+import { StatusBarBranchLabel } from '../StatusBarBranchLabel';
+import { StatusBarHeaderTitle } from '../StatusBarHeaderTitle';
+import { StatusBarSyncChip } from '../StatusBarSyncChip';
+import { getSyncStatus } from '../StatusBarSyncChip/utils';
+import { StatusBarUncommittedChip } from '../StatusBarUncommittedChip';
+import { StatusBarSaveStatus } from '../StatusBarSaveStatus';
+import { StatusBarSearchAction } from '../StatusBarSearchAction';
+import { StatusBarHistoryAction } from '../StatusBarHistoryAction';
+import { StatusBarSaveAllAction } from '../StatusBarSaveAllAction';
+import { StatusBarCommitPushAction } from '../StatusBarCommitPushAction';
+import { StatusBarFetchAction } from '../StatusBarFetchAction';
+import { StatusBarPullAction } from '../StatusBarPullAction';
+import { StatusBarPushAction } from '../StatusBarPushAction';
+import { StatusBarSettingsAction } from '../StatusBarSettingsAction';
+import { STATUS_TEXT } from './constants';
+import {
+  appBarSx,
+  toolbarSx,
+  sectionSx,
+  leftSectionSx,
+  middleSectionSx,
+  rightSectionSx,
+  statusRowSx,
+  actionsRowSx,
+  actionSeparatorSx,
+} from './styles';
 import type { StatusBarProps } from './types';
 
-export function StatusBar({ status, onFetch, onPull, onPush, hasUnsavedChanges = false }: StatusBarProps) {
-  if (!status) {
-    return null;
-  }
+export function StatusBar({
+  status,
+  onFetch,
+  onPull,
+  onPush,
+  hasUnsavedChanges = false,
+  headerTitle = '',
+  saveStatus = 'idle',
+  saveMessage = '',
+  historyPanelOpen = false,
+  onOpenSearch,
+  onToggleHistory,
+  onSaveAll,
+  onCommitAndPush,
+  onOpenSettings,
+  shortcutHelperRef,
+}: StatusBarProps) {
+  const isS3 = status?.provider === REPO_PROVIDERS.s3;
+  const isLocal = status?.provider === REPO_PROVIDERS.local;
+  const showRemoteActions = status?.provider === REPO_PROVIDERS.git;
+  const hasStatus = Boolean(status);
+  const branchName = status?.branch || '-';
+  const showHistoryAction = !isLocal;
+  const showCommitAction = !isLocal;
 
-  const isS3 = status.provider === REPO_PROVIDERS.s3;
-  const isLocal = status.provider === REPO_PROVIDERS.local;
-  const showRemoteActions = status.provider === REPO_PROVIDERS.git;
-
-  const getSyncStatus = () => {
-    if (isLocal) {
-      return hasUnsavedChanges
-        ? {
-          icon: <CloudOffIcon fontSize="small" />,
-          label: STATUS_TEXT.uncommitted,
-          color: 'warning' as const,
-        }
-        : {
-          icon: <CloudDoneIcon fontSize="small" />,
-          label: STATUS_TEXT.saved,
-          color: 'success' as const,
-        };
-    }
-
-    if (status.pendingPushCount > 0) {
-      return {
-        icon: <CloudOffIcon fontSize="small" />,
-        label: isS3
-          ? `${status.pendingPushCount} changes waiting`
-          : `${status.pendingPushCount} commits waiting`,
-        color: 'warning' as const,
-      };
-    }
-
-    if (status.ahead > 0) {
-      return {
-        icon: <CloudUploadIcon fontSize="small" />,
-        label: isS3 ? `${status.ahead} local changes` : `${status.ahead} ahead`,
-        color: 'info' as const,
-      };
-    }
-
-    if (status.behind > 0) {
-      return {
-        icon: <CloudDownloadIcon fontSize="small" />,
-        label: isS3 ? `${status.behind} remote changes` : `${status.behind} behind`,
-        color: 'warning' as const,
-      };
-    }
-
-    if (status.hasUncommitted) {
-      return {
-        icon: <CloudOffIcon fontSize="small" />,
-        label: isS3 ? STATUS_TEXT.unsynced : STATUS_TEXT.uncommitted,
-        color: 'default' as const,
-      };
-    }
-
-    return {
-      icon: <CloudDoneIcon fontSize="small" />,
-      label: STATUS_TEXT.synced,
-      color: 'success' as const,
-    };
-  };
-
-  const syncStatus = getSyncStatus();
+  const syncStatus = getSyncStatus({
+    status,
+    isS3,
+    isLocal,
+    hasUnsavedChanges,
+    uncommittedLabel: STATUS_TEXT.uncommitted,
+    unsyncedLabel: STATUS_TEXT.unsynced,
+    savedLabel: STATUS_TEXT.saved,
+    syncedLabel: STATUS_TEXT.synced,
+  });
 
   return (
     <AppBar position="fixed" color="default" sx={appBarSx}>
       <Toolbar variant="dense" sx={toolbarSx}>
-        <Box sx={statusRowSx}>
-          {!isLocal && (
-            <Typography variant="body2" sx={branchLabelSx}>
-              {isS3 ? STATUS_TEXT.bucketLabel : STATUS_TEXT.branchLabel}:{' '}
-              <strong>{status.branch}</strong>
-            </Typography>
-          )}
+        <Box sx={sectionSx}>
+          <Box sx={leftSectionSx}>
+            <Box sx={statusRowSx}>
+              <StatusBarBranchLabel
+                isLocal={isLocal}
+                hasStatus={hasStatus}
+                isS3={isS3}
+                branchName={branchName}
+                bucketLabel={STATUS_TEXT.bucketLabel}
+                branchLabel={STATUS_TEXT.branchLabel}
+              />
 
-          <Chip
-            icon={syncStatus.icon}
-            label={syncStatus.label}
-            size="small"
-            color={syncStatus.color}
-          />
+              <StatusBarHeaderTitle headerTitle={headerTitle} />
 
-          {!isLocal &&
-            status.hasUncommitted &&
-            syncStatus.label !== (isS3 ? STATUS_TEXT.unsynced : STATUS_TEXT.uncommitted) && (
-            <Chip
-              label={isS3 ? STATUS_TEXT.unsynced : STATUS_TEXT.uncommitted}
-              size="small"
-              color="default"
-              variant="outlined"
-            />
-          )}
+              <StatusBarSyncChip syncStatus={syncStatus} />
+
+              <StatusBarUncommittedChip
+                status={status}
+                isLocal={isLocal}
+                isS3={isS3}
+                unsyncedLabel={STATUS_TEXT.unsynced}
+                uncommittedLabel={STATUS_TEXT.uncommitted}
+                syncStatusLabel={syncStatus?.label}
+              />
+            </Box>
+          </Box>
         </Box>
 
-        {showRemoteActions && (
-          <Box sx={actionsRowSx}>
-            <Tooltip title={STATUS_TEXT.fetchTooltip}>
-              <IconButton size="small" onClick={onFetch}>
-                <CloudSyncIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title={STATUS_TEXT.pullTooltip}>
-              <IconButton size="small" onClick={onPull} disabled={!status.needsPull}>
-                <CloudDownloadIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title={STATUS_TEXT.pushTooltip}>
-              <IconButton size="small" onClick={onPush} disabled={status.pendingPushCount === 0}>
-                <CloudUploadIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+        <Box sx={sectionSx}>
+          <Box sx={middleSectionSx}>
+            <StatusBarSaveStatus
+              saveStatus={saveStatus}
+              saveMessage={saveMessage}
+              savingLabel={WORKSPACE_TEXT.savingLabel}
+              savedLabel={WORKSPACE_TEXT.savedLabel}
+              errorLabel={WORKSPACE_TEXT.errorLabel}
+            />
           </Box>
-        )}
+        </Box>
+
+        <Box sx={sectionSx}>
+          <Box sx={rightSectionSx}>
+            <Box sx={actionsRowSx}>
+              <StatusBarSearchAction
+                onOpenSearch={onOpenSearch}
+                tooltip={WORKSPACE_TEXT.searchTooltip}
+              />
+
+              <StatusBarHistoryAction
+                show={showHistoryAction}
+                historyPanelOpen={historyPanelOpen}
+                onToggleHistory={onToggleHistory}
+                tooltip={WORKSPACE_TEXT.historyTooltip}
+              />
+
+              {showHistoryAction && <Box sx={actionSeparatorSx} />}
+
+              <StatusBarSaveAllAction
+                hasUnsavedChanges={hasUnsavedChanges}
+                onSaveAll={onSaveAll}
+                tooltip={WORKSPACE_TEXT.saveAllTooltip}
+              />
+
+              <StatusBarCommitPushAction
+                show={showCommitAction}
+                isS3={isS3}
+                onCommitAndPush={onCommitAndPush}
+                commitPushTooltip={WORKSPACE_TEXT.commitPushTooltip}
+                syncTooltip={WORKSPACE_TEXT.syncTooltip}
+              />
+
+              {showRemoteActions && status && (
+                <>
+                  <StatusBarFetchAction
+                    onFetch={onFetch}
+                    tooltip={STATUS_TEXT.fetchTooltip}
+                  />
+
+                  <StatusBarPullAction
+                    onPull={onPull}
+                    disabled={!status.needsPull}
+                    tooltip={STATUS_TEXT.pullTooltip}
+                  />
+
+                  <StatusBarPushAction
+                    onPush={onPush}
+                    disabled={status.pendingPushCount === 0}
+                    tooltip={STATUS_TEXT.pushTooltip}
+                  />
+                </>
+              )}
+
+              <Box sx={actionSeparatorSx} />
+
+              <StatusBarSettingsAction
+                onOpenSettings={onOpenSettings}
+                tooltip={WORKSPACE_TEXT.settingsTooltip}
+              />
+
+              <ShortcutHelper ref={shortcutHelperRef} />
+            </Box>
+          </Box>
+        </Box>
       </Toolbar>
     </AppBar>
   );

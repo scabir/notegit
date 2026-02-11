@@ -15,7 +15,8 @@ export type ShortcutHandlers = {
 
 export function useFileTreeShortcuts(
   treeContainerRef: RefObject<HTMLDivElement>,
-  handlers: ShortcutHandlers
+  handlers: ShortcutHandlers,
+  enabled = true
 ) {
   const handlersRef = useRef(handlers);
 
@@ -24,6 +25,10 @@ export function useFileTreeShortcuts(
   }, [handlers]);
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented) {
         return;
@@ -105,5 +110,5 @@ export function useFileTreeShortcuts(
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [treeContainerRef]);
+  }, [enabled, treeContainerRef]);
 }
