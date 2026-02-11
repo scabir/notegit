@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Chip } from '@mui/material';
-import {
-  Settings as SettingsIcon,
-  SaveAlt as SaveAllIcon,
-  Search as SearchIcon,
-  History as HistoryIcon,
-  CloudUpload as CloudUploadIcon,
-  CloudSync as CloudSyncIcon,
-} from '@mui/icons-material';
+import { Box } from '@mui/material';
 import { FileTreeView } from '../FileTreeView';
 import { MarkdownEditor } from '../MarkdownEditor';
-import { ShortcutHelper, type ShortcutHelperHandle } from '../ShortcutHelper';
+import type { ShortcutHelperHandle } from '../ShortcutHelper';
 import { TextEditor } from '../TextEditor';
 import { StatusBar } from '../StatusBar';
 import { SettingsDialog } from '../SettingsDialog';
@@ -21,29 +13,20 @@ import { HistoryPanel } from '../HistoryPanel';
 import { HistoryViewer } from '../HistoryViewer';
 import type { AppSettings, FileTreeNode, FileContent, RepoStatus } from '../../../shared/types';
 import { REPO_PROVIDERS } from '../../../shared/types';
-import versionInfo from '../../../../version.json';
 import { startS3AutoSync } from '../../utils/s3AutoSync';
-import { WORKSPACE_TEXT } from './constants';
 import {
   rootSx,
-  topAppBarSx,
-  toolbarSx,
-  saveStatusRowSx,
-  statusChipSx,
-  saveMessageSx,
-  spacerSx,
   mainContentSx,
   sidebarSx,
   resizeHandleSx,
   editorPaneSx,
-  titleSx,
 } from './styles';
 import { buildHeaderTitle } from './utils';
-import type { WorkspaceProps } from './types';
+import type { EditorShellProps } from './types';
 
 const MAX_NAV_HISTORY = 100;
 
-export function Workspace({ onThemeChange }: WorkspaceProps) {
+export function EditorShell({ onThemeChange }: EditorShellProps) {
   const [tree, setTree] = useState<FileTreeNode[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [navigationEntries, setNavigationEntries] = useState<string[]>([]);
@@ -83,11 +66,10 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
   const navigationIndexRef = React.useRef(-1);
 
   const [activeProfileName, setActiveProfileName] = useState<string>('');
-  const [appVersion, setAppVersion] = useState<string>(versionInfo.version);
   const isS3Repo = repoStatus?.provider === REPO_PROVIDERS.s3;
   const isLocalRepo = repoStatus?.provider === REPO_PROVIDERS.local;
 
-  const headerTitle = buildHeaderTitle(activeProfileName, appVersion);
+  const headerTitle = buildHeaderTitle(activeProfileName);
 
   useEffect(() => {
     navigationEntriesRef.current = navigationEntries;
@@ -189,8 +171,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         }
       }
 
-      // Set app version from package.json
-      setAppVersion(versionInfo.version);
     } catch (error) {
       setTransientStatus('error', 'Failed to load workspace', 5000);
     }
@@ -801,110 +781,6 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
 
   return (
     <Box sx={rootSx}>
-      <AppBar position="static" color="default" elevation={1} sx={topAppBarSx}>
-        <Toolbar variant="dense" sx={toolbarSx}>
-          <Typography variant="h6" component="div" noWrap sx={titleSx}>
-            {headerTitle}
-          </Typography>
-
-          {saveStatus !== 'idle' && (
-            <Box sx={saveStatusRowSx}>
-              {saveStatus === 'saving' && (
-                <Chip
-                  label={WORKSPACE_TEXT.savingLabel}
-                  size="small"
-                  color="info"
-                  sx={statusChipSx}
-                />
-              )}
-              {saveStatus === 'saved' && (
-                <Chip
-                  label={WORKSPACE_TEXT.savedLabel}
-                  size="small"
-                  color="success"
-                  sx={statusChipSx}
-                />
-              )}
-              {saveStatus === 'error' && (
-                <Chip
-                  label={WORKSPACE_TEXT.errorLabel}
-                  size="small"
-                  color="error"
-                  sx={statusChipSx}
-                />
-              )}
-              {saveMessage && (
-                <Typography variant="caption" color="text.secondary" sx={saveMessageSx}>
-                  {saveMessage}
-                </Typography>
-              )}
-              <Typography
-                variant="caption"
-                sx={{
-                  position: 'absolute',
-                  width: 1,
-                  height: 1,
-                  overflow: 'hidden',
-                  clip: 'rect(1px, 1px, 1px, 1px)',
-                }}
-              >
-                {`${saveStatus === 'error'
-                  ? WORKSPACE_TEXT.errorLabel
-                  : saveStatus === 'saved'
-                  ? WORKSPACE_TEXT.savedLabel
-                  : WORKSPACE_TEXT.savingLabel} ${saveMessage || ''}`}
-              </Typography>
-            </Box>
-          )}
-
-          <Box sx={spacerSx} />
-
-          <Tooltip title={WORKSPACE_TEXT.searchTooltip}>
-            <IconButton onClick={() => setSearchDialogOpen(true)} color="default">
-              <SearchIcon />
-            </IconButton>
-          </Tooltip>
-
-          {!isLocalRepo && (
-            <Tooltip title={WORKSPACE_TEXT.historyTooltip}>
-              <IconButton
-                onClick={handleToggleHistory}
-                color={historyPanelOpen ? 'primary' : 'default'}
-              >
-                <HistoryIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-
-          <Tooltip title={WORKSPACE_TEXT.saveAllTooltip}>
-            <span>
-              <IconButton
-                onClick={handleSaveAll}
-                disabled={!hasUnsavedChanges}
-                color={hasUnsavedChanges ? 'primary' : 'default'}
-              >
-                <SaveAllIcon />
-              </IconButton>
-            </span>
-          </Tooltip>
-
-          {!isLocalRepo && (
-            <Tooltip title={isS3Repo ? WORKSPACE_TEXT.syncTooltip : WORKSPACE_TEXT.commitPushTooltip}>
-              <IconButton onClick={handleCommitAndPush} color="primary">
-                {isS3Repo ? <CloudSyncIcon /> : <CloudUploadIcon />}
-              </IconButton>
-            </Tooltip>
-          )}
-
-          <Tooltip title={WORKSPACE_TEXT.settingsTooltip}>
-            <IconButton onClick={() => setSettingsOpen(true)}>
-              <SettingsIcon />
-            </IconButton>
-          </Tooltip>
-          <ShortcutHelper ref={shortcutHelperRef} />
-        </Toolbar>
-      </AppBar>
-
       <Box sx={mainContentSx}>
         <Box
           sx={sidebarSx(sidebarWidth)}
@@ -963,7 +839,17 @@ export function Workspace({ onThemeChange }: WorkspaceProps) {
         onFetch={handleFetch}
         onPull={handlePull}
         onPush={handlePush}
+        headerTitle={headerTitle}
+        saveStatus={saveStatus}
+        saveMessage={saveMessage}
         hasUnsavedChanges={hasUnsavedChanges}
+        historyPanelOpen={historyPanelOpen}
+        onOpenSearch={() => setSearchDialogOpen(true)}
+        onToggleHistory={handleToggleHistory}
+        onSaveAll={handleSaveAll}
+        onCommitAndPush={handleCommitAndPush}
+        onOpenSettings={() => setSettingsOpen(true)}
+        shortcutHelperRef={shortcutHelperRef}
       />
 
       <SettingsDialog

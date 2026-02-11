@@ -1,5 +1,4 @@
 export const WORKSPACE_TEXT = {
-  appName: 'notegit',
   searchTooltip: 'Search (Cmd/Ctrl+P)',
   historyTooltip: 'File History',
   saveAllTooltip: 'Save all open files',

@@ -1,11 +1,8 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { Tooltip, IconButton } from '@mui/material';
-import { Workspace } from '../../../frontend/components/Workspace';
+import { EditorShell } from '../../../frontend/components/EditorShell';
 import type { RepoStatus } from '../../../shared/types';
 import { FileType, REPO_PROVIDERS } from '../../../shared/types';
-import { WORKSPACE_TEXT } from '../../../frontend/components/Workspace/constants';
-import versionInfo from '../../../../version.json';
 
 const FileTreeViewMock = jest.fn((_props: any) => null);
 const MarkdownEditorMock = jest.fn((_props: any) => null);
@@ -71,24 +68,10 @@ jest.mock('../../../frontend/utils/s3AutoSync', () => ({
 
 const flushPromises = () => new Promise((resolve) => setImmediate(resolve));
 
-const flattenText = (node: any): string => {
-  if (!node) return '';
-  if (typeof node === 'string') return node;
-  if (Array.isArray(node)) return node.map(flattenText).join('');
-  return node.children ? node.children.map(flattenText).join('') : '';
-};
+const getStatusBarProps = () =>
+  StatusBarMock.mock.calls[StatusBarMock.mock.calls.length - 1]?.[0];
 
-const getTooltipButton = (renderer: TestRenderer.ReactTestRenderer, title: string) => {
-  const tooltip = renderer.root
-    .findAllByType(Tooltip)
-    .find((item) => item.props.title === title);
-  if (!tooltip) {
-    throw new Error(`Tooltip not found: ${title}`);
-  }
-  return tooltip.findByType(IconButton);
-};
-
-describe('Workspace', () => {
+describe('EditorShell', () => {
   beforeEach(() => {
     jest.useRealTimers();
     FileTreeViewMock.mockClear();
@@ -218,10 +201,9 @@ describe('Workspace', () => {
   });
 
   it('loads workspace data and passes props to child components', async () => {
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(
-        React.createElement(Workspace, {
+      createRenderer(
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -238,12 +220,9 @@ describe('Workspace', () => {
     expect(fileTreeProps?.tree).toHaveLength(1);
 
     expect(StatusBarMock).toHaveBeenCalled();
-    const statusProps = StatusBarMock.mock.calls[StatusBarMock.mock.calls.length - 1]?.[0];
+    const statusProps = getStatusBarProps();
     expect(statusProps?.status.provider).toBe(REPO_PROVIDERS.git);
-
-    const text = flattenText(renderer!.toJSON());
-    expect(text).toContain('Work');
-    expect(text).toContain(versionInfo.version);
+    expect(statusProps?.headerTitle).toBe('Work');
   });
 
 
@@ -266,7 +245,7 @@ describe('Workspace', () => {
 
 
     await act(async () => {
-      createRenderer(React.createElement(Workspace, { onThemeChange: jest.fn() }));
+      createRenderer(React.createElement(EditorShell, { onThemeChange: jest.fn() }));
     });
 
     await act(async () => {
@@ -346,7 +325,7 @@ describe('Workspace', () => {
 
     await act(async () => {
       createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -378,9 +357,8 @@ describe('Workspace', () => {
   it('commits and pushes on git repos', async () => {
     (global as any).window.notegitApi.files.commitAndPushAll = jest.fn().mockResolvedValue({ ok: true });
 
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(React.createElement(Workspace, { onThemeChange: jest.fn() }));
+      createRenderer(React.createElement(EditorShell, { onThemeChange: jest.fn() }));
     });
 
     await act(async () => {
@@ -388,16 +366,11 @@ describe('Workspace', () => {
       await flushPromises();
     });
 
-    const commitTooltip = renderer!.root
-      .findAllByType(Tooltip)
-      .find((tooltip) => tooltip.props.title === WORKSPACE_TEXT.commitPushTooltip);
-    if (!commitTooltip) {
-      throw new Error('Commit tooltip not found');
-    }
+    const statusProps = getStatusBarProps();
 
     jest.useFakeTimers();
     await act(async () => {
-      await commitTooltip.findByType(IconButton).props.onClick();
+      await statusProps.onCommitAndPush();
     });
     act(() => {
       jest.runAllTimers();
@@ -470,9 +443,8 @@ describe('Workspace', () => {
     });
     (global as any).window.notegitApi.repo.push = jest.fn().mockResolvedValue({ ok: true });
 
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(React.createElement(Workspace, { onThemeChange: jest.fn() }));
+      createRenderer(React.createElement(EditorShell, { onThemeChange: jest.fn() }));
     });
 
     await act(async () => {
@@ -480,16 +452,11 @@ describe('Workspace', () => {
       await flushPromises();
     });
 
-    const syncTooltip = renderer!.root
-      .findAllByType(Tooltip)
-      .find((tooltip) => tooltip.props.title === WORKSPACE_TEXT.syncTooltip);
-    if (!syncTooltip) {
-      throw new Error('Sync tooltip not found');
-    }
+    const statusProps = getStatusBarProps();
 
     jest.useFakeTimers();
     await act(async () => {
-      await syncTooltip.findByType(IconButton).props.onClick();
+      await statusProps.onCommitAndPush();
     });
     act(() => {
       jest.runAllTimers();
@@ -510,10 +477,9 @@ describe('Workspace', () => {
     });
     (global as any).window.notegitApi.files.read = readFile;
 
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(
-        React.createElement(Workspace, {
+      createRenderer(
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -540,10 +506,10 @@ describe('Workspace', () => {
       textProps.onChange('updated', true);
     });
 
-    const saveAllButton = getTooltipButton(renderer!, WORKSPACE_TEXT.saveAllTooltip);
+    const statusProps = getStatusBarProps();
     jest.useFakeTimers();
     await act(async () => {
-      await saveAllButton.props.onClick();
+      await statusProps.onSaveAll();
     });
     act(() => {
       jest.runAllTimers();
@@ -566,7 +532,7 @@ describe('Workspace', () => {
 
     await act(async () => {
       createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -629,7 +595,7 @@ describe('Workspace', () => {
 
     await act(async () => {
       createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -666,10 +632,9 @@ describe('Workspace', () => {
   });
 
   it('handles status bar actions and search selections', async () => {
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(
-        React.createElement(Workspace, {
+      createRenderer(
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -687,7 +652,7 @@ describe('Workspace', () => {
       await flushPromises();
     });
 
-    const statusProps = StatusBarMock.mock.calls[StatusBarMock.mock.calls.length - 1]?.[0];
+    const statusProps = getStatusBarProps();
     await act(async () => {
       await statusProps.onFetch();
       await statusProps.onPull();
@@ -698,9 +663,8 @@ describe('Workspace', () => {
     expect((global as any).window.notegitApi.repo.pull).toHaveBeenCalled();
     expect((global as any).window.notegitApi.repo.push).toHaveBeenCalled();
 
-    const searchButton = getTooltipButton(renderer!, WORKSPACE_TEXT.searchTooltip);
     act(() => {
-      searchButton.props.onClick();
+      statusProps.onOpenSearch();
     });
 
     const searchProps =
@@ -719,9 +683,8 @@ describe('Workspace', () => {
       await flushPromises();
     });
 
-    const historyButton = getTooltipButton(renderer!, WORKSPACE_TEXT.historyTooltip);
     act(() => {
-      historyButton.props.onClick();
+      statusProps.onToggleHistory();
     });
 
     const historyProps =
@@ -741,7 +704,7 @@ describe('Workspace', () => {
 
     await act(async () => {
       createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -837,7 +800,7 @@ describe('Workspace', () => {
 
     await act(async () => {
       createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -880,7 +843,7 @@ describe('Workspace', () => {
 
     await act(async () => {
       createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -908,10 +871,9 @@ describe('Workspace', () => {
       error: { message: 'save failed' },
     });
 
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(
-        React.createElement(Workspace, {
+      createRenderer(
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -936,10 +898,9 @@ describe('Workspace', () => {
       await flushPromises();
     });
 
-    const text = flattenText(renderer!.toJSON());
-    expect(text).toContain(WORKSPACE_TEXT.errorLabel);
-    expect(text).toContain('save failed');
-
+    const statusProps = getStatusBarProps();
+    expect(statusProps?.saveStatus).toBe('error');
+    expect(statusProps?.saveMessage).toContain('save failed');
   });
 
   it('updates selected path when renaming a folder', async () => {
@@ -957,7 +918,7 @@ describe('Workspace', () => {
 
     await act(async () => {
       createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -988,10 +949,9 @@ describe('Workspace', () => {
   });
 
   it('saves successfully and clears status after delay', async () => {
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(
-        React.createElement(Workspace, {
+      createRenderer(
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1017,15 +977,16 @@ describe('Workspace', () => {
       await markdownProps.onSave('saved content');
     });
 
-    const textWithMessage = flattenText(renderer!.toJSON());
-    expect(textWithMessage).toContain('Saved locally');
+    let statusProps = getStatusBarProps();
+    expect(statusProps?.saveMessage).toContain('Saved locally');
 
     act(() => {
       jest.advanceTimersByTime(2000);
     });
 
-    const textAfter = flattenText(renderer!.toJSON());
-    expect(textAfter).not.toContain('Saved locally');
+    statusProps = getStatusBarProps();
+    expect(statusProps?.saveStatus).toBe('idle');
+    expect(statusProps?.saveMessage).toBe('');
     jest.useRealTimers();
   });
 
@@ -1035,10 +996,9 @@ describe('Workspace', () => {
       .mockResolvedValueOnce({ ok: true, data: { message: 'Nothing to commit' } })
       .mockResolvedValueOnce({ ok: false, error: { message: 'push failed' } });
 
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(
-        React.createElement(Workspace, {
+      createRenderer(
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1049,10 +1009,10 @@ describe('Workspace', () => {
       await flushPromises();
     });
 
-    const commitButton = getTooltipButton(renderer!, WORKSPACE_TEXT.commitPushTooltip);
+    const statusProps = getStatusBarProps();
     jest.useFakeTimers();
     await act(async () => {
-      await commitButton.props.onClick();
+      await statusProps.onCommitAndPush();
     });
 
     expect((global as any).window.notegitApi.files.commitAndPushAll).toHaveBeenCalledTimes(1);
@@ -1062,11 +1022,11 @@ describe('Workspace', () => {
     });
 
     await act(async () => {
-      await commitButton.props.onClick();
+      await statusProps.onCommitAndPush();
     });
 
     expect((global as any).window.notegitApi.files.commitAndPushAll).toHaveBeenCalledTimes(2);
-    expect(flattenText(renderer!.toJSON())).toContain('push failed');
+    expect(getStatusBarProps()?.saveMessage).toContain('push failed');
 
     act(() => {
       jest.runOnlyPendingTimers();
@@ -1123,10 +1083,9 @@ describe('Workspace', () => {
       error: { message: 'sync failed' },
     });
 
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(
-        React.createElement(Workspace, {
+      createRenderer(
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1137,13 +1096,13 @@ describe('Workspace', () => {
       await flushPromises();
     });
 
-    const syncButton = getTooltipButton(renderer!, WORKSPACE_TEXT.syncTooltip);
+    const statusProps = getStatusBarProps();
     jest.useFakeTimers();
     await act(async () => {
-      await syncButton.props.onClick();
+      await statusProps.onCommitAndPush();
     });
 
-    expect(flattenText(renderer!.toJSON())).toContain('sync failed');
+    expect(getStatusBarProps()?.saveMessage).toContain('sync failed');
     act(() => {
       jest.runOnlyPendingTimers();
     });
@@ -1163,7 +1122,7 @@ describe('Workspace', () => {
 
     await act(async () => {
       createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1210,7 +1169,7 @@ describe('Workspace', () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
       renderer = createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1313,7 +1272,7 @@ describe('Workspace', () => {
 
     await act(async () => {
       createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1326,7 +1285,7 @@ describe('Workspace', () => {
 
     expect(s3AutoSync.startS3AutoSync).toHaveBeenCalled();
 
-    const statusProps = StatusBarMock.mock.calls[StatusBarMock.mock.calls.length - 1]?.[0];
+    const statusProps = getStatusBarProps();
     await act(async () => {
       await statusProps.onFetch();
       await flushPromises();
@@ -1338,10 +1297,9 @@ describe('Workspace', () => {
   it('logs load errors when workspace initialization fails', async () => {
     (global as any).window.notegitApi.files.listTree = jest.fn().mockRejectedValue(new Error('boom'));
 
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(
-        React.createElement(Workspace, {
+      createRenderer(
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1351,18 +1309,17 @@ describe('Workspace', () => {
       await flushPromises();
     });
 
-    const text = flattenText(renderer!.toJSON());
-    expect(text).toContain(WORKSPACE_TEXT.errorLabel);
-    expect(text).toContain('Failed to load workspace');
+    const statusProps = getStatusBarProps();
+    expect(statusProps?.saveStatus).toBe('error');
+    expect(statusProps?.saveMessage).toContain('Failed to load workspace');
   });
 
   it('logs read errors when file loading throws', async () => {
     (global as any).window.notegitApi.files.read = jest.fn().mockRejectedValue(new Error('read error'));
 
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(
-        React.createElement(Workspace, {
+      createRenderer(
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1379,9 +1336,9 @@ describe('Workspace', () => {
       await fileTreeProps.onSelectFile('note.md', 'file');
     });
 
-    const text = flattenText(renderer!.toJSON());
-    expect(text).toContain(WORKSPACE_TEXT.errorLabel);
-    expect(text).toContain('Failed to read file');
+    const statusProps = getStatusBarProps();
+    expect(statusProps?.saveStatus).toBe('error');
+    expect(statusProps?.saveMessage).toContain('Failed to read file');
   });
 
   it('throws when rename responses fail', async () => {
@@ -1394,7 +1351,7 @@ describe('Workspace', () => {
 
     await act(async () => {
       createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1424,7 +1381,7 @@ describe('Workspace', () => {
 
     await act(async () => {
       createRenderer(
-        React.createElement(Workspace, {
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1490,10 +1447,9 @@ describe('Workspace', () => {
     });
     (global as any).window.notegitApi.repo.push = jest.fn().mockRejectedValue(new Error('sync boom'));
 
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(
-        React.createElement(Workspace, {
+      createRenderer(
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1504,13 +1460,13 @@ describe('Workspace', () => {
       await flushPromises();
     });
 
-    const syncButton = getTooltipButton(renderer!, WORKSPACE_TEXT.syncTooltip);
+    const statusProps = getStatusBarProps();
     jest.useFakeTimers();
     await act(async () => {
-      await syncButton.props.onClick();
+      await statusProps.onCommitAndPush();
     });
 
-    expect(flattenText(renderer!.toJSON())).toContain('sync boom');
+    expect(getStatusBarProps()?.saveMessage).toContain('sync boom');
     act(() => {
       jest.runOnlyPendingTimers();
     });
@@ -1520,10 +1476,9 @@ describe('Workspace', () => {
   it('shows save error when save throws', async () => {
     (global as any).window.notegitApi.files.save = jest.fn().mockRejectedValue(new Error('save blew up'));
 
-    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      renderer = createRenderer(
-        React.createElement(Workspace, {
+      createRenderer(
+        React.createElement(EditorShell, {
           onThemeChange: jest.fn(),
         })
       );
@@ -1548,8 +1503,8 @@ describe('Workspace', () => {
       await flushPromises();
     });
 
-    const text = flattenText(renderer!.toJSON());
-    expect(text).toContain(WORKSPACE_TEXT.errorLabel);
-    expect(text).toContain('save blew up');
+    const statusProps = getStatusBarProps();
+    expect(statusProps?.saveStatus).toBe('error');
+    expect(statusProps?.saveMessage).toContain('save blew up');
   });
 });

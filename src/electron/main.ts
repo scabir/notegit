@@ -3,11 +3,13 @@ import * as path from 'path';
 import { createBackend } from '../backend';
 
 let mainWindow: BrowserWindow | null = null;
+const buildWindowTitle = () => `notegit - ${app.getVersion()}`;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    title: buildWindowTitle(),
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -22,6 +24,15 @@ function createWindow() {
   } else {
     mainWindow.loadFile(path.join(__dirname, '../../frontend/index.html'));
   }
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow?.setTitle(buildWindowTitle());
+  });
+
+  mainWindow.on('page-title-updated', (event) => {
+    event.preventDefault();
+    mainWindow?.setTitle(buildWindowTitle());
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;

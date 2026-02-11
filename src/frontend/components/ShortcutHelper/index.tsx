@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useImperativeHandle } from 'react';
 import { IconButton, Tooltip, Menu, Box, Typography } from '@mui/material';
 import { QuestionMarkRounded as HelpIcon } from '@mui/icons-material';
-import { WORKSPACE_TEXT } from '../Workspace/constants';
+import { WORKSPACE_TEXT } from '../EditorShell/constants';
 import { SHORTCUT_HELPER_TEXT, SHORTCUT_HELPER_SECTIONS } from './constants';
 import { shortcutMenuSx, shortcutSectionSx, shortcutRowSx, shortcutKeySx } from './styles';
 
@@ -39,10 +39,11 @@ export const ShortcutHelper = React.forwardRef<ShortcutHelperHandle>((_props, re
     <>
       <Tooltip title={WORKSPACE_TEXT.shortcutsTooltip}>
         <IconButton
+          size="small"
           ref={buttonRef}
           onClick={(event) => openMenu(event.currentTarget)}
         >
-          <HelpIcon />
+          <HelpIcon fontSize="small" />
         </IconButton>
       </Tooltip>
       <span

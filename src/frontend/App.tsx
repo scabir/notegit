@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ThemeProvider, createTheme, CssBaseline, useMediaQuery } from '@mui/material';
 import { Box, Typography, Button, Alert, CircularProgress } from '@mui/material';
 import { RepoSetupDialog } from './components/RepoSetupDialog';
-import { Workspace } from './components/Workspace';
+import { EditorShell } from './components/EditorShell';
 import type { RepoProviderType } from '../shared/types';
 import { REPO_PROVIDERS } from '../shared/types';
 
@@ -192,7 +192,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Workspace onThemeChange={handleThemeChange} />
+      <EditorShell onThemeChange={handleThemeChange} />
     </ThemeProvider>
   );
 }

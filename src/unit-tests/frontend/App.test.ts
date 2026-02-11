@@ -19,8 +19,8 @@ jest.mock('../../frontend/components/RepoSetupDialog', () => ({
   RepoSetupDialog: () => React.createElement('div', { 'data-testid': 'repo-setup-dialog' }),
 }));
 
-jest.mock('../../frontend/components/Workspace', () => ({
-  Workspace: () => React.createElement('div', { 'data-testid': 'workspace' }),
+jest.mock('../../frontend/components/EditorShell', () => ({
+  EditorShell: () => React.createElement('div', { 'data-testid': 'editor-shell' }),
 }));
 
 const flushPromises = () => new Promise((resolve) => setImmediate(resolve));
@@ -93,7 +93,7 @@ describe('App', () => {
     expect(flattenText(renderer!.toJSON())).toContain('Connect to Repository');
   });
 
-  it('renders workspace when local repo is configured without git', async () => {
+  it('renders editor shell when local repo is configured without git', async () => {
     (global as any).window.notegitApi.config.checkGitInstalled.mockResolvedValue({ ok: true, data: false });
     (global as any).window.notegitApi.config.getFull.mockResolvedValue({
       ok: true,
@@ -115,11 +115,11 @@ describe('App', () => {
       await flushPromises();
     });
 
-    const workspace = renderer!.root.findByProps({ 'data-testid': 'workspace' });
-    expect(workspace).toBeTruthy();
+    const editorShell = renderer!.root.findByProps({ 'data-testid': 'editor-shell' });
+    expect(editorShell).toBeTruthy();
   });
 
-  it('renders workspace when a repo is configured', async () => {
+  it('renders editor shell when a repo is configured', async () => {
     (global as any).window.notegitApi.config.checkGitInstalled.mockResolvedValue({ ok: true, data: true });
     (global as any).window.notegitApi.config.getFull.mockResolvedValue({
       ok: true,
@@ -145,7 +145,7 @@ describe('App', () => {
       await flushPromises();
     });
 
-    const workspace = renderer!.root.findByProps({ 'data-testid': 'workspace' });
-    expect(workspace).toBeTruthy();
+    const editorShell = renderer!.root.findByProps({ 'data-testid': 'editor-shell' });
+    expect(editorShell).toBeTruthy();
   });
 });
