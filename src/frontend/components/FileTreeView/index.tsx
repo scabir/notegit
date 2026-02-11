@@ -1,33 +1,32 @@
 import React, { useRef, useState } from 'react';
 import { TreeView } from '@mui/x-tree-view';
 import { Box } from '@mui/material';
-import {
-  CreateNewFolder as CreateFolderIcon,
-  Delete as DeleteIcon,
-  FileUpload as ImportIcon,
-  DriveFileRenameOutline as RenameIcon,
-  DriveFileMove as MoveIcon,
-  StarBorder as FavoriteBorderIcon,
-  Star as FavoriteIcon,
-  NoteAdd as NoteAddIcon,
-  ContentCopy as DuplicateIcon,
-} from '@mui/icons-material';
-import { MoveToFolderDialog } from '../MoveToFolderDialog';
+import { Star as FavoriteIcon } from '@mui/icons-material';
 import type { FileTreeNode } from '../../../shared/types';
-import { FILE_TREE_TEXT, INVALID_NAME_CHARS } from './constants';
+import { FILE_TREE_TEXT, FILE_TREE_MESSAGES, INVALID_NAME_CHARS } from './constants';
 import { rootSx, treeContainerSx, treeItemLabelSx } from './styles';
-import { normalizeName, findNode, findNodeByPath, getParentPath } from './utils';
+import { normalizeName, findNode, findNodeByPath } from './utils';
 import type { FileTreeViewProps } from './types';
 import { FileTreeToolbar } from '../FileTreeToolbar';
 import { FavoritesBar } from '../FileTreeFavoritesBar';
-import { DialogCreateItem } from '../FileTreeDialogCreateItem';
-import { DialogRename } from '../FileTreeDialogRename';
 import { FileTreeContextMenus } from '../FileTreeContextMenus';
 import type { ContextMenuItem } from '../FileTreeContextMenus/types';
 import { renderTreeItems } from '../FileTreeRenderer';
+import { FileTreeDialogs } from '../FileTreeDialogs';
 import { useFavorites } from './hooks/useFavorites';
 import { useTreeContextMenu } from './hooks/useTreeContextMenu';
 import { useFileTreeShortcuts } from './hooks/useFileTreeShortcuts';
+import {
+  resolveParentDestination,
+  resolveImportTargetPath,
+  resolveCreationLocationText,
+} from './pathResolvers';
+import {
+  mapCreateItemError,
+  mapRenameError,
+  getOperationErrorMessage,
+} from './errorHelpers';
+import { buildEmptyContextMenuItems, buildNodeContextMenuItems } from './contextMenuItems';
 
 export function FileTreeView({
   tree,
@@ -142,7 +141,7 @@ export function FileTreeView({
     }
 
     if (INVALID_NAME_CHARS.test(fileName)) {
-      setErrorMessage('File name contains invalid characters: < > : " / \\ | ? *');
+      setErrorMessage(FILE_TREE_MESSAGES.invalidFileName);
       return;
     }
 
@@ -150,45 +149,21 @@ export function FileTreeView({
     setErrorMessage('');
 
     try {
-      let parentPath = '';
-      let parentNodeId: string | null = null;
-
-      const targetNode = selectedNodeForActions;
-      if (targetNode) {
-        if (targetNode.type === 'folder') {
-          parentPath = targetNode.path;
-          parentNodeId = targetNode.id;
-        } else {
-          const lastSlash = targetNode.path.lastIndexOf('/');
-          parentPath = lastSlash > 0 ? targetNode.path.substring(0, lastSlash) : '';
-
-          if (parentPath) {
-            const parentNode = findNodeByPath(tree, parentPath);
-            if (parentNode) {
-              parentNodeId = parentNode.id;
-            }
-          }
-        }
-      }
+      const { parentPath, parentNodeId } = resolveParentDestination(selectedNodeForActions, tree);
 
       await onCreateFile(parentPath, fileName);
 
-      if (parentNodeId && !expanded.includes(parentNodeId)) {
-        setExpanded([...expanded, parentNodeId]);
+      if (parentNodeId) {
+        setExpanded((prev) => (prev.includes(parentNodeId) ? prev : [...prev, parentNodeId]));
       }
 
       setCreateFileDialogOpen(false);
       setNewItemName('');
       setErrorMessage('');
     } catch (error: any) {
-      const errorMsg = error.message || 'Failed to create file';
-      if (errorMsg.includes('exists') || errorMsg.includes('EEXIST')) {
-        setErrorMessage(`File "${fileName}" already exists`);
-      } else if (errorMsg.includes('permission') || errorMsg.includes('EACCES')) {
-        setErrorMessage('Permission denied to create file');
-      } else {
-        setErrorMessage(errorMsg);
-      }
+      setErrorMessage(
+        mapCreateItemError(error, 'file', fileName, FILE_TREE_MESSAGES.failedCreateFile)
+      );
       console.error('Failed to create file:', error);
     } finally {
       setCreating(false);
@@ -201,7 +176,7 @@ export function FileTreeView({
 
     const folderName = normalizeName(trimmedName, isS3Repo);
     if (INVALID_NAME_CHARS.test(folderName)) {
-      setErrorMessage('Folder name contains invalid characters: < > : " / \\ | ? *');
+      setErrorMessage(FILE_TREE_MESSAGES.invalidFolderName);
       return;
     }
 
@@ -209,45 +184,21 @@ export function FileTreeView({
     setErrorMessage('');
 
     try {
-      let parentPath = '';
-      let parentNodeId: string | null = null;
-
-      const targetNode = selectedNodeForActions;
-      if (targetNode) {
-        if (targetNode.type === 'folder') {
-          parentPath = targetNode.path;
-          parentNodeId = targetNode.id;
-        } else {
-          const lastSlash = targetNode.path.lastIndexOf('/');
-          parentPath = lastSlash > 0 ? targetNode.path.substring(0, lastSlash) : '';
-
-          if (parentPath) {
-            const parentNode = findNodeByPath(tree, parentPath);
-            if (parentNode) {
-              parentNodeId = parentNode.id;
-            }
-          }
-        }
-      }
+      const { parentPath, parentNodeId } = resolveParentDestination(selectedNodeForActions, tree);
 
       await onCreateFolder(parentPath, folderName);
 
-      if (parentNodeId && !expanded.includes(parentNodeId)) {
-        setExpanded([...expanded, parentNodeId]);
+      if (parentNodeId) {
+        setExpanded((prev) => (prev.includes(parentNodeId) ? prev : [...prev, parentNodeId]));
       }
 
       setCreateFolderDialogOpen(false);
       setNewItemName('');
       setErrorMessage('');
     } catch (error: any) {
-      const errorMsg = error.message || 'Failed to create folder';
-      if (errorMsg.includes('exists') || errorMsg.includes('EEXIST')) {
-        setErrorMessage(`Folder "${folderName}" already exists`);
-      } else if (errorMsg.includes('permission') || errorMsg.includes('EACCES')) {
-        setErrorMessage('Permission denied to create folder');
-      } else {
-        setErrorMessage(errorMsg);
-      }
+      setErrorMessage(
+        mapCreateItemError(error, 'folder', folderName, FILE_TREE_MESSAGES.failedCreateFolder)
+      );
       console.error('Failed to create folder:', error);
     } finally {
       setCreating(false);
@@ -259,13 +210,13 @@ export function FileTreeView({
 
     const trimmedName = newItemName.trim();
     if (!trimmedName) {
-      setErrorMessage('Name cannot be empty');
+      setErrorMessage(FILE_TREE_MESSAGES.emptyName);
       return;
     }
 
     const normalizedName = normalizeName(trimmedName, isS3Repo);
     if (INVALID_NAME_CHARS.test(normalizedName)) {
-      setErrorMessage('Name contains invalid characters: < > : " / \\ | ? *');
+      setErrorMessage(FILE_TREE_MESSAGES.invalidRenameName);
       return;
     }
 
@@ -291,14 +242,9 @@ export function FileTreeView({
       setErrorMessage('');
     } catch (error: any) {
       console.error('Failed to rename:', error);
-
-      if (error.message && error.message.includes('already exists')) {
-        setErrorMessage(`A ${selectedNode.type === 'folder' ? 'folder' : 'file'} with that name already exists`);
-      } else if (error.message && error.message.includes('permission')) {
-        setErrorMessage('Permission denied');
-      } else {
-        setErrorMessage(error.message || 'Failed to rename');
-      }
+      setErrorMessage(
+        mapRenameError(error, selectedNode.type, FILE_TREE_MESSAGES.failedRename)
+      );
     } finally {
       setCreating(false);
     }
@@ -309,8 +255,11 @@ export function FileTreeView({
     if (!targetNode) return;
 
     const itemType = targetNode.type === 'folder' ? 'folder' : 'file';
-    const message = `Are you sure you want to delete ${itemType} "${targetNode.name}"?${targetNode.type === 'folder' ? ' All contents will be deleted.' : ''
-      }`;
+    const message = FILE_TREE_MESSAGES.deleteConfirmation(
+      itemType,
+      targetNode.name,
+      targetNode.type === 'folder'
+    );
 
     if (window.confirm(message)) {
       try {
@@ -319,7 +268,9 @@ export function FileTreeView({
         setSelectedNode(null);
       } catch (error) {
         console.error('Failed to delete:', error);
-        alert(`Failed to delete ${itemType}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        alert(
+          `${FILE_TREE_MESSAGES.failedDeletePrefix} ${itemType}: ${getOperationErrorMessage(error)}`
+        );
       }
     }
   };
@@ -327,13 +278,13 @@ export function FileTreeView({
   const handleImportFile = async () => {
     try {
       if (!window.notegitApi.dialog) {
-        alert('Dialog API not available. Please restart the app.');
+        alert(FILE_TREE_MESSAGES.dialogApiNotAvailable);
         return;
       }
 
       const result = await window.notegitApi.dialog.showOpenDialog({
         properties: ['openFile'],
-        title: 'Select file to import',
+        title: FILE_TREE_MESSAGES.importDialogTitle,
       });
 
       if (result.canceled || result.filePaths.length === 0) {
@@ -341,25 +292,17 @@ export function FileTreeView({
       }
 
       const sourcePath = result.filePaths[0];
-      const rawFileName = sourcePath.split('/').pop() || 'imported_file';
-      const fileName = normalizeName(rawFileName, isS3Repo);
-
-      let targetPath = fileName;
-      const targetNode = selectedNodeForActions;
-      if (targetNode) {
-        if (targetNode.type === 'folder') {
-          targetPath = `${targetNode.path}/${fileName}`;
-        } else {
-          const lastSlash = targetNode.path.lastIndexOf('/');
-          const parentPath = lastSlash > 0 ? targetNode.path.substring(0, lastSlash) : '';
-          targetPath = parentPath ? `${parentPath}/${fileName}` : fileName;
-        }
-      }
+      const targetPath = resolveImportTargetPath(
+        sourcePath,
+        selectedNodeForActions,
+        isS3Repo,
+        FILE_TREE_MESSAGES.importedFileNameFallback
+      );
 
       await onImport(sourcePath, targetPath);
     } catch (error) {
       console.error('Failed to import file:', error);
-      alert(`Failed to import file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(`${FILE_TREE_MESSAGES.failedImportPrefix}: ${getOperationErrorMessage(error)}`);
     }
   };
 
@@ -376,7 +319,7 @@ export function FileTreeView({
       setMoveDialogOpen(false);
     } catch (error: any) {
       console.error('Failed to move:', error);
-      alert(`Failed to move: ${error.message || 'Unknown error'}`);
+      alert(`${FILE_TREE_MESSAGES.failedMovePrefix}: ${getOperationErrorMessage(error)}`);
     }
   };
 
@@ -464,117 +407,46 @@ export function FileTreeView({
         ? () => onDuplicate(selectedNodeForActions.path)
         : undefined,
   });
-  const getCreationLocationText = () => {
-    if (!selectedNodeForActions) {
-      return FILE_TREE_TEXT.createLocationRoot;
-    }
-    if (selectedNodeForActions.type === 'folder') {
-      return `${FILE_TREE_TEXT.createLocationPrefix}${selectedNodeForActions.path || 'root'}`;
-    }
-    const parentPath = getParentPath(selectedNodeForActions.path);
-    return parentPath
-      ? `${FILE_TREE_TEXT.createLocationPrefix}${parentPath}`
-      : FILE_TREE_TEXT.createLocationRoot;
-  };
-
   const treeContextMenuNode = treeContextMenuState?.node || null;
   const contextNodeIsFavorite = Boolean(
     treeContextMenuNode && favoriteNodes.some((node) => node.path === treeContextMenuNode.path)
   );
-  const creationLocationText = getCreationLocationText();
+  const creationLocationText = resolveCreationLocationText(
+    selectedNodeForActions,
+    FILE_TREE_TEXT.createLocationRoot,
+    FILE_TREE_TEXT.createLocationPrefix
+  );
   const fileHelperText = !newItemName.includes('.') ? FILE_TREE_TEXT.fileExtensionHint : ' ';
   const selectedNodeId = selectedNodeForActions?.id ?? selectedFile ?? undefined;
 
-  const emptyContextMenuItems: ContextMenuItem[] = [
-    {
-      label: FILE_TREE_TEXT.newFile,
-      icon: <NoteAddIcon fontSize="small" />,
-      action: () => {
-        handleCloseTreeContextMenu();
-        handleOpenFileDialog();
-      },
-      testId: 'tree-context-new-file',
-    },
-    {
-      label: FILE_TREE_TEXT.newFolder,
-      icon: <CreateFolderIcon fontSize="small" />,
-      action: () => {
-        handleCloseTreeContextMenu();
-        handleOpenFolderDialog();
-      },
-      testId: 'tree-context-new-folder',
-    },
-    {
-      label: FILE_TREE_TEXT.importFile,
-      icon: <ImportIcon fontSize="small" />,
-      action: () => {
-        handleCloseTreeContextMenu();
-        handleImportFile();
-      },
-      testId: 'tree-context-import',
-    },
-  ];
+  const emptyContextMenuItems: ContextMenuItem[] = buildEmptyContextMenuItems({
+    newFileLabel: FILE_TREE_TEXT.newFile,
+    newFolderLabel: FILE_TREE_TEXT.newFolder,
+    importFileLabel: FILE_TREE_TEXT.importFile,
+    onCloseTreeContextMenu: handleCloseTreeContextMenu,
+    onOpenFileDialog: handleOpenFileDialog,
+    onOpenFolderDialog: handleOpenFolderDialog,
+    onImportFile: handleImportFile,
+  });
 
-  const nodeContextMenuItems: ContextMenuItem[] = [
-    treeContextMenuNode?.type === 'folder'
-      ? {
-          label: FILE_TREE_TEXT.newFile,
-          icon: <NoteAddIcon fontSize="small" />,
-          action: () => {
-            handleCloseTreeContextMenu();
-            handleOpenFileDialog();
-          },
-          testId: 'tree-context-node-new-file',
-        }
-      : null,
-    treeContextMenuNode?.type === 'folder'
-      ? {
-          label: FILE_TREE_TEXT.newFolder,
-          icon: <CreateFolderIcon fontSize="small" />,
-          action: () => {
-            handleCloseTreeContextMenu();
-            handleOpenFolderDialog();
-          },
-          testId: 'tree-context-node-new-folder',
-        }
-      : null,
-    {
-      label: FILE_TREE_TEXT.rename,
-      icon: <RenameIcon fontSize="small" />,
-      action: () => handleTreeContextMenuAction('rename', treeContextMenuNode),
-      testId: 'tree-context-rename',
+  const nodeContextMenuItems: ContextMenuItem[] = buildNodeContextMenuItems({
+    node: treeContextMenuNode,
+    isFavorite: contextNodeIsFavorite,
+    labels: {
+      newFile: FILE_TREE_TEXT.newFile,
+      newFolder: FILE_TREE_TEXT.newFolder,
+      rename: FILE_TREE_TEXT.rename,
+      move: FILE_TREE_TEXT.moveToFolder,
+      addToFavorites: FILE_TREE_TEXT.addToFavorites,
+      removeFromFavorites: FILE_TREE_TEXT.removeFromFavorites,
+      duplicate: FILE_TREE_TEXT.duplicate,
+      delete: FILE_TREE_TEXT.delete,
     },
-    {
-      label: FILE_TREE_TEXT.moveToFolder,
-      icon: <MoveIcon fontSize="small" />,
-      action: () => handleTreeContextMenuAction('move', treeContextMenuNode),
-      testId: 'tree-context-move',
-    },
-    {
-      label: contextNodeIsFavorite ? FILE_TREE_TEXT.removeFromFavorites : FILE_TREE_TEXT.addToFavorites,
-      icon: contextNodeIsFavorite ? (
-        <FavoriteIcon fontSize="small" />
-      ) : (
-        <FavoriteBorderIcon fontSize="small" />
-      ),
-      action: () => handleTreeContextMenuAction('favorite', treeContextMenuNode),
-      testId: 'tree-context-favorite',
-    },
-    treeContextMenuNode?.type === 'file'
-      ? {
-          label: FILE_TREE_TEXT.duplicate,
-          icon: <DuplicateIcon fontSize="small" />,
-          action: () => handleTreeContextMenuAction('duplicate', treeContextMenuNode),
-          testId: 'tree-context-duplicate',
-        }
-      : null,
-    {
-      label: FILE_TREE_TEXT.delete,
-      icon: <DeleteIcon fontSize="small" />,
-      action: () => handleTreeContextMenuAction('delete', treeContextMenuNode),
-      testId: 'tree-context-delete',
-    },
-  ].filter(Boolean) as ContextMenuItem[];
+    onCloseTreeContextMenu: handleCloseTreeContextMenu,
+    onOpenFileDialog: handleOpenFileDialog,
+    onOpenFolderDialog: handleOpenFolderDialog,
+    onAction: handleTreeContextMenuAction,
+  });
 
   return (
     <Box sx={rootSx}>
@@ -636,84 +508,44 @@ export function FileTreeView({
         </TreeView>
       </Box>
 
-      <DialogCreateItem
-        testId="create-file-dialog"
-        open={createFileDialogOpen}
-        title={FILE_TREE_TEXT.createFileTitle}
-        label={FILE_TREE_TEXT.fileNameLabel}
-        helperText={fileHelperText}
-        placeholder={FILE_TREE_TEXT.filePlaceholder}
-        creationLocationText={creationLocationText}
-        value={newItemName}
-        errorMessage={errorMessage}
-        creating={creating}
-        onChange={(value) => {
-          setNewItemName(value);
-          setErrorMessage('');
+      <FileTreeDialogs
+        text={{
+          createFileTitle: FILE_TREE_TEXT.createFileTitle,
+          createFolderTitle: FILE_TREE_TEXT.createFolderTitle,
+          fileNameLabel: FILE_TREE_TEXT.fileNameLabel,
+          folderNameLabel: FILE_TREE_TEXT.folderNameLabel,
+          filePlaceholder: FILE_TREE_TEXT.filePlaceholder,
+          folderPlaceholder: FILE_TREE_TEXT.folderPlaceholder,
+          cancel: FILE_TREE_TEXT.cancel,
+          create: FILE_TREE_TEXT.create,
+          creating: FILE_TREE_TEXT.creating,
+          renameFolderTitle: FILE_TREE_TEXT.renameFolderTitle,
+          renameFileTitle: FILE_TREE_TEXT.renameFileTitle,
+          newNameLabel: FILE_TREE_TEXT.newNameLabel,
+          renameAction: FILE_TREE_TEXT.renameAction,
+          renaming: FILE_TREE_TEXT.renaming,
         }}
-        onClose={() => {
-          setCreateFileDialogOpen(false);
-          setErrorMessage('');
-        }}
-        onCreate={handleCreateFile}
-        cancelLabel={FILE_TREE_TEXT.cancel}
-        confirmLabel={FILE_TREE_TEXT.create}
-        loadingLabel={FILE_TREE_TEXT.creating}
-      />
-
-      <DialogCreateItem
-        testId="create-folder-dialog"
-        open={createFolderDialogOpen}
-        title={FILE_TREE_TEXT.createFolderTitle}
-        label={FILE_TREE_TEXT.folderNameLabel}
-        placeholder={FILE_TREE_TEXT.folderPlaceholder}
-        creationLocationText={creationLocationText}
-        value={newItemName}
-        errorMessage={errorMessage}
-        creating={creating}
-        onChange={(value) => {
-          setNewItemName(value);
-          setErrorMessage('');
-        }}
-        onClose={() => {
-          setCreateFolderDialogOpen(false);
-          setErrorMessage('');
-        }}
-        onCreate={handleCreateFolder}
-        cancelLabel={FILE_TREE_TEXT.cancel}
-        confirmLabel={FILE_TREE_TEXT.create}
-        loadingLabel={FILE_TREE_TEXT.creating}
-      />
-
-      <DialogRename
-        testId="rename-dialog"
-        open={renameDialogOpen}
-        onClose={() => {
-          setRenameDialogOpen(false);
-          setErrorMessage('');
-        }}
-        title={selectedNode?.type === 'folder' ? FILE_TREE_TEXT.renameFolderTitle : FILE_TREE_TEXT.renameFileTitle}
-        label={FILE_TREE_TEXT.newNameLabel}
-        value={newItemName}
-        onChange={(value) => {
-          setNewItemName(value);
-          setErrorMessage('');
-        }}
-        onSubmit={handleRename}
-        errorMessage={errorMessage}
-        creating={creating}
-        placeholder={selectedNode?.name || ''}
-        cancelLabel={FILE_TREE_TEXT.cancel}
-        confirmLabel={FILE_TREE_TEXT.renameAction}
-        loadingLabel={FILE_TREE_TEXT.renaming}
-      />
-
-      <MoveToFolderDialog
-        open={moveDialogOpen}
-        onClose={() => setMoveDialogOpen(false)}
-        onConfirm={handleMoveToFolder}
-        itemToMove={selectedNode}
         tree={tree}
+        selectedNode={selectedNode}
+        createFileDialogOpen={createFileDialogOpen}
+        createFolderDialogOpen={createFolderDialogOpen}
+        renameDialogOpen={renameDialogOpen}
+        moveDialogOpen={moveDialogOpen}
+        newItemName={newItemName}
+        creating={creating}
+        errorMessage={errorMessage}
+        creationLocationText={creationLocationText}
+        fileHelperText={fileHelperText}
+        onSetName={setNewItemName}
+        onClearError={() => setErrorMessage('')}
+        onCloseCreateFileDialog={() => setCreateFileDialogOpen(false)}
+        onCloseCreateFolderDialog={() => setCreateFolderDialogOpen(false)}
+        onCloseRenameDialog={() => setRenameDialogOpen(false)}
+        onCloseMoveDialog={() => setMoveDialogOpen(false)}
+        onCreateFile={handleCreateFile}
+        onCreateFolder={handleCreateFolder}
+        onRename={handleRename}
+        onMoveToFolder={handleMoveToFolder}
       />
     </Box>
   );

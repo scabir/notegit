@@ -30,5 +30,31 @@ export const FILE_TREE_TEXT = {
   favoritesContextMenuItem: 'Remove from favorites',
 } as const;
 
+export const FILE_TREE_MESSAGES = {
+  invalidFileName: 'File name contains invalid characters: < > : " / \\ | ? *',
+  invalidFolderName: 'Folder name contains invalid characters: < > : " / \\ | ? *',
+  invalidRenameName: 'Name contains invalid characters: < > : " / \\ | ? *',
+  emptyName: 'Name cannot be empty',
+  fileAlreadyExists: (name: string) => `File "${name}" already exists`,
+  folderAlreadyExists: (name: string) => `Folder "${name}" already exists`,
+  permissionDeniedCreateFile: 'Permission denied to create file',
+  permissionDeniedCreateFolder: 'Permission denied to create folder',
+  permissionDenied: 'Permission denied',
+  failedCreateFile: 'Failed to create file',
+  failedCreateFolder: 'Failed to create folder',
+  failedRename: 'Failed to rename',
+  dialogApiNotAvailable: 'Dialog API not available. Please restart the app.',
+  importDialogTitle: 'Select file to import',
+  importedFileNameFallback: 'imported_file',
+  unknownError: 'Unknown error',
+  renameAlreadyExists: (itemType: 'file' | 'folder') =>
+    `A ${itemType} with that name already exists`,
+  deleteConfirmation: (itemType: 'folder' | 'file', name: string, isFolder: boolean) =>
+    `Are you sure you want to delete ${itemType} "${name}"?${isFolder ? ' All contents will be deleted.' : ''}`,
+  failedDeletePrefix: 'Failed to delete',
+  failedImportPrefix: 'Failed to import file',
+  failedMovePrefix: 'Failed to move',
+} as const;
+
 export const INVALID_NAME_CHARS = /[<>:"/\\|?*]/;
 export const FAVORITES_STORAGE_KEY = 'notegit-tree-favorites';
