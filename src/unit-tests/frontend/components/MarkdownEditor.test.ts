@@ -93,7 +93,12 @@ const renderEditor = async (
   overrides: Record<string, any> = {}
 ) => {
   mockView = createMockView(content, from, to);
-  const file: FileContent = { path: 'note.md', content, type: FileType.MARKDOWN };
+  const componentOverrides = { ...overrides };
+  const filePath = typeof componentOverrides.filePath === 'string'
+    ? componentOverrides.filePath
+    : 'note.md';
+  delete componentOverrides.filePath;
+  const file: FileContent = { path: filePath, content, type: FileType.MARKDOWN };
   const onSave = jest.fn();
   const onChange = jest.fn();
 
@@ -105,7 +110,7 @@ const renderEditor = async (
         repoPath: '/repo',
         onSave,
         onChange,
-        ...overrides,
+        ...componentOverrides,
       })
     );
     await Promise.resolve();
@@ -578,6 +583,20 @@ describe('MarkdownEditor task list formatting', () => {
 
     const mermaid = renderer.root.findAllByProps({ 'data-testid': 'mermaid' });
     expect(mermaid.length).toBeGreaterThan(0);
+  });
+
+  it('resolves preview images relative to the markdown file directory', async () => {
+    const { renderer } = await renderEditor('![alt](image.png)', 0, 0, {
+      filePath: 'notes/note.md',
+    });
+
+    const previewToggle = renderer.root.findAllByType(ToggleButtonGroup)[0];
+    act(() => {
+      previewToggle.props.onChange(null, 'preview');
+    });
+
+    const images = renderer.root.findAllByType('img');
+    expect(images[0].props.src).toBe('file:///repo/notes/image.png');
   });
 
   it('opens markdown cheatsheet and closes it', async () => {

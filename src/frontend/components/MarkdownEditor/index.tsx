@@ -157,6 +157,7 @@ export function MarkdownEditor({
             viewMode={viewMode}
             editorWidth={editorWidth}
             repoPath={repoPath}
+            filePath={file.path}
             content={content}
             cheatSheetType={cheatSheetType}
             onCloseCheatSheet={handleCloseCheatSheet}

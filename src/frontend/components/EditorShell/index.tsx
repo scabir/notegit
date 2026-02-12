@@ -4,6 +4,7 @@ import { FileTreeView } from '../FileTreeView';
 import { MarkdownEditor } from '../MarkdownEditor';
 import type { ShortcutHelperHandle } from '../ShortcutHelper';
 import { TextEditor } from '../TextEditor';
+import { ImageViewer } from '../ImageViewer';
 import { StatusBar } from '../StatusBar';
 import { SettingsDialog } from '../SettingsDialog';
 import { CommitDialog } from '../CommitDialog';
@@ -13,7 +14,7 @@ import { HistoryPanel } from '../HistoryPanel';
 import { HistoryViewer } from '../HistoryViewer';
 import { AboutDialog } from '../AboutDialog';
 import type { AppSettings, FileTreeNode, FileContent, RepoStatus } from '../../../shared/types';
-import { REPO_PROVIDERS } from '../../../shared/types';
+import { FileType, REPO_PROVIDERS } from '../../../shared/types';
 import { startS3AutoSync } from '../../utils/s3AutoSync';
 import {
   rootSx,
@@ -872,11 +873,27 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         )}
 
         <Box sx={editorPaneSx}>
-          {fileContent?.type === 'text' ? (
+          {fileContent?.type === FileType.TEXT ? (
             <TextEditor
               file={fileContent}
               onSave={handleSaveFile}
               onChange={handleEditorChange}
+              treePanelControls={
+                isTreeCollapsed
+                  ? {
+                      onToggleTree: handleToggleTreeCollapse,
+                      onNavigateBack: handleNavigateBack,
+                      onNavigateForward: handleNavigateForward,
+                      canNavigateBack,
+                      canNavigateForward,
+                    }
+                  : undefined
+              }
+            />
+          ) : fileContent?.type === FileType.IMAGE ? (
+            <ImageViewer
+              file={fileContent}
+              repoPath={repoPath}
               treePanelControls={
                 isTreeCollapsed
                   ? {

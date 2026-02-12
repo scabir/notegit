@@ -7,6 +7,7 @@ export interface MarkdownPreviewPaneProps {
   viewMode: ViewMode;
   editorWidth: number;
   repoPath: string | null;
+  filePath: string | null;
   content: string;
   cheatSheetType: MarkdownCheatSheetType;
   onCloseCheatSheet: () => void;

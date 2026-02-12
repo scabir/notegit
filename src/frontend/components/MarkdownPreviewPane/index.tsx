@@ -7,6 +7,7 @@ import remarkDeflist from 'remark-deflist';
 import { MermaidDiagram } from '../MermaidDiagram';
 import { MARKDOWN_EDITOR_TEXT } from '../MarkdownEditor/constants';
 import { remarkHighlight } from '../../utils/remarkHighlight';
+import { resolveMarkdownImageSrc } from '../../utils/pathUtils';
 import markdownCheatsheetHtml from '../../assets/cheatsheets/markdown.html?raw';
 import mermaidCheatsheetHtml from '../../assets/cheatsheets/mermaid.html?raw';
 import { MARKDOWN_PREVIEW_PANE } from './constants';
@@ -23,6 +24,7 @@ export function MarkdownPreviewPane({
   viewMode,
   editorWidth,
   repoPath,
+  filePath,
   content,
   cheatSheetType,
   onCloseCheatSheet,
@@ -68,10 +70,7 @@ export function MarkdownPreviewPane({
             remarkPlugins={[remarkGfm, remarkDeflist, remarkHighlight]}
             components={{
               img: ({ node: _node, ...props }) => {
-                let src = props.src || '';
-                if (repoPath && src && !src.startsWith('http') && !src.startsWith('data:')) {
-                  src = `file://${repoPath}/${src}`;
-                }
+                const src = resolveMarkdownImageSrc(repoPath, filePath, props.src);
                 return (
                   <img
                     {...props}

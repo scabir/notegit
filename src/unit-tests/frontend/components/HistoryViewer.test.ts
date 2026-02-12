@@ -189,8 +189,8 @@ describe('HistoryViewer utils', () => {
   });
 
   it('resolves image sources', () => {
-    expect(resolveImageSrc('/repo', 'images/a.png')).toBe('file:///repo/images/a.png');
-    expect(resolveImageSrc('/repo', 'http://example.com/img.png')).toBe('http://example.com/img.png');
-    expect(resolveImageSrc(null, 'images/a.png')).toBe('images/a.png');
+    expect(resolveImageSrc('/repo', 'notes/note.md', 'images/a.png')).toBe('file:///repo/notes/images/a.png');
+    expect(resolveImageSrc('/repo', 'notes/note.md', 'http://example.com/img.png')).toBe('http://example.com/img.png');
+    expect(resolveImageSrc(null, 'notes/note.md', 'images/a.png')).toBe('images/a.png');
   });
 });

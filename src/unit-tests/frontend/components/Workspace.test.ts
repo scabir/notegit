@@ -8,6 +8,7 @@ import { SIDEBAR_COLLAPSED_WIDTH } from '../../../frontend/components/EditorShel
 const FileTreeViewMock = jest.fn((_props: any) => null);
 const MarkdownEditorMock = jest.fn((_props: any) => null);
 const TextEditorMock = jest.fn((_props: any) => null);
+const ImageViewerMock = jest.fn((_props: any) => null);
 const StatusBarMock = jest.fn((_props: any) => null);
 const SettingsDialogMock = jest.fn((_props: any) => null);
 const CommitDialogMock = jest.fn((_props: any) => null);
@@ -34,6 +35,10 @@ jest.mock('../../../frontend/components/MarkdownEditor', () => ({
 
 jest.mock('../../../frontend/components/TextEditor', () => ({
   TextEditor: (props: any) => TextEditorMock(props),
+}));
+
+jest.mock('../../../frontend/components/ImageViewer', () => ({
+  ImageViewer: (props: any) => ImageViewerMock(props),
 }));
 
 jest.mock('../../../frontend/components/StatusBar', () => ({
@@ -90,6 +95,7 @@ describe('EditorShell', () => {
     FileTreeViewMock.mockClear();
     MarkdownEditorMock.mockClear();
     TextEditorMock.mockClear();
+    ImageViewerMock.mockClear();
     StatusBarMock.mockClear();
     SettingsDialogMock.mockClear();
     CommitDialogMock.mockClear();
@@ -535,6 +541,46 @@ describe('EditorShell', () => {
     jest.useRealTimers();
 
     expect((global as any).window.notegitApi.files.save).toHaveBeenCalledWith('note.txt', 'updated');
+  });
+
+  it('renders image viewer for image files', async () => {
+    const readFile = jest.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        path: 'assets/photo.jpg',
+        content: 'binary-content',
+        type: FileType.IMAGE,
+      },
+    });
+    (global as any).window.notegitApi.files.read = readFile;
+
+    await act(async () => {
+      createRenderer(
+        React.createElement(EditorShell, {
+          onThemeChange: jest.fn(),
+        })
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+      await flushPromises();
+    });
+
+    const fileTreeProps =
+      FileTreeViewMock.mock.calls[FileTreeViewMock.mock.calls.length - 1]?.[0];
+
+    await act(async () => {
+      await fileTreeProps.onSelectFile('assets/photo.jpg', 'file');
+      await flushPromises();
+    });
+
+    expect(ImageViewerMock).toHaveBeenCalled();
+    const imageProps = ImageViewerMock.mock.calls[ImageViewerMock.mock.calls.length - 1]?.[0];
+    expect(imageProps?.file?.path).toBe('assets/photo.jpg');
+    expect(MarkdownEditorMock).not.toHaveBeenCalledWith(expect.objectContaining({
+      file: expect.objectContaining({ path: 'assets/photo.jpg' }),
+    }));
   });
 
   it('tracks navigation history and supports back/forward', async () => {

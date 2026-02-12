@@ -175,7 +175,7 @@ export function HistoryViewer({
                       remarkPlugins={[remarkGfm, remarkDeflist, remarkHighlight]}
                       components={{
                         img: ({ node: _node, ...props }) => {
-                          const src = resolveImageSrc(repoPath, props.src);
+                          const src = resolveImageSrc(repoPath, filePath, props.src);
                           return (
                             <img
                               {...props}
