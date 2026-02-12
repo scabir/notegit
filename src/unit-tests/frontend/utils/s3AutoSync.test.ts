@@ -1,20 +1,23 @@
-import { getS3AutoSyncIntervalMs, startS3AutoSync } from '../../../frontend/utils/s3AutoSync';
-import { REPO_PROVIDERS } from '../../../shared/types';
+import {
+  getS3AutoSyncIntervalMs,
+  startS3AutoSync,
+} from "../../../frontend/utils/s3AutoSync";
+import { REPO_PROVIDERS } from "../../../shared/types";
 
 const flushPromises = async () => {
   await Promise.resolve();
   await Promise.resolve();
 };
 
-describe('s3AutoSync', () => {
-  it('calculates interval with fallback and minimum', () => {
+describe("s3AutoSync", () => {
+  it("calculates interval with fallback and minimum", () => {
     expect(getS3AutoSyncIntervalMs()).toBe(30000);
     expect(getS3AutoSyncIntervalMs(0)).toBe(30000);
     expect(getS3AutoSyncIntervalMs(1)).toBe(1000);
     expect(getS3AutoSyncIntervalMs(5)).toBe(5000);
   });
 
-  it('starts and refreshes when enabled', async () => {
+  it("starts and refreshes when enabled", async () => {
     jest.useFakeTimers();
 
     const deps = {
@@ -23,7 +26,7 @@ describe('s3AutoSync', () => {
         ok: true,
         data: {
           provider: REPO_PROVIDERS.s3,
-          branch: 'bucket',
+          branch: "bucket",
           ahead: 0,
           behind: 0,
           hasUncommitted: false,
@@ -53,7 +56,7 @@ describe('s3AutoSync', () => {
     jest.useRealTimers();
   });
 
-  it('does nothing when disabled', async () => {
+  it("does nothing when disabled", async () => {
     jest.useFakeTimers();
 
     const deps = {

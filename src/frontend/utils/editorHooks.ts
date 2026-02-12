@@ -1,7 +1,13 @@
-import { useCallback, useEffect, useMemo, useState, type MutableRefObject } from 'react';
-import { EditorSelection } from '@codemirror/state';
-import { keymap } from '@codemirror/view';
-import type { EditorView } from '@codemirror/view';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type MutableRefObject,
+} from "react";
+import { EditorSelection } from "@codemirror/state";
+import { keymap } from "@codemirror/view";
+import type { EditorView } from "@codemirror/view";
 
 export type UseEditorFindReplaceOptions = {
   content: string;
@@ -30,7 +36,9 @@ export const useEditorFindReplace = ({
   onContentModified,
 }: UseEditorFindReplaceOptions): UseEditorFindReplaceResult => {
   const [findBarOpen, setFindBarOpen] = useState(false);
-  const [searchMatches, setSearchMatches] = useState<{ start: number; end: number }[]>([]);
+  const [searchMatches, setSearchMatches] = useState<
+    { start: number; end: number }[]
+  >([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
 
   const findMatches = useCallback(
@@ -49,12 +57,17 @@ export const useEditorFindReplace = ({
 
       return matches;
     },
-    [content]
+    [content],
   );
 
   const highlightMatch = useCallback(
     (matchIndex: number) => {
-      if (!editorViewRef.current || matchIndex < 0 || matchIndex >= searchMatches.length) return;
+      if (
+        !editorViewRef.current ||
+        matchIndex < 0 ||
+        matchIndex >= searchMatches.length
+      )
+        return;
 
       const match = searchMatches[matchIndex];
       const view = editorViewRef.current;
@@ -66,7 +79,7 @@ export const useEditorFindReplace = ({
 
       view.focus();
     },
-    [editorViewRef, searchMatches]
+    [editorViewRef, searchMatches],
   );
 
   const resetFindState = useCallback(() => {
@@ -80,11 +93,14 @@ export const useEditorFindReplace = ({
   }, []);
 
   const handleOpenFind = useCallback(() => {
-    let initialQuery = '';
+    let initialQuery = "";
     if (editorViewRef.current) {
       const selection = editorViewRef.current.state.selection.main;
       if (selection.from !== selection.to) {
-        initialQuery = editorViewRef.current.state.doc.sliceString(selection.from, selection.to);
+        initialQuery = editorViewRef.current.state.doc.sliceString(
+          selection.from,
+          selection.to,
+        );
       }
     }
 
@@ -110,11 +126,12 @@ export const useEditorFindReplace = ({
         return;
       }
 
-      const nextIndex = currentMatchIndex < matches.length - 1 ? currentMatchIndex + 1 : 0;
+      const nextIndex =
+        currentMatchIndex < matches.length - 1 ? currentMatchIndex + 1 : 0;
       setCurrentMatchIndex(nextIndex);
       highlightMatch(nextIndex);
     },
-    [findMatches, highlightMatch, currentMatchIndex]
+    [findMatches, highlightMatch, currentMatchIndex],
   );
 
   const handleFindPrevious = useCallback(
@@ -127,19 +144,24 @@ export const useEditorFindReplace = ({
         return;
       }
 
-      const prevIndex = currentMatchIndex > 0 ? currentMatchIndex - 1 : matches.length - 1;
+      const prevIndex =
+        currentMatchIndex > 0 ? currentMatchIndex - 1 : matches.length - 1;
       setCurrentMatchIndex(prevIndex);
       highlightMatch(prevIndex);
     },
-    [findMatches, highlightMatch, currentMatchIndex]
+    [findMatches, highlightMatch, currentMatchIndex],
   );
 
   const handleReplace = useCallback(
     (query: string, replacement: string) => {
-      if (currentMatchIndex < 0 || currentMatchIndex >= searchMatches.length) return;
+      if (currentMatchIndex < 0 || currentMatchIndex >= searchMatches.length)
+        return;
 
       const match = searchMatches[currentMatchIndex];
-      const newContent = content.substring(0, match.start) + replacement + content.substring(match.end);
+      const newContent =
+        content.substring(0, match.start) +
+        replacement +
+        content.substring(match.end);
 
       setContent(newContent);
       if (onContentModified) {
@@ -150,7 +172,8 @@ export const useEditorFindReplace = ({
         const matches = findMatches(query);
         setSearchMatches(matches);
         if (matches.length > 0) {
-          const nextIndex = currentMatchIndex < matches.length ? currentMatchIndex : 0;
+          const nextIndex =
+            currentMatchIndex < matches.length ? currentMatchIndex : 0;
           setCurrentMatchIndex(nextIndex);
           highlightMatch(nextIndex);
         } else {
@@ -158,14 +181,25 @@ export const useEditorFindReplace = ({
         }
       }, 0);
     },
-    [content, searchMatches, currentMatchIndex, findMatches, highlightMatch, setContent, onContentModified]
+    [
+      content,
+      searchMatches,
+      currentMatchIndex,
+      findMatches,
+      highlightMatch,
+      setContent,
+      onContentModified,
+    ],
   );
 
   const handleReplaceAll = useCallback(
     (query: string, replacement: string) => {
       if (!query) return;
 
-      const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      const regex = new RegExp(
+        query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+        "gi",
+      );
       const newContent = content.replace(regex, replacement);
 
       setContent(newContent);
@@ -175,7 +209,7 @@ export const useEditorFindReplace = ({
       setSearchMatches([]);
       setCurrentMatchIndex(-1);
     },
-    [content, setContent, onContentModified]
+    [content, setContent, onContentModified],
   );
 
   return {
@@ -209,17 +243,17 @@ export const useEditorGlobalShortcuts = ({
         return;
       }
 
-      if (enableSaveShortcut && (e.metaKey || e.ctrlKey) && e.key === 's') {
+      if (enableSaveShortcut && (e.metaKey || e.ctrlKey) && e.key === "s") {
         e.preventDefault();
         onSave?.();
-      } else if ((e.metaKey || e.ctrlKey) && e.key === 'f' && !e.shiftKey) {
+      } else if ((e.metaKey || e.ctrlKey) && e.key === "f" && !e.shiftKey) {
         e.preventDefault();
         onOpenFind?.();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [enableSaveShortcut, onSave, onOpenFind]);
 };
 
@@ -228,23 +262,23 @@ export const useEditorKeymap = (onSave: () => void) =>
     () =>
       keymap.of([
         {
-          key: 'Mod-s',
+          key: "Mod-s",
           run: () => {
             onSave();
             return true;
           },
         },
         {
-          key: 'Ctrl-Enter',
+          key: "Ctrl-Enter",
           run: (view: EditorView) => {
             const { from } = view.state.selection.main;
             view.dispatch({
-              changes: { from, insert: '\r' },
+              changes: { from, insert: "\r" },
               selection: { anchor: from + 1 },
             });
             return true;
           },
         },
       ]),
-    [onSave]
+    [onSave],
   );

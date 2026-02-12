@@ -4,10 +4,10 @@ import {
   ApiError,
   ApiErrorCode,
   RepoProviderType,
-} from '../../shared/types';
-import { ConfigService } from './ConfigService';
-import type { HistoryProvider } from '../providers/types';
-import { logger } from '../utils/logger';
+} from "../../shared/types";
+import { ConfigService } from "./ConfigService";
+import type { HistoryProvider } from "../providers/types";
+import { logger } from "../utils/logger";
 
 export class HistoryService {
   private activeProvider: HistoryProvider | null = null;
@@ -15,8 +15,8 @@ export class HistoryService {
 
   constructor(
     private providers: Record<RepoProviderType, HistoryProvider>,
-    private configService: ConfigService
-  ) { }
+    private configService: ConfigService,
+  ) {}
 
   async init(): Promise<void> {
     await this.ensureProvider();
@@ -32,7 +32,11 @@ export class HistoryService {
     return await provider.getVersion(versionId, filePath);
   }
 
-  async getDiff(versionA: string, versionB: string, filePath: string): Promise<DiffHunk[]> {
+  async getDiff(
+    versionA: string,
+    versionB: string,
+    filePath: string,
+  ): Promise<DiffHunk[]> {
     const provider = await this.ensureProvider();
     return await provider.getDiff(versionA, versionB, filePath);
   }
@@ -42,12 +46,15 @@ export class HistoryService {
     if (!repoSettings) {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
-        'No repository configured',
-        null
+        "No repository configured",
+        null,
       );
     }
 
-    if (this.activeProvider && this.activeProviderType === repoSettings.provider) {
+    if (
+      this.activeProvider &&
+      this.activeProviderType === repoSettings.provider
+    ) {
       this.activeProvider.configure(repoSettings);
       return this.activeProvider;
     }
@@ -57,7 +64,7 @@ export class HistoryService {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
         `Unsupported history provider: ${repoSettings.provider}`,
-        null
+        null,
       );
     }
 
@@ -65,12 +72,18 @@ export class HistoryService {
     this.activeProvider = provider;
     this.activeProviderType = repoSettings.provider;
 
-    logger.debug('History provider configured', { provider: repoSettings.provider });
+    logger.debug("History provider configured", {
+      provider: repoSettings.provider,
+    });
 
     return provider;
   }
 
-  private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
+  private createError(
+    code: ApiErrorCode,
+    message: string,
+    details?: any,
+  ): ApiError {
     return {
       code,
       message,

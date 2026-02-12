@@ -1,4 +1,4 @@
-import type { FileTreeNode } from '../../../shared/types';
+import type { FileTreeNode } from "../../../shared/types";
 
 export interface FileTreeDialogsText {
   createFileTitle: string;

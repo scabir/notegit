@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -27,7 +27,7 @@ import {
   Snackbar,
   ToggleButtonGroup,
   ToggleButton,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Info as InfoIcon,
   Delete as DeleteIcon,
@@ -35,8 +35,8 @@ import {
   Check as CheckIcon,
   ContentCopy as ContentCopyIcon,
   FolderOpen as FolderOpenIcon,
-} from '@mui/icons-material';
-import { AboutDialog } from '../AboutDialog';
+} from "@mui/icons-material";
+import { AboutDialog } from "../AboutDialog";
 import type {
   /* FullConfig, */
   AppSettings,
@@ -45,12 +45,12 @@ import type {
   RepoProviderType,
   GitRepoSettings,
   S3RepoSettings,
-} from '../../../shared/types';
-import { AuthMethod, REPO_PROVIDERS } from '../../../shared/types';
-import { confirmProfileSwitch } from '../../utils/profileSwitch';
-import { SETTINGS_TEXT } from './constants';
-import { tabHeaderSx, alertSx } from './styles';
-import type { TabPanelProps, SettingsDialogProps } from './types';
+} from "../../../shared/types";
+import { AuthMethod, REPO_PROVIDERS } from "../../../shared/types";
+import { confirmProfileSwitch } from "../../utils/profileSwitch";
+import { SETTINGS_TEXT } from "./constants";
+import { tabHeaderSx, alertSx } from "./styles";
+import type { TabPanelProps, SettingsDialogProps } from "./types";
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -88,23 +88,26 @@ export function SettingsDialog({
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
   const [creatingProfile, setCreatingProfile] = useState(false);
-  const [newProfileName, setNewProfileName] = useState('');
-  const [newProfileProvider, setNewProfileProvider] = useState<RepoProviderType>(REPO_PROVIDERS.git);
-  const [newProfileRemoteUrl, setNewProfileRemoteUrl] = useState('');
-  const [newProfileBranch, setNewProfileBranch] = useState('main');
-  const [newProfilePat, setNewProfilePat] = useState('');
-  const [newProfileBucket, setNewProfileBucket] = useState('');
-  const [newProfileRegion, setNewProfileRegion] = useState('');
-  const [newProfilePrefix, setNewProfilePrefix] = useState('');
-  const [newProfileAccessKeyId, setNewProfileAccessKeyId] = useState('');
-  const [newProfileSecretAccessKey, setNewProfileSecretAccessKey] = useState('');
-  const [newProfileSessionToken, setNewProfileSessionToken] = useState('');
+  const [newProfileName, setNewProfileName] = useState("");
+  const [newProfileProvider, setNewProfileProvider] =
+    useState<RepoProviderType>(REPO_PROVIDERS.git);
+  const [newProfileRemoteUrl, setNewProfileRemoteUrl] = useState("");
+  const [newProfileBranch, setNewProfileBranch] = useState("main");
+  const [newProfilePat, setNewProfilePat] = useState("");
+  const [newProfileBucket, setNewProfileBucket] = useState("");
+  const [newProfileRegion, setNewProfileRegion] = useState("");
+  const [newProfilePrefix, setNewProfilePrefix] = useState("");
+  const [newProfileAccessKeyId, setNewProfileAccessKeyId] = useState("");
+  const [newProfileSecretAccessKey, setNewProfileSecretAccessKey] =
+    useState("");
+  const [newProfileSessionToken, setNewProfileSessionToken] = useState("");
   const [profileCreating, setProfileCreating] = useState(false);
 
-  const [logsFolder, setLogsFolder] = useState<string>('');
+  const [logsFolder, setLogsFolder] = useState<string>("");
   const [loadingLogsFolder, setLoadingLogsFolder] = useState(false);
   const [copySnackbarOpen, setCopySnackbarOpen] = useState(false);
-  const repoProvider: RepoProviderType = (repoSettings.provider as RepoProviderType) || REPO_PROVIDERS.git;
+  const repoProvider: RepoProviderType =
+    (repoSettings.provider as RepoProviderType) || REPO_PROVIDERS.git;
   const gitRepoSettings = repoSettings as Partial<GitRepoSettings>;
   const s3RepoSettings = repoSettings as Partial<S3RepoSettings>;
 
@@ -128,10 +131,10 @@ export function SettingsDialog({
         setProfiles(response.data.profiles || []);
         setActiveProfileId(response.data.activeProfileId || null);
       } else {
-        setError(response.error?.message || 'Failed to load configuration');
+        setError(response.error?.message || "Failed to load configuration");
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to load configuration');
+      setError(err.message || "Failed to load configuration");
     } finally {
       setLoading(false);
     }
@@ -145,10 +148,11 @@ export function SettingsDialog({
     setSuccess(null);
 
     try {
-      const response = await window.notegitApi.config.updateAppSettings(appSettings);
+      const response =
+        await window.notegitApi.config.updateAppSettings(appSettings);
 
       if (response.ok) {
-        setSuccess('App settings saved successfully');
+        setSuccess("App settings saved successfully");
         if (onThemeChange) {
           onThemeChange(appSettings.theme);
         }
@@ -156,10 +160,10 @@ export function SettingsDialog({
           onAppSettingsSaved(appSettings);
         }
       } else {
-        setError(response.error?.message || 'Failed to save app settings');
+        setError(response.error?.message || "Failed to save app settings");
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to save app settings');
+      setError(err.message || "Failed to save app settings");
     } finally {
       setLoading(false);
     }
@@ -168,7 +172,7 @@ export function SettingsDialog({
   const handleSaveRepoSettings = async () => {
     if (repoProvider === REPO_PROVIDERS.local) {
       setError(null);
-      setSuccess('Local repositories do not have sync settings');
+      setSuccess("Local repositories do not have sync settings");
       return;
     }
 
@@ -182,7 +186,7 @@ export function SettingsDialog({
       if (repoProvider === REPO_PROVIDERS.git) {
         const gitSettings = repoSettings as Partial<GitRepoSettings>;
         if (!gitSettings.remoteUrl || !gitSettings.branch || !gitSettings.pat) {
-          setError('Please fill in all required Git fields');
+          setError("Please fill in all required Git fields");
           setLoading(false);
           return;
         }
@@ -191,14 +195,19 @@ export function SettingsDialog({
           provider: REPO_PROVIDERS.git,
           remoteUrl: gitSettings.remoteUrl,
           branch: gitSettings.branch,
-          localPath: gitSettings.localPath || '',
+          localPath: gitSettings.localPath || "",
           pat: gitSettings.pat,
           authMethod: gitSettings.authMethod ?? AuthMethod.PAT,
         };
       } else {
         const s3Settings = repoSettings as Partial<S3RepoSettings>;
-        if (!s3Settings.bucket || !s3Settings.region || !s3Settings.accessKeyId || !s3Settings.secretAccessKey) {
-          setError('Please fill in all required S3 fields');
+        if (
+          !s3Settings.bucket ||
+          !s3Settings.region ||
+          !s3Settings.accessKeyId ||
+          !s3Settings.secretAccessKey
+        ) {
+          setError("Please fill in all required S3 fields");
           setLoading(false);
           return;
         }
@@ -208,22 +217,25 @@ export function SettingsDialog({
           bucket: s3Settings.bucket,
           region: s3Settings.region,
           prefix: s3Settings.prefix,
-          localPath: s3Settings.localPath || '',
+          localPath: s3Settings.localPath || "",
           accessKeyId: s3Settings.accessKeyId,
           secretAccessKey: s3Settings.secretAccessKey,
           sessionToken: s3Settings.sessionToken,
         };
       }
 
-      const response = await window.notegitApi.config.updateRepoSettings(settingsToSave);
+      const response =
+        await window.notegitApi.config.updateRepoSettings(settingsToSave);
 
       if (response.ok) {
-        setSuccess('Repository settings saved successfully');
+        setSuccess("Repository settings saved successfully");
       } else {
-        setError(response.error?.message || 'Failed to save repository settings');
+        setError(
+          response.error?.message || "Failed to save repository settings",
+        );
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to save repository settings');
+      setError(err.message || "Failed to save repository settings");
     } finally {
       setLoading(false);
     }
@@ -235,9 +247,9 @@ export function SettingsDialog({
     setSuccess(null);
   };
 
-  const handleExportNote = async (format: 'md' | 'txt') => {
+  const handleExportNote = async (format: "md" | "txt") => {
     if (!currentNoteContent || !currentNotePath) {
-      setError('No note is currently open');
+      setError("No note is currently open");
       return;
     }
 
@@ -249,16 +261,16 @@ export function SettingsDialog({
       const response = await window.notegitApi.export.note(
         currentNotePath,
         currentNoteContent,
-        format
+        format,
       );
 
       if (response.ok && response.data) {
         setSuccess(`Note exported successfully to ${response.data}`);
-      } else if (response.error?.message !== 'Export cancelled') {
-        setError(response.error?.message || 'Failed to export note');
+      } else if (response.error?.message !== "Export cancelled") {
+        setError(response.error?.message || "Failed to export note");
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to export note');
+      setError(err.message || "Failed to export note");
     } finally {
       setExporting(false);
     }
@@ -274,17 +286,20 @@ export function SettingsDialog({
 
       if (response.ok && response.data) {
         setSuccess(`Repository exported successfully to ${response.data}`);
-      } else if (response.error?.message !== 'Export cancelled') {
-        setError(response.error?.message || 'Failed to export repository');
+      } else if (response.error?.message !== "Export cancelled") {
+        setError(response.error?.message || "Failed to export repository");
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to export repository');
+      setError(err.message || "Failed to export repository");
     } finally {
       setExporting(false);
     }
   };
 
-  const handleSelectProfile = async (profileId: string, profileName: string) => {
+  const handleSelectProfile = async (
+    profileId: string,
+    profileName: string,
+  ) => {
     if (profileId === activeProfileId) {
       return;
     }
@@ -297,18 +312,19 @@ export function SettingsDialog({
     setError(null);
 
     try {
-      const response = await window.notegitApi.config.setActiveProfile(profileId);
+      const response =
+        await window.notegitApi.config.setActiveProfile(profileId);
 
       if (response.ok) {
-        setSuccess('Profile switched successfully. App will restart...');
+        setSuccess("Profile switched successfully. App will restart...");
         setTimeout(async () => {
           await window.notegitApi.config.restartApp();
         }, 1500);
       } else {
-        setError(response.error?.message || 'Failed to switch profile');
+        setError(response.error?.message || "Failed to switch profile");
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to switch profile');
+      setError(err.message || "Failed to switch profile");
     } finally {
       setLoading(false);
     }
@@ -316,18 +332,23 @@ export function SettingsDialog({
 
   const handleCreateProfile = async () => {
     if (!newProfileName.trim()) {
-      setError('Profile name is required');
+      setError("Profile name is required");
       return;
     }
 
     if (newProfileProvider === REPO_PROVIDERS.git) {
       if (!newProfileRemoteUrl || !newProfileBranch || !newProfilePat) {
-        setError('All Git repository fields are required');
+        setError("All Git repository fields are required");
         return;
       }
     } else if (newProfileProvider === REPO_PROVIDERS.s3) {
-      if (!newProfileBucket || !newProfileRegion || !newProfileAccessKeyId || !newProfileSecretAccessKey) {
-        setError('All S3 repository fields are required');
+      if (
+        !newProfileBucket ||
+        !newProfileRegion ||
+        !newProfileAccessKeyId ||
+        !newProfileSecretAccessKey
+      ) {
+        setError("All S3 repository fields are required");
         return;
       }
     }
@@ -339,58 +360,62 @@ export function SettingsDialog({
       const repoSettings: Partial<RepoSettings> =
         newProfileProvider === REPO_PROVIDERS.git
           ? {
-            provider: REPO_PROVIDERS.git,
-            remoteUrl: newProfileRemoteUrl,
-            branch: newProfileBranch,
-            pat: newProfilePat,
-            authMethod: AuthMethod.PAT,
-          }
+              provider: REPO_PROVIDERS.git,
+              remoteUrl: newProfileRemoteUrl,
+              branch: newProfileBranch,
+              pat: newProfilePat,
+              authMethod: AuthMethod.PAT,
+            }
           : newProfileProvider === REPO_PROVIDERS.s3
-          ? {
-            provider: REPO_PROVIDERS.s3,
-            bucket: newProfileBucket,
-            region: newProfileRegion,
-            prefix: newProfilePrefix,
-            accessKeyId: newProfileAccessKeyId,
-            secretAccessKey: newProfileSecretAccessKey,
-            sessionToken: newProfileSessionToken,
-          }
-          : {
-            provider: REPO_PROVIDERS.local,
-          };
+            ? {
+                provider: REPO_PROVIDERS.s3,
+                bucket: newProfileBucket,
+                region: newProfileRegion,
+                prefix: newProfilePrefix,
+                accessKeyId: newProfileAccessKeyId,
+                secretAccessKey: newProfileSecretAccessKey,
+                sessionToken: newProfileSessionToken,
+              }
+            : {
+                provider: REPO_PROVIDERS.local,
+              };
 
       const response = await window.notegitApi.config.createProfile(
         newProfileName.trim(),
-        repoSettings
+        repoSettings,
       );
 
       if (response.ok && response.data) {
-        setSuccess('Profile created successfully');
+        setSuccess("Profile created successfully");
         setProfiles([...profiles, response.data]);
         setCreatingProfile(false);
-        setNewProfileName('');
+        setNewProfileName("");
         setNewProfileProvider(REPO_PROVIDERS.git);
-        setNewProfileRemoteUrl('');
-        setNewProfileBranch('main');
-        setNewProfilePat('');
-        setNewProfileBucket('');
-        setNewProfileRegion('');
-        setNewProfilePrefix('');
-        setNewProfileAccessKeyId('');
-        setNewProfileSecretAccessKey('');
-        setNewProfileSessionToken('');
+        setNewProfileRemoteUrl("");
+        setNewProfileBranch("main");
+        setNewProfilePat("");
+        setNewProfileBucket("");
+        setNewProfileRegion("");
+        setNewProfilePrefix("");
+        setNewProfileAccessKeyId("");
+        setNewProfileSecretAccessKey("");
+        setNewProfileSessionToken("");
       } else {
-        setError(response.error?.message || 'Failed to create profile');
+        setError(response.error?.message || "Failed to create profile");
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to create profile');
+      setError(err.message || "Failed to create profile");
     } finally {
       setProfileCreating(false);
     }
   };
 
   const handleDeleteProfile = async (profileId: string) => {
-    if (!confirm('Are you sure you want to delete this profile? This will not delete the remote repository.')) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this profile? This will not delete the remote repository.",
+      )
+    ) {
       return;
     }
 
@@ -401,16 +426,16 @@ export function SettingsDialog({
       const response = await window.notegitApi.config.deleteProfile(profileId);
 
       if (response.ok) {
-        setSuccess('Profile deleted successfully');
-        setProfiles(profiles.filter(p => p.id !== profileId));
+        setSuccess("Profile deleted successfully");
+        setProfiles(profiles.filter((p) => p.id !== profileId));
         if (activeProfileId === profileId) {
           setActiveProfileId(null);
         }
       } else {
-        setError(response.error?.message || 'Failed to delete profile');
+        setError(response.error?.message || "Failed to delete profile");
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to delete profile');
+      setError(err.message || "Failed to delete profile");
     } finally {
       setLoading(false);
     }
@@ -426,10 +451,10 @@ export function SettingsDialog({
       if (response.ok && response.data) {
         setLogsFolder(response.data);
       } else {
-        setError(response.error?.message || 'Failed to load logs folder');
+        setError(response.error?.message || "Failed to load logs folder");
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to load logs folder');
+      setError(err.message || "Failed to load logs folder");
     } finally {
       setLoadingLogsFolder(false);
     }
@@ -456,7 +481,7 @@ export function SettingsDialog({
 
   const handleOpenRepoFolder = async () => {
     if (repoSettings.localPath) {
-      const { shell } = window.require('electron');
+      const { shell } = window.require("electron");
       await shell.openPath(repoSettings.localPath);
     }
   };
@@ -465,18 +490,20 @@ export function SettingsDialog({
     if (!logsFolder) {
       return;
     }
-    const { shell } = window.require('electron');
+    const { shell } = window.require("electron");
     await shell.openPath(logsFolder);
   };
 
   const getProfileSecondary = (profile: Profile): string => {
     if (profile.repoSettings.provider === REPO_PROVIDERS.s3) {
-      const prefix = profile.repoSettings.prefix ? `/${profile.repoSettings.prefix}` : '';
+      const prefix = profile.repoSettings.prefix
+        ? `/${profile.repoSettings.prefix}`
+        : "";
       return `s3://${profile.repoSettings.bucket}${prefix}`;
     }
 
     if (profile.repoSettings.provider === REPO_PROVIDERS.local) {
-      return profile.repoSettings.localPath || 'Local repository';
+      return profile.repoSettings.localPath || "Local repository";
     }
 
     return profile.repoSettings.remoteUrl;
@@ -501,21 +528,28 @@ export function SettingsDialog({
         )}
 
         {success && (
-          <Alert severity="success" sx={alertSx} onClose={() => setSuccess(null)}>
+          <Alert
+            severity="success"
+            sx={alertSx}
+            onClose={() => setSuccess(null)}
+          >
             {success}
           </Alert>
         )}
 
         <TabPanel value={tabValue} index={0}>
           {appSettings && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <FormControl fullWidth>
                 <InputLabel>Theme</InputLabel>
                 <Select
                   value={appSettings.theme}
                   label="Theme"
                   onChange={(e) =>
-                    setAppSettings({ ...appSettings, theme: e.target.value as any })
+                    setAppSettings({
+                      ...appSettings,
+                      theme: e.target.value as any,
+                    })
                   }
                 >
                   <MenuItem value="light">Light</MenuItem>
@@ -529,7 +563,10 @@ export function SettingsDialog({
                   <Switch
                     checked={appSettings.autoSaveEnabled}
                     onChange={(e) =>
-                      setAppSettings({ ...appSettings, autoSaveEnabled: e.target.checked })
+                      setAppSettings({
+                        ...appSettings,
+                        autoSaveEnabled: e.target.checked,
+                      })
                     }
                   />
                 }
@@ -670,10 +707,16 @@ export function SettingsDialog({
         </TabPanel>
 
         <TabPanel value={tabValue} index={1}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               label="Repository Type"
-              value={repoProvider === REPO_PROVIDERS.git ? 'Git' : repoProvider === REPO_PROVIDERS.s3 ? 'S3' : 'Local'}
+              value={
+                repoProvider === REPO_PROVIDERS.git
+                  ? "Git"
+                  : repoProvider === REPO_PROVIDERS.s3
+                    ? "S3"
+                    : "Local"
+              }
               fullWidth
               InputProps={{
                 readOnly: true,
@@ -685,7 +728,7 @@ export function SettingsDialog({
               <>
                 <TextField
                   label="Remote URL"
-                  value={gitRepoSettings.remoteUrl || ''}
+                  value={gitRepoSettings.remoteUrl || ""}
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
@@ -700,7 +743,7 @@ export function SettingsDialog({
 
                 <TextField
                   label="Branch"
-                  value={gitRepoSettings.branch || ''}
+                  value={gitRepoSettings.branch || ""}
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
@@ -716,7 +759,7 @@ export function SettingsDialog({
                 <TextField
                   label="Personal Access Token"
                   type="password"
-                  value={gitRepoSettings.pat || ''}
+                  value={gitRepoSettings.pat || ""}
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
@@ -731,7 +774,7 @@ export function SettingsDialog({
                 />
 
                 <Alert severity="info">
-                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                     How to create a GitHub Personal Access Token:
                   </Typography>
                   <Typography variant="body2" component="div" sx={{ mt: 1 }}>
@@ -751,7 +794,8 @@ export function SettingsDialog({
                     <br />
                     8. CLick on "Add Permission"
                     <br />
-                    9. Select "Ccontent" amd make sure you gave "Reand and Write" permissions
+                    9. Select "Ccontent" amd make sure you gave "Reand and
+                    Write" permissions
                     <br />
                     10. Hit Generate Token
                     <br />
@@ -763,7 +807,7 @@ export function SettingsDialog({
               <>
                 <TextField
                   label="Bucket"
-                  value={s3RepoSettings.bucket || ''}
+                  value={s3RepoSettings.bucket || ""}
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
@@ -778,7 +822,7 @@ export function SettingsDialog({
 
                 <TextField
                   label="Region"
-                  value={s3RepoSettings.region || ''}
+                  value={s3RepoSettings.region || ""}
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
@@ -793,7 +837,7 @@ export function SettingsDialog({
 
                 <TextField
                   label="Prefix (optional)"
-                  value={s3RepoSettings.prefix || ''}
+                  value={s3RepoSettings.prefix || ""}
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
@@ -807,7 +851,7 @@ export function SettingsDialog({
 
                 <TextField
                   label="Access Key ID"
-                  value={s3RepoSettings.accessKeyId || ''}
+                  value={s3RepoSettings.accessKeyId || ""}
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
@@ -822,7 +866,7 @@ export function SettingsDialog({
                 <TextField
                   label="Secret Access Key"
                   type="password"
-                  value={s3RepoSettings.secretAccessKey || ''}
+                  value={s3RepoSettings.secretAccessKey || ""}
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
@@ -838,7 +882,7 @@ export function SettingsDialog({
                 <TextField
                   label="Session Token (optional)"
                   type="password"
-                  value={s3RepoSettings.sessionToken || ''}
+                  value={s3RepoSettings.sessionToken || ""}
                   onChange={(e) =>
                     setRepoSettings({
                       ...repoSettings,
@@ -851,14 +895,16 @@ export function SettingsDialog({
 
                 <Alert severity="info">
                   <Typography variant="body2">
-                    The S3 bucket must have versioning enabled to support history.
+                    The S3 bucket must have versioning enabled to support
+                    history.
                   </Typography>
                 </Alert>
               </>
             ) : (
               <Alert severity="info">
                 <Typography variant="body2">
-                  Local repositories are stored on this device only and do not sync.
+                  Local repositories are stored on this device only and do not
+                  sync.
                 </Typography>
               </Alert>
             )}
@@ -880,7 +926,8 @@ export function SettingsDialog({
                   Local Repository Path
                 </Typography>
                 <Alert severity="info" sx={{ mb: 2 }}>
-                  This is where your repository is stored locally on your computer.
+                  This is where your repository is stored locally on your
+                  computer.
                 </Alert>
                 <TextField
                   label="Local Path"
@@ -891,7 +938,7 @@ export function SettingsDialog({
                   }}
                   variant="filled"
                 />
-                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
                   <Button
                     variant="outlined"
                     startIcon={<ContentCopyIcon />}
@@ -913,20 +960,25 @@ export function SettingsDialog({
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Typography variant="h6">Profile Management</Typography>
             <Alert severity="info">
-              Profiles allow you to work with multiple repositories. Only one profile is active at a time.
-              When creating a new profile, the app will prepare the repository. Switching profiles will restart the app.
+              Profiles allow you to work with multiple repositories. Only one
+              profile is active at a time. When creating a new profile, the app
+              will prepare the repository. Switching profiles will restart the
+              app.
             </Alert>
 
-            <Typography variant="subtitle1" sx={{ mt: 2 }}>Active Profile</Typography>
+            <Typography variant="subtitle1" sx={{ mt: 2 }}>
+              Active Profile
+            </Typography>
             <List>
               {profiles.map((profile) => (
                 <ListItem
                   key={profile.id}
                   secondaryAction={
-                    profiles.length > 1 && profile.id !== activeProfileId && (
+                    profiles.length > 1 &&
+                    profile.id !== activeProfileId && (
                       <IconButton
                         edge="end"
                         aria-label="delete"
@@ -941,15 +993,24 @@ export function SettingsDialog({
                 >
                   <ListItemButton
                     selected={profile.id === activeProfileId}
-                    onClick={() => handleSelectProfile(profile.id, profile.name)}
+                    onClick={() =>
+                      handleSelectProfile(profile.id, profile.name)
+                    }
                     disabled={loading || profile.id === activeProfileId}
                   >
                     <ListItemText
                       primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
                           {profile.name}
                           {profile.id === activeProfileId && (
-                            <Chip label="Active" size="small" color="primary" icon={<CheckIcon />} />
+                            <Chip
+                              label="Active"
+                              size="small"
+                              color="primary"
+                              icon={<CheckIcon />}
+                            />
                           )}
                         </Box>
                       }
@@ -971,32 +1032,49 @@ export function SettingsDialog({
                 Create New Profile
               </Button>
             ) : (
-              <Box sx={{ mt: 2, p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
-                <Typography variant="subtitle2" sx={{ mb: 2 }}>New Profile</Typography>
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  border: 1,
+                  borderColor: "divider",
+                  borderRadius: 1,
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                  New Profile
+                </Typography>
                 {profileCreating && (
                   <Alert severity="info" sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <CircularProgress size={20} />
                       <Typography variant="body2">
-                        Creating profile and preparing repository... This may take a few moments.
+                        Creating profile and preparing repository... This may
+                        take a few moments.
                       </Typography>
                     </Box>
                   </Alert>
                 )}
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Typography variant="body2" color="text.secondary">
                       Repository type
                     </Typography>
                     <ToggleButtonGroup
                       exclusive
                       value={newProfileProvider}
-                      onChange={(_, value) => value && setNewProfileProvider(value)}
+                      onChange={(_, value) =>
+                        value && setNewProfileProvider(value)
+                      }
                       size="small"
                     >
-                      <ToggleButton value={REPO_PROVIDERS.git}>Git</ToggleButton>
+                      <ToggleButton value={REPO_PROVIDERS.git}>
+                        Git
+                      </ToggleButton>
                       <ToggleButton value={REPO_PROVIDERS.s3}>S3</ToggleButton>
-                      <ToggleButton value={REPO_PROVIDERS.local}>Local</ToggleButton>
+                      <ToggleButton value={REPO_PROVIDERS.local}>
+                        Local
+                      </ToggleButton>
                     </ToggleButtonGroup>
                   </Box>
                   <TextField
@@ -1073,7 +1151,9 @@ export function SettingsDialog({
                       <TextField
                         label="Access Key ID"
                         value={newProfileAccessKeyId}
-                        onChange={(e) => setNewProfileAccessKeyId(e.target.value)}
+                        onChange={(e) =>
+                          setNewProfileAccessKeyId(e.target.value)
+                        }
                         fullWidth
                         required
                         disabled={profileCreating}
@@ -1082,7 +1162,9 @@ export function SettingsDialog({
                         label="Secret Access Key"
                         type="password"
                         value={newProfileSecretAccessKey}
-                        onChange={(e) => setNewProfileSecretAccessKey(e.target.value)}
+                        onChange={(e) =>
+                          setNewProfileSecretAccessKey(e.target.value)
+                        }
                         fullWidth
                         required
                         disabled={profileCreating}
@@ -1092,39 +1174,42 @@ export function SettingsDialog({
                         label="Session Token (optional)"
                         type="password"
                         value={newProfileSessionToken}
-                        onChange={(e) => setNewProfileSessionToken(e.target.value)}
+                        onChange={(e) =>
+                          setNewProfileSessionToken(e.target.value)
+                        }
                         fullWidth
                         disabled={profileCreating}
                       />
                     </>
                   ) : (
                     <Alert severity="info">
-                      Local repositories are stored on this device only and do not sync.
+                      Local repositories are stored on this device only and do
+                      not sync.
                     </Alert>
                   )}
-                  <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Box sx={{ display: "flex", gap: 1 }}>
                     <Button
                       variant="contained"
                       onClick={handleCreateProfile}
                       disabled={profileCreating}
                     >
-                      {profileCreating ? 'Creating...' : 'Create Profile'}
+                      {profileCreating ? "Creating..." : "Create Profile"}
                     </Button>
                     <Button
                       variant="outlined"
                       onClick={() => {
                         setCreatingProfile(false);
-                        setNewProfileName('');
+                        setNewProfileName("");
                         setNewProfileProvider(REPO_PROVIDERS.git);
-                        setNewProfileRemoteUrl('');
-                        setNewProfileBranch('main');
-                        setNewProfilePat('');
-                        setNewProfileBucket('');
-                        setNewProfileRegion('');
-                        setNewProfilePrefix('');
-                        setNewProfileAccessKeyId('');
-                        setNewProfileSecretAccessKey('');
-                        setNewProfileSessionToken('');
+                        setNewProfileRemoteUrl("");
+                        setNewProfileBranch("main");
+                        setNewProfilePat("");
+                        setNewProfileBucket("");
+                        setNewProfileRegion("");
+                        setNewProfilePrefix("");
+                        setNewProfileAccessKeyId("");
+                        setNewProfileSecretAccessKey("");
+                        setNewProfileSessionToken("");
                       }}
                       disabled={profileCreating}
                     >
@@ -1138,15 +1223,16 @@ export function SettingsDialog({
         </TabPanel>
 
         <TabPanel value={tabValue} index={3}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
             <Typography variant="h6">Export Current Note</Typography>
             <Typography variant="body2" color="text.secondary">
-              Export the currently open note (including unsaved changes) as a standalone file.
+              Export the currently open note (including unsaved changes) as a
+              standalone file.
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{ display: "flex", gap: 2 }}>
               <Button
                 variant="contained"
-                onClick={() => handleExportNote('md')}
+                onClick={() => handleExportNote("md")}
                 disabled={exporting || !currentNoteContent}
                 fullWidth
               >
@@ -1154,7 +1240,7 @@ export function SettingsDialog({
               </Button>
               <Button
                 variant="outlined"
-                onClick={() => handleExportNote('txt')}
+                onClick={() => handleExportNote("txt")}
                 disabled={exporting || !currentNoteContent}
                 fullWidth
               >
@@ -1171,8 +1257,8 @@ export function SettingsDialog({
               Export Repository
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Export the entire repository as a ZIP archive for backup or sharing. This includes
-              all files and folders (excluding .git).
+              Export the entire repository as a ZIP archive for backup or
+              sharing. This includes all files and folders (excluding .git).
             </Typography>
             <Button
               variant="contained"
@@ -1180,26 +1266,27 @@ export function SettingsDialog({
               disabled={exporting}
               fullWidth
             >
-              {exporting ? 'Exporting...' : 'Export Repository as ZIP'}
+              {exporting ? "Exporting..." : "Export Repository as ZIP"}
             </Button>
 
             <Alert severity="info">
               <Typography variant="body2">
-                Export operations do not modify your repository or trigger any Git commands.
-                Your work remains safely in the repository.
+                Export operations do not modify your repository or trigger any
+                Git commands. Your work remains safely in the repository.
               </Typography>
             </Alert>
           </Box>
         </TabPanel>
 
         <TabPanel value={tabValue} index={4}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Typography variant="h6">Application Logs</Typography>
             <Alert severity="info">
-              Logs are stored locally by day and include Git/S3 operations, errors, and sync events.
+              Logs are stored locally by day and include Git/S3 operations,
+              errors, and sync events.
             </Alert>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <TextField
                 label="Logs Folder"
                 value={logsFolder}
@@ -1225,7 +1312,7 @@ export function SettingsDialog({
           </Box>
         </TabPanel>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between', px: 3 }}>
+      <DialogActions sx={{ justifyContent: "space-between", px: 3 }}>
         <Button
           onClick={() => setAboutDialogOpen(true)}
           startIcon={<InfoIcon />}
@@ -1248,7 +1335,7 @@ export function SettingsDialog({
         autoHideDuration={2000}
         onClose={() => setCopySnackbarOpen(false)}
         message="Copied to clipboard"
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
     </Dialog>
   );

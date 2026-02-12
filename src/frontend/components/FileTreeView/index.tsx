@@ -1,23 +1,26 @@
-import React from 'react';
-import { Box } from '@mui/material';
-import { Star as FavoriteIcon } from '@mui/icons-material';
-import { FILE_TREE_TEXT } from './constants';
-import { rootSx } from './styles';
-import type { FileTreeViewProps } from './types';
-import { FileTreeToolbar } from '../FileTreeToolbar';
-import { FavoritesBar } from '../FileTreeFavoritesBar';
-import { FileTreeContextMenus } from '../FileTreeContextMenus';
-import type { ContextMenuItem } from '../FileTreeContextMenus/types';
-import { FileTreeDialogs } from '../FileTreeDialogs';
-import { FileTreeMain } from '../FileTreeMain';
-import { useFavorites } from './hooks/useFavorites';
-import { useTreeContextMenu } from './hooks/useTreeContextMenu';
-import { useFileTreeShortcuts } from './hooks/useFileTreeShortcuts';
-import { useDialogState } from './hooks/useDialogState';
-import { useTreeSelectionState } from './hooks/useTreeSelectionState';
-import { useCreationMetadata } from './hooks/useCreationMetadata';
-import { useFileTreeActions } from './hooks/useFileTreeActions';
-import { buildEmptyContextMenuItems, buildNodeContextMenuItems } from './contextMenuItems';
+import React from "react";
+import { Box } from "@mui/material";
+import { Star as FavoriteIcon } from "@mui/icons-material";
+import { FILE_TREE_TEXT } from "./constants";
+import { rootSx } from "./styles";
+import type { FileTreeViewProps } from "./types";
+import { FileTreeToolbar } from "../FileTreeToolbar";
+import { FavoritesBar } from "../FileTreeFavoritesBar";
+import { FileTreeContextMenus } from "../FileTreeContextMenus";
+import type { ContextMenuItem } from "../FileTreeContextMenus/types";
+import { FileTreeDialogs } from "../FileTreeDialogs";
+import { FileTreeMain } from "../FileTreeMain";
+import { useFavorites } from "./hooks/useFavorites";
+import { useTreeContextMenu } from "./hooks/useTreeContextMenu";
+import { useFileTreeShortcuts } from "./hooks/useFileTreeShortcuts";
+import { useDialogState } from "./hooks/useDialogState";
+import { useTreeSelectionState } from "./hooks/useTreeSelectionState";
+import { useCreationMetadata } from "./hooks/useCreationMetadata";
+import { useFileTreeActions } from "./hooks/useFileTreeActions";
+import {
+  buildEmptyContextMenuItems,
+  buildNodeContextMenuItems,
+} from "./contextMenuItems";
 
 export function FileTreeView({
   tree,
@@ -38,7 +41,8 @@ export function FileTreeView({
   isCollapsed,
   onToggleCollapse,
 }: FileTreeViewProps) {
-  const [internalIsTreeCollapsed, setInternalIsTreeCollapsed] = React.useState(false);
+  const [internalIsTreeCollapsed, setInternalIsTreeCollapsed] =
+    React.useState(false);
   const isTreeCollapsed = isCollapsed ?? internalIsTreeCollapsed;
   const handleToggleCollapse = React.useCallback(() => {
     if (onToggleCollapse) {
@@ -155,33 +159,43 @@ export function FileTreeView({
     onContextMenuOpen: handleCloseFavoriteMenu,
   });
 
-  useFileTreeShortcuts(treeContainerRef, {
-    openFileDialog: openCreateFileDialog,
-    openFolderDialog: openCreateFolderDialog,
-    handleDelete,
-    handleImportFile,
-    handleOpenRenameDialog,
-    handleOpenMoveDialog,
-    handleToggleFavorite: () => toggleFavorite(),
-    handleCollapseAll,
-    handleDuplicate:
-      onDuplicate && selectedNodeForActions && selectedNodeForActions.type === 'file'
-        ? () => onDuplicate(selectedNodeForActions.path)
-        : undefined,
-  }, !isTreeCollapsed);
+  useFileTreeShortcuts(
+    treeContainerRef,
+    {
+      openFileDialog: openCreateFileDialog,
+      openFolderDialog: openCreateFolderDialog,
+      handleDelete,
+      handleImportFile,
+      handleOpenRenameDialog,
+      handleOpenMoveDialog,
+      handleToggleFavorite: () => toggleFavorite(),
+      handleCollapseAll,
+      handleDuplicate:
+        onDuplicate &&
+        selectedNodeForActions &&
+        selectedNodeForActions.type === "file"
+          ? () => onDuplicate(selectedNodeForActions.path)
+          : undefined,
+    },
+    !isTreeCollapsed,
+  );
 
   const treeContextMenuNode = treeContextMenuState?.node || null;
-  const { contextNodeIsFavorite, creationLocationText, fileHelperText, selectedNodeId } =
-    useCreationMetadata({
-      treeContextMenuNode,
-      favoriteNodes,
-      selectedNodeForActions,
-      selectedFile,
-      newItemName,
-      createLocationRoot: FILE_TREE_TEXT.createLocationRoot,
-      createLocationPrefix: FILE_TREE_TEXT.createLocationPrefix,
-      fileExtensionHint: FILE_TREE_TEXT.fileExtensionHint,
-    });
+  const {
+    contextNodeIsFavorite,
+    creationLocationText,
+    fileHelperText,
+    selectedNodeId,
+  } = useCreationMetadata({
+    treeContextMenuNode,
+    favoriteNodes,
+    selectedNodeForActions,
+    selectedFile,
+    newItemName,
+    createLocationRoot: FILE_TREE_TEXT.createLocationRoot,
+    createLocationPrefix: FILE_TREE_TEXT.createLocationPrefix,
+    fileExtensionHint: FILE_TREE_TEXT.fileExtensionHint,
+  });
 
   const emptyContextMenuItems: ContextMenuItem[] = buildEmptyContextMenuItems({
     newFileLabel: FILE_TREE_TEXT.newFile,

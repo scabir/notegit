@@ -1,11 +1,11 @@
-import React from 'react';
-import { Box, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
+import React from "react";
+import { Box, IconButton, Toolbar, Tooltip, Typography } from "@mui/material";
 import {
   ArrowBack as BackIcon,
   ArrowForward as ForwardIcon,
   Menu as MenuIcon,
-} from '@mui/icons-material';
-import { IMAGE_VIEWER_TEXT } from './constants';
+} from "@mui/icons-material";
+import { IMAGE_VIEWER_TEXT } from "./constants";
 import {
   emptyStateSx,
   filePathSx,
@@ -14,28 +14,33 @@ import {
   rootSx,
   toolbarSx,
   treeControlsRowSx,
-} from './styles';
-import type { ImageViewerProps } from './types';
+} from "./styles";
+import type { ImageViewerProps } from "./types";
 
-const toFileUrl = (repoPath: string | null, filePath: string | undefined): string => {
+const toFileUrl = (
+  repoPath: string | null,
+  filePath: string | undefined,
+): string => {
   if (!repoPath || !filePath) {
-    return '';
+    return "";
   }
-  const normalizedRepoPath = repoPath.replace(/\\/g, '/').replace(/\/+$/, '');
-  const normalizedFilePath = filePath.replace(/\\/g, '/').replace(/^\/+/, '');
-  const hasLeadingSlash = normalizedRepoPath.startsWith('/');
-  const rootPath = hasLeadingSlash ? normalizedRepoPath : `/${normalizedRepoPath}`;
+  const normalizedRepoPath = repoPath.replace(/\\/g, "/").replace(/\/+$/, "");
+  const normalizedFilePath = filePath.replace(/\\/g, "/").replace(/^\/+/, "");
+  const hasLeadingSlash = normalizedRepoPath.startsWith("/");
+  const rootPath = hasLeadingSlash
+    ? normalizedRepoPath
+    : `/${normalizedRepoPath}`;
   const rootUrl = new URL(`file://${rootPath}/`);
   return new URL(normalizedFilePath, rootUrl).toString();
 };
 
-export function ImageViewer({ file, repoPath, treePanelControls }: ImageViewerProps) {
+export function ImageViewer({
+  file,
+  repoPath,
+  treePanelControls,
+}: ImageViewerProps) {
   if (!file) {
-    return (
-      <Box sx={emptyStateSx}>
-        {IMAGE_VIEWER_TEXT.emptyState}
-      </Box>
-    );
+    return <Box sx={emptyStateSx}>{IMAGE_VIEWER_TEXT.emptyState}</Box>;
   }
 
   const src = toFileUrl(repoPath, file.path);
@@ -91,4 +96,3 @@ export function ImageViewer({ file, repoPath, treePanelControls }: ImageViewerPr
     </Box>
   );
 }
-

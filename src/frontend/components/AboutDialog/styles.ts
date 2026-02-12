@@ -1,8 +1,8 @@
-import type { SxProps, Theme } from '@mui/material/styles';
+import type { SxProps, Theme } from "@mui/material/styles";
 
 export const dialogTitleSx: SxProps<Theme> = {
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
   gap: 1,
 };
 
@@ -12,20 +12,20 @@ export const sectionSx: SxProps<Theme> = { mb: 2 };
 export const featureListSx: SxProps<Theme> = { mt: 1, pl: 2 };
 
 export const linksListSx: SxProps<Theme> = {
-  display: 'flex',
-  flexDirection: 'column',
+  display: "flex",
+  flexDirection: "column",
   gap: 1,
 };
 
 export const linkRowSx: SxProps<Theme> = {
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
   gap: 0.5,
 };
 
 export const techStackListSx: SxProps<Theme> = {
-  display: 'flex',
-  flexWrap: 'wrap',
+  display: "flex",
+  flexWrap: "wrap",
   gap: 1,
   mt: 1,
 };
@@ -33,9 +33,9 @@ export const techStackListSx: SxProps<Theme> = {
 export const techChipSx: SxProps<Theme> = {
   px: 1,
   py: 0.5,
-  bgcolor: 'action.hover',
+  bgcolor: "action.hover",
   borderRadius: 1,
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
   gap: 0.5,
 };

@@ -1,7 +1,21 @@
-import React from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Box, Divider, Link } from '@mui/material';
-import { Info as InfoIcon, GitHub as GitHubIcon, Language as WebIcon } from '@mui/icons-material';
-import { APP_INFO, FEATURE_LIST, TECH_STACK } from './constants';
+import React from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Typography,
+  Box,
+  Divider,
+  Link,
+} from "@mui/material";
+import {
+  Info as InfoIcon,
+  GitHub as GitHubIcon,
+  Language as WebIcon,
+} from "@mui/icons-material";
+import { APP_INFO, FEATURE_LIST, TECH_STACK } from "./constants";
 import {
   dialogTitleSx,
   introSectionSx,
@@ -11,13 +25,14 @@ import {
   linkRowSx,
   techStackListSx,
   techChipSx,
-} from './styles';
-import type { AboutDialogProps } from './types';
+} from "./styles";
+import type { AboutDialogProps } from "./types";
 
 export function AboutDialog({ open, onClose }: AboutDialogProps) {
   const YEAR = new Date().getFullYear();
 
-  const { name, version, description, author, githubUrl, websiteUrl, license } = APP_INFO;
+  const { name, version, description, author, githubUrl, websiteUrl, license } =
+    APP_INFO;
   const hasLinks = githubUrl || websiteUrl;
 
   return (

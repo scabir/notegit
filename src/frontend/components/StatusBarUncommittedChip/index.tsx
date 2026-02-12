@@ -1,8 +1,8 @@
-import React from 'react';
-import { Chip } from '@mui/material';
-import { STATUS_BAR_UNCOMMITTED_CHIP } from './constants';
-import { statusChipSx } from './styles';
-import type { StatusBarUncommittedChipProps } from './types';
+import React from "react";
+import { Chip } from "@mui/material";
+import { STATUS_BAR_UNCOMMITTED_CHIP } from "./constants";
+import { statusChipSx } from "./styles";
+import type { StatusBarUncommittedChipProps } from "./types";
 
 export function StatusBarUncommittedChip({
   status,

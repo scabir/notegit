@@ -1,7 +1,7 @@
-import { registerConfigHandlers } from '../../../backend/handlers/configHandlers';
-import { REPO_PROVIDERS } from '../../../shared/types';
+import { registerConfigHandlers } from "../../../backend/handlers/configHandlers";
+import { REPO_PROVIDERS } from "../../../shared/types";
 
-describe('configHandlers', () => {
+describe("configHandlers", () => {
   const createIpcMain = () => {
     const handlers: Record<string, (...args: any[]) => any> = {};
     const ipcMain = {
@@ -13,7 +13,7 @@ describe('configHandlers', () => {
     return { ipcMain, handlers };
   };
 
-  it('refreshes auto sync settings after app settings update', async () => {
+  it("refreshes auto sync settings after app settings update", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
       updateAppSettings: jest.fn().mockResolvedValue(undefined),
@@ -25,7 +25,7 @@ describe('configHandlers', () => {
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:updateAppSettings'](null, {
+    const response = await handlers["config:updateAppSettings"](null, {
       s3AutoSyncEnabled: true,
       s3AutoSyncIntervalSec: 20,
     });
@@ -35,19 +35,21 @@ describe('configHandlers', () => {
     expect(repoService.refreshAutoSyncSettings).toHaveBeenCalled();
   });
 
-  it('returns ok even if auto sync refresh fails', async () => {
+  it("returns ok even if auto sync refresh fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
       updateAppSettings: jest.fn().mockResolvedValue(undefined),
     } as any;
     const repoService = {
-      refreshAutoSyncSettings: jest.fn().mockRejectedValue(new Error('offline')),
+      refreshAutoSyncSettings: jest
+        .fn()
+        .mockRejectedValue(new Error("offline")),
     } as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:updateAppSettings'](null, {
+    const response = await handlers["config:updateAppSettings"](null, {
       s3AutoSyncEnabled: false,
     });
 
@@ -56,7 +58,7 @@ describe('configHandlers', () => {
     expect(repoService.refreshAutoSyncSettings).toHaveBeenCalled();
   });
 
-  it('returns git installation status when checkGitInstalled succeeds', async () => {
+  it("returns git installation status when checkGitInstalled succeeds", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {} as any;
     const repoService = {} as any;
@@ -66,54 +68,56 @@ describe('configHandlers', () => {
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:checkGitInstalled'](null);
+    const response = await handlers["config:checkGitInstalled"](null);
 
     expect(response.ok).toBe(true);
     expect(response.data).toBe(true);
     expect(gitAdapter.checkGitInstalled).toHaveBeenCalled();
   });
 
-  it('returns false when checkGitInstalled fails', async () => {
+  it("returns false when checkGitInstalled fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {} as any;
     const repoService = {} as any;
     const gitAdapter = {
-      checkGitInstalled: jest.fn().mockRejectedValue(new Error('no git')),
+      checkGitInstalled: jest.fn().mockRejectedValue(new Error("no git")),
     } as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:checkGitInstalled'](null);
+    const response = await handlers["config:checkGitInstalled"](null);
 
     expect(response.ok).toBe(true);
     expect(response.data).toBe(false);
     expect(gitAdapter.checkGitInstalled).toHaveBeenCalled();
   });
 
-  it('returns error when updateRepoSettings fails without code', async () => {
+  it("returns error when updateRepoSettings fails without code", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      updateRepoSettings: jest.fn().mockRejectedValue(new Error('bad')),
+      updateRepoSettings: jest.fn().mockRejectedValue(new Error("bad")),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:updateRepoSettings'](null, {
+    const response = await handlers["config:updateRepoSettings"](null, {
       provider: REPO_PROVIDERS.git,
-      remoteUrl: 'url',
-      branch: 'main',
-      localPath: '/repo',
-      pat: 'token',
-      authMethod: 'pat',
+      remoteUrl: "url",
+      branch: "main",
+      localPath: "/repo",
+      pat: "token",
+      authMethod: "pat",
     });
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toBe('Failed to update repository settings');
+    expect(response.error?.message).toBe(
+      "Failed to update repository settings",
+    );
   });
 
-  it('returns ok when updateRepoSettings succeeds', async () => {
+  it("returns ok when updateRepoSettings succeeds", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
       updateRepoSettings: jest.fn().mockResolvedValue(undefined),
@@ -123,31 +127,31 @@ describe('configHandlers', () => {
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:updateRepoSettings'](null, {
+    const response = await handlers["config:updateRepoSettings"](null, {
       provider: REPO_PROVIDERS.git,
-      remoteUrl: 'url',
-      branch: 'main',
-      localPath: '/repo',
-      pat: 'token',
-      authMethod: 'pat',
+      remoteUrl: "url",
+      branch: "main",
+      localPath: "/repo",
+      pat: "token",
+      authMethod: "pat",
     });
 
     expect(response.ok).toBe(true);
     expect(configService.updateRepoSettings).toHaveBeenCalled();
   });
 
-  it('returns error when profile preparation fails', async () => {
+  it("returns error when profile preparation fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const createdProfile = {
-      id: 'profile-1',
-      name: 'Profile',
+      id: "profile-1",
+      name: "Profile",
       repoSettings: {
         provider: REPO_PROVIDERS.git,
-        remoteUrl: 'url',
-        branch: 'main',
-        localPath: '/repo',
-        pat: 'token',
-        authMethod: 'pat',
+        remoteUrl: "url",
+        branch: "main",
+        localPath: "/repo",
+        pat: "token",
+        authMethod: "pat",
       },
       createdAt: Date.now(),
       lastUsedAt: Date.now(),
@@ -157,24 +161,24 @@ describe('configHandlers', () => {
       deleteProfile: jest.fn().mockResolvedValue(undefined),
     } as any;
     const repoService = {
-      prepareRepo: jest.fn().mockRejectedValue(new Error('prepare failed')),
+      prepareRepo: jest.fn().mockRejectedValue(new Error("prepare failed")),
     } as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:createProfile'](null, 'Profile', {
+    const response = await handlers["config:createProfile"](null, "Profile", {
       provider: REPO_PROVIDERS.git,
-      remoteUrl: 'url',
-      branch: 'main',
-      pat: 'token',
+      remoteUrl: "url",
+      branch: "main",
+      pat: "token",
     });
 
     expect(response.ok).toBe(false);
-    expect(configService.deleteProfile).toHaveBeenCalledWith('profile-1');
+    expect(configService.deleteProfile).toHaveBeenCalledWith("profile-1");
   });
 
-  it('returns config from getFull', async () => {
+  it("returns config from getFull", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
       getFull: jest.fn().mockResolvedValue({
@@ -183,7 +187,7 @@ describe('configHandlers', () => {
           autoSaveIntervalSec: 30,
           s3AutoSyncEnabled: true,
           s3AutoSyncIntervalSec: 20,
-          theme: 'system',
+          theme: "system",
           editorPrefs: {
             fontSize: 14,
             lineNumbers: true,
@@ -201,93 +205,93 @@ describe('configHandlers', () => {
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:getFull']();
+    const response = await handlers["config:getFull"]();
 
     expect(response.ok).toBe(true);
     expect(response.data?.profiles).toEqual([]);
     expect(configService.getFull).toHaveBeenCalled();
   });
 
-  it('returns error when getFull fails', async () => {
+  it("returns error when getFull fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      getFull: jest.fn().mockRejectedValue(new Error('boom')),
+      getFull: jest.fn().mockRejectedValue(new Error("boom")),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:getFull']();
+    const response = await handlers["config:getFull"]();
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toBe('Failed to load configuration');
+    expect(response.error?.message).toBe("Failed to load configuration");
   });
 
-  it('returns profiles and active profile id', async () => {
+  it("returns profiles and active profile id", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      getProfiles: jest.fn().mockResolvedValue([{ id: 'p1' }]),
-      getActiveProfileId: jest.fn().mockResolvedValue('p1'),
+      getProfiles: jest.fn().mockResolvedValue([{ id: "p1" }]),
+      getActiveProfileId: jest.fn().mockResolvedValue("p1"),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const profilesResponse = await handlers['config:getProfiles']();
-    const activeResponse = await handlers['config:getActiveProfileId']();
+    const profilesResponse = await handlers["config:getProfiles"]();
+    const activeResponse = await handlers["config:getActiveProfileId"]();
 
     expect(profilesResponse.ok).toBe(true);
     expect(profilesResponse.data).toHaveLength(1);
     expect(activeResponse.ok).toBe(true);
-    expect(activeResponse.data).toBe('p1');
+    expect(activeResponse.data).toBe("p1");
   });
 
-  it('returns error when getProfiles fails', async () => {
+  it("returns error when getProfiles fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      getProfiles: jest.fn().mockRejectedValue(new Error('no profiles')),
+      getProfiles: jest.fn().mockRejectedValue(new Error("no profiles")),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:getProfiles']();
+    const response = await handlers["config:getProfiles"]();
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toBe('Failed to load profiles');
+    expect(response.error?.message).toBe("Failed to load profiles");
   });
 
-  it('returns error when getActiveProfileId fails', async () => {
+  it("returns error when getActiveProfileId fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      getActiveProfileId: jest.fn().mockRejectedValue(new Error('no active')),
+      getActiveProfileId: jest.fn().mockRejectedValue(new Error("no active")),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:getActiveProfileId']();
+    const response = await handlers["config:getActiveProfileId"]();
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toBe('Failed to load active profile ID');
+    expect(response.error?.message).toBe("Failed to load active profile ID");
   });
 
-  it('creates profile when prepareRepo succeeds', async () => {
+  it("creates profile when prepareRepo succeeds", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const createdProfile = {
-      id: 'profile-2',
-      name: 'Profile',
+      id: "profile-2",
+      name: "Profile",
       repoSettings: {
         provider: REPO_PROVIDERS.git,
-        remoteUrl: 'url',
-        branch: 'main',
-        localPath: '/repo',
-        pat: 'token',
-        authMethod: 'pat',
+        remoteUrl: "url",
+        branch: "main",
+        localPath: "/repo",
+        pat: "token",
+        authMethod: "pat",
       },
       createdAt: Date.now(),
       lastUsedAt: Date.now(),
@@ -303,40 +307,40 @@ describe('configHandlers', () => {
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:createProfile'](null, 'Profile', {
+    const response = await handlers["config:createProfile"](null, "Profile", {
       provider: REPO_PROVIDERS.git,
-      remoteUrl: 'url',
-      branch: 'main',
-      pat: 'token',
+      remoteUrl: "url",
+      branch: "main",
+      pat: "token",
     });
 
     expect(response.ok).toBe(true);
-    expect(response.data?.id).toBe('profile-2');
+    expect(response.data?.id).toBe("profile-2");
     expect(repoService.prepareRepo).toHaveBeenCalled();
   });
 
-  it('returns error when createProfile fails', async () => {
+  it("returns error when createProfile fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      createProfile: jest.fn().mockRejectedValue(new Error('create failed')),
+      createProfile: jest.fn().mockRejectedValue(new Error("create failed")),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:createProfile'](null, 'Profile', {
+    const response = await handlers["config:createProfile"](null, "Profile", {
       provider: REPO_PROVIDERS.git,
-      remoteUrl: 'url',
-      branch: 'main',
-      pat: 'token',
+      remoteUrl: "url",
+      branch: "main",
+      pat: "token",
     });
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toContain('Failed to create profile');
+    expect(response.error?.message).toContain("Failed to create profile");
   });
 
-  it('returns ok for deleteProfile and setActiveProfile', async () => {
+  it("returns ok for deleteProfile and setActiveProfile", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
       deleteProfile: jest.fn().mockResolvedValue(undefined),
@@ -347,51 +351,54 @@ describe('configHandlers', () => {
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const deleteResponse = await handlers['config:deleteProfile'](null, 'p1');
-    const activeResponse = await handlers['config:setActiveProfile'](null, 'p1');
+    const deleteResponse = await handlers["config:deleteProfile"](null, "p1");
+    const activeResponse = await handlers["config:setActiveProfile"](
+      null,
+      "p1",
+    );
 
     expect(deleteResponse.ok).toBe(true);
     expect(activeResponse.ok).toBe(true);
-    expect(configService.deleteProfile).toHaveBeenCalledWith('p1');
-    expect(configService.setActiveProfileId).toHaveBeenCalledWith('p1');
+    expect(configService.deleteProfile).toHaveBeenCalledWith("p1");
+    expect(configService.setActiveProfileId).toHaveBeenCalledWith("p1");
   });
 
-  it('returns error when deleteProfile fails', async () => {
+  it("returns error when deleteProfile fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      deleteProfile: jest.fn().mockRejectedValue(new Error('delete failed')),
+      deleteProfile: jest.fn().mockRejectedValue(new Error("delete failed")),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:deleteProfile'](null, 'p1');
+    const response = await handlers["config:deleteProfile"](null, "p1");
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toBe('Failed to delete profile');
+    expect(response.error?.message).toBe("Failed to delete profile");
   });
 
-  it('returns error when setActiveProfile fails', async () => {
+  it("returns error when setActiveProfile fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      setActiveProfileId: jest.fn().mockRejectedValue(new Error('set failed')),
+      setActiveProfileId: jest.fn().mockRejectedValue(new Error("set failed")),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:setActiveProfile'](null, 'p1');
+    const response = await handlers["config:setActiveProfile"](null, "p1");
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toBe('Failed to set active profile');
+    expect(response.error?.message).toBe("Failed to set active profile");
   });
 
-  it('returns error for updateAppSettings failure', async () => {
+  it("returns error for updateAppSettings failure", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      updateAppSettings: jest.fn().mockRejectedValue(new Error('bad')),
+      updateAppSettings: jest.fn().mockRejectedValue(new Error("bad")),
     } as any;
     const repoService = {
       refreshAutoSyncSettings: jest.fn(),
@@ -400,77 +407,79 @@ describe('configHandlers', () => {
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:updateAppSettings'](null, { theme: 'dark' });
+    const response = await handlers["config:updateAppSettings"](null, {
+      theme: "dark",
+    });
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toBe('Failed to update app settings');
+    expect(response.error?.message).toBe("Failed to update app settings");
   });
 
-  it('returns app settings', async () => {
+  it("returns app settings", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      getAppSettings: jest.fn().mockResolvedValue({ theme: 'light' }),
+      getAppSettings: jest.fn().mockResolvedValue({ theme: "light" }),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:getAppSettings']();
+    const response = await handlers["config:getAppSettings"]();
 
     expect(response.ok).toBe(true);
-    expect(response.data?.theme).toBe('light');
+    expect(response.data?.theme).toBe("light");
   });
 
-  it('returns error when getAppSettings fails', async () => {
+  it("returns error when getAppSettings fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      getAppSettings: jest.fn().mockRejectedValue(new Error('fail')),
+      getAppSettings: jest.fn().mockRejectedValue(new Error("fail")),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:getAppSettings']();
+    const response = await handlers["config:getAppSettings"]();
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toBe('Failed to load application settings');
+    expect(response.error?.message).toBe("Failed to load application settings");
   });
 
-  it('returns favorites', async () => {
+  it("returns favorites", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      getFavorites: jest.fn().mockResolvedValue(['note.md']),
+      getFavorites: jest.fn().mockResolvedValue(["note.md"]),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:getFavorites']();
+    const response = await handlers["config:getFavorites"]();
 
     expect(response.ok).toBe(true);
-    expect(response.data).toEqual(['note.md']);
+    expect(response.data).toEqual(["note.md"]);
   });
 
-  it('returns error when getFavorites fails', async () => {
+  it("returns error when getFavorites fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      getFavorites: jest.fn().mockRejectedValue(new Error('fail')),
+      getFavorites: jest.fn().mockRejectedValue(new Error("fail")),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:getFavorites']();
+    const response = await handlers["config:getFavorites"]();
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toBe('Failed to load favorites');
+    expect(response.error?.message).toBe("Failed to load favorites");
   });
 
-  it('updates favorites', async () => {
+  it("updates favorites", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
       updateFavorites: jest.fn().mockResolvedValue(undefined),
@@ -480,25 +489,29 @@ describe('configHandlers', () => {
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:updateFavorites'](null, ['note.md']);
+    const response = await handlers["config:updateFavorites"](null, [
+      "note.md",
+    ]);
 
     expect(response.ok).toBe(true);
-    expect(configService.updateFavorites).toHaveBeenCalledWith(['note.md']);
+    expect(configService.updateFavorites).toHaveBeenCalledWith(["note.md"]);
   });
 
-  it('returns error when updateFavorites fails', async () => {
+  it("returns error when updateFavorites fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
-      updateFavorites: jest.fn().mockRejectedValue(new Error('fail')),
+      updateFavorites: jest.fn().mockRejectedValue(new Error("fail")),
     } as any;
     const repoService = {} as any;
     const gitAdapter = {} as any;
 
     registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
 
-    const response = await handlers['config:updateFavorites'](null, ['note.md']);
+    const response = await handlers["config:updateFavorites"](null, [
+      "note.md",
+    ]);
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toBe('Failed to save favorites');
+    expect(response.error?.message).toBe("Failed to save favorites");
   });
 });

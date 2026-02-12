@@ -1,23 +1,23 @@
-import React from 'react';
-import { AppBar, Toolbar, Box } from '@mui/material';
-import { REPO_PROVIDERS } from '../../../shared/types';
-import { WORKSPACE_TEXT } from '../EditorShell/constants';
-import { ShortcutHelper } from '../ShortcutHelper';
-import { StatusBarBranchLabel } from '../StatusBarBranchLabel';
-import { StatusBarHeaderTitle } from '../StatusBarHeaderTitle';
-import { StatusBarSyncChip } from '../StatusBarSyncChip';
-import { getSyncStatus } from '../StatusBarSyncChip/utils';
-import { StatusBarUncommittedChip } from '../StatusBarUncommittedChip';
-import { StatusBarSaveStatus } from '../StatusBarSaveStatus';
-import { StatusBarSearchAction } from '../StatusBarSearchAction';
-import { StatusBarHistoryAction } from '../StatusBarHistoryAction';
-import { StatusBarSaveAllAction } from '../StatusBarSaveAllAction';
-import { StatusBarCommitPushAction } from '../StatusBarCommitPushAction';
-import { StatusBarFetchAction } from '../StatusBarFetchAction';
-import { StatusBarPullAction } from '../StatusBarPullAction';
-import { StatusBarPushAction } from '../StatusBarPushAction';
-import { StatusBarSettingsAction } from '../StatusBarSettingsAction';
-import { STATUS_TEXT } from './constants';
+import React from "react";
+import { AppBar, Toolbar, Box } from "@mui/material";
+import { REPO_PROVIDERS } from "../../../shared/types";
+import { WORKSPACE_TEXT } from "../EditorShell/constants";
+import { ShortcutHelper } from "../ShortcutHelper";
+import { StatusBarBranchLabel } from "../StatusBarBranchLabel";
+import { StatusBarHeaderTitle } from "../StatusBarHeaderTitle";
+import { StatusBarSyncChip } from "../StatusBarSyncChip";
+import { getSyncStatus } from "../StatusBarSyncChip/utils";
+import { StatusBarUncommittedChip } from "../StatusBarUncommittedChip";
+import { StatusBarSaveStatus } from "../StatusBarSaveStatus";
+import { StatusBarSearchAction } from "../StatusBarSearchAction";
+import { StatusBarHistoryAction } from "../StatusBarHistoryAction";
+import { StatusBarSaveAllAction } from "../StatusBarSaveAllAction";
+import { StatusBarCommitPushAction } from "../StatusBarCommitPushAction";
+import { StatusBarFetchAction } from "../StatusBarFetchAction";
+import { StatusBarPullAction } from "../StatusBarPullAction";
+import { StatusBarPushAction } from "../StatusBarPushAction";
+import { StatusBarSettingsAction } from "../StatusBarSettingsAction";
+import { STATUS_TEXT } from "./constants";
 import {
   appBarSx,
   toolbarSx,
@@ -28,8 +28,8 @@ import {
   statusRowSx,
   actionsRowSx,
   actionSeparatorSx,
-} from './styles';
-import type { StatusBarProps } from './types';
+} from "./styles";
+import type { StatusBarProps } from "./types";
 
 export function StatusBar({
   status,
@@ -37,9 +37,9 @@ export function StatusBar({
   onPull,
   onPush,
   hasUnsavedChanges = false,
-  headerTitle = '',
-  saveStatus = 'idle',
-  saveMessage = '',
+  headerTitle = "",
+  saveStatus = "idle",
+  saveMessage = "",
   historyPanelOpen = false,
   onOpenSearch,
   onToggleHistory,
@@ -52,7 +52,7 @@ export function StatusBar({
   const isLocal = status?.provider === REPO_PROVIDERS.local;
   const showRemoteActions = status?.provider === REPO_PROVIDERS.git;
   const hasStatus = Boolean(status);
-  const branchName = status?.branch || '-';
+  const branchName = status?.branch || "-";
   const showHistoryAction = !isLocal;
   const showCommitAction = !isLocal;
 

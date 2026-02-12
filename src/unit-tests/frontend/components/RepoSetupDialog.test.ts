@@ -1,16 +1,19 @@
-import React from 'react';
-import TestRenderer, { act } from 'react-test-renderer';
-import { Button, TextField, ToggleButtonGroup } from '@mui/material';
-import { RepoSetupDialog } from '../../../frontend/components/RepoSetupDialog';
-import { REPO_SETUP_TEXT } from '../../../frontend/components/RepoSetupDialog/constants';
-import { REPO_PROVIDERS } from '../../../shared/types';
+import React from "react";
+import TestRenderer, { act } from "react-test-renderer";
+import { Button, TextField, ToggleButtonGroup } from "@mui/material";
+import { RepoSetupDialog } from "../../../frontend/components/RepoSetupDialog";
+import { REPO_SETUP_TEXT } from "../../../frontend/components/RepoSetupDialog/constants";
+import { REPO_PROVIDERS } from "../../../shared/types";
 
 const flushPromises = () => new Promise((resolve) => setImmediate(resolve));
 
-const findButtonByText = (renderer: TestRenderer.ReactTestRenderer, text: string) => {
+const findButtonByText = (
+  renderer: TestRenderer.ReactTestRenderer,
+  text: string,
+) => {
   return renderer.root.findAllByType(Button).find((button) => {
     const children = button.props.children;
-    if (typeof children === 'string') {
+    if (typeof children === "string") {
       return children === text;
     }
     if (Array.isArray(children)) {
@@ -21,13 +24,13 @@ const findButtonByText = (renderer: TestRenderer.ReactTestRenderer, text: string
 };
 
 const flattenText = (node: any): string => {
-  if (!node) return '';
-  if (typeof node === 'string') return node;
-  if (Array.isArray(node)) return node.map(flattenText).join('');
-  return node.children ? node.children.map(flattenText).join('') : '';
+  if (!node) return "";
+  if (typeof node === "string") return node;
+  if (Array.isArray(node)) return node.map(flattenText).join("");
+  return node.children ? node.children.map(flattenText).join("") : "";
 };
 
-describe('RepoSetupDialog', () => {
+describe("RepoSetupDialog", () => {
   beforeEach(() => {
     (global as any).window = {
       notegitApi: {
@@ -38,7 +41,7 @@ describe('RepoSetupDialog', () => {
     };
   });
 
-  it('shows error when git fields are missing', async () => {
+  it("shows error when git fields are missing", async () => {
     const openOrClone = jest.fn();
     (global as any).window.notegitApi.repo.openOrClone = openOrClone;
 
@@ -49,13 +52,13 @@ describe('RepoSetupDialog', () => {
           open: true,
           onClose: jest.fn(),
           onSuccess: jest.fn(),
-        })
+        }),
       );
     });
 
     const connectButton = findButtonByText(renderer!, REPO_SETUP_TEXT.connect);
     if (!connectButton) {
-      throw new Error('Connect button not found');
+      throw new Error("Connect button not found");
     }
 
     await act(async () => {
@@ -64,10 +67,12 @@ describe('RepoSetupDialog', () => {
     });
 
     expect(openOrClone).not.toHaveBeenCalled();
-    expect(flattenText(renderer!.toJSON())).toContain(REPO_SETUP_TEXT.gitRequired);
+    expect(flattenText(renderer!.toJSON())).toContain(
+      REPO_SETUP_TEXT.gitRequired,
+    );
   });
 
-  it('connects to git when required fields are provided', async () => {
+  it("connects to git when required fields are provided", async () => {
     const openOrClone = jest.fn().mockResolvedValue({ ok: true });
     (global as any).window.notegitApi.repo.openOrClone = openOrClone;
 
@@ -81,7 +86,7 @@ describe('RepoSetupDialog', () => {
           open: true,
           onClose,
           onSuccess,
-        })
+        }),
       );
     });
 
@@ -96,13 +101,13 @@ describe('RepoSetupDialog', () => {
       });
     };
 
-    setField('Remote URL', 'https://github.com/user/repo.git');
-    setField('Branch', 'main');
-    setField('Personal Access Token', 'token');
+    setField("Remote URL", "https://github.com/user/repo.git");
+    setField("Branch", "main");
+    setField("Personal Access Token", "token");
 
     const connectButton = findButtonByText(renderer!, REPO_SETUP_TEXT.connect);
     if (!connectButton) {
-      throw new Error('Connect button not found');
+      throw new Error("Connect button not found");
     }
 
     await act(async () => {
@@ -112,17 +117,17 @@ describe('RepoSetupDialog', () => {
 
     expect(openOrClone).toHaveBeenCalledWith({
       provider: REPO_PROVIDERS.git,
-      remoteUrl: 'https://github.com/user/repo.git',
-      branch: 'main',
-      pat: 'token',
-      localPath: '',
-      authMethod: 'pat',
+      remoteUrl: "https://github.com/user/repo.git",
+      branch: "main",
+      pat: "token",
+      localPath: "",
+      authMethod: "pat",
     });
     expect(onSuccess).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('shows error when s3 fields are missing', async () => {
+  it("shows error when s3 fields are missing", async () => {
     const openOrClone = jest.fn();
     (global as any).window.notegitApi.repo.openOrClone = openOrClone;
 
@@ -133,7 +138,7 @@ describe('RepoSetupDialog', () => {
           open: true,
           onClose: jest.fn(),
           onSuccess: jest.fn(),
-        })
+        }),
       );
     });
 
@@ -144,7 +149,7 @@ describe('RepoSetupDialog', () => {
 
     const connectButton = findButtonByText(renderer!, REPO_SETUP_TEXT.connect);
     if (!connectButton) {
-      throw new Error('Connect button not found');
+      throw new Error("Connect button not found");
     }
 
     await act(async () => {
@@ -153,10 +158,12 @@ describe('RepoSetupDialog', () => {
     });
 
     expect(openOrClone).not.toHaveBeenCalled();
-    expect(flattenText(renderer!.toJSON())).toContain(REPO_SETUP_TEXT.s3Required);
+    expect(flattenText(renderer!.toJSON())).toContain(
+      REPO_SETUP_TEXT.s3Required,
+    );
   });
 
-  it('connects to s3 when required fields are provided', async () => {
+  it("connects to s3 when required fields are provided", async () => {
     const openOrClone = jest.fn().mockResolvedValue({ ok: true });
     (global as any).window.notegitApi.repo.openOrClone = openOrClone;
 
@@ -170,7 +177,7 @@ describe('RepoSetupDialog', () => {
           open: true,
           onClose,
           onSuccess,
-        })
+        }),
       );
     });
 
@@ -190,16 +197,16 @@ describe('RepoSetupDialog', () => {
       });
     };
 
-    setField('Bucket', 'my-bucket');
-    setField('Region', 'us-east-1');
-    setField('Prefix (optional)', 'notes/');
-    setField('Access Key ID', 'AKIA123');
-    setField('Secret Access Key', 'SECRET');
-    setField('Session Token (optional)', 'SESSION');
+    setField("Bucket", "my-bucket");
+    setField("Region", "us-east-1");
+    setField("Prefix (optional)", "notes/");
+    setField("Access Key ID", "AKIA123");
+    setField("Secret Access Key", "SECRET");
+    setField("Session Token (optional)", "SESSION");
 
     const connectButton = findButtonByText(renderer!, REPO_SETUP_TEXT.connect);
     if (!connectButton) {
-      throw new Error('Connect button not found');
+      throw new Error("Connect button not found");
     }
 
     await act(async () => {
@@ -209,19 +216,19 @@ describe('RepoSetupDialog', () => {
 
     expect(openOrClone).toHaveBeenCalledWith({
       provider: REPO_PROVIDERS.s3,
-      bucket: 'my-bucket',
-      region: 'us-east-1',
-      prefix: 'notes/',
-      localPath: '',
-      accessKeyId: 'AKIA123',
-      secretAccessKey: 'SECRET',
-      sessionToken: 'SESSION',
+      bucket: "my-bucket",
+      region: "us-east-1",
+      prefix: "notes/",
+      localPath: "",
+      accessKeyId: "AKIA123",
+      secretAccessKey: "SECRET",
+      sessionToken: "SESSION",
     });
     expect(onSuccess).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('shows error when local name is missing', async () => {
+  it("shows error when local name is missing", async () => {
     const openOrClone = jest.fn();
     (global as any).window.notegitApi.repo.openOrClone = openOrClone;
 
@@ -232,7 +239,7 @@ describe('RepoSetupDialog', () => {
           open: true,
           onClose: jest.fn(),
           onSuccess: jest.fn(),
-        })
+        }),
       );
     });
 
@@ -243,7 +250,7 @@ describe('RepoSetupDialog', () => {
 
     const connectButton = findButtonByText(renderer!, REPO_SETUP_TEXT.connect);
     if (!connectButton) {
-      throw new Error('Connect button not found');
+      throw new Error("Connect button not found");
     }
 
     await act(async () => {
@@ -252,13 +259,15 @@ describe('RepoSetupDialog', () => {
     });
 
     expect(openOrClone).not.toHaveBeenCalled();
-    expect(flattenText(renderer!.toJSON())).toContain(REPO_SETUP_TEXT.localRequired);
+    expect(flattenText(renderer!.toJSON())).toContain(
+      REPO_SETUP_TEXT.localRequired,
+    );
   });
 
-  it('shows error when connect fails', async () => {
+  it("shows error when connect fails", async () => {
     const openOrClone = jest.fn().mockResolvedValue({
       ok: false,
-      error: { message: 'Connection failed' },
+      error: { message: "Connection failed" },
     });
     (global as any).window.notegitApi.repo.openOrClone = openOrClone;
 
@@ -269,7 +278,7 @@ describe('RepoSetupDialog', () => {
           open: true,
           onClose: jest.fn(),
           onSuccess: jest.fn(),
-        })
+        }),
       );
     });
 
@@ -284,13 +293,13 @@ describe('RepoSetupDialog', () => {
       });
     };
 
-    setField('Remote URL', 'https://github.com/user/repo.git');
-    setField('Branch', 'main');
-    setField('Personal Access Token', 'token');
+    setField("Remote URL", "https://github.com/user/repo.git");
+    setField("Branch", "main");
+    setField("Personal Access Token", "token");
 
     const connectButton = findButtonByText(renderer!, REPO_SETUP_TEXT.connect);
     if (!connectButton) {
-      throw new Error('Connect button not found');
+      throw new Error("Connect button not found");
     }
 
     await act(async () => {
@@ -299,11 +308,11 @@ describe('RepoSetupDialog', () => {
     });
 
     expect(openOrClone).toHaveBeenCalled();
-    expect(flattenText(renderer!.toJSON())).toContain('Connection failed');
+    expect(flattenText(renderer!.toJSON())).toContain("Connection failed");
   });
 
-  it('shows error when connect throws', async () => {
-    const openOrClone = jest.fn().mockRejectedValue(new Error('Boom'));
+  it("shows error when connect throws", async () => {
+    const openOrClone = jest.fn().mockRejectedValue(new Error("Boom"));
     (global as any).window.notegitApi.repo.openOrClone = openOrClone;
 
     let renderer: TestRenderer.ReactTestRenderer;
@@ -313,7 +322,7 @@ describe('RepoSetupDialog', () => {
           open: true,
           onClose: jest.fn(),
           onSuccess: jest.fn(),
-        })
+        }),
       );
     });
 
@@ -328,13 +337,13 @@ describe('RepoSetupDialog', () => {
       });
     };
 
-    setField('Remote URL', 'https://github.com/user/repo.git');
-    setField('Branch', 'main');
-    setField('Personal Access Token', 'token');
+    setField("Remote URL", "https://github.com/user/repo.git");
+    setField("Branch", "main");
+    setField("Personal Access Token", "token");
 
     const connectButton = findButtonByText(renderer!, REPO_SETUP_TEXT.connect);
     if (!connectButton) {
-      throw new Error('Connect button not found');
+      throw new Error("Connect button not found");
     }
 
     await act(async () => {
@@ -343,10 +352,10 @@ describe('RepoSetupDialog', () => {
     });
 
     expect(openOrClone).toHaveBeenCalled();
-    expect(flattenText(renderer!.toJSON())).toContain('Boom');
+    expect(flattenText(renderer!.toJSON())).toContain("Boom");
   });
 
-  it('connects to local when name is provided', async () => {
+  it("connects to local when name is provided", async () => {
     const openOrClone = jest.fn().mockResolvedValue({ ok: true });
     (global as any).window.notegitApi.repo.openOrClone = openOrClone;
 
@@ -360,7 +369,7 @@ describe('RepoSetupDialog', () => {
           open: true,
           onClose,
           onSuccess,
-        })
+        }),
       );
     });
 
@@ -371,17 +380,17 @@ describe('RepoSetupDialog', () => {
 
     const field = renderer!.root
       .findAllByType(TextField)
-      .find((item) => item.props.label === 'Local Repository Name');
+      .find((item) => item.props.label === "Local Repository Name");
     if (!field) {
-      throw new Error('Local Repository Name field not found');
+      throw new Error("Local Repository Name field not found");
     }
     act(() => {
-      field.props.onChange({ target: { value: 'My Notes' } });
+      field.props.onChange({ target: { value: "My Notes" } });
     });
 
     const connectButton = findButtonByText(renderer!, REPO_SETUP_TEXT.connect);
     if (!connectButton) {
-      throw new Error('Connect button not found');
+      throw new Error("Connect button not found");
     }
 
     await act(async () => {
@@ -391,7 +400,7 @@ describe('RepoSetupDialog', () => {
 
     expect(openOrClone).toHaveBeenCalledWith({
       provider: REPO_PROVIDERS.local,
-      localPath: 'My Notes',
+      localPath: "My Notes",
     });
     expect(onSuccess).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();

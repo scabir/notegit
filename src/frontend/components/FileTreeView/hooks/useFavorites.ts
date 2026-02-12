@@ -1,16 +1,22 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { MouseEvent } from 'react';
-import type { FileTreeNode } from '../../../../shared/types';
-import { FAVORITES_STORAGE_KEY } from '../constants';
-import { findNodeByPath } from '../utils';
-import type { FavoriteMenuState } from '../types';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { MouseEvent } from "react";
+import type { FileTreeNode } from "../../../../shared/types";
+import { FAVORITES_STORAGE_KEY } from "../constants";
+import { findNodeByPath } from "../utils";
+import type { FavoriteMenuState } from "../types";
 
-export function useFavorites(tree: FileTreeNode[], selectedNode: FileTreeNode | null) {
+export function useFavorites(
+  tree: FileTreeNode[],
+  selectedNode: FileTreeNode | null,
+) {
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [favoriteMenuState, setFavoriteMenuState] = useState<FavoriteMenuState | null>(null);
+  const [favoriteMenuState, setFavoriteMenuState] =
+    useState<FavoriteMenuState | null>(null);
   const configApi =
-    typeof window !== 'undefined' ? window.notegitApi?.config : undefined;
-  const hasFavoritesApi = Boolean(configApi?.getFavorites && configApi?.updateFavorites);
+    typeof window !== "undefined" ? window.notegitApi?.config : undefined;
+  const hasFavoritesApi = Boolean(
+    configApi?.getFavorites && configApi?.updateFavorites,
+  );
   const configApiRef = useRef(configApi);
   useEffect(() => {
     configApiRef.current = configApi;
@@ -21,18 +27,21 @@ export function useFavorites(tree: FileTreeNode[], selectedNode: FileTreeNode | 
       const api = configApiRef.current;
       if (hasFavoritesApi && api?.updateFavorites) {
         api.updateFavorites(next).catch((error) => {
-          console.error('Failed to persist favorites', error);
+          console.error("Failed to persist favorites", error);
         });
       }
-      if (typeof window !== 'undefined' && window.localStorage) {
+      if (typeof window !== "undefined" && window.localStorage) {
         try {
-          window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(next));
+          window.localStorage.setItem(
+            FAVORITES_STORAGE_KEY,
+            JSON.stringify(next),
+          );
         } catch (error) {
-          console.error('Failed to persist favorites to localStorage', error);
+          console.error("Failed to persist favorites to localStorage", error);
         }
       }
     },
-    [hasFavoritesApi]
+    [hasFavoritesApi],
   );
 
   useEffect(() => {
@@ -45,17 +54,17 @@ export function useFavorites(tree: FileTreeNode[], selectedNode: FileTreeNode | 
             return;
           }
         } catch (error) {
-          console.error('Failed to load favorites', error);
+          console.error("Failed to load favorites", error);
         }
       }
 
-      if (typeof window !== 'undefined' && window.localStorage) {
+      if (typeof window !== "undefined" && window.localStorage) {
         const stored = window.localStorage.getItem(FAVORITES_STORAGE_KEY);
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
             if (Array.isArray(parsed)) {
-              setFavorites(parsed.filter((entry) => typeof entry === 'string'));
+              setFavorites(parsed.filter((entry) => typeof entry === "string"));
               return;
             }
           } catch {
@@ -72,7 +81,9 @@ export function useFavorites(tree: FileTreeNode[], selectedNode: FileTreeNode | 
 
   useEffect(() => {
     setFavorites((prev) => {
-      const filtered = prev.filter((path) => Boolean(findNodeByPath(tree, path)));
+      const filtered = prev.filter((path) =>
+        Boolean(findNodeByPath(tree, path)),
+      );
       return filtered.length === prev.length ? prev : filtered;
     });
   }, [tree]);
@@ -82,7 +93,7 @@ export function useFavorites(tree: FileTreeNode[], selectedNode: FileTreeNode | 
       favorites
         .map((path) => findNodeByPath(tree, path))
         .filter((node): node is FileTreeNode => Boolean(node)),
-    [favorites, tree]
+    [favorites, tree],
   );
 
   const toggleFavorite = (node?: FileTreeNode) => {
@@ -101,9 +112,14 @@ export function useFavorites(tree: FileTreeNode[], selectedNode: FileTreeNode | 
     });
   };
 
-  const selectedNodeIsFavorite = Boolean(selectedNode && favorites.includes(selectedNode.path));
+  const selectedNodeIsFavorite = Boolean(
+    selectedNode && favorites.includes(selectedNode.path),
+  );
 
-  const handleFavoriteContextMenu = (event: MouseEvent<HTMLElement>, path: string) => {
+  const handleFavoriteContextMenu = (
+    event: MouseEvent<HTMLElement>,
+    path: string,
+  ) => {
     event.preventDefault();
     setFavoriteMenuState({
       anchorEl: event.currentTarget,
@@ -152,7 +168,7 @@ export function useFavorites(tree: FileTreeNode[], selectedNode: FileTreeNode | 
   const removeFavoritesUnderPath = (pathToRemove: string) => {
     setFavorites((prev) => {
       const filtered = prev.filter(
-        (path) => path !== pathToRemove && !path.startsWith(`${pathToRemove}/`)
+        (path) => path !== pathToRemove && !path.startsWith(`${pathToRemove}/`),
       );
       if (filtered.length === prev.length) {
         return prev;

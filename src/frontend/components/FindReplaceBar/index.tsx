@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   TextField,
@@ -7,15 +7,15 @@ import {
   Typography,
   Paper,
   Divider,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Close as CloseIcon,
   KeyboardArrowUp as PreviousIcon,
   KeyboardArrowDown as NextIcon,
   FindReplace as ReplaceIcon,
   AutoFixHigh as ReplaceAllIcon,
-} from '@mui/icons-material';
-import { FIND_REPLACE_TEXT } from './constants';
+} from "@mui/icons-material";
+import { FIND_REPLACE_TEXT } from "./constants";
 import {
   containerSx,
   findInputSx,
@@ -25,8 +25,8 @@ import {
   buttonRowSx,
   dividerSx,
   flexSpacerSx,
-} from './styles';
-import type { FindReplaceBarProps } from './types';
+} from "./styles";
+import type { FindReplaceBarProps } from "./types";
 
 export function FindReplaceBar({
   onClose,
@@ -34,11 +34,11 @@ export function FindReplaceBar({
   onFindPrevious,
   onReplace,
   onReplaceAll,
-  initialQuery = '',
+  initialQuery = "",
   matchInfo,
 }: FindReplaceBarProps) {
   const [findQuery, setFindQuery] = useState(initialQuery);
-  const [replaceText, setReplaceText] = useState('');
+  const [replaceText, setReplaceText] = useState("");
   const findInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -71,13 +71,13 @@ export function FindReplaceBar({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       if (e.shiftKey) {
         handleFindPrevious();
       } else {
         handleFindNext();
       }
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       onClose();
     }
   };
@@ -94,7 +94,11 @@ export function FindReplaceBar({
         sx={findInputSx}
         InputProps={{
           endAdornment: matchInfo && matchInfo.total > 0 && (
-            <Typography variant="caption" color="text.secondary" sx={matchCountSx}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={matchCountSx}
+            >
               {matchInfo.current}/{matchInfo.total}
             </Typography>
           ),

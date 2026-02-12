@@ -1,4 +1,4 @@
-import { FILE_TREE_MESSAGES } from './constants';
+import { FILE_TREE_MESSAGES } from "./constants";
 
 const getErrorMessage = (error: unknown, fallback: string) => {
   if (error instanceof Error && error.message) {
@@ -9,20 +9,20 @@ const getErrorMessage = (error: unknown, fallback: string) => {
 
 export const mapCreateItemError = (
   error: unknown,
-  itemType: 'file' | 'folder',
+  itemType: "file" | "folder",
   itemName: string,
-  fallback: string
+  fallback: string,
 ) => {
   const message = getErrorMessage(error, fallback);
 
-  if (message.includes('exists') || message.includes('EEXIST')) {
-    return itemType === 'file'
+  if (message.includes("exists") || message.includes("EEXIST")) {
+    return itemType === "file"
       ? FILE_TREE_MESSAGES.fileAlreadyExists(itemName)
       : FILE_TREE_MESSAGES.folderAlreadyExists(itemName);
   }
 
-  if (message.includes('permission') || message.includes('EACCES')) {
-    return itemType === 'file'
+  if (message.includes("permission") || message.includes("EACCES")) {
+    return itemType === "file"
       ? FILE_TREE_MESSAGES.permissionDeniedCreateFile
       : FILE_TREE_MESSAGES.permissionDeniedCreateFolder;
   }
@@ -30,14 +30,18 @@ export const mapCreateItemError = (
   return message;
 };
 
-export const mapRenameError = (error: unknown, itemType: 'file' | 'folder', fallback: string) => {
+export const mapRenameError = (
+  error: unknown,
+  itemType: "file" | "folder",
+  fallback: string,
+) => {
   const message = getErrorMessage(error, fallback);
 
-  if (message.includes('already exists')) {
+  if (message.includes("already exists")) {
     return FILE_TREE_MESSAGES.renameAlreadyExists(itemType);
   }
 
-  if (message.includes('permission')) {
+  if (message.includes("permission")) {
     return FILE_TREE_MESSAGES.permissionDenied;
   }
 

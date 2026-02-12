@@ -1,9 +1,9 @@
-import React from 'react';
-import { Tooltip, IconButton } from '@mui/material';
-import { Settings as SettingsIcon } from '@mui/icons-material';
-import { STATUS_BAR_SETTINGS_ACTION } from './constants';
-import { iconButtonSx } from './styles';
-import type { StatusBarSettingsActionProps } from './types';
+import React from "react";
+import { Tooltip, IconButton } from "@mui/material";
+import { Settings as SettingsIcon } from "@mui/icons-material";
+import { STATUS_BAR_SETTINGS_ACTION } from "./constants";
+import { iconButtonSx } from "./styles";
+import type { StatusBarSettingsActionProps } from "./types";
 
 export function StatusBarSettingsAction({
   onOpenSettings,

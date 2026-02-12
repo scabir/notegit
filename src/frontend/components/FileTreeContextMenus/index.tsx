@@ -1,8 +1,8 @@
-import React from 'react';
-import { Menu, MenuItem, ListItemIcon } from '@mui/material';
-import { contextMenuSx } from './styles';
-import { FILE_TREE_CONTEXT_MENUS_IDS } from './constants';
-import type { FileTreeContextMenusProps } from './types';
+import React from "react";
+import { Menu, MenuItem, ListItemIcon } from "@mui/material";
+import { contextMenuSx } from "./styles";
+import { FILE_TREE_CONTEXT_MENUS_IDS } from "./constants";
+import type { FileTreeContextMenusProps } from "./types";
 
 export function FileTreeContextMenus({
   favoriteMenuState,
@@ -15,8 +15,8 @@ export function FileTreeContextMenus({
   emptyContextMenuItems,
   nodeContextMenuItems,
 }: FileTreeContextMenusProps) {
-  const showEmptyMenu = treeContextMenuState?.mode === 'empty';
-  const showNodeMenu = treeContextMenuState?.mode === 'node';
+  const showEmptyMenu = treeContextMenuState?.mode === "empty";
+  const showNodeMenu = treeContextMenuState?.mode === "node";
   const anchorPosition = treeContextMenuState?.position || undefined;
 
   return (
@@ -26,7 +26,7 @@ export function FileTreeContextMenus({
         anchorEl={favoriteMenuState?.anchorEl || null}
         open={Boolean(favoriteMenuState?.anchorEl)}
         onClose={onCloseFavoriteMenu}
-        MenuListProps={{ 'aria-label': 'Favorite actions' }}
+        MenuListProps={{ "aria-label": "Favorite actions" }}
         sx={contextMenuSx}
       >
         <MenuItem
@@ -45,11 +45,15 @@ export function FileTreeContextMenus({
         anchorPosition={anchorPosition}
         open={showEmptyMenu}
         onClose={onCloseTreeContextMenu}
-        MenuListProps={{ 'aria-label': 'Tree background actions' }}
+        MenuListProps={{ "aria-label": "Tree background actions" }}
         sx={contextMenuSx}
       >
         {emptyContextMenuItems.map((item) => (
-          <MenuItem key={item.testId} data-testid={item.testId} onClick={item.action}>
+          <MenuItem
+            key={item.testId}
+            data-testid={item.testId}
+            onClick={item.action}
+          >
             <ListItemIcon>{item.icon}</ListItemIcon>
             {item.label}
           </MenuItem>
@@ -63,11 +67,15 @@ export function FileTreeContextMenus({
         anchorPosition={anchorPosition}
         open={showNodeMenu}
         onClose={onCloseTreeContextMenu}
-        MenuListProps={{ 'aria-label': 'Tree item actions' }}
+        MenuListProps={{ "aria-label": "Tree item actions" }}
         sx={contextMenuSx}
       >
         {nodeContextMenuItems.map((item) => (
-          <MenuItem key={item.testId} data-testid={item.testId} onClick={item.action}>
+          <MenuItem
+            key={item.testId}
+            data-testid={item.testId}
+            onClick={item.action}
+          >
             <ListItemIcon>{item.icon}</ListItemIcon>
             {item.label}
           </MenuItem>

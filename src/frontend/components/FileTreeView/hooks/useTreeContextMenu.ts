@@ -1,10 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { MouseEvent } from 'react';
-import type { RefObject } from 'react';
-import type { FileTreeNode } from '../../../../shared/types';
-import type { TreeContextMenuState } from '../types';
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { MouseEvent } from "react";
+import type { RefObject } from "react";
+import type { FileTreeNode } from "../../../../shared/types";
+import type { TreeContextMenuState } from "../types";
 
-export type TreeContextMenuAction = 'rename' | 'move' | 'favorite' | 'delete' | 'duplicate';
+export type TreeContextMenuAction =
+  | "rename"
+  | "move"
+  | "favorite"
+  | "delete"
+  | "duplicate";
 
 type UseTreeContextMenuParams = {
   treeContainerRef: RefObject<HTMLDivElement>;
@@ -29,7 +34,8 @@ export function useTreeContextMenu({
   onDuplicate,
   onContextMenuOpen,
 }: UseTreeContextMenuParams) {
-  const [treeContextMenuState, setTreeContextMenuState] = useState<TreeContextMenuState | null>(null);
+  const [treeContextMenuState, setTreeContextMenuState] =
+    useState<TreeContextMenuState | null>(null);
   const selectedNodeRef = useRef<FileTreeNode | null>(selectedNode);
 
   useEffect(() => {
@@ -50,7 +56,7 @@ export function useTreeContextMenu({
         treeContainerRef.current?.focus();
         setTreeContextMenuState({
           node,
-          mode: 'node',
+          mode: "node",
           position,
         });
         return;
@@ -63,16 +69,11 @@ export function useTreeContextMenu({
       treeContainerRef.current?.focus();
       setTreeContextMenuState({
         node: null,
-        mode: 'empty',
+        mode: "empty",
         position,
       });
     },
-    [
-      onContextMenuOpen,
-      selectedNode,
-      setSelectedNode,
-      treeContainerRef,
-    ]
+    [onContextMenuOpen, selectedNode, setSelectedNode, treeContainerRef],
   );
 
   const handleCloseTreeContextMenu = useCallback(() => {
@@ -86,24 +87,31 @@ export function useTreeContextMenu({
       if (!targetNode) return;
 
       switch (action) {
-        case 'rename':
+        case "rename":
           onRename(targetNode);
           break;
-        case 'move':
+        case "move":
           onMove(targetNode);
           break;
-        case 'favorite':
+        case "favorite":
           onToggleFavorite(targetNode);
           break;
-        case 'delete':
+        case "delete":
           onDelete(targetNode);
           break;
-        case 'duplicate':
+        case "duplicate":
           onDuplicate?.(targetNode);
           break;
       }
     },
-    [handleCloseTreeContextMenu, onDelete, onDuplicate, onMove, onRename, onToggleFavorite]
+    [
+      handleCloseTreeContextMenu,
+      onDelete,
+      onDuplicate,
+      onMove,
+      onRename,
+      onToggleFavorite,
+    ],
   );
 
   return {

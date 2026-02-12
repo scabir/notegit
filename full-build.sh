@@ -12,7 +12,9 @@ run_step() {
   printf '\n'
 }
 
-run_step "pnpm lint" pnpm lint
 run_step "pnpm install" pnpm install
+run_step "pnpm run format" pnpm run format
+run_step "pnpm run format:check" pnpm run format:check
+run_step "pnpm lint" pnpm lint
 run_step "pnpm run build" pnpm run build
 run_step "pnpm test:coverage" pnpm test:coverage

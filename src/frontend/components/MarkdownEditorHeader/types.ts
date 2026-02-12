@@ -1,4 +1,4 @@
-import type { TreePanelControls, ViewMode } from '../MarkdownEditor/types';
+import type { TreePanelControls, ViewMode } from "../MarkdownEditor/types";
 
 export interface MarkdownEditorHeaderProps {
   filePath: string;

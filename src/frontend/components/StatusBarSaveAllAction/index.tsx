@@ -1,9 +1,9 @@
-import React from 'react';
-import { Tooltip, IconButton } from '@mui/material';
-import { SaveAlt as SaveAllIcon } from '@mui/icons-material';
-import { STATUS_BAR_SAVE_ALL_ACTION } from './constants';
-import { iconButtonSx } from './styles';
-import type { StatusBarSaveAllActionProps } from './types';
+import React from "react";
+import { Tooltip, IconButton } from "@mui/material";
+import { SaveAlt as SaveAllIcon } from "@mui/icons-material";
+import { STATUS_BAR_SAVE_ALL_ACTION } from "./constants";
+import { iconButtonSx } from "./styles";
+import type { StatusBarSaveAllActionProps } from "./types";
 
 export function StatusBarSaveAllAction({
   hasUnsavedChanges,
@@ -17,7 +17,7 @@ export function StatusBarSaveAllAction({
           size="small"
           onClick={onSaveAll}
           disabled={!hasUnsavedChanges}
-          color={hasUnsavedChanges ? 'primary' : 'default'}
+          color={hasUnsavedChanges ? "primary" : "default"}
           sx={iconButtonSx}
           data-testid={STATUS_BAR_SAVE_ALL_ACTION.testId}
         >

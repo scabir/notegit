@@ -1,18 +1,26 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Toolbar, IconButton, Chip, Tooltip, Typography, useTheme } from '@mui/material';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import {
+  Box,
+  Toolbar,
+  IconButton,
+  Chip,
+  Tooltip,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import {
   Menu as MenuIcon,
   ArrowBack as BackIcon,
   ArrowForward as ForwardIcon,
   Save as SaveIcon,
   FileDownload as ExportIcon,
-} from '@mui/icons-material';
-import CodeMirror from '@uiw/react-codemirror';
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
-import { EditorView } from '@codemirror/view';
-import { FindReplaceBar } from '../FindReplaceBar';
-import type { AppSettings } from '../../../shared/types';
-import { TEXT_EDITOR_TEXT } from './constants';
+} from "@mui/icons-material";
+import CodeMirror from "@uiw/react-codemirror";
+import { githubLight, githubDark } from "@uiw/codemirror-theme-github";
+import { EditorView } from "@codemirror/view";
+import { FindReplaceBar } from "../FindReplaceBar";
+import type { AppSettings } from "../../../shared/types";
+import { TEXT_EDITOR_TEXT } from "./constants";
 import {
   emptyStateSx,
   rootSx,
@@ -21,14 +29,23 @@ import {
   filePathSx,
   modifiedChipSx,
   editorContainerSx,
-} from './styles';
-import type { TextEditorProps } from './types';
-import { useEditorFindReplace, useEditorGlobalShortcuts, useEditorKeymap } from '../../utils/editorHooks';
+} from "./styles";
+import type { TextEditorProps } from "./types";
+import {
+  useEditorFindReplace,
+  useEditorGlobalShortcuts,
+  useEditorKeymap,
+} from "../../utils/editorHooks";
 
-export function TextEditor({ file, onSave, onChange, treePanelControls }: TextEditorProps) {
+export function TextEditor({
+  file,
+  onSave,
+  onChange,
+  treePanelControls,
+}: TextEditorProps) {
   const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-  const [content, setContent] = useState('');
+  const isDark = theme.palette.mode === "dark";
+  const [content, setContent] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
   const editorRef = useRef<any>(null);
   const editorViewRef = useRef<EditorView | null>(null);
@@ -91,16 +108,22 @@ export function TextEditor({ file, onSave, onChange, treePanelControls }: TextEd
     if (!file) return;
 
     try {
-      const response = await window.notegitApi.export.note(file.path, content, 'txt');
+      const response = await window.notegitApi.export.note(
+        file.path,
+        content,
+        "txt",
+      );
       if (response.ok && response.data) {
-        console.log('Note exported to:', response.data);
-      } else if (response.error?.message !== 'Export cancelled') {
-        console.error('Failed to export note:', response.error);
-        alert(`Failed to export: ${response.error?.message || 'Unknown error'}`);
+        console.log("Note exported to:", response.data);
+      } else if (response.error?.message !== "Export cancelled") {
+        console.error("Failed to export note:", response.error);
+        alert(
+          `Failed to export: ${response.error?.message || "Unknown error"}`,
+        );
       }
     } catch (error) {
-      console.error('Export error:', error);
-      alert('Failed to export note');
+      console.error("Export error:", error);
+      alert("Failed to export note");
     }
   };
   useEditorGlobalShortcuts({ onOpenFind: handleOpenFind });
@@ -112,20 +135,12 @@ export function TextEditor({ file, onSave, onChange, treePanelControls }: TextEd
   };
 
   if (!file) {
-    return (
-      <Box sx={emptyStateSx}>
-        {TEXT_EDITOR_TEXT.emptyState}
-      </Box>
-    );
+    return <Box sx={emptyStateSx}>{TEXT_EDITOR_TEXT.emptyState}</Box>;
   }
 
   return (
     <Box sx={rootSx}>
-      <Toolbar
-        variant="dense"
-        disableGutters
-        sx={toolbarSx}
-      >
+      <Toolbar variant="dense" disableGutters sx={toolbarSx}>
         {treePanelControls && (
           <Box sx={treeControlsRowSx}>
             <Tooltip title={TEXT_EDITOR_TEXT.showTreeTooltip}>
@@ -163,7 +178,12 @@ export function TextEditor({ file, onSave, onChange, treePanelControls }: TextEd
         </Typography>
 
         {hasChanges && (
-          <Chip label={TEXT_EDITOR_TEXT.modified} size="small" color="warning" sx={modifiedChipSx} />
+          <Chip
+            label={TEXT_EDITOR_TEXT.modified}
+            size="small"
+            color="warning"
+            sx={modifiedChipSx}
+          />
         )}
 
         <Tooltip title={TEXT_EDITOR_TEXT.saveTooltip}>
@@ -172,7 +192,7 @@ export function TextEditor({ file, onSave, onChange, treePanelControls }: TextEd
               size="small"
               onClick={handleSave}
               disabled={!hasChanges}
-              color={hasChanges ? 'primary' : 'default'}
+              color={hasChanges ? "primary" : "default"}
             >
               <SaveIcon fontSize="small" />
             </IconButton>
@@ -180,11 +200,7 @@ export function TextEditor({ file, onSave, onChange, treePanelControls }: TextEd
         </Tooltip>
 
         <Tooltip title={TEXT_EDITOR_TEXT.exportTooltip}>
-          <IconButton
-            size="small"
-            onClick={handleExport}
-            color="default"
-          >
+          <IconButton size="small" onClick={handleExport} color="default">
             <ExportIcon fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -205,17 +221,12 @@ export function TextEditor({ file, onSave, onChange, treePanelControls }: TextEd
         />
       )}
 
-      <Box
-        sx={editorContainerSx(isDark)}
-      >
+      <Box sx={editorContainerSx(isDark)}>
         <CodeMirror
           ref={editorRef}
           value={content}
           height="100%"
-          extensions={[
-            EditorView.lineWrapping,
-            editorKeymap,
-          ]}
+          extensions={[EditorView.lineWrapping, editorKeymap]}
           theme={isDark ? githubDark : githubLight}
           onChange={handleChange}
           basicSetup={{

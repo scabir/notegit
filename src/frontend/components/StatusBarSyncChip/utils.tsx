@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 import {
   CloudUpload as CloudUploadIcon,
   CloudDownload as CloudDownloadIcon,
   CloudOff as CloudOffIcon,
   CloudDone as CloudDoneIcon,
-} from '@mui/icons-material';
-import type { GetSyncStatusParams, SyncStatusDisplay } from './types';
+} from "@mui/icons-material";
+import type { GetSyncStatusParams, SyncStatusDisplay } from "./types";
 
 export function getSyncStatus({
   status,
@@ -26,12 +26,12 @@ export function getSyncStatus({
       ? {
           icon: <CloudOffIcon fontSize="small" />,
           label: uncommittedLabel,
-          color: 'warning',
+          color: "warning",
         }
       : {
           icon: <CloudDoneIcon fontSize="small" />,
           label: savedLabel,
-          color: 'success',
+          color: "success",
         };
   }
 
@@ -41,7 +41,7 @@ export function getSyncStatus({
       label: isS3
         ? `${status.pendingPushCount} changes waiting`
         : `${status.pendingPushCount} commits waiting`,
-      color: 'warning',
+      color: "warning",
     };
   }
 
@@ -49,15 +49,17 @@ export function getSyncStatus({
     return {
       icon: <CloudUploadIcon fontSize="small" />,
       label: isS3 ? `${status.ahead} local changes` : `${status.ahead} ahead`,
-      color: 'info',
+      color: "info",
     };
   }
 
   if (status.behind > 0) {
     return {
       icon: <CloudDownloadIcon fontSize="small" />,
-      label: isS3 ? `${status.behind} remote changes` : `${status.behind} behind`,
-      color: 'warning',
+      label: isS3
+        ? `${status.behind} remote changes`
+        : `${status.behind} behind`,
+      color: "warning",
     };
   }
 
@@ -65,13 +67,13 @@ export function getSyncStatus({
     return {
       icon: <CloudOffIcon fontSize="small" />,
       label: isS3 ? unsyncedLabel : uncommittedLabel,
-      color: 'default',
+      color: "default",
     };
   }
 
   return {
     icon: <CloudDoneIcon fontSize="small" />,
     label: syncedLabel,
-    color: 'success',
+    color: "success",
   };
 }

@@ -15,6 +15,7 @@ cd setup && ./build-all.sh
 ```
 
 Artifacts land in `release/`:
+
 - `notegit-{version}.dmg`, `notegit-{version}-mac.zip`
 - `notegit Setup {version}.exe`, `notegit {version}.exe`
 - `notegit-{version}.AppImage`, `notegit_{version}_amd64.deb`, `notegit-{version}.x86_64.rpm`

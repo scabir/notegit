@@ -1,6 +1,6 @@
-import type { FileContent } from '../../../shared/types';
+import type { FileContent } from "../../../shared/types";
 
-export type ViewMode = 'split' | 'editor' | 'preview';
+export type ViewMode = "split" | "editor" | "preview";
 
 export interface TreePanelControls {
   onToggleTree: () => void;

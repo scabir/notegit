@@ -1,12 +1,12 @@
-import React from 'react';
-import { Box } from '@mui/material';
-import CodeMirror from '@uiw/react-codemirror';
-import { markdown } from '@codemirror/lang-markdown';
-import { EditorView } from '@codemirror/view';
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
-import { MARKDOWN_EDITOR_PANE } from './constants';
-import { editorPaneSx } from './styles';
-import type { MarkdownEditorPaneProps } from './types';
+import React from "react";
+import { Box } from "@mui/material";
+import CodeMirror from "@uiw/react-codemirror";
+import { markdown } from "@codemirror/lang-markdown";
+import { EditorView } from "@codemirror/view";
+import { githubLight, githubDark } from "@uiw/codemirror-theme-github";
+import { MARKDOWN_EDITOR_PANE } from "./constants";
+import { editorPaneSx } from "./styles";
+import type { MarkdownEditorPaneProps } from "./types";
 
 export function MarkdownEditorPane({
   isDark,
@@ -25,11 +25,7 @@ export function MarkdownEditorPane({
         data-testid={MARKDOWN_EDITOR_PANE.testId}
         value={content}
         height="100%"
-        extensions={[
-          markdown(),
-          EditorView.lineWrapping,
-          editorKeymap,
-        ]}
+        extensions={[markdown(), EditorView.lineWrapping, editorKeymap]}
         onChange={onChange}
         theme={isDark ? githubDark : githubLight}
         basicSetup={{

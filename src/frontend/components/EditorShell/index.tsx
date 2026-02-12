@@ -1,44 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { Box } from '@mui/material';
-import { FileTreeView } from '../FileTreeView';
-import { MarkdownEditor } from '../MarkdownEditor';
-import type { ShortcutHelperHandle } from '../ShortcutHelper';
-import { TextEditor } from '../TextEditor';
-import { ImageViewer } from '../ImageViewer';
-import { StatusBar } from '../StatusBar';
-import { SettingsDialog } from '../SettingsDialog';
-import { CommitDialog } from '../CommitDialog';
-import { SearchDialog } from '../SearchDialog';
-import { RepoSearchDialog } from '../RepoSearchDialog';
-import { HistoryPanel } from '../HistoryPanel';
-import { HistoryViewer } from '../HistoryViewer';
-import { AboutDialog } from '../AboutDialog';
-import type { AppSettings, FileTreeNode, FileContent, RepoStatus } from '../../../shared/types';
-import { FileType, REPO_PROVIDERS } from '../../../shared/types';
-import { startS3AutoSync } from '../../utils/s3AutoSync';
+import React, { useState, useEffect } from "react";
+import { Box } from "@mui/material";
+import { FileTreeView } from "../FileTreeView";
+import { MarkdownEditor } from "../MarkdownEditor";
+import type { ShortcutHelperHandle } from "../ShortcutHelper";
+import { TextEditor } from "../TextEditor";
+import { ImageViewer } from "../ImageViewer";
+import { StatusBar } from "../StatusBar";
+import { SettingsDialog } from "../SettingsDialog";
+import { CommitDialog } from "../CommitDialog";
+import { SearchDialog } from "../SearchDialog";
+import { RepoSearchDialog } from "../RepoSearchDialog";
+import { HistoryPanel } from "../HistoryPanel";
+import { HistoryViewer } from "../HistoryViewer";
+import { AboutDialog } from "../AboutDialog";
+import type {
+  AppSettings,
+  FileTreeNode,
+  FileContent,
+  RepoStatus,
+} from "../../../shared/types";
+import { FileType, REPO_PROVIDERS } from "../../../shared/types";
+import { startS3AutoSync } from "../../utils/s3AutoSync";
 import {
   rootSx,
   mainContentSx,
   sidebarSx,
   resizeHandleSx,
   editorPaneSx,
-} from './styles';
+} from "./styles";
 import {
   SIDEBAR_COLLAPSED_WIDTH,
   SIDEBAR_DEFAULT_WIDTH,
   SIDEBAR_MAX_WIDTH,
   SIDEBAR_MIN_WIDTH,
-} from './constants';
-import { buildHeaderTitle } from './utils';
-import type { EditorShellProps } from './types';
+} from "./constants";
+import { buildHeaderTitle } from "./utils";
+import type { EditorShellProps } from "./types";
 
 const MAX_NAV_HISTORY = 100;
-type TreePanelState = 'open' | 'closed';
-type TreePanelAction = 'toggle';
+type TreePanelState = "open" | "closed";
+type TreePanelAction = "toggle";
 
-const treePanelReducer = (state: TreePanelState, action: TreePanelAction): TreePanelState => {
-  if (action === 'toggle') {
-    return state === 'open' ? 'closed' : 'open';
+const treePanelReducer = (
+  state: TreePanelState,
+  action: TreePanelAction,
+): TreePanelState => {
+  if (action === "toggle") {
+    return state === "open" ? "closed" : "open";
   }
   return state;
 };
@@ -59,22 +67,29 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
   const [historyViewerOpen, setHistoryViewerOpen] = useState(false);
-  const [viewingCommitHash, setViewingCommitHash] = useState<string | null>(null);
-  const [viewingCommitMessage, setViewingCommitMessage] = useState<string>('');
+  const [viewingCommitHash, setViewingCommitHash] = useState<string | null>(
+    null,
+  );
+  const [viewingCommitMessage, setViewingCommitMessage] = useState<string>("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [editorContent, setEditorContent] = useState<string>('');
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [saveMessage, setSaveMessage] = useState<string>('');
+  const [editorContent, setEditorContent] = useState<string>("");
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
+  const [saveMessage, setSaveMessage] = useState<string>("");
   const autosaveTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const statusTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const unrefTimeout = (timer: NodeJS.Timeout | null) => {
-    if (timer && typeof (timer as any).unref === 'function') {
+    if (timer && typeof (timer as any).unref === "function") {
       (timer as any).unref();
     }
   };
   const s3AutoSyncCleanupRef = React.useRef<(() => void) | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
-  const [treePanelState, dispatchTreePanel] = React.useReducer(treePanelReducer, 'open');
+  const [treePanelState, dispatchTreePanel] = React.useReducer(
+    treePanelReducer,
+    "open",
+  );
   const [isResizing, setIsResizing] = useState(false);
   const resizeStartX = React.useRef(0);
   const resizeStartWidth = React.useRef(0);
@@ -85,10 +100,10 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   const navigationEntriesRef = React.useRef<string[]>([]);
   const navigationIndexRef = React.useRef(-1);
 
-  const [activeProfileName, setActiveProfileName] = useState<string>('');
+  const [activeProfileName, setActiveProfileName] = useState<string>("");
   const isS3Repo = repoStatus?.provider === REPO_PROVIDERS.s3;
   const isLocalRepo = repoStatus?.provider === REPO_PROVIDERS.local;
-  const isTreeCollapsed = treePanelState === 'closed';
+  const isTreeCollapsed = treePanelState === "closed";
 
   const headerTitle = buildHeaderTitle(activeProfileName);
 
@@ -129,18 +144,25 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   }, []);
 
   const isEditableTarget = React.useCallback((target: EventTarget | null) => {
-    if (typeof HTMLElement === 'undefined' || !(target instanceof HTMLElement)) {
+    if (
+      typeof HTMLElement === "undefined" ||
+      !(target instanceof HTMLElement)
+    ) {
       return false;
     }
     const tag = target.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable) {
+    if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) {
       return true;
     }
-    return Boolean(target.closest('.cm-editor'));
+    return Boolean(target.closest(".cm-editor"));
   }, []);
 
   const setTransientStatus = React.useCallback(
-    (status: 'idle' | 'saving' | 'saved' | 'error', message: string, timeoutMs = 3000) => {
+    (
+      status: "idle" | "saving" | "saved" | "error",
+      message: string,
+      timeoutMs = 3000,
+    ) => {
       if (statusTimerRef.current) {
         clearTimeout(statusTimerRef.current);
       }
@@ -148,14 +170,14 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       setSaveMessage(message);
       if (timeoutMs > 0) {
         statusTimerRef.current = setTimeout(() => {
-          setSaveStatus('idle');
-          setSaveMessage('');
+          setSaveStatus("idle");
+          setSaveMessage("");
           statusTimerRef.current = null;
         }, timeoutMs);
         unrefTimeout(statusTimerRef.current);
       }
     },
-    []
+    [],
   );
 
   const loadWorkspace = React.useCallback(async () => {
@@ -184,16 +206,15 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         // Get active profile name
         if (configData.activeProfileId && configData.profiles) {
           const activeProfile = configData.profiles.find(
-            p => p.id === configData.activeProfileId
+            (p) => p.id === configData.activeProfileId,
           );
           if (activeProfile) {
             setActiveProfileName(activeProfile.name);
           }
         }
       }
-
     } catch (error) {
-      setTransientStatus('error', 'Failed to load workspace', 5000);
+      setTransientStatus("error", "Failed to load workspace", 5000);
     }
   }, [setTransientStatus]);
 
@@ -224,7 +245,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         listTree: window.notegitApi.files.listTree,
         setStatus: setRepoStatus,
         setTree,
-      }
+      },
     );
 
     return () => {
@@ -233,68 +254,88 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         s3AutoSyncCleanupRef.current = null;
       }
     };
-  }, [isS3Repo, appSettings?.s3AutoSyncEnabled, appSettings?.s3AutoSyncIntervalSec, appSettings]);
+  }, [
+    isS3Repo,
+    appSettings?.s3AutoSyncEnabled,
+    appSettings?.s3AutoSyncIntervalSec,
+    appSettings,
+  ]);
 
-  const handleSaveFile = React.useCallback(async (content: string, isAutosave: boolean = false) => {
-    if (!selectedFile) return;
+  const handleSaveFile = React.useCallback(
+    async (content: string, isAutosave: boolean = false) => {
+      if (!selectedFile) return;
 
-    setSaveStatus('saving');
-    setSaveMessage('');
+      setSaveStatus("saving");
+      setSaveMessage("");
 
-    try {
-      const response = await window.notegitApi.files.save(
-        selectedFile,
-        content
-      );
+      try {
+        const response = await window.notegitApi.files.save(
+          selectedFile,
+          content,
+        );
 
-      if (response.ok) {
-        setSaveStatus('saved');
-        setHasUnsavedChanges(false);
+        if (response.ok) {
+          setSaveStatus("saved");
+          setHasUnsavedChanges(false);
 
-        if (selectedFile) {
-          fileContentCacheRef.current.delete(selectedFile);
-        }
+          if (selectedFile) {
+            fileContentCacheRef.current.delete(selectedFile);
+          }
 
-        if (!isAutosave) {
-          setSaveMessage('Saved locally');
-        }
+          if (!isAutosave) {
+            setSaveMessage("Saved locally");
+          }
 
-        const statusResponse = await window.notegitApi.repo.getStatus();
-        if (statusResponse.ok && statusResponse.data) {
-          setRepoStatus(statusResponse.data);
-        }
-        if (!isAutosave) {
-          setTransientStatus('saved', 'Saved locally', 2000);
+          const statusResponse = await window.notegitApi.repo.getStatus();
+          if (statusResponse.ok && statusResponse.data) {
+            setRepoStatus(statusResponse.data);
+          }
+          if (!isAutosave) {
+            setTransientStatus("saved", "Saved locally", 2000);
+          } else {
+            setSaveStatus("saved");
+          }
         } else {
-          setSaveStatus('saved');
+          setTransientStatus(
+            "error",
+            response.error?.message || "Failed to save file",
+            5000,
+          );
         }
-      } else {
-        setTransientStatus('error', response.error?.message || 'Failed to save file', 5000);
+      } catch (error: any) {
+        setTransientStatus(
+          "error",
+          error.message || "Failed to save file",
+          5000,
+        );
       }
-    } catch (error: any) {
-      setTransientStatus('error', error.message || 'Failed to save file', 5000);
-    }
-  }, [selectedFile, setTransientStatus]);
+    },
+    [selectedFile, setTransientStatus],
+  );
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd/Ctrl+P or Cmd/Ctrl+K to open file search
-      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && (e.key === 'p' || e.key === 'k')) {
+      if (
+        (e.metaKey || e.ctrlKey) &&
+        !e.shiftKey &&
+        (e.key === "p" || e.key === "k")
+      ) {
         e.preventDefault();
         setSearchDialogOpen(true);
       }
       // Cmd/Ctrl+Shift+F to open repo-wide search
-      else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'f') {
+      else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "f") {
         e.preventDefault();
         setRepoSearchDialogOpen(true);
-      } else if (e.key === 'F1') {
+      } else if (e.key === "F1") {
         e.preventDefault();
         shortcutHelperRef.current?.openMenu();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -305,30 +346,31 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       setAboutDialogOpen(true);
     };
 
-    const offOpenShortcuts = window.notegitApi.menu.onOpenShortcuts(handleOpenShortcuts);
+    const offOpenShortcuts =
+      window.notegitApi.menu.onOpenShortcuts(handleOpenShortcuts);
     const offOpenAbout = window.notegitApi.menu.onOpenAbout(handleOpenAbout);
 
     return () => {
-      if (typeof offOpenShortcuts === 'function') {
+      if (typeof offOpenShortcuts === "function") {
         offOpenShortcuts();
       }
-      if (typeof offOpenAbout === 'function') {
+      if (typeof offOpenAbout === "function") {
         offOpenAbout();
       }
     };
   }, []);
 
   useEffect(() => {
-      if (hasUnsavedChanges && selectedFile && editorContent) {
-        if (autosaveTimerRef.current) {
-          clearTimeout(autosaveTimerRef.current);
-        }
-
-        autosaveTimerRef.current = setTimeout(() => {
-          handleSaveFile(editorContent, true);
-        }, 300000); // 5 minutes
-        unrefTimeout(autosaveTimerRef.current);
+    if (hasUnsavedChanges && selectedFile && editorContent) {
+      if (autosaveTimerRef.current) {
+        clearTimeout(autosaveTimerRef.current);
       }
+
+      autosaveTimerRef.current = setTimeout(() => {
+        handleSaveFile(editorContent, true);
+      }, 300000); // 5 minutes
+      unrefTimeout(autosaveTimerRef.current);
+    }
 
     return () => {
       if (autosaveTimerRef.current) {
@@ -344,12 +386,12 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         await handleSaveFile(editorContent, true);
 
         e.preventDefault();
-        e.returnValue = '';
+        e.returnValue = "";
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasUnsavedChanges, selectedFile, editorContent, handleSaveFile]);
 
   // loadWorkspace moved to useCallback above
@@ -359,10 +401,10 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   const openFile = React.useCallback(
     async (
       path: string,
-      type: 'file' | 'folder',
-      options: { recordHistory?: boolean } = {}
+      type: "file" | "folder",
+      options: { recordHistory?: boolean } = {},
     ) => {
-      if (type === 'folder') return;
+      if (type === "folder") return;
 
       if (options.recordHistory !== false) {
         pushNavigationEntry(path);
@@ -394,21 +436,25 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
             setEditorContent(response.data.content);
             setHasUnsavedChanges(false);
           } else {
-            setTransientStatus('error', response.error?.message || 'Failed to read file', 5000);
+            setTransientStatus(
+              "error",
+              response.error?.message || "Failed to read file",
+              5000,
+            );
           }
         }
       } catch (error) {
-        setTransientStatus('error', 'Failed to read file', 5000);
+        setTransientStatus("error", "Failed to read file", 5000);
       }
     },
-    [editorContent, pushNavigationEntry, selectedFile, setTransientStatus]
+    [editorContent, pushNavigationEntry, selectedFile, setTransientStatus],
   );
 
   const handleSelectFile = React.useCallback(
-    async (path: string, type: 'file' | 'folder') => {
+    async (path: string, type: "file" | "folder") => {
       await openFile(path, type, { recordHistory: true });
     },
-    [openFile]
+    [openFile],
   );
 
   const navigateToIndex = React.useCallback(
@@ -420,9 +466,9 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       const target = entries[nextIndex];
       navigationIndexRef.current = nextIndex;
       setNavigationIndex(nextIndex);
-      void openFile(target, 'file', { recordHistory: false });
+      void openFile(target, "file", { recordHistory: false });
     },
-    [openFile]
+    [openFile],
   );
 
   const handleNavigateBack = React.useCallback(() => {
@@ -438,25 +484,23 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       if (!(event.metaKey || event.ctrlKey)) {
         return;
       }
-      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
         return;
       }
       if (isEditableTarget(event.target)) {
         return;
       }
       event.preventDefault();
-      if (event.key === 'ArrowLeft') {
+      if (event.key === "ArrowLeft") {
         handleNavigateBack();
       } else {
         handleNavigateForward();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleNavigateBack, handleNavigateForward, isEditableTarget]);
-
-
 
   const handleCommit = async () => {
     const statusResponse = await window.notegitApi.repo.getStatus();
@@ -469,7 +513,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     try {
       const response = await window.notegitApi.repo.pull();
       if (response.ok) {
-        setTransientStatus('saved', 'Pull successful', 2000);
+        setTransientStatus("saved", "Pull successful", 2000);
         await loadWorkspace();
         if (selectedFile) {
           const fileResponse = await window.notegitApi.files.read(selectedFile);
@@ -478,16 +522,24 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
           }
         }
       } else {
-        setTransientStatus('error', response.error?.message || 'Failed to pull', 5000);
+        setTransientStatus(
+          "error",
+          response.error?.message || "Failed to pull",
+          5000,
+        );
       }
     } catch (error) {
-      setTransientStatus('error', 'Failed to pull', 5000);
+      setTransientStatus("error", "Failed to pull", 5000);
     }
   };
 
   const handleFetch = async () => {
     try {
-      if (isS3Repo && appSettings?.s3AutoSyncEnabled && !s3AutoSyncCleanupRef.current) {
+      if (
+        isS3Repo &&
+        appSettings?.s3AutoSyncEnabled &&
+        !s3AutoSyncCleanupRef.current
+      ) {
         s3AutoSyncCleanupRef.current = startS3AutoSync(
           appSettings.s3AutoSyncEnabled,
           appSettings.s3AutoSyncIntervalSec,
@@ -497,23 +549,30 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
             listTree: window.notegitApi.files.listTree,
             setStatus: setRepoStatus,
             setTree,
-          }
+          },
         );
       }
 
       const response = await window.notegitApi.repo.fetch();
       if (response.ok && response.data) {
         setRepoStatus(response.data);
-        setTransientStatus('saved', 'Fetch successful', 2000);
-        if (s3AutoSyncCleanupRef.current && response.data.provider !== REPO_PROVIDERS.s3) {
+        setTransientStatus("saved", "Fetch successful", 2000);
+        if (
+          s3AutoSyncCleanupRef.current &&
+          response.data.provider !== REPO_PROVIDERS.s3
+        ) {
           s3AutoSyncCleanupRef.current();
           s3AutoSyncCleanupRef.current = null;
         }
       } else {
-        setTransientStatus('error', response.error?.message || 'Failed to fetch', 5000);
+        setTransientStatus(
+          "error",
+          response.error?.message || "Failed to fetch",
+          5000,
+        );
       }
     } catch (error) {
-      setTransientStatus('error', 'Failed to fetch', 5000);
+      setTransientStatus("error", "Failed to fetch", 5000);
     }
   };
 
@@ -521,11 +580,12 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     try {
       const response = await window.notegitApi.repo.push();
       if (response.ok) {
-        setTransientStatus('saved', 'Push successful', 2000);
+        setTransientStatus("saved", "Push successful", 2000);
         if (isS3Repo) {
           await loadWorkspace();
           if (selectedFile) {
-            const fileResponse = await window.notegitApi.files.read(selectedFile);
+            const fileResponse =
+              await window.notegitApi.files.read(selectedFile);
             if (fileResponse.ok && fileResponse.data) {
               setFileContent(fileResponse.data);
             }
@@ -536,10 +596,14 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
           setRepoStatus(statusResponse.data);
         }
       } else {
-        setTransientStatus('error', response.error?.message || 'Failed to push', 5000);
+        setTransientStatus(
+          "error",
+          response.error?.message || "Failed to push",
+          5000,
+        );
       }
     } catch (error) {
-      setTransientStatus('error', 'Failed to push', 5000);
+      setTransientStatus("error", "Failed to push", 5000);
     }
   };
 
@@ -553,15 +617,18 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         setTree(treeResponse.data);
       }
 
-      await handleSelectFile(newFilePath, 'file');
+      await handleSelectFile(newFilePath, "file");
       return;
     }
 
-    throw new Error(response.error?.message || 'Failed to create file');
+    throw new Error(response.error?.message || "Failed to create file");
   };
 
   const handleCreateFolder = async (parentPath: string, folderName: string) => {
-    const response = await window.notegitApi.files.createFolder(parentPath, folderName);
+    const response = await window.notegitApi.files.createFolder(
+      parentPath,
+      folderName,
+    );
     if (response.ok) {
       const treeResponse = await window.notegitApi.files.listTree();
       if (treeResponse.ok && treeResponse.data) {
@@ -570,7 +637,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       return;
     }
 
-    throw new Error(response.error?.message || 'Failed to create folder');
+    throw new Error(response.error?.message || "Failed to create folder");
   };
 
   const handleDelete = async (path: string) => {
@@ -591,7 +658,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       return;
     }
 
-    throw new Error(response.error?.message || 'Failed to delete');
+    throw new Error(response.error?.message || "Failed to delete");
   };
 
   const handleRename = async (oldPath: string, newPath: string) => {
@@ -605,9 +672,11 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
             path: newPath,
           });
         }
-      }
-      else if (selectedFile && selectedFile.startsWith(oldPath + '/')) {
-        const newSelectedPath = selectedFile.replace(oldPath + '/', newPath + '/');
+      } else if (selectedFile && selectedFile.startsWith(oldPath + "/")) {
+        const newSelectedPath = selectedFile.replace(
+          oldPath + "/",
+          newPath + "/",
+        );
         setSelectedFile(newSelectedPath);
         if (fileContent) {
           setFileContent({
@@ -620,10 +689,10 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       if (repoStatus?.provider === REPO_PROVIDERS.git) {
         try {
           await window.notegitApi.files.commitAll(
-            `Move: ${oldPath} -> ${newPath}`
+            `Move: ${oldPath} -> ${newPath}`,
           );
         } catch (commitError) {
-          setTransientStatus('error', 'Failed to auto-commit move', 5000);
+          setTransientStatus("error", "Failed to auto-commit move", 5000);
         }
       }
 
@@ -638,11 +707,14 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       return;
     }
 
-    throw new Error(response.error?.message || 'Failed to rename');
+    throw new Error(response.error?.message || "Failed to rename");
   };
 
   const handleImport = async (sourcePath: string, targetPath: string) => {
-    const response = await window.notegitApi.files.import(sourcePath, targetPath);
+    const response = await window.notegitApi.files.import(
+      sourcePath,
+      targetPath,
+    );
     if (response.ok) {
       const treeResponse = await window.notegitApi.files.listTree();
       if (treeResponse.ok && treeResponse.data) {
@@ -655,7 +727,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       return;
     }
 
-    throw new Error(response.error?.message || 'Failed to import file');
+    throw new Error(response.error?.message || "Failed to import file");
   };
 
   const handleEditorChange = (content: string, hasChanges: boolean) => {
@@ -677,17 +749,19 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         if (treeResponse.ok && treeResponse.data) {
           setTree(treeResponse.data);
         }
-        await handleSelectFile(response.data, 'file');
+        await handleSelectFile(response.data, "file");
         return response.data;
       }
-      throw new Error(response.error?.message || 'Failed to duplicate file');
+      throw new Error(response.error?.message || "Failed to duplicate file");
     } catch (error: any) {
-      setTransientStatus('error', error.message || 'Failed to duplicate file', 5000);
+      setTransientStatus(
+        "error",
+        error.message || "Failed to duplicate file",
+        5000,
+      );
       throw error;
     }
   };
-
-
 
   const handleCommitAndPush = async () => {
     if (isLocalRepo) {
@@ -696,43 +770,46 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
 
     if (hasUnsavedChanges && selectedFile) {
       await handleSaveFile(editorContent);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
-    setSaveStatus('saving');
-    setSaveMessage(isS3Repo ? 'Syncing...' : 'Committing and pushing...');
+    setSaveStatus("saving");
+    setSaveMessage(isS3Repo ? "Syncing..." : "Committing and pushing...");
 
     try {
       if (isS3Repo) {
         const response = await window.notegitApi.repo.push();
         if (response.ok) {
-          setSaveStatus('saved');
-          setSaveMessage('Synced successfully');
+          setSaveStatus("saved");
+          setSaveMessage("Synced successfully");
           await loadWorkspace();
           if (selectedFile) {
-            const fileResponse = await window.notegitApi.files.read(selectedFile);
+            const fileResponse =
+              await window.notegitApi.files.read(selectedFile);
             if (fileResponse.ok && fileResponse.data) {
               setFileContent(fileResponse.data);
             }
           }
         } else {
-          setSaveStatus('error');
-          setSaveMessage(response.error?.message || 'Failed to sync');
+          setSaveStatus("error");
+          setSaveMessage(response.error?.message || "Failed to sync");
         }
       } else {
         const response = await window.notegitApi.files.commitAndPushAll();
 
         if (response.ok) {
-          if (response.data?.message === 'Nothing to commit') {
-            setSaveStatus('idle');
-            setSaveMessage('Nothing to commit');
+          if (response.data?.message === "Nothing to commit") {
+            setSaveStatus("idle");
+            setSaveMessage("Nothing to commit");
           } else {
-            setSaveStatus('saved');
-            setSaveMessage('Committed and pushed successfully');
+            setSaveStatus("saved");
+            setSaveMessage("Committed and pushed successfully");
           }
         } else {
-          setSaveStatus('error');
-          setSaveMessage(response.error?.message || 'Failed to commit and push');
+          setSaveStatus("error");
+          setSaveMessage(
+            response.error?.message || "Failed to commit and push",
+          );
         }
       }
 
@@ -741,34 +818,43 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         setRepoStatus(statusResponse.data);
       }
 
-      setTimeout(() => {
-        setSaveStatus('idle');
-        setSaveMessage('');
-      }, isS3Repo ? 2000 : 3000);
+      setTimeout(
+        () => {
+          setSaveStatus("idle");
+          setSaveMessage("");
+        },
+        isS3Repo ? 2000 : 3000,
+      );
     } catch (error: any) {
-      setSaveStatus('error');
-      setSaveMessage(error.message || (isS3Repo ? 'Failed to sync' : 'Failed to commit and push'));
+      setSaveStatus("error");
+      setSaveMessage(
+        error.message ||
+          (isS3Repo ? "Failed to sync" : "Failed to commit and push"),
+      );
 
       setTimeout(() => {
-        setSaveStatus('idle');
-        setSaveMessage('');
+        setSaveStatus("idle");
+        setSaveMessage("");
       }, 5000);
     }
   };
 
   const handleSelectFileFromSearch = async (filePath: string) => {
-    await handleSelectFile(filePath, 'file');
+    await handleSelectFile(filePath, "file");
   };
 
-  const handleSelectMatchFromRepoSearch = async (filePath: string, _lineNumber: number) => {
-    await handleSelectFile(filePath, 'file');
+  const handleSelectMatchFromRepoSearch = async (
+    filePath: string,
+    _lineNumber: number,
+  ) => {
+    await handleSelectFile(filePath, "file");
   };
 
   const handleOpenLinkedFile = React.useCallback(
     async (filePath: string) => {
-      await handleSelectFile(filePath, 'file');
+      await handleSelectFile(filePath, "file");
     },
-    [handleSelectFile]
+    [handleSelectFile],
   );
 
   const handleViewVersion = (commitHash: string, commitMessage: string) => {
@@ -798,7 +884,10 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       const delta = e.clientX - resizeStartX.current;
       const newWidth = resizeStartWidth.current + delta;
 
-      const constrainedWidth = Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, newWidth));
+      const constrainedWidth = Math.max(
+        SIDEBAR_MIN_WIDTH,
+        Math.min(SIDEBAR_MAX_WIDTH, newWidth),
+      );
 
       setSidebarWidth(constrainedWidth);
     };
@@ -807,12 +896,12 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       setIsResizing(false);
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isResizing]);
 
@@ -820,17 +909,20 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     if (isTreeCollapsed) {
       const restoredWidth = Math.max(
         SIDEBAR_MIN_WIDTH,
-        Math.min(SIDEBAR_MAX_WIDTH, lastExpandedSidebarWidthRef.current || SIDEBAR_DEFAULT_WIDTH)
+        Math.min(
+          SIDEBAR_MAX_WIDTH,
+          lastExpandedSidebarWidthRef.current || SIDEBAR_DEFAULT_WIDTH,
+        ),
       );
       setSidebarWidth(restoredWidth);
-      dispatchTreePanel('toggle');
+      dispatchTreePanel("toggle");
       return;
     }
 
     lastExpandedSidebarWidthRef.current = sidebarWidth;
     setSidebarWidth(SIDEBAR_COLLAPSED_WIDTH);
     setIsResizing(false);
-    dispatchTreePanel('toggle');
+    dispatchTreePanel("toggle");
   }, [isTreeCollapsed, sidebarWidth]);
 
   useEffect(() => {
@@ -849,9 +941,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   return (
     <Box sx={rootSx}>
       <Box sx={mainContentSx}>
-        <Box
-          sx={sidebarSx(sidebarWidth, isTreeCollapsed)}
-        >
+        <Box sx={sidebarSx(sidebarWidth, isTreeCollapsed)}>
           <FileTreeView
             tree={tree}
             selectedFile={selectedFile}
@@ -914,34 +1004,34 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
               }
             />
           ) : (
-          <MarkdownEditor
-            file={fileContent}
-            repoPath={repoPath}
-            onSave={handleSaveFile}
-            onChange={handleEditorChange}
-            onOpenLinkedFile={handleOpenLinkedFile}
-            treePanelControls={
-              isTreeCollapsed
-                ? {
-                    onToggleTree: handleToggleTreeCollapse,
-                    onNavigateBack: handleNavigateBack,
-                    onNavigateForward: handleNavigateForward,
-                    canNavigateBack,
-                    canNavigateForward,
-                  }
-                : undefined
-            }
-          />
+            <MarkdownEditor
+              file={fileContent}
+              repoPath={repoPath}
+              onSave={handleSaveFile}
+              onChange={handleEditorChange}
+              onOpenLinkedFile={handleOpenLinkedFile}
+              treePanelControls={
+                isTreeCollapsed
+                  ? {
+                      onToggleTree: handleToggleTreeCollapse,
+                      onNavigateBack: handleNavigateBack,
+                      onNavigateForward: handleNavigateForward,
+                      canNavigateBack,
+                      canNavigateForward,
+                    }
+                  : undefined
+              }
+            />
           )}
         </Box>
 
-      {historyPanelOpen && !isLocalRepo && (
-        <HistoryPanel
-          filePath={selectedFile}
-          onViewVersion={handleViewVersion}
-          onClose={() => setHistoryPanelOpen(false)}
-        />
-      )}
+        {historyPanelOpen && !isLocalRepo && (
+          <HistoryPanel
+            filePath={selectedFile}
+            onViewVersion={handleViewVersion}
+            onClose={() => setHistoryPanelOpen(false)}
+          />
+        )}
       </Box>
 
       <StatusBar

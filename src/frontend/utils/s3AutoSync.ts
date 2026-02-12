@@ -1,5 +1,5 @@
-import type { FileTreeNode, RepoStatus } from '../../shared/types';
-import type { ApiResponse } from '../../shared/types/api';
+import type { FileTreeNode, RepoStatus } from "../../shared/types";
+import type { ApiResponse } from "../../shared/types/api";
 
 export interface S3AutoSyncDeps {
   startAutoPush: () => Promise<ApiResponse<void>>;
@@ -18,7 +18,7 @@ export const getS3AutoSyncIntervalMs = (intervalSec?: number): number => {
 export const startS3AutoSync = (
   enabled: boolean,
   intervalSec: number | undefined,
-  deps: S3AutoSyncDeps
+  deps: S3AutoSyncDeps,
 ): (() => void) => {
   if (!enabled) {
     return () => {};

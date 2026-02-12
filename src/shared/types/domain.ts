@@ -2,20 +2,20 @@ export interface FileTreeNode {
   id: string;
   name: string;
   path: string;
-  type: 'file' | 'folder';
+  type: "file" | "folder";
   fileType?: FileType;
   children?: FileTreeNode[];
   isExpanded?: boolean;
 }
 
 export enum FileType {
-  MARKDOWN = 'markdown',
-  IMAGE = 'image',
-  PDF = 'pdf',
-  TEXT = 'text',
-  JSON = 'json',
-  CODE = 'code',
-  OTHER = 'other',
+  MARKDOWN = "markdown",
+  IMAGE = "image",
+  PDF = "pdf",
+  TEXT = "text",
+  JSON = "json",
+  CODE = "code",
+  OTHER = "other",
 }
 
 export interface FileContent {

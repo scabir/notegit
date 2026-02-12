@@ -1,21 +1,21 @@
-import type { FileTreeNode } from '../../../shared/types';
-import { findNodeByPath, getParentPath, normalizeName } from './utils';
+import type { FileTreeNode } from "../../../shared/types";
+import { findNodeByPath, getParentPath, normalizeName } from "./utils";
 
 export const resolveParentDestination = (
   targetNode: FileTreeNode | null,
-  tree: FileTreeNode[]
+  tree: FileTreeNode[],
 ): { parentPath: string; parentNodeId: string | null } => {
   if (!targetNode) {
-    return { parentPath: '', parentNodeId: null };
+    return { parentPath: "", parentNodeId: null };
   }
 
-  if (targetNode.type === 'folder') {
+  if (targetNode.type === "folder") {
     return { parentPath: targetNode.path, parentNodeId: targetNode.id };
   }
 
   const parentPath = getParentPath(targetNode.path);
   if (!parentPath) {
-    return { parentPath: '', parentNodeId: null };
+    return { parentPath: "", parentNodeId: null };
   }
 
   const parentNode = findNodeByPath(tree, parentPath);
@@ -26,7 +26,7 @@ export const resolveImportTargetPath = (
   sourcePath: string,
   targetNode: FileTreeNode | null,
   isS3Repo: boolean,
-  fallbackFileName: string
+  fallbackFileName: string,
 ) => {
   const rawFileName = sourcePath.split(/[\\/]/).pop() || fallbackFileName;
   const fileName = normalizeName(rawFileName, isS3Repo);
@@ -35,7 +35,7 @@ export const resolveImportTargetPath = (
     return fileName;
   }
 
-  if (targetNode.type === 'folder') {
+  if (targetNode.type === "folder") {
     return `${targetNode.path}/${fileName}`;
   }
 
@@ -46,14 +46,14 @@ export const resolveImportTargetPath = (
 export const resolveCreationLocationText = (
   targetNode: FileTreeNode | null,
   locationRootText: string,
-  locationPrefixText: string
+  locationPrefixText: string,
 ) => {
   if (!targetNode) {
     return locationRootText;
   }
 
-  if (targetNode.type === 'folder') {
-    return `${locationPrefixText}${targetNode.path || 'root'}`;
+  if (targetNode.type === "folder") {
+    return `${locationPrefixText}${targetNode.path || "root"}`;
   }
 
   const parentPath = getParentPath(targetNode.path);

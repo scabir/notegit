@@ -1,4 +1,4 @@
-import type { SvgIconComponent } from '@mui/icons-material';
+import type { SvgIconComponent } from "@mui/icons-material";
 
 export interface AboutDialogProps {
   open: boolean;

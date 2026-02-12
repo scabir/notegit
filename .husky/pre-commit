@@ -3,7 +3,8 @@
 
 pnpm run clean
 pnpm install
-pnpm lint
+pnpm run format
+pnpm run format:check
 pnpm exec eslint . --ext .ts,.tsx --max-warnings=0
 pnpm run build
 pnpm test

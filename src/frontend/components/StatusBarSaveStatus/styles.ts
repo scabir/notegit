@@ -1,12 +1,12 @@
-import type { SxProps, Theme } from '@mui/material/styles';
+import type { SxProps, Theme } from "@mui/material/styles";
 
 export const saveStatusRowSx: SxProps<Theme> = {
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
   gap: 1,
   minWidth: 0,
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
+  overflow: "hidden",
+  whiteSpace: "nowrap",
 };
 
 export const statusChipSx: SxProps<Theme> = {
@@ -16,16 +16,16 @@ export const statusChipSx: SxProps<Theme> = {
 
 export const saveMessageSx: SxProps<Theme> = {
   minWidth: 0,
-  maxWidth: '100%',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
+  maxWidth: "100%",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
 };
 
 export const hiddenStatusTextSx: SxProps<Theme> = {
-  position: 'absolute',
+  position: "absolute",
   width: 1,
   height: 1,
-  overflow: 'hidden',
-  clip: 'rect(1px, 1px, 1px, 1px)',
+  overflow: "hidden",
+  clip: "rect(1px, 1px, 1px, 1px)",
 };

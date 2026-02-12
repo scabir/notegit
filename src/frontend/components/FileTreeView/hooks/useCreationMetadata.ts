@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import type { FileTreeNode } from '../../../../shared/types';
-import { resolveCreationLocationText } from '../pathResolvers';
+import { useMemo } from "react";
+import type { FileTreeNode } from "../../../../shared/types";
+import { resolveCreationLocationText } from "../pathResolvers";
 
 type UseCreationMetadataParams = {
   treeContextMenuNode: FileTreeNode | null;
@@ -26,9 +26,10 @@ export function useCreationMetadata({
   const contextNodeIsFavorite = useMemo(
     () =>
       Boolean(
-        treeContextMenuNode && favoriteNodes.some((node) => node.path === treeContextMenuNode.path)
+        treeContextMenuNode &&
+        favoriteNodes.some((node) => node.path === treeContextMenuNode.path),
       ),
-    [favoriteNodes, treeContextMenuNode]
+    [favoriteNodes, treeContextMenuNode],
   );
 
   const creationLocationText = useMemo(
@@ -36,19 +37,19 @@ export function useCreationMetadata({
       resolveCreationLocationText(
         selectedNodeForActions,
         createLocationRoot,
-        createLocationPrefix
+        createLocationPrefix,
       ),
-    [createLocationPrefix, createLocationRoot, selectedNodeForActions]
+    [createLocationPrefix, createLocationRoot, selectedNodeForActions],
   );
 
   const fileHelperText = useMemo(
-    () => (!newItemName.includes('.') ? fileExtensionHint : ' '),
-    [fileExtensionHint, newItemName]
+    () => (!newItemName.includes(".") ? fileExtensionHint : " "),
+    [fileExtensionHint, newItemName],
   );
 
   const selectedNodeId = useMemo(
     () => selectedNodeForActions?.id ?? selectedFile ?? undefined,
-    [selectedFile, selectedNodeForActions]
+    [selectedFile, selectedNodeForActions],
   );
 
   return {

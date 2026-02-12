@@ -1,4 +1,4 @@
-import type { FileContent } from '../../../shared/types';
+import type { FileContent } from "../../../shared/types";
 
 export interface TreePanelControls {
   onToggleTree: () => void;

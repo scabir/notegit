@@ -1,16 +1,21 @@
-import { FilesService } from '../../../backend/services/FilesService';
-import { FsAdapter } from '../../../backend/adapters/FsAdapter';
-import { ConfigService } from '../../../backend/services/ConfigService';
-import { GitAdapter } from '../../../backend/adapters/GitAdapter';
-import { FileType, AuthMethod, ApiErrorCode, REPO_PROVIDERS } from '../../../shared/types';
-import { Stats } from 'fs';
-import * as path from 'path';
+import { FilesService } from "../../../backend/services/FilesService";
+import { FsAdapter } from "../../../backend/adapters/FsAdapter";
+import { ConfigService } from "../../../backend/services/ConfigService";
+import { GitAdapter } from "../../../backend/adapters/GitAdapter";
+import {
+  FileType,
+  AuthMethod,
+  ApiErrorCode,
+  REPO_PROVIDERS,
+} from "../../../shared/types";
+import { Stats } from "fs";
+import * as path from "path";
 
-jest.mock('../../../backend/adapters/FsAdapter');
-jest.mock('../../../backend/services/ConfigService');
-jest.mock('../../../backend/adapters/GitAdapter');
+jest.mock("../../../backend/adapters/FsAdapter");
+jest.mock("../../../backend/services/ConfigService");
+jest.mock("../../../backend/adapters/GitAdapter");
 
-describe('FilesService', () => {
+describe("FilesService", () => {
   let filesService: FilesService;
   let mockFsAdapter: jest.Mocked<FsAdapter>;
   let mockConfigService: jest.Mocked<ConfigService>;
@@ -21,8 +26,11 @@ describe('FilesService', () => {
     mockFsAdapter.rmdir = jest.fn();
     mockFsAdapter.rename = jest.fn();
     mockFsAdapter.copyFile = jest.fn();
-    
-    mockConfigService = new ConfigService({} as any, {} as any) as jest.Mocked<ConfigService>;
+
+    mockConfigService = new ConfigService(
+      {} as any,
+      {} as any,
+    ) as jest.Mocked<ConfigService>;
     mockGitAdapter = new GitAdapter() as jest.Mocked<GitAdapter>;
 
     filesService = new FilesService(mockFsAdapter, mockConfigService);
@@ -31,14 +39,14 @@ describe('FilesService', () => {
     jest.clearAllMocks();
   });
 
-  describe('init', () => {
-    it('should initialize with repo path from config', async () => {
+  describe("init", () => {
+    it("should initialize with repo path from config", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/path/to/repo',
-        remoteUrl: 'https://github.com/user/repo.git',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/path/to/repo",
+        remoteUrl: "https://github.com/user/repo.git",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
@@ -48,58 +56,60 @@ describe('FilesService', () => {
     });
   });
 
-  describe('getFileType', () => {
-    it('should identify markdown files', () => {
-      expect(filesService.getFileType('note.md')).toBe(FileType.MARKDOWN);
-      expect(filesService.getFileType('README.markdown')).toBe(FileType.MARKDOWN);
+  describe("getFileType", () => {
+    it("should identify markdown files", () => {
+      expect(filesService.getFileType("note.md")).toBe(FileType.MARKDOWN);
+      expect(filesService.getFileType("README.markdown")).toBe(
+        FileType.MARKDOWN,
+      );
     });
 
-    it('should identify image files', () => {
-      expect(filesService.getFileType('photo.png')).toBe(FileType.IMAGE);
-      expect(filesService.getFileType('image.jpg')).toBe(FileType.IMAGE);
-      expect(filesService.getFileType('pic.jpeg')).toBe(FileType.IMAGE);
-      expect(filesService.getFileType('icon.svg')).toBe(FileType.IMAGE);
+    it("should identify image files", () => {
+      expect(filesService.getFileType("photo.png")).toBe(FileType.IMAGE);
+      expect(filesService.getFileType("image.jpg")).toBe(FileType.IMAGE);
+      expect(filesService.getFileType("pic.jpeg")).toBe(FileType.IMAGE);
+      expect(filesService.getFileType("icon.svg")).toBe(FileType.IMAGE);
     });
 
-    it('should identify PDF files', () => {
-      expect(filesService.getFileType('document.pdf')).toBe(FileType.PDF);
+    it("should identify PDF files", () => {
+      expect(filesService.getFileType("document.pdf")).toBe(FileType.PDF);
     });
 
-    it('should identify JSON files', () => {
-      expect(filesService.getFileType('config.json')).toBe(FileType.JSON);
+    it("should identify JSON files", () => {
+      expect(filesService.getFileType("config.json")).toBe(FileType.JSON);
     });
 
-    it('should identify code files', () => {
-      expect(filesService.getFileType('script.js')).toBe(FileType.CODE);
-      expect(filesService.getFileType('app.ts')).toBe(FileType.CODE);
-      expect(filesService.getFileType('main.py')).toBe(FileType.CODE);
-      expect(filesService.getFileType('App.java')).toBe(FileType.CODE);
+    it("should identify code files", () => {
+      expect(filesService.getFileType("script.js")).toBe(FileType.CODE);
+      expect(filesService.getFileType("app.ts")).toBe(FileType.CODE);
+      expect(filesService.getFileType("main.py")).toBe(FileType.CODE);
+      expect(filesService.getFileType("App.java")).toBe(FileType.CODE);
     });
 
-    it('should identify text files', () => {
-      expect(filesService.getFileType('notes.txt')).toBe(FileType.TEXT);
-      expect(filesService.getFileType('data.csv')).toBe(FileType.TEXT);
-      expect(filesService.getFileType('config.yml')).toBe(FileType.TEXT);
+    it("should identify text files", () => {
+      expect(filesService.getFileType("notes.txt")).toBe(FileType.TEXT);
+      expect(filesService.getFileType("data.csv")).toBe(FileType.TEXT);
+      expect(filesService.getFileType("config.yml")).toBe(FileType.TEXT);
     });
 
-    it('should return OTHER for unknown types', () => {
-      expect(filesService.getFileType('file.xyz')).toBe(FileType.OTHER);
-      expect(filesService.getFileType('noext')).toBe(FileType.OTHER);
+    it("should return OTHER for unknown types", () => {
+      expect(filesService.getFileType("file.xyz")).toBe(FileType.OTHER);
+      expect(filesService.getFileType("noext")).toBe(FileType.OTHER);
     });
   });
 
-  describe('readFile', () => {
-    it('should read file content', async () => {
+  describe("readFile", () => {
+    it("should read file content", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
-      mockFsAdapter.readFile.mockResolvedValue('# Hello World');
+      mockFsAdapter.readFile.mockResolvedValue("# Hello World");
       mockFsAdapter.stat.mockResolvedValue({
         size: 100,
         mtime: new Date(),
@@ -107,42 +117,42 @@ describe('FilesService', () => {
         isFile: () => true,
       } as Stats);
 
-      const content = await filesService.readFile('notes/test.md');
+      const content = await filesService.readFile("notes/test.md");
 
-      expect(content.path).toBe('notes/test.md');
-      expect(content.content).toBe('# Hello World');
+      expect(content.path).toBe("notes/test.md");
+      expect(content.content).toBe("# Hello World");
       expect(content.type).toBe(FileType.MARKDOWN);
       expect(content.size).toBe(100);
     });
   });
 
-  describe('saveFile', () => {
-    it('should save file content', async () => {
+  describe("saveFile", () => {
+    it("should save file content", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
       mockFsAdapter.writeFile.mockResolvedValue(undefined);
 
-      await filesService.saveFile('notes/test.md', '# Updated Content');
+      await filesService.saveFile("notes/test.md", "# Updated Content");
 
       expect(mockFsAdapter.writeFile).toHaveBeenCalled();
     });
   });
 
-  describe('saveWithGitWorkflow', () => {
+  describe("saveWithGitWorkflow", () => {
     beforeEach(() => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
@@ -154,31 +164,33 @@ describe('FilesService', () => {
       mockGitAdapter.push.mockResolvedValue(undefined);
     });
 
-    it('saves, commits, pulls, and pushes on success', async () => {
+    it("saves, commits, pulls, and pushes on success", async () => {
       const result = await filesService.saveWithGitWorkflow(
-        'notes/test.md',
-        'content'
+        "notes/test.md",
+        "content",
       );
 
-      expect(mockGitAdapter.add).toHaveBeenCalledWith('notes/test.md');
-      expect(mockGitAdapter.commit).toHaveBeenCalledWith('Update note: test.md');
+      expect(mockGitAdapter.add).toHaveBeenCalledWith("notes/test.md");
+      expect(mockGitAdapter.commit).toHaveBeenCalledWith(
+        "Update note: test.md",
+      );
       expect(mockGitAdapter.pull).toHaveBeenCalled();
       expect(mockGitAdapter.push).toHaveBeenCalled();
       expect(result).toEqual({});
     });
 
-    it('uses autosave commit message when requested', async () => {
-      await filesService.saveWithGitWorkflow('notes/test.md', 'content', true);
+    it("uses autosave commit message when requested", async () => {
+      await filesService.saveWithGitWorkflow("notes/test.md", "content", true);
 
-      expect(mockGitAdapter.commit).toHaveBeenCalledWith('Autosave: test.md');
+      expect(mockGitAdapter.commit).toHaveBeenCalledWith("Autosave: test.md");
     });
 
-    it('marks pull failure and conflict without pushing', async () => {
-      mockGitAdapter.pull.mockRejectedValue(new Error('CONFLICT in file'));
+    it("marks pull failure and conflict without pushing", async () => {
+      mockGitAdapter.pull.mockRejectedValue(new Error("CONFLICT in file"));
 
       const result = await filesService.saveWithGitWorkflow(
-        'notes/test.md',
-        'content'
+        "notes/test.md",
+        "content",
       );
 
       expect(result.pullFailed).toBe(true);
@@ -186,12 +198,12 @@ describe('FilesService', () => {
       expect(mockGitAdapter.push).not.toHaveBeenCalled();
     });
 
-    it('marks pull failure and still pushes when not a conflict', async () => {
-      mockGitAdapter.pull.mockRejectedValue(new Error('Network error'));
+    it("marks pull failure and still pushes when not a conflict", async () => {
+      mockGitAdapter.pull.mockRejectedValue(new Error("Network error"));
 
       const result = await filesService.saveWithGitWorkflow(
-        'notes/test.md',
-        'content'
+        "notes/test.md",
+        "content",
       );
 
       expect(result.pullFailed).toBe(true);
@@ -199,23 +211,23 @@ describe('FilesService', () => {
       expect(mockGitAdapter.push).toHaveBeenCalled();
     });
 
-    it('marks push failure when push fails', async () => {
-      mockGitAdapter.push.mockRejectedValue(new Error('Push failed'));
+    it("marks push failure when push fails", async () => {
+      mockGitAdapter.push.mockRejectedValue(new Error("Push failed"));
 
       const result = await filesService.saveWithGitWorkflow(
-        'notes/test.md',
-        'content'
+        "notes/test.md",
+        "content",
       );
 
       expect(result.pushFailed).toBe(true);
     });
 
-    it('continues when commit fails', async () => {
-      mockGitAdapter.commit.mockRejectedValue(new Error('Nothing to commit'));
+    it("continues when commit fails", async () => {
+      mockGitAdapter.commit.mockRejectedValue(new Error("Nothing to commit"));
 
       const result = await filesService.saveWithGitWorkflow(
-        'notes/test.md',
-        'content'
+        "notes/test.md",
+        "content",
       );
 
       expect(mockGitAdapter.pull).toHaveBeenCalled();
@@ -224,114 +236,117 @@ describe('FilesService', () => {
     });
   });
 
-  describe('createFile', () => {
-    it('should create markdown file with default content', async () => {
+  describe("createFile", () => {
+    it("should create markdown file with default content", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
       mockFsAdapter.writeFile.mockResolvedValue(undefined);
 
-      await filesService.createFile('notes', 'new-note.md');
+      await filesService.createFile("notes", "new-note.md");
 
       expect(mockFsAdapter.writeFile).toHaveBeenCalled();
       const savedContent = mockFsAdapter.writeFile.mock.calls[0][1];
-      expect(savedContent).toContain('# new-note');
+      expect(savedContent).toContain("# new-note");
     });
 
-    it('should create empty file for non-markdown files', async () => {
+    it("should create empty file for non-markdown files", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
       mockFsAdapter.writeFile.mockResolvedValue(undefined);
 
-      await filesService.createFile('docs', 'data.txt');
+      await filesService.createFile("docs", "data.txt");
 
       expect(mockFsAdapter.writeFile).toHaveBeenCalled();
       const savedContent = mockFsAdapter.writeFile.mock.calls[0][1];
-      expect(savedContent).toBe('');
+      expect(savedContent).toBe("");
     });
 
-    it('should replace spaces in S3 file names', async () => {
+    it("should replace spaces in S3 file names", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.s3,
-        localPath: '/repo',
-        bucket: 'notes-bucket',
-        region: 'us-east-1',
-        prefix: '',
-        accessKeyId: 'access-key',
-        secretAccessKey: 'secret-key',
-        sessionToken: '',
+        localPath: "/repo",
+        bucket: "notes-bucket",
+        region: "us-east-1",
+        prefix: "",
+        accessKeyId: "access-key",
+        secretAccessKey: "secret-key",
+        sessionToken: "",
       });
 
       mockFsAdapter.writeFile.mockResolvedValue(undefined);
 
-      await filesService.createFile('notes', 'my note.md');
+      await filesService.createFile("notes", "my note.md");
 
       expect(mockFsAdapter.writeFile).toHaveBeenCalledWith(
-        '/repo/notes/my-note.md',
-        expect.any(String)
+        "/repo/notes/my-note.md",
+        expect.any(String),
       );
     });
   });
 
-  describe('createFolder', () => {
-    it('should create a folder', async () => {
+  describe("createFolder", () => {
+    it("should create a folder", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
       mockFsAdapter.mkdir.mockResolvedValue(undefined);
 
-      await filesService.createFolder('notes', 'subfolder');
+      await filesService.createFolder("notes", "subfolder");
 
       expect(mockFsAdapter.mkdir).toHaveBeenCalled();
     });
 
-    it('should replace spaces in S3 folder names', async () => {
+    it("should replace spaces in S3 folder names", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.s3,
-        localPath: '/repo',
-        bucket: 'notes-bucket',
-        region: 'us-east-1',
-        prefix: '',
-        accessKeyId: 'access-key',
-        secretAccessKey: 'secret-key',
-        sessionToken: '',
+        localPath: "/repo",
+        bucket: "notes-bucket",
+        region: "us-east-1",
+        prefix: "",
+        accessKeyId: "access-key",
+        secretAccessKey: "secret-key",
+        sessionToken: "",
       });
 
       mockFsAdapter.mkdir.mockResolvedValue(undefined);
 
-      await filesService.createFolder('notes', 'my folder');
+      await filesService.createFolder("notes", "my folder");
 
-      expect(mockFsAdapter.mkdir).toHaveBeenCalledWith('/repo/notes/my-folder', { recursive: false });
+      expect(mockFsAdapter.mkdir).toHaveBeenCalledWith(
+        "/repo/notes/my-folder",
+        { recursive: false },
+      );
     });
   });
 
-  describe('deletePath', () => {
-    it('should delete a file', async () => {
+  describe("deletePath", () => {
+    it("should delete a file", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
@@ -342,84 +357,85 @@ describe('FilesService', () => {
 
       mockFsAdapter.deleteFile.mockResolvedValue(undefined);
 
-      await filesService.deletePath('notes/old.md');
+      await filesService.deletePath("notes/old.md");
 
       expect(mockFsAdapter.deleteFile).toHaveBeenCalled();
     });
 
-    it('should recursively delete a directory', async () => {
+    it("should recursively delete a directory", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
-      mockFsAdapter.stat
-        .mockResolvedValueOnce({
-          isDirectory: () => true,
-          isFile: () => false,
-        } as Stats);
+      mockFsAdapter.stat.mockResolvedValueOnce({
+        isDirectory: () => true,
+        isFile: () => false,
+      } as Stats);
 
       mockFsAdapter.rmdir.mockResolvedValue(undefined);
 
-      await filesService.deletePath('old-folder');
+      await filesService.deletePath("old-folder");
 
-      expect(mockFsAdapter.rmdir).toHaveBeenCalledWith('/repo/old-folder', { recursive: true });
+      expect(mockFsAdapter.rmdir).toHaveBeenCalledWith("/repo/old-folder", {
+        recursive: true,
+      });
     });
   });
 
-  describe('renamePath', () => {
-    it('should rename a file', async () => {
+  describe("renamePath", () => {
+    it("should rename a file", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
       mockFsAdapter.rename.mockResolvedValue(undefined);
 
-      await filesService.renamePath('old.md', 'new.md');
+      await filesService.renamePath("old.md", "new.md");
 
       expect(mockFsAdapter.rename).toHaveBeenCalled();
     });
 
-    it('should replace spaces in S3 rename targets', async () => {
+    it("should replace spaces in S3 rename targets", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.s3,
-        localPath: '/repo',
-        bucket: 'notes-bucket',
-        region: 'us-east-1',
-        prefix: '',
-        accessKeyId: 'access-key',
-        secretAccessKey: 'secret-key',
-        sessionToken: '',
+        localPath: "/repo",
+        bucket: "notes-bucket",
+        region: "us-east-1",
+        prefix: "",
+        accessKeyId: "access-key",
+        secretAccessKey: "secret-key",
+        sessionToken: "",
       });
 
       mockFsAdapter.rename.mockResolvedValue(undefined);
 
-      await filesService.renamePath('old.md', 'new name.md');
+      await filesService.renamePath("old.md", "new name.md");
 
       expect(mockFsAdapter.rename).toHaveBeenCalledWith(
-        '/repo/old.md',
-        '/repo/new-name.md'
+        "/repo/old.md",
+        "/repo/new-name.md",
       );
     });
   });
 
-  describe('commitFile', () => {
-    it('should stage and commit a file', async () => {
+  describe("commitFile", () => {
+    it("should stage and commit a file", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
@@ -427,22 +443,22 @@ describe('FilesService', () => {
       mockGitAdapter.add.mockResolvedValue(undefined);
       mockGitAdapter.commit.mockResolvedValue(undefined);
 
-      await filesService.commitFile('notes/test.md', 'Update test note');
+      await filesService.commitFile("notes/test.md", "Update test note");
 
       expect(mockGitAdapter.init).toHaveBeenCalled();
-      expect(mockGitAdapter.add).toHaveBeenCalledWith('notes/test.md');
-      expect(mockGitAdapter.commit).toHaveBeenCalledWith('Update test note');
+      expect(mockGitAdapter.add).toHaveBeenCalledWith("notes/test.md");
+      expect(mockGitAdapter.commit).toHaveBeenCalledWith("Update test note");
     });
   });
 
-  describe('commitAll', () => {
-    it('should stage and commit all changes', async () => {
+  describe("commitAll", () => {
+    it("should stage and commit all changes", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
@@ -450,45 +466,47 @@ describe('FilesService', () => {
       mockGitAdapter.add.mockResolvedValue(undefined);
       mockGitAdapter.commit.mockResolvedValue(undefined);
 
-      await filesService.commitAll('Update notes');
+      await filesService.commitAll("Update notes");
 
       expect(mockGitAdapter.init).toHaveBeenCalled();
-      expect(mockGitAdapter.add).toHaveBeenCalledWith('.');
-      expect(mockGitAdapter.commit).toHaveBeenCalledWith('Update notes');
+      expect(mockGitAdapter.add).toHaveBeenCalledWith(".");
+      expect(mockGitAdapter.commit).toHaveBeenCalledWith("Update notes");
     });
 
-    it('should reject commit operations for S3 repositories', async () => {
+    it("should reject commit operations for S3 repositories", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.s3,
-        localPath: '/repo',
-        bucket: 'notes-bucket',
-        region: 'us-east-1',
-        prefix: '',
-        accessKeyId: 'access-key',
-        secretAccessKey: 'secret-key',
-        sessionToken: '',
+        localPath: "/repo",
+        bucket: "notes-bucket",
+        region: "us-east-1",
+        prefix: "",
+        accessKeyId: "access-key",
+        secretAccessKey: "secret-key",
+        sessionToken: "",
       });
 
-      await expect(filesService.commitAll('Update notes')).rejects.toMatchObject({
+      await expect(
+        filesService.commitAll("Update notes"),
+      ).rejects.toMatchObject({
         code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
       });
     });
   });
 
-  describe('listTree', () => {
-    it('should build file tree structure', async () => {
+  describe("listTree", () => {
+    it("should build file tree structure", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
       mockFsAdapter.readdir
-        .mockResolvedValueOnce(['notes', 'file1.md'])
-        .mockResolvedValueOnce(['note1.md', 'note2.md']);
+        .mockResolvedValueOnce(["notes", "file1.md"])
+        .mockResolvedValueOnce(["note1.md", "note2.md"]);
 
       mockFsAdapter.stat
         .mockResolvedValueOnce({
@@ -511,24 +529,28 @@ describe('FilesService', () => {
       const tree = await filesService.listTree();
 
       expect(tree).toHaveLength(2);
-      expect(tree[0].type).toBe('folder');
-      expect(tree[0].name).toBe('notes');
+      expect(tree[0].type).toBe("folder");
+      expect(tree[0].name).toBe("notes");
       expect(tree[0].children).toHaveLength(2);
-      expect(tree[1].type).toBe('file');
-      expect(tree[1].name).toBe('file1.md');
+      expect(tree[1].type).toBe("file");
+      expect(tree[1].name).toBe("file1.md");
     });
 
-    it('should filter hidden files', async () => {
+    it("should filter hidden files", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
-      mockFsAdapter.readdir.mockResolvedValue(['.hidden', '.git', 'visible.md']);
+      mockFsAdapter.readdir.mockResolvedValue([
+        ".hidden",
+        ".git",
+        "visible.md",
+      ]);
 
       mockFsAdapter.stat.mockResolvedValue({
         isDirectory: () => false,
@@ -538,20 +560,24 @@ describe('FilesService', () => {
       const tree = await filesService.listTree();
 
       expect(tree).toHaveLength(1);
-      expect(tree[0].name).toBe('visible.md');
+      expect(tree[0].name).toBe("visible.md");
     });
 
-    it('should sort folders before files', async () => {
+    it("should sort folders before files", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
 
-      mockFsAdapter.readdir.mockResolvedValueOnce(['file.md', 'folder', 'another.md']);
+      mockFsAdapter.readdir.mockResolvedValueOnce([
+        "file.md",
+        "folder",
+        "another.md",
+      ]);
 
       mockFsAdapter.stat
         .mockResolvedValueOnce({
@@ -571,181 +597,189 @@ describe('FilesService', () => {
 
       const tree = await filesService.listTree();
 
-      expect(tree[0].type).toBe('folder');
-      expect(tree[1].type).toBe('file');
-      expect(tree[2].type).toBe('file');
+      expect(tree[0].type).toBe("folder");
+      expect(tree[1].type).toBe("file");
+      expect(tree[2].type).toBe("file");
     });
   });
 
-  describe('renamePath', () => {
+  describe("renamePath", () => {
     beforeEach(async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
       await filesService.init();
     });
 
-    it('should rename a file', async () => {
+    it("should rename a file", async () => {
       mockFsAdapter.rename.mockResolvedValue();
 
-      await filesService.renamePath('old-note.md', 'new-note.md');
+      await filesService.renamePath("old-note.md", "new-note.md");
 
       expect(mockFsAdapter.rename).toHaveBeenCalledWith(
-        '/repo/old-note.md',
-        '/repo/new-note.md'
+        "/repo/old-note.md",
+        "/repo/new-note.md",
       );
     });
 
-    it('should move a file to another directory', async () => {
+    it("should move a file to another directory", async () => {
       mockFsAdapter.rename.mockResolvedValue();
 
-      await filesService.renamePath('note.md', 'folder/note.md');
+      await filesService.renamePath("note.md", "folder/note.md");
 
       expect(mockFsAdapter.rename).toHaveBeenCalledWith(
-        '/repo/note.md',
-        '/repo/folder/note.md'
+        "/repo/note.md",
+        "/repo/folder/note.md",
       );
     });
 
-    it('should rename a folder', async () => {
+    it("should rename a folder", async () => {
       mockFsAdapter.rename.mockResolvedValue();
 
-      await filesService.renamePath('old-folder', 'new-folder');
+      await filesService.renamePath("old-folder", "new-folder");
 
       expect(mockFsAdapter.rename).toHaveBeenCalledWith(
-        '/repo/old-folder',
-        '/repo/new-folder'
+        "/repo/old-folder",
+        "/repo/new-folder",
       );
     });
 
-    it('should move a folder to another directory', async () => {
+    it("should move a folder to another directory", async () => {
       mockFsAdapter.rename.mockResolvedValue();
 
-      await filesService.renamePath('folder1', 'parent/folder1');
+      await filesService.renamePath("folder1", "parent/folder1");
 
       expect(mockFsAdapter.rename).toHaveBeenCalledWith(
-        '/repo/folder1',
-        '/repo/parent/folder1'
+        "/repo/folder1",
+        "/repo/parent/folder1",
       );
     });
 
-    it('should handle nested paths correctly', async () => {
+    it("should handle nested paths correctly", async () => {
       mockFsAdapter.rename.mockResolvedValue();
 
-      await filesService.renamePath('parent/child/note.md', 'parent/child/renamed.md');
+      await filesService.renamePath(
+        "parent/child/note.md",
+        "parent/child/renamed.md",
+      );
 
       expect(mockFsAdapter.rename).toHaveBeenCalledWith(
-        '/repo/parent/child/note.md',
-        '/repo/parent/child/renamed.md'
+        "/repo/parent/child/note.md",
+        "/repo/parent/child/renamed.md",
       );
     });
 
-    it('should throw error if rename fails', async () => {
-      mockFsAdapter.rename.mockRejectedValue(new Error('Permission denied'));
+    it("should throw error if rename fails", async () => {
+      mockFsAdapter.rename.mockRejectedValue(new Error("Permission denied"));
 
       await expect(
-        filesService.renamePath('note.md', 'renamed.md')
+        filesService.renamePath("note.md", "renamed.md"),
       ).rejects.toThrow();
     });
 
-    it('should handle moving to root directory', async () => {
+    it("should handle moving to root directory", async () => {
       mockFsAdapter.rename.mockResolvedValue();
 
-      await filesService.renamePath('folder/note.md', 'note.md');
+      await filesService.renamePath("folder/note.md", "note.md");
 
       expect(mockFsAdapter.rename).toHaveBeenCalledWith(
-        '/repo/folder/note.md',
-        '/repo/note.md'
+        "/repo/folder/note.md",
+        "/repo/note.md",
       );
     });
   });
 
-  describe('importFile', () => {
-    it('should normalize spaces for S3 target paths', async () => {
+  describe("importFile", () => {
+    it("should normalize spaces for S3 target paths", async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.s3,
-        localPath: '/repo',
-        bucket: 'notes-bucket',
-        region: 'us-east-1',
-        prefix: '',
-        accessKeyId: 'access-key',
-        secretAccessKey: 'secret-key',
-        sessionToken: '',
+        localPath: "/repo",
+        bucket: "notes-bucket",
+        region: "us-east-1",
+        prefix: "",
+        accessKeyId: "access-key",
+        secretAccessKey: "secret-key",
+        sessionToken: "",
       });
 
       mockFsAdapter.mkdir.mockResolvedValue(undefined);
       mockFsAdapter.copyFile.mockResolvedValue(undefined);
 
-      await filesService.importFile('/source/file.txt', 'folder/my file.txt');
+      await filesService.importFile("/source/file.txt", "folder/my file.txt");
 
-      expect(mockFsAdapter.mkdir).toHaveBeenCalledWith('/repo/folder', { recursive: true });
+      expect(mockFsAdapter.mkdir).toHaveBeenCalledWith("/repo/folder", {
+        recursive: true,
+      });
       expect(mockFsAdapter.copyFile).toHaveBeenCalledWith(
-        '/source/file.txt',
-        '/repo/folder/my-file.txt'
+        "/source/file.txt",
+        "/repo/folder/my-file.txt",
       );
     });
   });
 
-  describe('duplicateFile', () => {
+  describe("duplicateFile", () => {
     beforeEach(async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
       await filesService.init();
     });
 
-    it('duplicates with incremented name', async () => {
+    it("duplicates with incremented name", async () => {
       mockFsAdapter.stat.mockResolvedValue({ isFile: () => true } as any);
-      mockFsAdapter.exists.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+      mockFsAdapter.exists
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(false);
       mockFsAdapter.copyFile.mockResolvedValue(undefined);
 
-      const result = await filesService.duplicateFile('note.md');
+      const result = await filesService.duplicateFile("note.md");
 
-      expect(mockFsAdapter.copyFile).toHaveBeenCalledWith('/repo/note.md', '/repo/note(2).md');
-      expect(result).toBe(path.join('note(2).md'));
+      expect(mockFsAdapter.copyFile).toHaveBeenCalledWith(
+        "/repo/note.md",
+        "/repo/note(2).md",
+      );
+      expect(result).toBe(path.join("note(2).md"));
     });
 
-    it('throws when source is not a file', async () => {
+    it("throws when source is not a file", async () => {
       mockFsAdapter.stat.mockResolvedValue({ isFile: () => false } as any);
-      await expect(filesService.duplicateFile('folder')).rejects.toBeTruthy();
+      await expect(filesService.duplicateFile("folder")).rejects.toBeTruthy();
     });
   });
 
-  describe('deletePath', () => {
+  describe("deletePath", () => {
     beforeEach(async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
         provider: REPO_PROVIDERS.git,
-        localPath: '/repo',
-        remoteUrl: 'url',
-        branch: 'main',
-        pat: 'token',
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
         authMethod: AuthMethod.PAT,
       });
       await filesService.init();
     });
 
-    it('should delete a file', async () => {
+    it("should delete a file", async () => {
       mockFsAdapter.stat.mockResolvedValue({
         isDirectory: () => false,
         isFile: () => true,
       } as Stats);
       mockFsAdapter.deleteFile.mockResolvedValue();
 
-      await filesService.deletePath('note.md');
+      await filesService.deletePath("note.md");
 
-      expect(mockFsAdapter.deleteFile).toHaveBeenCalledWith('/repo/note.md');
+      expect(mockFsAdapter.deleteFile).toHaveBeenCalledWith("/repo/note.md");
     });
-
   });
-
 });

@@ -1,18 +1,22 @@
-jest.mock('@mui/material/Menu', () => {
-  const React = require('react');
+jest.mock("@mui/material/Menu", () => {
+  const React = require("react");
   return {
     __esModule: true,
-    default: ({ children, ...props }: any) => React.createElement('div', props, children),
+    default: ({ children, ...props }: any) =>
+      React.createElement("div", props, children),
   };
 });
 
-import React from 'react';
-import TestRenderer, { act } from 'react-test-renderer';
-import { IconButton, Menu } from '@mui/material';
-import { ShortcutHelper, type ShortcutHelperHandle } from '../../../frontend/components/ShortcutHelper';
+import React from "react";
+import TestRenderer, { act } from "react-test-renderer";
+import { IconButton, Menu } from "@mui/material";
+import {
+  ShortcutHelper,
+  type ShortcutHelperHandle,
+} from "../../../frontend/components/ShortcutHelper";
 
-describe('ShortcutHelper', () => {
-  it('opens the helper menu when the question mark button is clicked', () => {
+describe("ShortcutHelper", () => {
+  it("opens the helper menu when the question mark button is clicked", () => {
     let renderer: TestRenderer.ReactTestRenderer;
     act(() => {
       renderer = TestRenderer.create(React.createElement(ShortcutHelper));
@@ -26,12 +30,14 @@ describe('ShortcutHelper', () => {
     expect(menu.props.open).toBe(true);
   });
 
-  it('opens the helper menu when openMenu is invoked through the ref', () => {
+  it("opens the helper menu when openMenu is invoked through the ref", () => {
     const helperRef = React.createRef<ShortcutHelperHandle>();
 
     let renderer: TestRenderer.ReactTestRenderer;
     act(() => {
-      renderer = TestRenderer.create(React.createElement(ShortcutHelper, { ref: helperRef }));
+      renderer = TestRenderer.create(
+        React.createElement(ShortcutHelper, { ref: helperRef }),
+      );
     });
 
     act(() => {

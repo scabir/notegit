@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -12,25 +12,35 @@ import {
   Typography,
   ToggleButtonGroup,
   ToggleButton,
-} from '@mui/material';
-import type { RepoSettings, AuthMethod, RepoProviderType } from '../../../shared/types';
-import { REPO_PROVIDERS } from '../../../shared/types';
-import { REPO_SETUP_TEXT } from './constants';
-import { contentStackSx, repoTypeRowSx, patTitleSx, patListSx } from './styles';
-import type { RepoSetupDialogProps } from './types';
+} from "@mui/material";
+import type {
+  RepoSettings,
+  AuthMethod,
+  RepoProviderType,
+} from "../../../shared/types";
+import { REPO_PROVIDERS } from "../../../shared/types";
+import { REPO_SETUP_TEXT } from "./constants";
+import { contentStackSx, repoTypeRowSx, patTitleSx, patListSx } from "./styles";
+import type { RepoSetupDialogProps } from "./types";
 
-export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogProps) {
-  const [provider, setProvider] = useState<RepoProviderType>(REPO_PROVIDERS.git);
-  const [remoteUrl, setRemoteUrl] = useState('');
-  const [branch, setBranch] = useState('main');
-  const [pat, setPat] = useState('');
-  const [bucket, setBucket] = useState('');
-  const [region, setRegion] = useState('');
-  const [prefix, setPrefix] = useState('');
-  const [accessKeyId, setAccessKeyId] = useState('');
-  const [secretAccessKey, setSecretAccessKey] = useState('');
-  const [sessionToken, setSessionToken] = useState('');
-  const [localName, setLocalName] = useState('');
+export function RepoSetupDialog({
+  open,
+  onClose,
+  onSuccess,
+}: RepoSetupDialogProps) {
+  const [provider, setProvider] = useState<RepoProviderType>(
+    REPO_PROVIDERS.git,
+  );
+  const [remoteUrl, setRemoteUrl] = useState("");
+  const [branch, setBranch] = useState("main");
+  const [pat, setPat] = useState("");
+  const [bucket, setBucket] = useState("");
+  const [region, setRegion] = useState("");
+  const [prefix, setPrefix] = useState("");
+  const [accessKeyId, setAccessKeyId] = useState("");
+  const [secretAccessKey, setSecretAccessKey] = useState("");
+  const [sessionToken, setSessionToken] = useState("");
+  const [localName, setLocalName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,8 +63,8 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
           remoteUrl,
           branch,
           pat,
-          localPath: '',
-          authMethod: 'pat' as AuthMethod,
+          localPath: "",
+          authMethod: "pat" as AuthMethod,
         };
       } else if (provider === REPO_PROVIDERS.s3) {
         if (!bucket || !region || !accessKeyId || !secretAccessKey) {
@@ -68,7 +78,7 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
           bucket,
           region,
           prefix,
-          localPath: '',
+          localPath: "",
           accessKeyId,
           secretAccessKey,
           sessionToken,
@@ -122,9 +132,15 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
               onChange={(_, value) => value && setProvider(value)}
               size="small"
             >
-              <ToggleButton value={REPO_PROVIDERS.git}>{REPO_SETUP_TEXT.gitLabel}</ToggleButton>
-              <ToggleButton value={REPO_PROVIDERS.s3}>{REPO_SETUP_TEXT.s3Label}</ToggleButton>
-              <ToggleButton value={REPO_PROVIDERS.local}>{REPO_SETUP_TEXT.localLabel}</ToggleButton>
+              <ToggleButton value={REPO_PROVIDERS.git}>
+                {REPO_SETUP_TEXT.gitLabel}
+              </ToggleButton>
+              <ToggleButton value={REPO_PROVIDERS.s3}>
+                {REPO_SETUP_TEXT.s3Label}
+              </ToggleButton>
+              <ToggleButton value={REPO_PROVIDERS.local}>
+                {REPO_SETUP_TEXT.localLabel}
+              </ToggleButton>
             </ToggleButtonGroup>
           </Box>
 
@@ -183,7 +199,8 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
                   <br />
                   8. CLick on "Add Permission"
                   <br />
-                  9. Select "Ccontent" amd make sure you gave "Read and and Write" permissions
+                  9. Select "Ccontent" amd make sure you gave "Read and and
+                  Write" permissions
                   <br />
                   10. Hit Generate Token
                   <br />
@@ -279,7 +296,9 @@ export function RepoSetupDialog({ open, onClose, onSuccess }: RepoSetupDialogPro
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={loading}>{REPO_SETUP_TEXT.cancel}</Button>
+        <Button onClick={onClose} disabled={loading}>
+          {REPO_SETUP_TEXT.cancel}
+        </Button>
         <Button
           variant="contained"
           onClick={handleConnect}

@@ -1,6 +1,6 @@
-import type { ViewMode } from '../MarkdownEditor/types';
+import type { ViewMode } from "../MarkdownEditor/types";
 
-export type MarkdownCheatSheetType = 'markdown' | 'mermaid' | null;
+export type MarkdownCheatSheetType = "markdown" | "mermaid" | null;
 
 export interface MarkdownPreviewPaneProps {
   isDark: boolean;

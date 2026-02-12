@@ -1,21 +1,21 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from "react";
 
 export function useDialogState() {
   const [createFileDialogOpen, setCreateFileDialogOpen] = useState(false);
   const [createFolderDialogOpen, setCreateFolderDialogOpen] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [moveDialogOpen, setMoveDialogOpen] = useState(false);
-  const [newItemName, setNewItemName] = useState('');
+  const [newItemName, setNewItemName] = useState("");
   const [creating, setCreating] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const clearError = useCallback(() => {
-    setErrorMessage('');
+    setErrorMessage("");
   }, []);
 
   const resetNameAndError = useCallback(() => {
-    setNewItemName('');
-    setErrorMessage('');
+    setNewItemName("");
+    setErrorMessage("");
   }, []);
 
   const openCreateFileDialog = useCallback(() => {
@@ -30,7 +30,7 @@ export function useDialogState() {
 
   const openRenameDialog = useCallback((currentName: string) => {
     setNewItemName(currentName);
-    setErrorMessage('');
+    setErrorMessage("");
     setRenameDialogOpen(true);
   }, []);
 

@@ -1,11 +1,11 @@
-import type { ChipProps } from '@mui/material';
-import type { ReactElement } from 'react';
-import type { RepoStatus } from '../../../shared/types';
+import type { ChipProps } from "@mui/material";
+import type { ReactElement } from "react";
+import type { RepoStatus } from "../../../shared/types";
 
 export interface SyncStatusDisplay {
   icon: ReactElement;
   label: string;
-  color: ChipProps['color'];
+  color: ChipProps["color"];
 }
 
 export interface GetSyncStatusParams {

@@ -1,7 +1,7 @@
-import { pathToFileURL } from 'url';
-import * as path from 'path';
+import { pathToFileURL } from "url";
+import * as path from "path";
 
-const DEV_RENDERER_URL = 'http://localhost:5173';
+const DEV_RENDERER_URL = "http://localhost:5173";
 
 const safeParseUrl = (value: string): URL | null => {
   try {
@@ -11,15 +11,21 @@ const safeParseUrl = (value: string): URL | null => {
   }
 };
 
-export const getRendererEntryUrl = (isDevelopment: boolean, dirname: string): string => {
+export const getRendererEntryUrl = (
+  isDevelopment: boolean,
+  dirname: string,
+): string => {
   if (isDevelopment) {
     return DEV_RENDERER_URL;
   }
-  const filePath = path.join(dirname, '../../frontend/index.html');
+  const filePath = path.join(dirname, "../../frontend/index.html");
   return pathToFileURL(filePath).toString();
 };
 
-export const isInAppNavigation = (targetUrl: string, rendererEntryUrl: string): boolean => {
+export const isInAppNavigation = (
+  targetUrl: string,
+  rendererEntryUrl: string,
+): boolean => {
   const target = safeParseUrl(targetUrl);
   const renderer = safeParseUrl(rendererEntryUrl);
 
@@ -27,10 +33,9 @@ export const isInAppNavigation = (targetUrl: string, rendererEntryUrl: string): 
     return false;
   }
 
-  if (renderer.protocol === 'file:') {
-    return target.protocol === 'file:' && target.pathname === renderer.pathname;
+  if (renderer.protocol === "file:") {
+    return target.protocol === "file:" && target.pathname === renderer.pathname;
   }
 
   return target.origin === renderer.origin;
 };
-

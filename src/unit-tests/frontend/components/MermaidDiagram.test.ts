@@ -1,9 +1,9 @@
-import React from 'react';
-import { act, create } from 'react-test-renderer';
-import mermaid from 'mermaid';
-import { MermaidDiagram } from '../../../frontend/components/MermaidDiagram';
+import React from "react";
+import { act, create } from "react-test-renderer";
+import mermaid from "mermaid";
+import { MermaidDiagram } from "../../../frontend/components/MermaidDiagram";
 
-jest.mock('mermaid', () => ({
+jest.mock("mermaid", () => ({
   __esModule: true,
   default: {
     initialize: jest.fn(),
@@ -33,20 +33,20 @@ const renderDiagram = async (code: string, isDark: boolean) => {
 };
 
 const flattenText = (node: any): string => {
-  if (!node) return '';
-  if (typeof node === 'string') return node;
-  if (Array.isArray(node)) return node.map(flattenText).join('');
-  return node.children ? node.children.map(flattenText).join('') : '';
+  if (!node) return "";
+  if (typeof node === "string") return node;
+  if (Array.isArray(node)) return node.map(flattenText).join("");
+  return node.children ? node.children.map(flattenText).join("") : "";
 };
 
-describe('MermaidDiagram', () => {
+describe("MermaidDiagram", () => {
   const originalConsoleError = console.error;
 
   beforeAll(() => {
-    jest.spyOn(console, 'error').mockImplementation((message, ...args) => {
+    jest.spyOn(console, "error").mockImplementation((message, ...args) => {
       if (
-        typeof message === 'string' &&
-        message.includes('Function components cannot be given refs')
+        typeof message === "string" &&
+        message.includes("Function components cannot be given refs")
       ) {
         return;
       }
@@ -62,43 +62,43 @@ describe('MermaidDiagram', () => {
     mockedMermaid.initialize.mockClear();
     mockedMermaid.render.mockReset();
     mockedMermaid.render.mockResolvedValue({
-      svg: '<svg></svg>',
+      svg: "<svg></svg>",
       bindFunctions: jest.fn(),
     });
   });
 
-  it('initializes mermaid with light theme and renders diagram', async () => {
-    const code = 'graph TD; A-->B';
+  it("initializes mermaid with light theme and renders diagram", async () => {
+    const code = "graph TD; A-->B";
 
     await renderDiagram(code, false);
 
     expect(mockedMermaid.initialize).toHaveBeenCalledWith({
       startOnLoad: false,
-      theme: 'default',
+      theme: "default",
     });
     expect(mockedMermaid.render).toHaveBeenCalledWith(expect.any(String), code);
   });
 
-  it('initializes mermaid with dark theme', async () => {
-    await renderDiagram('graph TD; A-->B', true);
+  it("initializes mermaid with dark theme", async () => {
+    await renderDiagram("graph TD; A-->B", true);
 
     expect(mockedMermaid.initialize).toHaveBeenCalledWith({
       startOnLoad: false,
-      theme: 'dark',
+      theme: "dark",
     });
   });
 
-  it('shows error output when render fails', async () => {
-    const code = 'graph TD; A-->B';
-    mockedMermaid.render.mockRejectedValueOnce(new Error('boom'));
+  it("shows error output when render fails", async () => {
+    const code = "graph TD; A-->B";
+    mockedMermaid.render.mockRejectedValueOnce(new Error("boom"));
 
     const renderer = await renderDiagram(code, false);
 
     const text = flattenText(renderer.toJSON());
-    expect(text).toContain('Mermaid render error');
-    expect(text).toContain('boom');
+    expect(text).toContain("Mermaid render error");
+    expect(text).toContain("boom");
 
-    const pre = renderer.root.findByType('pre');
-    expect(pre.children.join('')).toContain(code);
+    const pre = renderer.root.findByType("pre");
+    expect(pre.children.join("")).toContain(code);
   });
 });

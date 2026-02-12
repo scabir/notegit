@@ -1,4 +1,4 @@
-import type { SaveStatusType } from '../StatusBar/types';
+import type { SaveStatusType } from "../StatusBar/types";
 
 export interface StatusBarSaveStatusProps {
   saveStatus: SaveStatusType;

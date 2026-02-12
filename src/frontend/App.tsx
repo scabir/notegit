@@ -1,38 +1,52 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { ThemeProvider, createTheme, CssBaseline, useMediaQuery } from '@mui/material';
-import { Box, Typography, Button, Alert, CircularProgress } from '@mui/material';
-import { RepoSetupDialog } from './components/RepoSetupDialog';
-import { EditorShell } from './components/EditorShell';
-import type { RepoProviderType } from '../shared/types';
-import { REPO_PROVIDERS } from '../shared/types';
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
+  useMediaQuery,
+} from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
+import { RepoSetupDialog } from "./components/RepoSetupDialog";
+import { EditorShell } from "./components/EditorShell";
+import type { RepoProviderType } from "../shared/types";
+import { REPO_PROVIDERS } from "../shared/types";
 
 function App() {
   const [loading, setLoading] = useState(true);
   const [setupDialogOpen, setSetupDialogOpen] = useState(false);
   const [gitInstalled, setGitInstalled] = useState<boolean | null>(null);
   const [hasRepo, setHasRepo] = useState(false);
-  const [repoProvider, setRepoProvider] = useState<RepoProviderType | null>(null);
-  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('system');
-  
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  
+  const [repoProvider, setRepoProvider] = useState<RepoProviderType | null>(
+    null,
+  );
+  const [themeMode, setThemeMode] = useState<"light" | "dark" | "system">(
+    "system",
+  );
+
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
   const theme = useMemo(() => {
-    const mode = themeMode === 'system' 
-      ? (prefersDarkMode ? 'dark' : 'light')
-      : themeMode;
-      
+    const mode =
+      themeMode === "system" ? (prefersDarkMode ? "dark" : "light") : themeMode;
+
     const lightBackground = {
-      default: '#f5f6f8',
-      paper: '#eef0f3',
+      default: "#f5f6f8",
+      paper: "#eef0f3",
     };
 
     return createTheme({
       palette: {
         mode,
-        ...(mode === 'light'
+        ...(mode === "light"
           ? {
               background: lightBackground,
-              divider: '#d7dbe2',
+              divider: "#d7dbe2",
             }
           : {}),
       },
@@ -60,24 +74,26 @@ function App() {
         setHasRepo(false);
         setRepoProvider(null);
       }
-      
+
       if (configResponse.ok && configResponse.data?.appSettings?.theme) {
-        setThemeMode(configResponse.data.appSettings.theme as 'light' | 'dark' | 'system');
+        setThemeMode(
+          configResponse.data.appSettings.theme as "light" | "dark" | "system",
+        );
       }
     } catch (error) {
-      console.error('Failed to initialize:', error);
+      console.error("Failed to initialize:", error);
     } finally {
       setLoading(false);
     }
   };
-  
-  const handleThemeChange = async (newTheme: 'light' | 'dark' | 'system') => {
+
+  const handleThemeChange = async (newTheme: "light" | "dark" | "system") => {
     setThemeMode(newTheme);
-    
+
     try {
       await window.notegitApi.config.updateAppSettings({ theme: newTheme });
     } catch (error) {
-      console.error('Failed to save theme preference:', error);
+      console.error("Failed to save theme preference:", error);
     }
   };
 
@@ -91,10 +107,10 @@ function App() {
         <CssBaseline />
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100vh',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
           }}
         >
           <CircularProgress />
@@ -109,11 +125,11 @@ function App() {
         <CssBaseline />
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100vh',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
             gap: 2,
             p: 3,
           }}
@@ -123,17 +139,18 @@ function App() {
           </Typography>
           <Alert severity="error" sx={{ maxWidth: 600 }}>
             <Typography variant="body2">
-              Git is not installed on your system. Please install Git to use notegit.
+              Git is not installed on your system. Please install Git to use
+              notegit.
             </Typography>
             <Typography variant="body2" sx={{ mt: 1 }}>
-              Visit{' '}
+              Visit{" "}
               <a
                 href="https://git-scm.com/downloads"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 https://git-scm.com/downloads
-              </a>{' '}
+              </a>{" "}
               to download Git.
             </Typography>
           </Alert>
@@ -148,11 +165,11 @@ function App() {
         <CssBaseline />
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100vh',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
             gap: 2,
             p: 3,
           }}

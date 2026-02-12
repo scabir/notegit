@@ -1,11 +1,11 @@
-import React from 'react';
-import { Box } from '@mui/material';
-import { DialogCreateItem } from '../FileTreeDialogCreateItem';
-import { DialogRename } from '../FileTreeDialogRename';
-import { MoveToFolderDialog } from '../MoveToFolderDialog';
-import { FILE_TREE_DIALOGS_IDS } from './constants';
-import { dialogsContainerSx } from './styles';
-import type { FileTreeDialogsProps } from './types';
+import React from "react";
+import { Box } from "@mui/material";
+import { DialogCreateItem } from "../FileTreeDialogCreateItem";
+import { DialogRename } from "../FileTreeDialogRename";
+import { MoveToFolderDialog } from "../MoveToFolderDialog";
+import { FILE_TREE_DIALOGS_IDS } from "./constants";
+import { dialogsContainerSx } from "./styles";
+import type { FileTreeDialogsProps } from "./types";
 
 export function FileTreeDialogs({
   text,
@@ -89,7 +89,11 @@ export function FileTreeDialogs({
           onCloseRenameDialog();
           onClearError();
         }}
-        title={selectedNode?.type === 'folder' ? text.renameFolderTitle : text.renameFileTitle}
+        title={
+          selectedNode?.type === "folder"
+            ? text.renameFolderTitle
+            : text.renameFileTitle
+        }
         label={text.newNameLabel}
         value={newItemName}
         onChange={(value) => {
@@ -99,7 +103,7 @@ export function FileTreeDialogs({
         onSubmit={onRename}
         errorMessage={errorMessage}
         creating={creating}
-        placeholder={selectedNode?.name || ''}
+        placeholder={selectedNode?.name || ""}
         cancelLabel={text.cancel}
         confirmLabel={text.renameAction}
         loadingLabel={text.renaming}

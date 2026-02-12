@@ -1,16 +1,19 @@
-import { IpcMain } from 'electron';
+import { IpcMain } from "electron";
 import {
   ApiResponse,
   CommitEntry,
   DiffHunk,
   ApiErrorCode,
-} from '../../shared/types';
-import { HistoryService } from '../services/HistoryService';
-import { logger } from '../utils/logger';
+} from "../../shared/types";
+import { HistoryService } from "../services/HistoryService";
+import { logger } from "../utils/logger";
 
-export function registerHistoryHandlers(ipcMain: IpcMain, historyService: HistoryService): void {
+export function registerHistoryHandlers(
+  ipcMain: IpcMain,
+  historyService: HistoryService,
+): void {
   ipcMain.handle(
-    'history:getForFile',
+    "history:getForFile",
     async (_event, path: string): Promise<ApiResponse<CommitEntry[]>> => {
       try {
         const history = await historyService.getForFile(path);
@@ -19,24 +22,28 @@ export function registerHistoryHandlers(ipcMain: IpcMain, historyService: Histor
           data: history,
         };
       } catch (error: any) {
-        logger.error('Failed to get file history', { path, error });
+        logger.error("Failed to get file history", { path, error });
         return {
           ok: false,
           error: error.code
             ? error
             : {
-              code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || 'Failed to get file history',
-              details: error,
-            },
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: error.message || "Failed to get file history",
+                details: error,
+              },
         };
       }
-    }
+    },
   );
 
   ipcMain.handle(
-    'history:getVersion',
-    async (_event, commitHash: string, path: string): Promise<ApiResponse<string>> => {
+    "history:getVersion",
+    async (
+      _event,
+      commitHash: string,
+      path: string,
+    ): Promise<ApiResponse<string>> => {
       try {
         const content = await historyService.getVersion(commitHash, path);
         return {
@@ -44,24 +51,29 @@ export function registerHistoryHandlers(ipcMain: IpcMain, historyService: Histor
           data: content,
         };
       } catch (error: any) {
-        logger.error('Failed to get file version', { commitHash, path, error });
+        logger.error("Failed to get file version", { commitHash, path, error });
         return {
           ok: false,
           error: error.code
             ? error
             : {
-              code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || 'Failed to get file version',
-              details: error,
-            },
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: error.message || "Failed to get file version",
+                details: error,
+              },
         };
       }
-    }
+    },
   );
 
   ipcMain.handle(
-    'history:getDiff',
-    async (_event, hash1: string, hash2: string, path: string): Promise<ApiResponse<DiffHunk[]>> => {
+    "history:getDiff",
+    async (
+      _event,
+      hash1: string,
+      hash2: string,
+      path: string,
+    ): Promise<ApiResponse<DiffHunk[]>> => {
       try {
         const diff = await historyService.getDiff(hash1, hash2, path);
         return {
@@ -69,18 +81,18 @@ export function registerHistoryHandlers(ipcMain: IpcMain, historyService: Histor
           data: diff,
         };
       } catch (error: any) {
-        logger.error('Failed to get diff', { hash1, hash2, path, error });
+        logger.error("Failed to get diff", { hash1, hash2, path, error });
         return {
           ok: false,
           error: error.code
             ? error
             : {
-              code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || 'Failed to get diff',
-              details: error,
-            },
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: error.message || "Failed to get diff",
+                details: error,
+              },
         };
       }
-    }
+    },
   );
 }

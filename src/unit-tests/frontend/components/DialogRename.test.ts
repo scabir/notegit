@@ -1,10 +1,10 @@
-import React from 'react';
-import TestRenderer, { act } from 'react-test-renderer';
-import { TextField } from '@mui/material';
-import { DialogRename } from '../../../frontend/components/FileTreeDialogRename';
+import React from "react";
+import TestRenderer, { act } from "react-test-renderer";
+import { TextField } from "@mui/material";
+import { DialogRename } from "../../../frontend/components/FileTreeDialogRename";
 
-describe('DialogRename', () => {
-  it('submits when Enter is pressed', () => {
+describe("DialogRename", () => {
+  it("submits when Enter is pressed", () => {
     const onSubmit = jest.fn();
     const onChange = jest.fn();
 
@@ -13,24 +13,24 @@ describe('DialogRename', () => {
       renderer = TestRenderer.create(
         React.createElement(DialogRename, {
           open: true,
-          title: 'Rename',
-          label: 'Name',
-          value: 'old.md',
+          title: "Rename",
+          label: "Name",
+          value: "old.md",
           onChange,
           onClose: jest.fn(),
           onSubmit,
           errorMessage: undefined,
           creating: false,
-          placeholder: 'New name',
-          testId: 'rename-item',
-        })
+          placeholder: "New name",
+          testId: "rename-item",
+        }),
       );
     });
 
     const field = renderer!.root.findByType(TextField);
 
     act(() => {
-      field.props.onKeyPress({ key: 'Enter' });
+      field.props.onKeyPress({ key: "Enter" });
     });
 
     expect(onSubmit).toHaveBeenCalled();

@@ -1,10 +1,10 @@
 export const FIND_REPLACE_TEXT = {
-  findPlaceholder: 'Find',
-  replacePlaceholder: 'Replace',
-  noMatches: 'No matches',
-  findPrevious: 'Find previous (Shift+Enter)',
-  findNext: 'Find next (Enter)',
-  replaceCurrent: 'Replace current match',
-  replaceAll: 'Replace all matches',
-  close: 'Close (Esc)',
+  findPlaceholder: "Find",
+  replacePlaceholder: "Replace",
+  noMatches: "No matches",
+  findPrevious: "Find previous (Shift+Enter)",
+  findNext: "Find next (Enter)",
+  replaceCurrent: "Replace current match",
+  replaceAll: "Replace all matches",
+  close: "Close (Esc)",
 } as const;
