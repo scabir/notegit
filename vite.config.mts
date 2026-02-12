@@ -1,13 +1,16 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
-  root: path.join(__dirname, 'src/frontend'),
+  root: path.join(rootDir, 'src/frontend'),
   base: './',
   build: {
-    outDir: path.join(__dirname, 'dist/frontend'),
+    outDir: path.join(rootDir, 'dist/frontend'),
     emptyOutDir: true,
   },
   server: {
@@ -15,8 +18,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@shared': path.join(__dirname, 'src/shared'),
+      '@shared': path.join(rootDir, 'src/shared'),
     },
   },
 });
-

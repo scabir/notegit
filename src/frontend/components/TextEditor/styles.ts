@@ -15,8 +15,10 @@ export const toolbarSx: SxProps<Theme> = {
   borderBottom: 1,
   borderColor: 'divider',
   gap: 1,
+  px: 0.5,
 };
 
+export const treeControlsRowSx: SxProps<Theme> = { display: 'flex', alignItems: 'center', gap: 0.25 };
 export const filePathSx: SxProps<Theme> = { flexGrow: 1 };
 export const modifiedChipSx: SxProps<Theme> = { height: 24 };
 

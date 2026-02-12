@@ -9,6 +9,7 @@ export type ToolbarAction = {
 
 export type FileTreeToolbarProps = {
   isCollapsed: boolean;
+  canToggleCollapse: boolean;
   onToggleCollapse: () => void;
   onBack: () => void;
   onForward: () => void;

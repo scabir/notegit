@@ -1,17 +1,31 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box, Toolbar, IconButton, Chip, Tooltip, Typography, useTheme } from '@mui/material';
-import { Save as SaveIcon, FileDownload as ExportIcon } from '@mui/icons-material';
+import {
+  Menu as MenuIcon,
+  ArrowBack as BackIcon,
+  ArrowForward as ForwardIcon,
+  Save as SaveIcon,
+  FileDownload as ExportIcon,
+} from '@mui/icons-material';
 import CodeMirror from '@uiw/react-codemirror';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 import { EditorView } from '@codemirror/view';
 import { FindReplaceBar } from '../FindReplaceBar';
 import type { AppSettings } from '../../../shared/types';
 import { TEXT_EDITOR_TEXT } from './constants';
-import { emptyStateSx, rootSx, toolbarSx, filePathSx, modifiedChipSx, editorContainerSx } from './styles';
+import {
+  emptyStateSx,
+  rootSx,
+  toolbarSx,
+  treeControlsRowSx,
+  filePathSx,
+  modifiedChipSx,
+  editorContainerSx,
+} from './styles';
 import type { TextEditorProps } from './types';
 import { useEditorFindReplace, useEditorGlobalShortcuts, useEditorKeymap } from '../../utils/editorHooks';
 
-export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
+export function TextEditor({ file, onSave, onChange, treePanelControls }: TextEditorProps) {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const [content, setContent] = useState('');
@@ -109,8 +123,41 @@ export function TextEditor({ file, onSave, onChange }: TextEditorProps) {
     <Box sx={rootSx}>
       <Toolbar
         variant="dense"
+        disableGutters
         sx={toolbarSx}
       >
+        {treePanelControls && (
+          <Box sx={treeControlsRowSx}>
+            <Tooltip title={TEXT_EDITOR_TEXT.showTreeTooltip}>
+              <IconButton size="small" onClick={treePanelControls.onToggleTree}>
+                <MenuIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={TEXT_EDITOR_TEXT.backTooltip}>
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={treePanelControls.onNavigateBack}
+                  disabled={!treePanelControls.canNavigateBack}
+                >
+                  <BackIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+            <Tooltip title={TEXT_EDITOR_TEXT.forwardTooltip}>
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={treePanelControls.onNavigateForward}
+                  disabled={!treePanelControls.canNavigateForward}
+                >
+                  <ForwardIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </Box>
+        )}
+
         <Typography variant="subtitle2" sx={filePathSx}>
           {file.path}
         </Typography>

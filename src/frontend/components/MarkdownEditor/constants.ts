@@ -1,6 +1,9 @@
 export const MARKDOWN_EDITOR_TEXT = {
   emptyState: 'Select a file to edit',
   unsaved: 'Unsaved changes',
+  showTreeTooltip: 'Show File Tree',
+  backTooltip: 'Back',
+  forwardTooltip: 'Forward',
   saveTooltip: 'Save (Cmd/Ctrl+S)',
   exportTooltip: 'Export Note',
   editorOnlyTooltip: 'Editor Only',

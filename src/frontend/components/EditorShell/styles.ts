@@ -20,9 +20,9 @@ export const sidebarSx = (width: number, isCollapsed: boolean): SxProps<Theme> =
   minWidth: width,
   maxWidth: width,
   flexShrink: 0,
-  borderRight: 1,
+  borderRight: isCollapsed ? 0 : 1,
   borderColor: 'divider',
-  overflowY: 'auto',
+  overflowY: isCollapsed ? 'hidden' : 'auto',
   overflowX: isCollapsed ? 'hidden' : 'auto',
 });
 

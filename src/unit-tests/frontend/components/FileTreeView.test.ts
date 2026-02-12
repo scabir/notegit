@@ -662,9 +662,10 @@ describe('FileTreeView toolbar actions', () => {
   });
 
   it('collapses and expands the tree via the hamburger button', () => {
-    const renderer = createTreeRenderer();
+    const renderer = createTreeRenderer({ selectedFile: 'folder/note.md' });
 
     const collapseButton = getTooltipButton(renderer, TOOLBAR_TEXT.collapseTree);
+    expect(collapseButton.props.disabled).toBe(false);
     act(() => {
       collapseButton.props.onClick();
     });
@@ -681,6 +682,12 @@ describe('FileTreeView toolbar actions', () => {
 
     expect(renderer.root.findAllByType(TreeView)).toHaveLength(1);
     expect(getTooltipButton(renderer, FILE_TREE_TEXT.newFile)).toBeDefined();
+  });
+
+  it('disables collapse hamburger when no file is open', () => {
+    const renderer = createTreeRenderer({ selectedFile: null });
+    const collapseButton = getTooltipButton(renderer, TOOLBAR_TEXT.collapseTree);
+    expect(collapseButton.props.disabled).toBe(true);
   });
 
   it('invokes controlled collapse callback from hamburger button', () => {

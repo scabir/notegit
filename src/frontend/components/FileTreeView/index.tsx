@@ -216,6 +216,7 @@ export function FileTreeView({
     <Box sx={rootSx}>
       <FileTreeToolbar
         isCollapsed={isTreeCollapsed}
+        canToggleCollapse={isTreeCollapsed || Boolean(selectedFile)}
         onToggleCollapse={handleToggleCollapse}
         onBack={onNavigateBack}
         onForward={onNavigateForward}

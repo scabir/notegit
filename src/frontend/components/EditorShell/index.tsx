@@ -32,6 +32,15 @@ import { buildHeaderTitle } from './utils';
 import type { EditorShellProps } from './types';
 
 const MAX_NAV_HISTORY = 100;
+type TreePanelState = 'open' | 'closed';
+type TreePanelAction = 'toggle';
+
+const treePanelReducer = (state: TreePanelState, action: TreePanelAction): TreePanelState => {
+  if (action === 'toggle') {
+    return state === 'open' ? 'closed' : 'open';
+  }
+  return state;
+};
 
 export function EditorShell({ onThemeChange }: EditorShellProps) {
   const [tree, setTree] = useState<FileTreeNode[]>([]);
@@ -64,7 +73,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   };
   const s3AutoSyncCleanupRef = React.useRef<(() => void) | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
-  const [isTreeCollapsed, setIsTreeCollapsed] = useState(false);
+  const [treePanelState, dispatchTreePanel] = React.useReducer(treePanelReducer, 'open');
   const [isResizing, setIsResizing] = useState(false);
   const resizeStartX = React.useRef(0);
   const resizeStartWidth = React.useRef(0);
@@ -78,6 +87,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   const [activeProfileName, setActiveProfileName] = useState<string>('');
   const isS3Repo = repoStatus?.provider === REPO_PROVIDERS.s3;
   const isLocalRepo = repoStatus?.provider === REPO_PROVIDERS.local;
+  const isTreeCollapsed = treePanelState === 'closed';
 
   const headerTitle = buildHeaderTitle(activeProfileName);
 
@@ -798,29 +808,22 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     };
   }, [isResizing]);
 
-  useEffect(() => {
-    if (!isTreeCollapsed) {
-      lastExpandedSidebarWidthRef.current = sidebarWidth;
-    }
-  }, [isTreeCollapsed, sidebarWidth]);
-
   const handleToggleTreeCollapse = React.useCallback(() => {
-    setIsTreeCollapsed((prev) => {
-      const next = !prev;
-      if (next) {
-        lastExpandedSidebarWidthRef.current = sidebarWidth;
-        setSidebarWidth(SIDEBAR_COLLAPSED_WIDTH);
-        setIsResizing(false);
-      } else {
-        const restoredWidth = Math.max(
-          SIDEBAR_MIN_WIDTH,
-          Math.min(SIDEBAR_MAX_WIDTH, lastExpandedSidebarWidthRef.current || SIDEBAR_DEFAULT_WIDTH)
-        );
-        setSidebarWidth(restoredWidth);
-      }
-      return next;
-    });
-  }, [sidebarWidth]);
+    if (isTreeCollapsed) {
+      const restoredWidth = Math.max(
+        SIDEBAR_MIN_WIDTH,
+        Math.min(SIDEBAR_MAX_WIDTH, lastExpandedSidebarWidthRef.current || SIDEBAR_DEFAULT_WIDTH)
+      );
+      setSidebarWidth(restoredWidth);
+      dispatchTreePanel('toggle');
+      return;
+    }
+
+    lastExpandedSidebarWidthRef.current = sidebarWidth;
+    setSidebarWidth(SIDEBAR_COLLAPSED_WIDTH);
+    setIsResizing(false);
+    dispatchTreePanel('toggle');
+  }, [isTreeCollapsed, sidebarWidth]);
 
   useEffect(() => {
     return () => {
@@ -874,6 +877,17 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
               file={fileContent}
               onSave={handleSaveFile}
               onChange={handleEditorChange}
+              treePanelControls={
+                isTreeCollapsed
+                  ? {
+                      onToggleTree: handleToggleTreeCollapse,
+                      onNavigateBack: handleNavigateBack,
+                      onNavigateForward: handleNavigateForward,
+                      canNavigateBack,
+                      canNavigateForward,
+                    }
+                  : undefined
+              }
             />
           ) : (
           <MarkdownEditor
@@ -881,6 +895,17 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
             repoPath={repoPath}
             onSave={handleSaveFile}
             onChange={handleEditorChange}
+            treePanelControls={
+              isTreeCollapsed
+                ? {
+                    onToggleTree: handleToggleTreeCollapse,
+                    onNavigateBack: handleNavigateBack,
+                    onNavigateForward: handleNavigateForward,
+                    canNavigateBack,
+                    canNavigateForward,
+                  }
+                : undefined
+            }
           />
           )}
         </Box>

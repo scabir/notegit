@@ -80,7 +80,6 @@ const getSidebarNode = (renderer: TestRenderer.ReactTestRenderer) =>
   renderer.root.find(
     (node) =>
       node.props?.sx &&
-      node.props.sx.borderRight === 1 &&
       node.props.sx.borderColor === 'divider' &&
       typeof node.props.sx.width === 'number'
   );
@@ -1373,6 +1372,44 @@ describe('EditorShell', () => {
 
     const sidebarAfterExpand = getSidebarNode(renderer!);
     expect(sidebarAfterExpand.props.sx.overflowX).toBe('auto');
+  });
+
+  it('shows tree controls in editor header only when tree is collapsed', async () => {
+    await act(async () => {
+      createRenderer(
+        React.createElement(EditorShell, {
+          onThemeChange: jest.fn(),
+        })
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+      await flushPromises();
+    });
+
+    let markdownProps =
+      MarkdownEditorMock.mock.calls[MarkdownEditorMock.mock.calls.length - 1]?.[0];
+    expect(markdownProps?.treePanelControls).toBeUndefined();
+
+    const fileTreeProps =
+      FileTreeViewMock.mock.calls[FileTreeViewMock.mock.calls.length - 1]?.[0];
+    await act(async () => {
+      fileTreeProps.onToggleCollapse();
+    });
+
+    markdownProps =
+      MarkdownEditorMock.mock.calls[MarkdownEditorMock.mock.calls.length - 1]?.[0];
+    expect(markdownProps?.treePanelControls).toBeDefined();
+    expect(markdownProps?.treePanelControls?.canNavigateBack).toBe(false);
+
+    await act(async () => {
+      markdownProps.treePanelControls.onToggleTree();
+    });
+
+    markdownProps =
+      MarkdownEditorMock.mock.calls[MarkdownEditorMock.mock.calls.length - 1]?.[0];
+    expect(markdownProps?.treePanelControls).toBeUndefined();
   });
 
   it('cleans up s3 auto sync when switching away from s3', async () => {
