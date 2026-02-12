@@ -10,6 +10,25 @@ export interface TreePanelControls {
   canNavigateForward: boolean;
 }
 
+export interface MarkdownFormatters {
+  formatBold: () => void;
+  formatItalic: () => void;
+  formatHeading: () => void;
+  formatQuote: () => void;
+  formatBulletList: () => void;
+  formatNumberedList: () => void;
+  formatCode: () => void;
+  formatCodeBlock: () => void;
+  formatLink: () => void;
+  formatTable: () => void;
+  formatFootnote: () => void;
+  formatTaskList: () => void;
+  formatHighlight: () => void;
+  formatDefinitionList: () => void;
+  formatMermaid: () => void;
+  formatRawMarkdown: () => void;
+}
+
 export interface MarkdownEditorProps {
   file: FileContent | null;
   repoPath: string | null;
