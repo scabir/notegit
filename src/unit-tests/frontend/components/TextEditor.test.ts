@@ -59,7 +59,7 @@ const createMockView = (content: string, from: number, to: number) => ({
   focus: jest.fn(),
 });
 
-const renderEditor = async (file: FileContent) => {
+const renderEditor = async (file: FileContent, overrides: Record<string, any> = {}) => {
   mockView = createMockView(file.content, 0, 0);
   const onSave = jest.fn();
   const onChange = jest.fn();
@@ -70,6 +70,7 @@ const renderEditor = async (file: FileContent) => {
         file,
         onSave,
         onChange,
+        ...overrides,
       })
     );
   });
@@ -243,6 +244,40 @@ describe('TextEditor', () => {
       changes: { from: 2, insert: '\r' },
       selection: { anchor: 3 },
     });
+  });
+
+  it('renders tree panel controls when provided and wires callbacks', async () => {
+    const file: FileContent = {
+      path: 'note.txt',
+      content: 'hello',
+      type: FileType.TEXT,
+    };
+    const onToggleTree = jest.fn();
+    const onNavigateBack = jest.fn();
+    const onNavigateForward = jest.fn();
+    const { renderer } = await renderEditor(file, {
+      treePanelControls: {
+        onToggleTree,
+        onNavigateBack,
+        onNavigateForward,
+        canNavigateBack: true,
+        canNavigateForward: false,
+      },
+    });
+
+    const showTreeButton = getToolbarButton(renderer, TEXT_EDITOR_TEXT.showTreeTooltip);
+    const backButton = getToolbarButton(renderer, TEXT_EDITOR_TEXT.backTooltip);
+    const forwardButton = getToolbarButton(renderer, TEXT_EDITOR_TEXT.forwardTooltip);
+
+    act(() => {
+      showTreeButton.props.onClick();
+      backButton.props.onClick();
+    });
+
+    expect(forwardButton.props.disabled).toBe(true);
+    expect(onToggleTree).toHaveBeenCalledTimes(1);
+    expect(onNavigateBack).toHaveBeenCalledTimes(1);
+    expect(onNavigateForward).not.toHaveBeenCalled();
   });
 
   it('finds and replaces text through the find bar', async () => {

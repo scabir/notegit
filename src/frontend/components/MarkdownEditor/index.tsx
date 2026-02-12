@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box, Paper, Divider, Toolbar, IconButton, Chip, Tooltip, useTheme, ToggleButtonGroup, ToggleButton, Menu, MenuItem, Typography } from '@mui/material';
 import {
+  Menu as MenuIcon,
+  ArrowBack as BackIcon,
+  ArrowForward as ForwardIcon,
   Save as SaveIcon,
   FiberManualRecord as UnsavedIcon,
   Visibility as PreviewIcon,
@@ -42,6 +45,7 @@ import {
   rootSx,
   headerToolbarSx,
   headerRowSx,
+  treeControlsRowSx,
   splitIconRowSx,
   formatToolbarSx,
   editorContainerSx,
@@ -54,7 +58,13 @@ import {
 } from './styles';
 import type { MarkdownEditorProps, ViewMode } from './types';
 
-export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEditorProps) {
+export function MarkdownEditor({
+  file,
+  repoPath,
+  onSave,
+  onChange,
+  treePanelControls,
+}: MarkdownEditorProps) {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const [content, setContent] = useState('');
@@ -602,8 +612,39 @@ export function MarkdownEditor({ file, repoPath, onSave, onChange }: MarkdownEdi
 
   return (
     <Box sx={rootSx}>
-      <Toolbar variant="dense" sx={headerToolbarSx}>
+      <Toolbar variant="dense" disableGutters sx={headerToolbarSx}>
         <Box sx={headerRowSx}>
+          {treePanelControls && (
+            <Box sx={treeControlsRowSx}>
+              <Tooltip title={MARKDOWN_EDITOR_TEXT.showTreeTooltip}>
+                <IconButton size="small" onClick={treePanelControls.onToggleTree}>
+                  <MenuIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={MARKDOWN_EDITOR_TEXT.backTooltip}>
+                <span>
+                  <IconButton
+                    size="small"
+                    onClick={treePanelControls.onNavigateBack}
+                    disabled={!treePanelControls.canNavigateBack}
+                  >
+                    <BackIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title={MARKDOWN_EDITOR_TEXT.forwardTooltip}>
+                <span>
+                  <IconButton
+                    size="small"
+                    onClick={treePanelControls.onNavigateForward}
+                    disabled={!treePanelControls.canNavigateForward}
+                  >
+                    <ForwardIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </Box>
+          )}
           <span>{file.path}</span>
           {hasUnsavedChanges && (
             <Chip

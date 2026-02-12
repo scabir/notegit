@@ -25,6 +25,7 @@ const ToolbarButton = ({ tooltip, icon, onClick, disabled = false }: ToolbarActi
 
 export function FileTreeToolbar({
   isCollapsed,
+  canToggleCollapse,
   onToggleCollapse,
   onBack,
   onForward,
@@ -39,6 +40,7 @@ export function FileTreeToolbar({
     tooltip: isCollapsed ? TOOLBAR_TEXT.expandTree : TOOLBAR_TEXT.collapseTree,
     icon: <MenuIcon fontSize="small" />,
     onClick: onToggleCollapse,
+    disabled: !canToggleCollapse,
   };
 
   const actions: ToolbarAction[] = isCollapsed ? [collapseAction] : [

@@ -86,7 +86,12 @@ const createMockView = (content: string, from: number, to: number) => ({
   focus: jest.fn(),
 });
 
-const renderEditor = async (content: string, from: number, to: number) => {
+const renderEditor = async (
+  content: string,
+  from: number,
+  to: number,
+  overrides: Record<string, any> = {}
+) => {
   mockView = createMockView(content, from, to);
   const file: FileContent = { path: 'note.md', content, type: FileType.MARKDOWN };
   const onSave = jest.fn();
@@ -95,7 +100,13 @@ const renderEditor = async (content: string, from: number, to: number) => {
   let renderer: TestRenderer.ReactTestRenderer;
   await act(async () => {
     renderer = TestRenderer.create(
-      React.createElement(MarkdownEditor, { file, repoPath: '/repo', onSave, onChange })
+      React.createElement(MarkdownEditor, {
+        file,
+        repoPath: '/repo',
+        onSave,
+        onChange,
+        ...overrides,
+      })
     );
     await Promise.resolve();
   });
@@ -217,6 +228,35 @@ describe('MarkdownEditor task list formatting', () => {
     expect(mockView.dispatch).toHaveBeenCalledTimes(1);
     const insert = mockView.dispatch.mock.calls[0][0].changes.insert;
     expect(insert).toBe(`${MARKDOWN_INSERT_TOKENS.table[0]}${MARKDOWN_INSERT_TOKENS.table[1]}`);
+  });
+
+  it('renders tree panel controls when provided and wires callbacks', async () => {
+    const onToggleTree = jest.fn();
+    const onNavigateBack = jest.fn();
+    const onNavigateForward = jest.fn();
+    const { renderer } = await renderEditor('', 0, 0, {
+      treePanelControls: {
+        onToggleTree,
+        onNavigateBack,
+        onNavigateForward,
+        canNavigateBack: true,
+        canNavigateForward: false,
+      },
+    });
+
+    const showTreeButton = getToolbarButton(renderer, MARKDOWN_EDITOR_TEXT.showTreeTooltip);
+    const backButton = getToolbarButton(renderer, MARKDOWN_EDITOR_TEXT.backTooltip);
+    const forwardButton = getToolbarButton(renderer, MARKDOWN_EDITOR_TEXT.forwardTooltip);
+
+    act(() => {
+      showTreeButton.props.onClick();
+      backButton.props.onClick();
+    });
+
+    expect(forwardButton.props.disabled).toBe(true);
+    expect(onToggleTree).toHaveBeenCalledTimes(1);
+    expect(onNavigateBack).toHaveBeenCalledTimes(1);
+    expect(onNavigateForward).not.toHaveBeenCalled();
   });
 
   it('inserts a mermaid block from the extras menu', async () => {
