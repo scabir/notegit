@@ -764,6 +764,13 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     await handleSelectFile(filePath, 'file');
   };
 
+  const handleOpenLinkedFile = React.useCallback(
+    async (filePath: string) => {
+      await handleSelectFile(filePath, 'file');
+    },
+    [handleSelectFile]
+  );
+
   const handleViewVersion = (commitHash: string, commitMessage: string) => {
     setViewingCommitHash(commitHash);
     setViewingCommitMessage(commitMessage);
@@ -912,6 +919,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
             repoPath={repoPath}
             onSave={handleSaveFile}
             onChange={handleEditorChange}
+            onOpenLinkedFile={handleOpenLinkedFile}
             treePanelControls={
               isTreeCollapsed
                 ? {

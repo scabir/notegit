@@ -11,4 +11,5 @@ export interface MarkdownPreviewPaneProps {
   content: string;
   cheatSheetType: MarkdownCheatSheetType;
   onCloseCheatSheet: () => void;
+  onOpenLinkedFile?: (filePath: string) => void | Promise<void>;
 }

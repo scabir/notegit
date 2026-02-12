@@ -7,7 +7,7 @@ import remarkDeflist from 'remark-deflist';
 import { MermaidDiagram } from '../MermaidDiagram';
 import { MARKDOWN_EDITOR_TEXT } from '../MarkdownEditor/constants';
 import { remarkHighlight } from '../../utils/remarkHighlight';
-import { resolveMarkdownImageSrc } from '../../utils/pathUtils';
+import { resolveMarkdownImageSrc, resolveMarkdownLinkedFilePath } from '../../utils/pathUtils';
 import markdownCheatsheetHtml from '../../assets/cheatsheets/markdown.html?raw';
 import mermaidCheatsheetHtml from '../../assets/cheatsheets/mermaid.html?raw';
 import { MARKDOWN_PREVIEW_PANE } from './constants';
@@ -28,6 +28,7 @@ export function MarkdownPreviewPane({
   content,
   cheatSheetType,
   onCloseCheatSheet,
+  onOpenLinkedFile,
 }: MarkdownPreviewPaneProps) {
   const activeCheatSheetHtml = cheatSheetType === 'markdown'
     ? markdownCheatsheetHtml
@@ -77,6 +78,32 @@ export function MarkdownPreviewPane({
                     src={src}
                     style={{ maxWidth: '100%', height: 'auto' }}
                     alt={props.alt || ''}
+                  />
+                );
+              },
+              a: ({ node: _node, href, ...props }) => {
+                const linkedFilePath = resolveMarkdownLinkedFilePath(filePath, href);
+                const isInternalLink = Boolean(linkedFilePath && onOpenLinkedFile);
+
+                const handleLinkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+                  if (typeof props.onClick === 'function') {
+                    props.onClick(event);
+                  }
+                  if (event.defaultPrevented) {
+                    return;
+                  }
+                  if (!isInternalLink || !linkedFilePath || !onOpenLinkedFile) {
+                    return;
+                  }
+                  event.preventDefault();
+                  void onOpenLinkedFile(linkedFilePath);
+                };
+
+                return (
+                  <a
+                    {...props}
+                    href={href}
+                    onClick={handleLinkClick}
                   />
                 );
               },

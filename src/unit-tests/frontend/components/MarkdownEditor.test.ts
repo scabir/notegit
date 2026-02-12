@@ -46,6 +46,9 @@ jest.mock('react-markdown', () => {
       const imgNode = components?.img
         ? components.img({ src: 'image.png', alt: 'preview' })
         : null;
+      const linkNode = components?.a
+        ? components.a({ href: 'linked/target.md', children: ['linked'] })
+        : null;
       const codeNode = components?.code
         ? components.code({
             inline: false,
@@ -53,7 +56,7 @@ jest.mock('react-markdown', () => {
             children: ['graph TD;A-->B'],
           })
         : null;
-      return React.createElement('div', null, children, imgNode, codeNode);
+      return React.createElement('div', null, children, imgNode, linkNode, codeNode);
     },
   };
 });
@@ -583,6 +586,28 @@ describe('MarkdownEditor task list formatting', () => {
 
     const mermaid = renderer.root.findAllByProps({ 'data-testid': 'mermaid' });
     expect(mermaid.length).toBeGreaterThan(0);
+  });
+
+  it('opens internal markdown links via onOpenLinkedFile callback', async () => {
+    const onOpenLinkedFile = jest.fn();
+    const { renderer } = await renderEditor('content', 0, 0, {
+      filePath: 'notes/note.md',
+      onOpenLinkedFile,
+    });
+
+    const previewToggle = renderer.root.findAllByType(ToggleButtonGroup)[0];
+    act(() => {
+      previewToggle.props.onChange(null, 'preview');
+    });
+
+    const link = renderer.root.findByType('a');
+    const preventDefault = jest.fn();
+    act(() => {
+      link.props.onClick({ preventDefault });
+    });
+
+    expect(preventDefault).toHaveBeenCalled();
+    expect(onOpenLinkedFile).toHaveBeenCalledWith('notes/linked/target.md');
   });
 
   it('resolves preview images relative to the markdown file directory', async () => {

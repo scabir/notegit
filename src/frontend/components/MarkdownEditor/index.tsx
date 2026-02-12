@@ -23,6 +23,7 @@ export function MarkdownEditor({
   onSave,
   onChange,
   treePanelControls,
+  onOpenLinkedFile,
 }: MarkdownEditorProps) {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
@@ -161,6 +162,7 @@ export function MarkdownEditor({
             content={content}
             cheatSheetType={cheatSheetType}
             onCloseCheatSheet={handleCloseCheatSheet}
+            onOpenLinkedFile={onOpenLinkedFile}
           />
         )}
       </Box>

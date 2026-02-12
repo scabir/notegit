@@ -35,4 +35,5 @@ export interface MarkdownEditorProps {
   onSave: (content: string) => void;
   onChange: (content: string, hasChanges: boolean) => void;
   treePanelControls?: TreePanelControls;
+  onOpenLinkedFile?: (filePath: string) => void | Promise<void>;
 }

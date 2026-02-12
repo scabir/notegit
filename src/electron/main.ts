@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, nativeImage, Menu, shell } from 'electron'
 import type { MenuItemConstructorOptions } from 'electron';
 import * as path from 'path';
 import { createBackend } from '../backend';
+import { getRendererEntryUrl, isInAppNavigation } from './utils/navigationGuard';
 
 let mainWindow: BrowserWindow | null = null;
 const buildWindowTitle = () => `notegit - ${app.getVersion()}`;
@@ -51,6 +52,9 @@ const buildAppMenu = (): MenuItemConstructorOptions[] => {
 };
 
 function createWindow() {
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const rendererEntryUrl = getRendererEntryUrl(isDevelopment, __dirname);
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -63,12 +67,30 @@ function createWindow() {
     },
   });
 
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.loadURL('http://localhost:5173');
+  if (isDevelopment) {
+    mainWindow.loadURL(rendererEntryUrl);
     mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '../../frontend/index.html'));
   }
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (isInAppNavigation(url, rendererEntryUrl)) {
+      return { action: 'allow' };
+    }
+
+    void shell.openExternal(url);
+    return { action: 'deny' };
+  });
+
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (isInAppNavigation(url, rendererEntryUrl)) {
+      return;
+    }
+
+    event.preventDefault();
+    void shell.openExternal(url);
+  });
 
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow?.setTitle(buildWindowTitle());
