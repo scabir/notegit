@@ -1,13 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Paper, Divider, Toolbar, IconButton, Chip, Tooltip, useTheme, ToggleButtonGroup, ToggleButton, Menu, MenuItem, Typography } from '@mui/material';
+import { Box, Paper, Divider, Toolbar, IconButton, Tooltip, useTheme, Menu, MenuItem, Typography } from '@mui/material';
 import {
-  Menu as MenuIcon,
-  ArrowBack as BackIcon,
-  ArrowForward as ForwardIcon,
-  Save as SaveIcon,
-  FiberManualRecord as UnsavedIcon,
-  Visibility as PreviewIcon,
-  VisibilityOff as PreviewOffIcon,
   FormatBold as BoldIcon,
   FormatItalic as ItalicIcon,
   FormatListBulleted as ListIcon,
@@ -20,7 +13,6 @@ import {
   Checklist as TaskListIcon,
   Highlight as HighlightIcon,
   ListAlt as DefinitionListIcon,
-  FileDownload as ExportIcon,
   MoreHoriz as MoreIcon,
   MenuBook as CheatSheetIcon,
   Close as CloseIcon,
@@ -40,13 +32,10 @@ import { useEditorFindReplace, useEditorGlobalShortcuts, useEditorKeymap } from 
 import markdownCheatsheetHtml from '../../assets/cheatsheets/markdown.html?raw';
 import mermaidCheatsheetHtml from '../../assets/cheatsheets/mermaid.html?raw';
 import { MARKDOWN_EDITOR_TEXT, MARKDOWN_INSERT_DEFAULTS, MARKDOWN_INSERT_TOKENS } from './constants';
+import { MarkdownEditorHeader } from '../MarkdownEditorHeader';
 import {
   emptyStateSx,
   rootSx,
-  headerToolbarSx,
-  headerRowSx,
-  treeControlsRowSx,
-  splitIconRowSx,
   formatToolbarSx,
   editorContainerSx,
   editorPaneSx,
@@ -612,97 +601,15 @@ export function MarkdownEditor({
 
   return (
     <Box sx={rootSx}>
-      <Toolbar variant="dense" disableGutters sx={headerToolbarSx}>
-        <Box sx={headerRowSx}>
-          {treePanelControls && (
-            <Box sx={treeControlsRowSx}>
-              <Tooltip title={MARKDOWN_EDITOR_TEXT.showTreeTooltip}>
-                <IconButton size="small" onClick={treePanelControls.onToggleTree}>
-                  <MenuIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={MARKDOWN_EDITOR_TEXT.backTooltip}>
-                <span>
-                  <IconButton
-                    size="small"
-                    onClick={treePanelControls.onNavigateBack}
-                    disabled={!treePanelControls.canNavigateBack}
-                  >
-                    <BackIcon fontSize="small" />
-                  </IconButton>
-                </span>
-              </Tooltip>
-              <Tooltip title={MARKDOWN_EDITOR_TEXT.forwardTooltip}>
-                <span>
-                  <IconButton
-                    size="small"
-                    onClick={treePanelControls.onNavigateForward}
-                    disabled={!treePanelControls.canNavigateForward}
-                  >
-                    <ForwardIcon fontSize="small" />
-                  </IconButton>
-                </span>
-              </Tooltip>
-            </Box>
-          )}
-          <span>{file.path}</span>
-          {hasUnsavedChanges && (
-            <Chip
-              icon={<UnsavedIcon fontSize="small" />}
-              label={MARKDOWN_EDITOR_TEXT.unsaved}
-              size="small"
-              color="warning"
-            />
-          )}
-        </Box>
-
-        <ToggleButtonGroup
-          value={viewMode}
-          exclusive
-          onChange={(_, newMode) => newMode && setViewMode(newMode)}
-          size="small"
-        >
-          <ToggleButton value="editor" aria-label="editor only">
-            <Tooltip title={MARKDOWN_EDITOR_TEXT.editorOnlyTooltip}>
-              <PreviewOffIcon fontSize="small" />
-            </Tooltip>
-          </ToggleButton>
-          <ToggleButton value="split" aria-label="split view">
-            <Tooltip title={MARKDOWN_EDITOR_TEXT.splitViewTooltip}>
-              <Box sx={splitIconRowSx}>
-                <PreviewOffIcon fontSize="small" />
-                <PreviewIcon fontSize="small" />
-              </Box>
-            </Tooltip>
-          </ToggleButton>
-          <ToggleButton value="preview" aria-label="preview only">
-            <Tooltip title={MARKDOWN_EDITOR_TEXT.previewOnlyTooltip}>
-              <PreviewIcon fontSize="small" />
-            </Tooltip>
-          </ToggleButton>
-        </ToggleButtonGroup>
-
-        <Tooltip title={MARKDOWN_EDITOR_TEXT.saveTooltip}>
-          <IconButton
-            size="small"
-            onClick={handleSave}
-            disabled={!hasUnsavedChanges}
-            color="primary"
-          >
-            <SaveIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-
-        <Tooltip title={MARKDOWN_EDITOR_TEXT.exportTooltip}>
-          <IconButton
-            size="small"
-            onClick={handleExport}
-            color="default"
-          >
-            <ExportIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </Toolbar>
+      <MarkdownEditorHeader
+        filePath={file.path}
+        hasUnsavedChanges={hasUnsavedChanges}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onSave={handleSave}
+        onExport={handleExport}
+        treePanelControls={treePanelControls}
+      />
 
       {findBarOpen && (
         <FindReplaceBar
