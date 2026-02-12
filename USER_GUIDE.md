@@ -2,7 +2,7 @@
 
 Complete guide to using notegit - your Git-, S3-, or local-backed markdown note-taking application.
 
-**Version**: 2.5.1  
+**Version**: 2.5.2  
 **Last Updated**: February 5, 2026
 
 ---
@@ -344,7 +344,7 @@ Open an issue at [GitHub Issues](https://github.com/scabir/notegit/issues) with 
 
 ## About notegit
 
-**Version**: 2.5.1  
+**Version**: 2.5.2  
 **Author**: Suleyman Cabir Ataman, PhD  
 **GitHub**: [github.com/scabir/notegit](https://github.com/scabir/notegit)  
 **License**: MIT
