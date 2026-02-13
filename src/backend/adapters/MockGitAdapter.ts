@@ -17,6 +17,7 @@ type MockRepoState = {
   repoPath: string;
   branch: string;
   remoteUrl: string | null;
+  remoteBehindCount: number;
   commits: MockCommit[];
   pushedCommitCount: number;
   stagedPaths: Set<string>;
@@ -35,7 +36,7 @@ export class MockGitAdapter extends GitAdapter {
   private activeRepoPath: string | null = null;
 
   async checkGitInstalled(): Promise<boolean> {
-    return true;
+    return process.env.NOTEGIT_MOCK_GIT_INSTALLED !== "0";
   }
 
   async init(repoPath: string): Promise<void> {
@@ -45,6 +46,7 @@ export class MockGitAdapter extends GitAdapter {
         repoPath,
         branch: "main",
         remoteUrl: null,
+        remoteBehindCount: this.getConfiguredInitialBehindCount(),
         commits: [],
         pushedCommitCount: 0,
         stagedPaths: new Set<string>(),
@@ -58,11 +60,24 @@ export class MockGitAdapter extends GitAdapter {
     branch: string,
     _pat?: string,
   ): Promise<void> {
+    if (this.shouldFailCloneAuth(remoteUrl)) {
+      throw new Error("Authentication failed");
+    }
+
+    if (this.shouldFailCloneInvalidUrl(remoteUrl)) {
+      throw new Error("Invalid repository URL");
+    }
+
+    if (this.shouldSimulateEmptyRemote(remoteUrl)) {
+      throw new Error(`Remote branch ${branch} not found`);
+    }
+
     await fs.mkdir(localPath, { recursive: true });
     this.repos.set(localPath, {
       repoPath: localPath,
       branch: branch || "main",
       remoteUrl,
+      remoteBehindCount: this.getConfiguredInitialBehindCount(),
       commits: [],
       pushedCommitCount: 0,
       stagedPaths: new Set<string>(),
@@ -96,15 +111,56 @@ export class MockGitAdapter extends GitAdapter {
   }
 
   async pull(_pat?: string): Promise<void> {
+    if (this.isOfflineMode()) {
+      throw new Error("Network offline");
+    }
+
+    const failPull = process.env.NOTEGIT_MOCK_GIT_FAIL_PULL || "";
+    if (failPull === "conflict") {
+      throw new Error("CONFLICT simulated conflict");
+    }
+    if (failPull === "1" || failPull === "true") {
+      throw new Error("Pull failed");
+    }
+
+    const state = await this.ensureActiveState();
+    state.remoteBehindCount = 0;
     return;
   }
 
   async push(_pat?: string): Promise<void> {
+    if (this.isOfflineMode()) {
+      throw new Error("Network offline");
+    }
+    if (
+      process.env.NOTEGIT_MOCK_GIT_FAIL_PUSH === "1" ||
+      process.env.NOTEGIT_MOCK_GIT_FAIL_PUSH === "true"
+    ) {
+      throw new Error("Push failed");
+    }
     const state = await this.ensureActiveState();
     state.pushedCommitCount = state.commits.length;
   }
 
   async fetch(): Promise<void> {
+    if (this.isOfflineMode()) {
+      throw new Error("Network offline");
+    }
+    if (
+      process.env.NOTEGIT_MOCK_GIT_FAIL_FETCH === "1" ||
+      process.env.NOTEGIT_MOCK_GIT_FAIL_FETCH === "true"
+    ) {
+      throw new Error("Fetch failed");
+    }
+
+    const state = await this.ensureActiveState();
+    const configuredBehind = process.env.NOTEGIT_MOCK_GIT_FETCH_SETS_BEHIND;
+    if (configuredBehind !== undefined && configuredBehind !== "") {
+      const parsedBehind = Number.parseInt(configuredBehind, 10);
+      if (Number.isFinite(parsedBehind) && parsedBehind >= 0) {
+        state.remoteBehindCount = parsedBehind;
+      }
+    }
     return;
   }
 
@@ -114,6 +170,13 @@ export class MockGitAdapter extends GitAdapter {
   }
 
   async commit(message: string): Promise<void> {
+    if (
+      process.env.NOTEGIT_MOCK_GIT_FAIL_COMMIT === "1" ||
+      process.env.NOTEGIT_MOCK_GIT_FAIL_COMMIT === "true"
+    ) {
+      throw new Error("Commit failed");
+    }
+
     const state = await this.ensureActiveState();
     if (state.stagedPaths.size === 0) {
       throw new Error("Nothing to commit");
@@ -227,7 +290,7 @@ export class MockGitAdapter extends GitAdapter {
     const state = await this.ensureActiveState();
     return {
       ahead: Math.max(0, state.commits.length - state.pushedCommitCount),
-      behind: 0,
+      behind: Math.max(0, state.remoteBehindCount),
     };
   }
 
@@ -341,6 +404,42 @@ export class MockGitAdapter extends GitAdapter {
   private serializeSnapshot(snapshot: Snapshot): string {
     return JSON.stringify(
       Array.from(snapshot.entries()).sort(([a], [b]) => a.localeCompare(b)),
+    );
+  }
+
+  private getConfiguredInitialBehindCount(): number {
+    const configured = process.env.NOTEGIT_MOCK_GIT_INITIAL_BEHIND || "0";
+    const parsed = Number.parseInt(configured, 10);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return 0;
+    }
+    return parsed;
+  }
+
+  private shouldFailCloneAuth(remoteUrl: string): boolean {
+    return (
+      process.env.NOTEGIT_MOCK_GIT_FAIL_CLONE_AUTH === "1" ||
+      process.env.NOTEGIT_MOCK_GIT_FAIL_CLONE_AUTH === "true" ||
+      remoteUrl.includes("auth-fail")
+    );
+  }
+
+  private shouldFailCloneInvalidUrl(remoteUrl: string): boolean {
+    return remoteUrl.includes("invalid-url") || remoteUrl.includes("bad-url");
+  }
+
+  private shouldSimulateEmptyRemote(remoteUrl: string): boolean {
+    return (
+      process.env.NOTEGIT_MOCK_GIT_EMPTY_REMOTE === "1" ||
+      process.env.NOTEGIT_MOCK_GIT_EMPTY_REMOTE === "true" ||
+      remoteUrl.includes("empty-remote")
+    );
+  }
+
+  private isOfflineMode(): boolean {
+    return (
+      process.env.NOTEGIT_MOCK_GIT_OFFLINE === "1" ||
+      process.env.NOTEGIT_MOCK_GIT_OFFLINE === "true"
     );
   }
 }

@@ -189,7 +189,7 @@ export function FileTreeView({
   } = useCreationMetadata({
     treeContextMenuNode,
     favoriteNodes,
-    selectedNodeForActions,
+    selectedNode,
     selectedFile,
     newItemName,
     createLocationRoot: FILE_TREE_TEXT.createLocationRoot,

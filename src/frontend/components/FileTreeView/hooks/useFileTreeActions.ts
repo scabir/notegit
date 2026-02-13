@@ -105,7 +105,7 @@ export function useFileTreeActions({
 
     try {
       const { parentPath, parentNodeId } = resolveParentDestination(
-        selectedNodeForActions,
+        selectedNode,
         tree,
       );
 
@@ -138,7 +138,7 @@ export function useFileTreeActions({
     isS3Repo,
     newItemName,
     onCreateFile,
-    selectedNodeForActions,
+    selectedNode,
     setCreating,
     setErrorMessage,
     setExpanded,
@@ -161,7 +161,7 @@ export function useFileTreeActions({
 
     try {
       const { parentPath, parentNodeId } = resolveParentDestination(
-        selectedNodeForActions,
+        selectedNode,
         tree,
       );
 
@@ -194,7 +194,7 @@ export function useFileTreeActions({
     isS3Repo,
     newItemName,
     onCreateFolder,
-    selectedNodeForActions,
+    selectedNode,
     setCreating,
     setErrorMessage,
     setExpanded,
