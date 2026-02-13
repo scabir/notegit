@@ -23,6 +23,8 @@
     "test": "./node_modules/.bin/jest",
     "test:watch": "./node_modules/.bin/jest --watch",
     "test:coverage": "./node_modules/.bin/jest --coverage",
+    "test:integration": "pnpm run build && pnpm exec playwright test -c playwright.integration.config.ts",
+    "test:integration:headed": "pnpm run build && pnpm exec playwright test -c playwright.integration.config.ts --headed",
     "coverage:check": "node scripts/check-coverage-threshold.js",
     "coverage:check-staged": "pnpm run coverage:check",
     "lint": "eslint . --ext .ts,.tsx",
@@ -40,6 +42,7 @@
   "license": "MIT",
   "devDependencies": {
     "@jest/test-sequencer": "^30.2.0",
+    "@playwright/test": "^1.58.2",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.43",

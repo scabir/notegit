@@ -7,8 +7,9 @@ import {
   shell,
 } from "electron";
 import type { MenuItemConstructorOptions } from "electron";
+import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
-import { createBackend } from "../backend";
 import {
   getRendererEntryUrl,
   isInAppNavigation,
@@ -18,6 +19,29 @@ let mainWindow: BrowserWindow | null = null;
 const buildWindowTitle = () => `notegit - ${app.getVersion()}`;
 const SOURCE_CODE_URL = "https://github.com/scabir/notegit";
 const USER_GUIDE_URL = `${SOURCE_CODE_URL}/blob/main/USER_GUIDE.md`;
+const isIntegrationTestMode = process.env.NOTEGIT_INTEGRATION_TEST === "1";
+
+const configureIntegrationUserDataPath = () => {
+  if (!isIntegrationTestMode) {
+    return;
+  }
+
+  const configuredPath = process.env.NOTEGIT_INTEGRATION_USER_DATA_DIR;
+  const integrationUserDataPath =
+    configuredPath && configuredPath.trim().length > 0
+      ? configuredPath
+      : path.join(
+          os.tmpdir(),
+          `notegit-integration-${Date.now()}-${process.pid}-${Math.random()
+            .toString(36)
+            .slice(2, 10)}`,
+        );
+
+  fs.mkdirSync(integrationUserDataPath, { recursive: true });
+  app.setPath("userData", integrationUserDataPath);
+};
+
+configureIntegrationUserDataPath();
 
 const sendMenuCommand = (
   channel: "menu:open-shortcuts" | "menu:open-about",
@@ -120,44 +144,54 @@ function createWindow() {
   });
 }
 
-const gotTheLock = app.requestSingleInstanceLock();
+const gotTheLock = isIntegrationTestMode
+  ? true
+  : app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
   app.quit();
 } else {
-  app.on("second-instance", () => {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) {
-        mainWindow.restore();
+  if (!isIntegrationTestMode) {
+    app.on("second-instance", () => {
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) {
+          mainWindow.restore();
+        }
+        mainWindow.focus();
       }
-      mainWindow.focus();
-    }
-  });
-
-  app.on("ready", () => {
-    if (process.platform === "darwin" && !app.isPackaged) {
-      const iconPath = path.join(
-        app.getAppPath(),
-        "src",
-        "electron",
-        "resources",
-        "notegit.png",
-      );
-      const icon = nativeImage.createFromPath(iconPath);
-      if (!icon.isEmpty()) {
-        app.dock.setIcon(icon);
-      }
-    }
-
-    createBackend(ipcMain);
-    Menu.setApplicationMenu(Menu.buildFromTemplate(buildAppMenu()));
-
-    ipcMain.handle("app:restart", () => {
-      app.relaunch();
-      app.quit();
     });
+  }
 
-    createWindow();
+  app.on("ready", async () => {
+    try {
+      if (process.platform === "darwin" && !app.isPackaged) {
+        const iconPath = path.join(
+          app.getAppPath(),
+          "src",
+          "electron",
+          "resources",
+          "notegit.png",
+        );
+        const icon = nativeImage.createFromPath(iconPath);
+        if (!icon.isEmpty()) {
+          app.dock.setIcon(icon);
+        }
+      }
+
+      const { createBackend } = await import("../backend");
+      createBackend(ipcMain);
+      Menu.setApplicationMenu(Menu.buildFromTemplate(buildAppMenu()));
+
+      ipcMain.handle("app:restart", () => {
+        app.relaunch();
+        app.quit();
+      });
+
+      createWindow();
+    } catch (error) {
+      console.error("Failed to initialize app", error);
+      app.quit();
+    }
   });
 
   app.on("window-all-closed", () => {
