@@ -8,6 +8,10 @@ export const DEFAULT_BRANCH = "main";
 export const DEFAULT_REMOTE_URL =
   "https://github.com/mock/notegit-integration.git";
 export const DEFAULT_PAT = "integration-token";
+export const DEFAULT_S3_BUCKET = "notegit-integration-bucket";
+export const DEFAULT_S3_REGION = "us-east-1";
+export const DEFAULT_S3_ACCESS_KEY_ID = "mock-access-key";
+export const DEFAULT_S3_SECRET_ACCESS_KEY = "mock-secret-key";
 
 export type RepoStatus = {
   provider: string;
@@ -115,6 +119,40 @@ export const connectGitRepo = async (
   await expect(page.getByTestId("status-bar-commit-push-action")).toBeVisible();
   await expect(page.getByTestId("status-bar-branch-label")).toContainText(
     `Branch: ${branch}`,
+  );
+  await expect(page.locator(".tree-container")).toBeVisible();
+};
+
+export const connectS3Repo = async (
+  page: Page,
+  {
+    bucket = DEFAULT_S3_BUCKET,
+    region = DEFAULT_S3_REGION,
+    accessKeyId = DEFAULT_S3_ACCESS_KEY_ID,
+    secretAccessKey = DEFAULT_S3_SECRET_ACCESS_KEY,
+    prefix = "",
+  }: {
+    bucket?: string;
+    region?: string;
+    accessKeyId?: string;
+    secretAccessKey?: string;
+    prefix?: string;
+  } = {},
+): Promise<void> => {
+  await page.getByRole("button", { name: "Connect to Repository" }).click();
+  await page.getByRole("button", { name: "S3" }).click();
+  await page.getByLabel("Bucket").fill(bucket);
+  await page.getByLabel("Region").fill(region);
+  if (prefix) {
+    await page.getByLabel("Prefix (optional)").fill(prefix);
+  }
+  await page.getByLabel("Access Key ID").fill(accessKeyId);
+  await page.getByLabel("Secret Access Key").fill(secretAccessKey);
+  await page.getByRole("button", { name: "Connect" }).click();
+
+  await expect(page.getByTestId("status-bar-commit-push-action")).toBeVisible();
+  await expect(page.getByTestId("status-bar-branch-label")).toContainText(
+    `Bucket: ${bucket}`,
   );
   await expect(page.locator(".tree-container")).toBeVisible();
 };

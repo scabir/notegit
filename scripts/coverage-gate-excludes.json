@@ -1,1 +1,4 @@
-["src/backend/adapters/MockGitAdapter.ts"]
+[
+  "src/backend/adapters/MockGitAdapter.ts",
+  "src/backend/adapters/MockS3Adapter.ts"
+]
