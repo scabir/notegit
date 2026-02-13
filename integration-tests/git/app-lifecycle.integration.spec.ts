@@ -1,4 +1,7 @@
 import {
+  apiCreateProfile,
+  apiGetActiveProfileId,
+  apiSetActiveProfile,
   appendToCurrentEditor,
   cleanupUserDataDir,
   closeAppIfOpen,
@@ -116,5 +119,93 @@ test("parallel app instances stay isolated by userData path", async ({
     await closeAppIfOpen(appB);
     await cleanupUserDataDir(userDataDirA);
     await cleanupUserDataDir(userDataDirB);
+  }
+});
+
+test("restart preserves uncommitted changes and git status", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let firstApp: ElectronApplication | null = null;
+  let secondApp: ElectronApplication | null = null;
+  try {
+    const firstLaunch = await launchIntegrationApp(userDataDir);
+    firstApp = firstLaunch.app;
+    const firstPage = firstLaunch.page;
+    await connectGitRepo(firstPage);
+
+    await createMarkdownFile(firstPage, "restart-dirty.md");
+    await appendToCurrentEditor(firstPage, "\nrestart dirty content\n");
+    await saveCurrentFile(firstPage);
+
+    await closeAppIfOpen(firstApp);
+    firstApp = null;
+
+    const secondLaunch = await launchIntegrationApp(userDataDir);
+    secondApp = secondLaunch.app;
+    const secondPage = secondLaunch.page;
+
+    await expect(getTreeFileLocator(secondPage, "restart-dirty.md")).toBeVisible();
+    const reopenedTree = flattenTreePaths(await listTree(secondPage));
+    expect(reopenedTree).toContain("restart-dirty.md");
+
+    const status = await secondPage.evaluate(async () => {
+      const response = await window.notegitApi.repo.getStatus();
+      if (!response.ok || !response.data) {
+        throw new Error(response.error?.message || "Failed to read repo status");
+      }
+      return response.data;
+    });
+    expect(status.hasUncommitted).toBe(true);
+  } finally {
+    await closeAppIfOpen(firstApp);
+    await closeAppIfOpen(secondApp);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("restart loads repository for active profile", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let firstApp: ElectronApplication | null = null;
+  let secondApp: ElectronApplication | null = null;
+  try {
+    const firstLaunch = await launchIntegrationApp(userDataDir);
+    firstApp = firstLaunch.app;
+    const firstPage = firstLaunch.page;
+    await connectGitRepo(firstPage);
+    const initialRepoInfo = await getRepoInfo(firstPage);
+    await createMarkdownFile(firstPage, "default-profile-only.md");
+
+    const newProfile = await apiCreateProfile(firstPage, "Lifecycle Profile B", {
+      provider: "git",
+      remoteUrl: "https://github.com/mock/lifecycle-profile-b.git",
+      branch: "main",
+      pat: "token-lifecycle-b",
+      authMethod: "pat",
+    });
+    await apiSetActiveProfile(firstPage, newProfile.id);
+
+    await closeAppIfOpen(firstApp);
+    firstApp = null;
+
+    const secondLaunch = await launchIntegrationApp(userDataDir);
+    secondApp = secondLaunch.app;
+    const secondPage = secondLaunch.page;
+
+    await expect(
+      secondPage.getByTestId("status-bar-commit-push-action"),
+    ).toBeVisible();
+    await expect(secondPage.getByText("default-profile-only.md")).toHaveCount(0);
+
+    const activeProfileId = await apiGetActiveProfileId(secondPage);
+    expect(activeProfileId).toBe(newProfile.id);
+    const restartedRepoInfo = await getRepoInfo(secondPage);
+    expect(restartedRepoInfo.localPath).not.toBe(initialRepoInfo.localPath);
+  } finally {
+    await closeAppIfOpen(firstApp);
+    await closeAppIfOpen(secondApp);
+    await cleanupUserDataDir(userDataDir);
   }
 });

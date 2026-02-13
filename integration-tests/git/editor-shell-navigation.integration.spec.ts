@@ -52,3 +52,70 @@ test("keyboard back/forward navigates between previously opened files", async ({
     await cleanupUserDataDir(userDataDir);
   }
 });
+
+test("navigation shortcuts are ignored while dialog input is focused", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectGitRepo(page);
+
+    await createMarkdownFile(page, "nav-focus-a.md");
+    await appendToCurrentEditor(page, "\nAAA_FOCUS_NAV\n");
+    await saveCurrentFile(page);
+
+    await createMarkdownFile(page, "nav-focus-b.md");
+    await appendToCurrentEditor(page, "\nBBB_FOCUS_NAV\n");
+    await saveCurrentFile(page);
+
+    await page.locator(".tree-container").click({ button: "right" });
+    await page.getByRole("menuitem", { name: "New File" }).click();
+    const createDialog = page.getByTestId("create-file-dialog");
+    await expect(createDialog).toBeVisible();
+    await createDialog.getByLabel("File Name").click();
+
+    await page.keyboard.press(`${getModKey()}+ArrowLeft`);
+    await expect(
+      createDialog.getByLabel("File Name"),
+    ).toBeFocused();
+    await expect
+      .poll(async () => (await readEditorContent(page)).includes("BBB_FOCUS_NAV"))
+      .toBe(true);
+
+    await createDialog.getByRole("button", { name: "Cancel" }).click();
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("back navigation with a single entry is a no-op", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectGitRepo(page);
+
+    await createMarkdownFile(page, "nav-single.md");
+    await appendToCurrentEditor(page, "\nSINGLE_NAV_ENTRY\n");
+    await saveCurrentFile(page);
+
+    await page.getByTestId("status-bar-header-title").click();
+    await page.keyboard.press(`${getModKey()}+ArrowLeft`);
+
+    await expect
+      .poll(async () => (await readEditorContent(page)).includes("SINGLE_NAV_ENTRY"))
+      .toBe(true);
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});

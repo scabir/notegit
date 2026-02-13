@@ -525,6 +525,18 @@ export const apiGetProfiles = async (page: Page): Promise<any[]> => {
   return response.data;
 };
 
+export const apiGetActiveProfileId = async (
+  page: Page,
+): Promise<string | null> => {
+  const response = await page.evaluate(async () => {
+    return await window.notegitApi.config.getActiveProfileId();
+  });
+  if (!response.ok) {
+    throw new Error(response.error?.message || "Failed to get active profile");
+  }
+  return response.data ?? null;
+};
+
 export const apiGetFullConfig = async (page: Page): Promise<any> => {
   const response = await page.evaluate(async () => {
     return await window.notegitApi.config.getFull();

@@ -3,6 +3,7 @@ import {
   DEFAULT_PAT,
   DEFAULT_REMOTE_URL,
   apiCreateProfile,
+  apiGetActiveProfileId,
   apiGetFullConfig,
   apiGetProfiles,
   apiSetActiveProfile,
@@ -79,6 +80,54 @@ test("connect using non-default branch", async ({
   }
 });
 
+test("connect dialog validates required git fields", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+
+    await page.getByRole("button", { name: "Connect to Repository" }).click();
+    await page.getByRole("button", { name: "Connect" }).click();
+
+    await expect(page.getByText("Please fill in all Git fields")).toBeVisible();
+    await expect(page.getByLabel("Remote URL")).toBeVisible();
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("canceling setup dialog keeps app on welcome screen", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+
+    await page.getByRole("button", { name: "Connect to Repository" }).click();
+    await expect(page.getByLabel("Remote URL")).toBeVisible();
+    await page.getByRole("button", { name: "Cancel" }).click();
+
+    await expect(page.getByLabel("Remote URL")).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Connect to Repository" }),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("status-bar-commit-push-action"),
+    ).toHaveCount(0);
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
 test("invalid URL connect shows error and stays on setup", async ({
   request: _request,
 }, testInfo) => {
@@ -97,6 +146,89 @@ test("invalid URL connect shows error and stays on setup", async ({
     await expectConnectScreen(page);
   } finally {
     await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("active profile id persists across restart", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let firstApp: ElectronApplication | null = null;
+  let secondApp: ElectronApplication | null = null;
+  try {
+    const firstLaunch = await launchIntegrationApp(userDataDir);
+    firstApp = firstLaunch.app;
+    const firstPage = firstLaunch.page;
+    await connectGitRepo(firstPage);
+
+    const firstRepoInfo = await getRepoInfo(firstPage);
+    const profile = await apiCreateProfile(firstPage, "Profile Switch B", {
+      provider: "git",
+      remoteUrl: "https://github.com/mock/profile-switch-b.git",
+      branch: "main",
+      pat: "token-switch-b",
+      authMethod: "pat",
+    });
+    await apiSetActiveProfile(firstPage, profile.id);
+
+    await closeAppIfOpen(firstApp);
+    firstApp = null;
+
+    const secondLaunch = await launchIntegrationApp(userDataDir);
+    secondApp = secondLaunch.app;
+    const secondPage = secondLaunch.page;
+
+    await expect(
+      secondPage.getByTestId("status-bar-commit-push-action"),
+    ).toBeVisible();
+    await expect(
+      secondPage.getByRole("button", { name: "Connect to Repository" }),
+    ).toHaveCount(0);
+
+    const activeProfileId = await apiGetActiveProfileId(secondPage);
+    expect(activeProfileId).toBe(profile.id);
+
+    const secondRepoInfo = await getRepoInfo(secondPage);
+    expect(secondRepoInfo.localPath).not.toBe(firstRepoInfo.localPath);
+  } finally {
+    await closeAppIfOpen(firstApp);
+    await closeAppIfOpen(secondApp);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("invalid active profile id still allows workspace to load", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let firstApp: ElectronApplication | null = null;
+  let secondApp: ElectronApplication | null = null;
+  try {
+    const firstLaunch = await launchIntegrationApp(userDataDir);
+    firstApp = firstLaunch.app;
+    await connectGitRepo(firstLaunch.page);
+    await apiSetActiveProfile(firstLaunch.page, "profile-missing-integration");
+
+    await closeAppIfOpen(firstApp);
+    firstApp = null;
+
+    const secondLaunch = await launchIntegrationApp(userDataDir);
+    secondApp = secondLaunch.app;
+    const secondPage = secondLaunch.page;
+
+    await expect(
+      secondPage.getByTestId("status-bar-commit-push-action"),
+    ).toBeVisible();
+    await expect(
+      secondPage.getByRole("button", { name: "Connect to Repository" }),
+    ).toHaveCount(0);
+
+    const repoInfo = await getRepoInfo(secondPage);
+    expect(repoInfo.provider).toBe("git");
+  } finally {
+    await closeAppIfOpen(firstApp);
+    await closeAppIfOpen(secondApp);
     await cleanupUserDataDir(userDataDir);
   }
 });

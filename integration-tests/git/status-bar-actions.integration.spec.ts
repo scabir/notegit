@@ -8,6 +8,7 @@ import {
   appendToCurrentEditor,
   cleanupUserDataDir,
   clickFetch,
+  clickPush,
   clickPull,
   closeAppIfOpen,
   commitAndPushAll,
@@ -220,6 +221,34 @@ test("push button is disabled when no pending commits", async ({
   }
 });
 
+test("push button enables after commit and disables after push", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectGitRepo(page);
+
+    await apiCreateFile(page, "", "push-toggle.md");
+    await apiCommitAll(page, "commit without push");
+    await clickFetch(page);
+    await expect(page.getByTestId("status-bar-push-action")).toBeEnabled();
+
+    await clickPush(page);
+    await expectSavedStatus(page);
+    await expect(page.getByTestId("status-bar-push-action")).toBeDisabled();
+
+    const status = await getRepoStatus(page);
+    expect(status.ahead).toBe(0);
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
 test("pull button enabled when behind and disabled after pull", async ({
   request: _request,
 }, testInfo) => {
@@ -317,6 +346,35 @@ test("save-all action persists unsaved buffer before commit+push", async ({
     await commitAndPushAll(page);
     const statusAfterCommit = await getRepoStatus(page);
     expect(statusAfterCommit.hasUncommitted).toBe(false);
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("save-all persists editor buffer while preserving other uncommitted files", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectGitRepo(page);
+
+    await apiCreateFile(page, "", "api-dirty.md");
+    await createMarkdownFile(page, "editor-dirty.md");
+    await appendToCurrentEditor(page, "\neditor dirty content\n");
+
+    await page.getByTestId("status-bar-save-all-action").click();
+    await expectSavedStatus(page);
+
+    const savedEditorContent = await apiReadFile(page, "editor-dirty.md");
+    expect(savedEditorContent).toContain("editor dirty content");
+
+    const status = await getRepoStatus(page);
+    expect(status.hasUncommitted).toBe(true);
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);
@@ -440,6 +498,30 @@ test("commit failure is surfaced and app stays responsive", async ({
 
     await page.getByTestId("status-bar-commit-push-action").click();
     await expectErrorStatus(page, "Commit failed");
+
+    const status = await getRepoStatus(page);
+    expect(status.hasUncommitted).toBe(true);
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("push remains disabled when repo is only behind", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir, {
+      env: { NOTEGIT_MOCK_GIT_INITIAL_BEHIND: "2" },
+    });
+    app = launched.app;
+    const page = launched.page;
+    await connectGitRepo(page);
+
+    await expect(page.getByTestId("status-bar-pull-action")).toBeEnabled();
+    await expect(page.getByTestId("status-bar-push-action")).toBeDisabled();
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);

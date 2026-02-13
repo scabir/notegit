@@ -13,7 +13,9 @@ import {
   createMarkdownFile,
   expectTreeNotToContainPath,
   expectTreeToContainPath,
+  flattenTreePaths,
   launchIntegrationApp,
+  listTree,
   selectFileFromTree,
 } from "../helpers/gitIntegration";
 import { expect, test } from "@playwright/test";
@@ -25,6 +27,7 @@ import * as path from "path";
 const createFileViaDialog = async (
   page: Page,
   inputName: string,
+  expectClose: boolean = true,
 ): Promise<void> => {
   const treeContainer = page.locator(".tree-container");
   await treeContainer.click({ button: "right" });
@@ -33,7 +36,9 @@ const createFileViaDialog = async (
   await expect(createDialog).toBeVisible();
   await createDialog.getByLabel("File Name").fill(inputName);
   await createDialog.getByRole("button", { name: "Create" }).click();
-  await expect(createDialog).toHaveCount(0);
+  if (expectClose) {
+    await expect(createDialog).toHaveCount(0);
+  }
 };
 
 const createFolderViaEmptyTreeContextMenu = async (
@@ -61,7 +66,19 @@ const createFolderViaEmptyTreeContextMenu = async (
   await expect(createDialog).toBeVisible();
   await createDialog.getByLabel("Folder Name").fill(folderName);
   await createDialog.getByRole("button", { name: "Create" }).click();
-  await expect(createDialog).toHaveCount(0);
+};
+
+const openNodeContextMenu = async (
+  page: Page,
+  nodeName: string,
+): Promise<void> => {
+  const node = page
+    .locator(".tree-container")
+    .getByText(nodeName, { exact: true })
+    .first();
+  await expect(node).toBeVisible();
+  await node.click({ button: "right" });
+  await expect(page.getByTestId("tree-context-menu")).toBeVisible();
 };
 
 test("create folder and file inside then commit+push", async ({
@@ -246,6 +263,157 @@ test("import external file then commit+push", async ({
   }
 });
 
+test("create file dialog rejects invalid file name characters", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectGitRepo(page);
+
+    await createFileViaDialog(page, "bad:name", false);
+    const createDialog = page.getByTestId("create-file-dialog");
+    await expect(createDialog).toBeVisible();
+    await expect(createDialog).toContainText("contains invalid characters");
+    await expectTreeNotToContainPath(page, "bad:name");
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("creating an existing folder path is idempotent", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectGitRepo(page);
+
+    await createFolderViaEmptyTreeContextMenu(page, "dupe-parent");
+    await openNodeContextMenu(page, "dupe-parent");
+    await page.getByTestId("tree-context-node-new-folder").click();
+    const firstCreateDialog = page.getByTestId("create-folder-dialog");
+    await expect(firstCreateDialog).toBeVisible();
+    await firstCreateDialog.getByLabel("Folder Name").fill("dupe-child");
+    await firstCreateDialog.getByRole("button", { name: "Create" }).click();
+    await expect(firstCreateDialog).toHaveCount(0);
+    await expectTreeToContainPath(page, "dupe-parent/dupe-child");
+
+    await openNodeContextMenu(page, "dupe-parent");
+    await page.getByTestId("tree-context-node-new-folder").click();
+    const createDialog = page.getByTestId("create-folder-dialog");
+    await expect(createDialog).toBeVisible();
+    await createDialog.getByLabel("Folder Name").fill("dupe-child");
+    await createDialog.getByRole("button", { name: "Create" }).click();
+
+    await expect(createDialog).toHaveCount(0);
+    const allPaths = flattenTreePaths(await listTree(page));
+    const duplicateCount = allPaths.filter(
+      (entry) => entry === "dupe-parent/dupe-child",
+    ).length;
+    expect(duplicateCount).toBe(1);
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("rename dialog rejects invalid name characters", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectGitRepo(page);
+
+    await createMarkdownFile(page, "rename-target.md");
+    await openNodeContextMenu(page, "rename-target.md");
+    await page.getByTestId("tree-context-rename").click();
+
+    const renameDialog = page.getByTestId("rename-dialog");
+    await expect(renameDialog).toBeVisible();
+    await renameDialog.getByLabel("New Name").fill("bad:name.md");
+    await renameDialog.getByRole("button", { name: "Rename" }).click();
+
+    await expect(renameDialog).toContainText("contains invalid characters");
+    await expectTreeToContainPath(page, "rename-target.md");
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("move file into folder using context menu dialog", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectGitRepo(page);
+
+    await createFolderViaEmptyTreeContextMenu(page, "move-target");
+    await expectTreeToContainPath(page, "move-target");
+    await createMarkdownFile(page, "move-me.md");
+
+    await openNodeContextMenu(page, "move-me.md");
+    await page.getByTestId("tree-context-move").click();
+    const moveDialog = page.getByRole("dialog", { name: "Move Item" });
+    await expect(moveDialog).toBeVisible();
+    await moveDialog.getByText("move-target", { exact: true }).click();
+    await moveDialog.getByRole("button", { name: "Move Here" }).click();
+
+    await expectTreeToContainPath(page, "move-target/move-me.md");
+    await expectTreeNotToContainPath(page, "move-me.md");
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("favorite can be added and removed from context menus", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectGitRepo(page);
+
+    await createMarkdownFile(page, "favorite-note.md");
+
+    await openNodeContextMenu(page, "favorite-note.md");
+    await page.getByTestId("tree-context-favorite").click();
+    const favoritesSection = page.getByTestId("favorites-section");
+    await expect(favoritesSection).toBeVisible();
+    await expect(favoritesSection.getByText("favorite-note.md")).toBeVisible();
+
+    await favoritesSection
+      .getByRole("button", { name: "favorite-note.md" })
+      .click({ button: "right" });
+    await expect(page.getByTestId("favorite-context-menu-remove")).toBeVisible();
+    await page.getByTestId("favorite-context-menu-remove").click();
+    await expect(page.getByTestId("favorites-section")).toHaveCount(0);
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
 test("right click on tree background creates folder in root", async ({
   request: _request,
 }, testInfo) => {
@@ -258,6 +426,8 @@ test("right click on tree background creates folder in root", async ({
     await connectGitRepo(page);
 
     await createFolderViaEmptyTreeContextMenu(page, "ctx-parent");
+    await expectTreeToContainPath(page, "ctx-parent");
+
     await selectFileFromTree(page, "ctx-parent");
     await createMarkdownFile(page, "ctx-child.md");
     await selectFileFromTree(page, "ctx-child.md");
