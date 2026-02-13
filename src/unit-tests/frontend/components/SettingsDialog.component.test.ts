@@ -109,11 +109,11 @@ const buildConfig = (): FullConfig => ({
 });
 
 describe("SettingsDialog component", () => {
-  let shellOpenPath: jest.Mock;
+  let openFolder: jest.Mock;
 
   beforeEach(() => {
     jest.useRealTimers();
-    shellOpenPath = jest.fn();
+    openFolder = jest.fn().mockResolvedValue({ ok: true });
     (global as any).window = {
       notegitApi: {
         config: {
@@ -154,13 +154,9 @@ describe("SettingsDialog component", () => {
         dialog: {
           showSaveDialog: jest.fn(),
           showOpenDialog: jest.fn(),
+          openFolder,
         },
       },
-      require: jest.fn(() => ({
-        shell: {
-          openPath: shellOpenPath,
-        },
-      })),
       confirm: jest.fn(),
     };
     (global as any).confirm = jest.fn().mockReturnValue(true);
@@ -588,7 +584,42 @@ describe("SettingsDialog component", () => {
     expect((global as any).navigator.clipboard.writeText).toHaveBeenCalledWith(
       "/repo",
     );
-    expect(shellOpenPath).toHaveBeenCalledWith("/repo");
+    expect(openFolder).toHaveBeenCalledWith("/repo");
+  });
+
+  it("opens repository folder when local path field is clicked", async () => {
+    let renderer: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = createRenderer(
+        React.createElement(SettingsDialog, {
+          open: true,
+          onClose: jest.fn(),
+        }),
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+    });
+
+    const tabs = renderer!.root.findByType(Tabs);
+    act(() => {
+      tabs.props.onChange(null, 1);
+    });
+
+    const localPathField = renderer!.root
+      .findAllByType(TextField)
+      .find((field: any) => field.props.label === "Local Path");
+    if (!localPathField) {
+      throw new Error("Local Path field not found");
+    }
+
+    await act(async () => {
+      localPathField.props.onClick();
+      await flushPromises();
+    });
+
+    expect(openFolder).toHaveBeenCalledWith("/repo");
   });
 
   it("loads logs folder and allows open/copy", async () => {
@@ -626,7 +657,7 @@ describe("SettingsDialog component", () => {
       await flushPromises();
     });
 
-    expect(shellOpenPath).toHaveBeenCalledWith("/logs");
+    expect(openFolder).toHaveBeenCalledWith("/logs");
 
     const copyButtons = renderer!.root.findAllByProps({
       "aria-label": "copy logs folder",
@@ -643,6 +674,61 @@ describe("SettingsDialog component", () => {
     expect((global as any).navigator.clipboard.writeText).toHaveBeenCalledWith(
       "/logs",
     );
+  });
+
+  it("opens logs folder when logs path field is clicked", async () => {
+    let renderer: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = createRenderer(
+        React.createElement(SettingsDialog, {
+          open: true,
+          onClose: jest.fn(),
+        }),
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+    });
+
+    const tabs = renderer!.root.findByType(Tabs);
+    await act(async () => {
+      tabs.props.onChange(null, 4);
+      await flushPromises();
+    });
+
+    const logsFolderField = renderer!.root
+      .findAllByType(TextField)
+      .find((field: any) => field.props.label === "Logs Folder");
+    if (!logsFolderField) {
+      throw new Error("Logs Folder field not found");
+    }
+
+    await act(async () => {
+      logsFolderField.props.onClick();
+      await flushPromises();
+    });
+
+    expect(openFolder).toHaveBeenCalledWith("/logs");
+  });
+
+  it("does not show About button in settings actions", async () => {
+    let renderer: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = createRenderer(
+        React.createElement(SettingsDialog, {
+          open: true,
+          onClose: jest.fn(),
+        }),
+      );
+    });
+
+    await act(async () => {
+      await flushPromises();
+    });
+
+    const aboutButton = findButtonByText(renderer!, "About");
+    expect(aboutButton).toBeUndefined();
   });
 
   it("shows validation error when creating profile without a name", async () => {

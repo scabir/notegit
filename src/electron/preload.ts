@@ -91,6 +91,8 @@ const api: NotegitApi = {
       ipcRenderer.invoke("dialog:showOpenDialog", options),
     showSaveDialog: (options) =>
       ipcRenderer.invoke("dialog:showSaveDialog", options),
+    openFolder: (folderPath) =>
+      ipcRenderer.invoke("dialog:openFolder", folderPath),
   },
   history: {
     getForFile: (path) => ipcRenderer.invoke("history:getForFile", path),

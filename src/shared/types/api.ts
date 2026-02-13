@@ -128,6 +128,7 @@ export interface NotegitApi {
     showSaveDialog: (
       options: any,
     ) => Promise<{ canceled: boolean; filePath?: string }>;
+    openFolder: (folderPath: string) => Promise<ApiResponse<void>>;
   };
   history: {
     getForFile: (path: string) => Promise<ApiResponse<CommitEntry[]>>;

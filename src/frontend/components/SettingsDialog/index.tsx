@@ -29,14 +29,12 @@ import {
   ToggleButton,
 } from "@mui/material";
 import {
-  Info as InfoIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
   Check as CheckIcon,
   ContentCopy as ContentCopyIcon,
   FolderOpen as FolderOpenIcon,
 } from "@mui/icons-material";
-import { AboutDialog } from "../AboutDialog";
 import type {
   /* FullConfig, */
   AppSettings,
@@ -83,7 +81,6 @@ export function SettingsDialog({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
-  const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
@@ -479,10 +476,22 @@ export function SettingsDialog({
     }
   };
 
+  const openFolderInExplorer = async (
+    folderPath: string,
+    fallbackMessage: string,
+  ) => {
+    const response = await window.notegitApi.dialog.openFolder(folderPath);
+    if (!response.ok) {
+      setError(response.error?.message || fallbackMessage);
+    }
+  };
+
   const handleOpenRepoFolder = async () => {
     if (repoSettings.localPath) {
-      const { shell } = window.require("electron");
-      await shell.openPath(repoSettings.localPath);
+      await openFolderInExplorer(
+        repoSettings.localPath,
+        "Failed to open repository folder",
+      );
     }
   };
 
@@ -490,8 +499,7 @@ export function SettingsDialog({
     if (!logsFolder) {
       return;
     }
-    const { shell } = window.require("electron");
-    await shell.openPath(logsFolder);
+    await openFolderInExplorer(logsFolder, "Failed to open logs folder");
   };
 
   const getProfileSecondary = (profile: Profile): string => {
@@ -933,6 +941,7 @@ export function SettingsDialog({
                   label="Local Path"
                   value={repoSettings.localPath}
                   fullWidth
+                  onClick={() => void handleOpenRepoFolder()}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -1291,6 +1300,7 @@ export function SettingsDialog({
                 label="Logs Folder"
                 value={logsFolder}
                 fullWidth
+                onClick={() => void handleOpenLogsFolder()}
                 InputProps={{ readOnly: true }}
               />
               <Button
@@ -1312,23 +1322,11 @@ export function SettingsDialog({
           </Box>
         </TabPanel>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between", px: 3 }}>
-        <Button
-          onClick={() => setAboutDialogOpen(true)}
-          startIcon={<InfoIcon />}
-          color="inherit"
-        >
-          About
-        </Button>
+      <DialogActions sx={{ justifyContent: "flex-end", px: 3 }}>
         <Button onClick={onClose} variant="contained">
           Close
         </Button>
       </DialogActions>
-
-      <AboutDialog
-        open={aboutDialogOpen}
-        onClose={() => setAboutDialogOpen(false)}
-      />
 
       <Snackbar
         open={copySnackbarOpen}

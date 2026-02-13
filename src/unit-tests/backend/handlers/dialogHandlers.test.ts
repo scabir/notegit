@@ -1,10 +1,13 @@
 import { registerDialogHandlers } from "../../../backend/handlers/dialogHandlers";
-import { dialog } from "electron";
+import { dialog, shell } from "electron";
 
 jest.mock("electron", () => ({
   dialog: {
     showOpenDialog: jest.fn(),
     showSaveDialog: jest.fn(),
+  },
+  shell: {
+    openPath: jest.fn(),
   },
   app: {
     getPath: jest.fn(() => "/tmp/notegit-test"),
@@ -80,5 +83,29 @@ describe("dialogHandlers", () => {
     });
 
     expect(result).toEqual({ canceled: true, filePath: undefined });
+  });
+
+  it("opens folder path through shell", async () => {
+    (shell.openPath as jest.Mock).mockResolvedValue("");
+    const { ipcMain, handlers } = createIpcMain();
+
+    registerDialogHandlers(ipcMain);
+
+    const result = await handlers["dialog:openFolder"](null, "/tmp/notegit");
+
+    expect(result).toEqual({ ok: true });
+    expect(shell.openPath).toHaveBeenCalledWith("/tmp/notegit");
+  });
+
+  it("returns failure when shell openPath reports an error", async () => {
+    (shell.openPath as jest.Mock).mockResolvedValue("cannot open");
+    const { ipcMain, handlers } = createIpcMain();
+
+    registerDialogHandlers(ipcMain);
+
+    const result = await handlers["dialog:openFolder"](null, "/tmp/notegit");
+
+    expect(result.ok).toBe(false);
+    expect(result.error?.message).toBe("cannot open");
   });
 });
