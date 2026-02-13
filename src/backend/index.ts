@@ -2,7 +2,9 @@ import { IpcMain } from "electron";
 import { FsAdapter } from "./adapters/FsAdapter";
 import { CryptoAdapter } from "./adapters/CryptoAdapter";
 import { GitAdapter } from "./adapters/GitAdapter";
+import { MockGitAdapter } from "./adapters/MockGitAdapter";
 import { S3Adapter } from "./adapters/S3Adapter";
+import { MockS3Adapter } from "./adapters/MockS3Adapter";
 import { ConfigService } from "./services/ConfigService";
 import { RepoService } from "./services/RepoService";
 import { FilesService } from "./services/FilesService";
@@ -31,8 +33,14 @@ export function createBackend(ipcMain: IpcMain): void {
 
   const fsAdapter = new FsAdapter();
   const cryptoAdapter = new CryptoAdapter();
-  const gitAdapter = new GitAdapter();
-  const s3Adapter = new S3Adapter();
+  const gitAdapter =
+    process.env.NOTEGIT_INTEGRATION_GIT_MOCK === "1"
+      ? new MockGitAdapter()
+      : new GitAdapter();
+  const s3Adapter =
+    process.env.NOTEGIT_INTEGRATION_S3_MOCK === "1"
+      ? new MockS3Adapter()
+      : new S3Adapter();
 
   const configService = new ConfigService(fsAdapter, cryptoAdapter);
   const gitRepoProvider = new GitRepoProvider(gitAdapter, fsAdapter);

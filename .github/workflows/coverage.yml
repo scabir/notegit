@@ -1,0 +1,102 @@
+name: Coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    name: Unit Test Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect package manager
+        id: detect_pm
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f pnpm-lock.yaml ]; then
+            echo "pm=pnpm" >> "$GITHUB_OUTPUT"
+          elif [ -f yarn.lock ]; then
+            echo "pm=yarn" >> "$GITHUB_OUTPUT"
+          elif [ -f package-lock.json ]; then
+            echo "pm=npm" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::No supported lock file found (pnpm-lock.yaml, yarn.lock, package-lock.json)."
+            exit 1
+          fi
+
+      - name: Detect Node version source
+        id: node_version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f .nvmrc ]; then
+            echo "use_nvmrc=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "use_nvmrc=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node (.nvmrc)
+        if: steps.node_version.outputs.use_nvmrc == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: ${{ steps.detect_pm.outputs.pm }}
+
+      - name: Setup Node (fallback)
+        if: steps.node_version.outputs.use_nvmrc != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: ${{ steps.detect_pm.outputs.pm }}
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ steps.detect_pm.outputs.pm }}" in
+            pnpm)
+              corepack enable
+              pnpm install --frozen-lockfile
+              ;;
+            yarn)
+              yarn install --frozen-lockfile
+              ;;
+            npm)
+              npm ci
+              ;;
+            *)
+              echo "::error::Unsupported package manager: ${{ steps.detect_pm.outputs.pm }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Run unit tests with coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ steps.detect_pm.outputs.pm }}" in
+            pnpm) pnpm run test:coverage ;;
+            yarn) yarn test:coverage ;;
+            npm) npm run test:coverage ;;
+          esac
+
+      - name: Ensure LCOV report exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f coverage/lcov.info
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+

@@ -2,38 +2,80 @@
 
 A Git-, S3-, or local-backed Markdown note-taking desktop app built with Electron and React.
 
-**Version**: 2.6.6  
+[![Coverage](https://codecov.io/gh/scabir/notegit/branch/main/graph/badge.svg)](https://codecov.io/gh/scabir/notegit)
+[![macOS DMG](https://github.com/scabir/notegit/actions/workflows/macos-dmg.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/macos-dmg.yml)
+[![Windows Installer](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml)
+[![Linux Packages](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml)
+
+**Version**: 2.7.2  
 **License**: MIT
 
-## Overview
+## Highlights
 
-- Markdown + text editors with live preview (Mermaid supported in `.md` files)
-- Git or S3 storage with history
-- Local-only mode with no remote sync
-- Fast search, find/replace, import/export
-- Encrypted credentials, auto-save, and sync
-- macOS, Windows, Linux
-- Keyboard shortcuts populate the tree view (add/import/rename/move/delete) and the editor, and a question-mark help icon sits to the right of the Settings button (or press `F1`) to open the shortcut helper with every shortcut listed.
-- Favorites bar above the tree keeps starred files/folders handy (activate via the star icon or `Ctrl/Cmd + Shift + S` and use the context menu to remove items).
-- Right-click any tree entry to rename, move, favorite/unfavorite, or delete it with the matching toolbar icon.
-- Right-click the empty tree background (when nothing is selected) to reveal New File, New Folder, and Import actions.
+- Markdown and text editors with live preview (Mermaid in `.md` files)
+- Repository providers: `git`, `s3`, and `local`
+- File history, search, import/export, and keyboard shortcuts
+- Encrypted credentials, autosave, and sync support
+- Runs on macOS, Windows, and Linux
 
 ## Quick start
 
 - Launch the app and connect a repository (Git, S3, or Local)
-  - S3 requires bucket versioning for history
 - Create or open a note and start editing
+- S3 requires bucket versioning for history
 
-## From source (short)
+## Build Artifacts (CI)
 
-Prereqs: Node.js 18+, pnpm, Git (for Git repos), S3 credentials (for S3 repos). Local-only mode requires no external services.
+Direct downloads from the latest GitHub release:
 
-This is a single command does everything necessarry and runs. Divide and use it.
+1. [macOS Intel DMG](https://github.com/scabir/notegit/releases/latest/download/notegit-macos-x64.dmg)
+2. [macOS Apple Silicon DMG](https://github.com/scabir/notegit/releases/latest/download/notegit-macos-arm64.dmg)
+3. [Windows x64 Installer](https://github.com/scabir/notegit/releases/latest/download/notegit-windows-x64-setup.exe)
+4. [Linux Debian Package (`.deb`)](https://github.com/scabir/notegit/releases/latest/download/notegit-linux-amd64.deb)
+5. [Linux RPM Package (`.rpm`)](https://github.com/scabir/notegit/releases/latest/download/notegit-linux-x86_64.rpm)
 
-However, if you want to install it to your machine, check the setup procedures.
+All releases: [github.com/scabir/notegit/releases](https://github.com/scabir/notegit/releases)
+
+## Local development
+
+Prerequisites:
+
+- Node.js 18+
+- `pnpm`
+- Git (for Git repos)
+- S3 credentials (for S3 repos)
+
+Install dependencies:
 
 ```bash
-pnpm run clean && pnpm install  && pnpm run build && pnpm lint && pnpm test && pnpm start
+pnpm install
+```
+
+Run in development:
+
+```bash
+pnpm run dev
+```
+
+Build:
+
+```bash
+pnpm run build
+```
+
+Quality checks:
+
+```bash
+pnpm run lint
+pnpm run test
+pnpm run test:coverage
+pnpm run test:integration
+```
+
+Package installers:
+
+```bash
+pnpm run package
 ```
 
 ## Docs

@@ -1,0 +1,201 @@
+name: Windows Installer
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-windows-installer:
+    name: Windows NSIS (${{ matrix.arch }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            artifact_name: app-windows-x64-installer
+          - arch: ia32
+            artifact_name: app-windows-ia32-installer
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      CSC_FOR_PULL_REQUEST: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect package manager
+        id: detect_pm
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f pnpm-lock.yaml ]; then
+            echo "pm=pnpm" >> "$GITHUB_OUTPUT"
+          elif [ -f yarn.lock ]; then
+            echo "pm=yarn" >> "$GITHUB_OUTPUT"
+          elif [ -f package-lock.json ]; then
+            echo "pm=npm" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::No supported lock file found (pnpm-lock.yaml, yarn.lock, package-lock.json)."
+            exit 1
+          fi
+
+      - name: Detect Node version source
+        id: node_version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f .nvmrc ]; then
+            echo "use_nvmrc=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "use_nvmrc=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node (.nvmrc)
+        if: steps.node_version.outputs.use_nvmrc == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: ${{ steps.detect_pm.outputs.pm }}
+
+      - name: Setup Node (fallback)
+        if: steps.node_version.outputs.use_nvmrc != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: ${{ steps.detect_pm.outputs.pm }}
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ steps.detect_pm.outputs.pm }}" in
+            pnpm)
+              corepack enable
+              pnpm install --frozen-lockfile
+              ;;
+            yarn)
+              yarn install --frozen-lockfile
+              ;;
+            npm)
+              npm ci
+              ;;
+            *)
+              echo "::error::Unsupported package manager: ${{ steps.detect_pm.outputs.pm }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Build app (if script exists)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts.build ? 0 : 1)"; then
+            case "${{ steps.detect_pm.outputs.pm }}" in
+              pnpm) pnpm run build ;;
+              yarn) yarn build ;;
+              npm) npm run build ;;
+            esac
+          else
+            echo "No build script found in package.json, skipping build step."
+          fi
+
+      - name: Package Windows installer (${{ matrix.arch }})
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ steps.detect_pm.outputs.pm }}" in
+            pnpm)
+              pnpm exec electron-builder --win nsis --${{ matrix.arch }} --publish never
+              ;;
+            yarn)
+              yarn run electron-builder --win nsis --${{ matrix.arch }} --publish never
+              ;;
+            npm)
+              npm exec electron-builder -- --win nsis --${{ matrix.arch }} --publish never
+              ;;
+            *)
+              echo "::error::Unsupported package manager: ${{ steps.detect_pm.outputs.pm }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Locate Windows installer artifact
+        id: locate_installer
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          all_installers=()
+          for dir in release dist out; do
+            if [ -d "$dir" ]; then
+              while IFS= read -r file; do
+                all_installers+=("$file")
+              done < <(find "$dir" -type f -name "*.exe" | sort)
+            fi
+          done
+
+          if [ "${#all_installers[@]}" -eq 0 ]; then
+            while IFS= read -r file; do
+              all_installers+=("$file")
+            done < <(find . -type f -name "*.exe" -not -path "./node_modules/*" | sort)
+          fi
+
+          if [ "${#all_installers[@]}" -eq 0 ]; then
+            echo "::error::No Windows installer (.exe) found after packaging."
+            for dir in release dist out; do
+              if [ -d "$dir" ]; then
+                echo "--- $dir ---"
+                find "$dir" -maxdepth 4 -print
+              fi
+            done
+            exit 1
+          fi
+
+          case "${{ matrix.arch }}" in
+            x64) arch_pattern='x64|amd64|win64' ;;
+            ia32) arch_pattern='ia32|x86|win32' ;;
+            *) arch_pattern='' ;;
+          esac
+
+          nsis_candidates=()
+          while IFS= read -r file; do
+            if [ -n "$file" ]; then
+              nsis_candidates+=("$file")
+            fi
+          done < <(printf '%s\n' "${all_installers[@]}" | grep -Ei '(setup|installer)' || true)
+
+          if [ "${#nsis_candidates[@]}" -eq 0 ]; then
+            nsis_candidates=("${all_installers[@]}")
+          fi
+
+          arch_candidates=()
+          while IFS= read -r file; do
+            if [ -n "$file" ]; then
+              arch_candidates+=("$file")
+            fi
+          done < <(printf '%s\n' "${nsis_candidates[@]}" | grep -Ei "$arch_pattern" || true)
+
+          if [ "${#arch_candidates[@]}" -gt 0 ]; then
+            selected="$(ls -1t "${arch_candidates[@]}" | head -n 1)"
+          else
+            selected="$(ls -1t "${nsis_candidates[@]}" | head -n 1)"
+          fi
+
+          if [ -z "$selected" ] || [ ! -f "$selected" ]; then
+            echo "::error::Failed to select a Windows installer artifact. Candidates were:"
+            printf '%s\n' "${all_installers[@]}"
+            exit 1
+          fi
+
+          echo "Selected installer: $selected"
+          echo "installer_path=$selected" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Windows installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ steps.locate_installer.outputs.installer_path }}
+          if-no-files-found: error
+          retention-days: 14

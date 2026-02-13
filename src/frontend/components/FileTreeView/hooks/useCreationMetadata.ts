@@ -5,7 +5,7 @@ import { resolveCreationLocationText } from "../pathResolvers";
 type UseCreationMetadataParams = {
   treeContextMenuNode: FileTreeNode | null;
   favoriteNodes: FileTreeNode[];
-  selectedNodeForActions: FileTreeNode | null;
+  selectedNode: FileTreeNode | null;
   selectedFile: string | null;
   newItemName: string;
   createLocationRoot: string;
@@ -16,7 +16,7 @@ type UseCreationMetadataParams = {
 export function useCreationMetadata({
   treeContextMenuNode,
   favoriteNodes,
-  selectedNodeForActions,
+  selectedNode,
   selectedFile,
   newItemName,
   createLocationRoot,
@@ -35,11 +35,11 @@ export function useCreationMetadata({
   const creationLocationText = useMemo(
     () =>
       resolveCreationLocationText(
-        selectedNodeForActions,
+        selectedNode,
         createLocationRoot,
         createLocationPrefix,
       ),
-    [createLocationPrefix, createLocationRoot, selectedNodeForActions],
+    [createLocationPrefix, createLocationRoot, selectedNode],
   );
 
   const fileHelperText = useMemo(
@@ -48,8 +48,8 @@ export function useCreationMetadata({
   );
 
   const selectedNodeId = useMemo(
-    () => selectedNodeForActions?.id ?? selectedFile ?? undefined,
-    [selectedFile, selectedNodeForActions],
+    () => selectedNode?.id ?? selectedFile ?? undefined,
+    [selectedFile, selectedNode],
   );
 
   return {
