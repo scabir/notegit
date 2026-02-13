@@ -1,54 +1,34 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Tabs,
-  Tab,
-  Box,
-  TextField,
-  Switch,
-  FormControlLabel,
-  Typography,
   Alert,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
-  IconButton,
-  Chip,
-  CircularProgress,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Snackbar,
-  ToggleButtonGroup,
-  ToggleButton,
+  Tab,
+  Tabs,
 } from "@mui/material";
-import {
-  Delete as DeleteIcon,
-  Add as AddIcon,
-  Check as CheckIcon,
-  ContentCopy as ContentCopyIcon,
-  FolderOpen as FolderOpenIcon,
-} from "@mui/icons-material";
 import type {
-  /* FullConfig, */
   AppSettings,
-  RepoSettings,
+  GitRepoSettings,
   Profile,
   RepoProviderType,
-  GitRepoSettings,
+  RepoSettings,
   S3RepoSettings,
 } from "../../../shared/types";
 import { AuthMethod, REPO_PROVIDERS } from "../../../shared/types";
+import { SettingsAppSettingsTab } from "../SettingsAppSettingsTab";
+import { SettingsExportTab } from "../SettingsExportTab";
+import { SettingsLogsTab } from "../SettingsLogsTab";
+import { SettingsProfilesTab } from "../SettingsProfilesTab";
+import { SettingsRepositoryTab } from "../SettingsRepositoryTab";
 import { confirmProfileSwitch } from "../../utils/profileSwitch";
 import { SETTINGS_TEXT } from "./constants";
-import { tabHeaderSx, alertSx } from "./styles";
-import type { TabPanelProps, SettingsDialogProps } from "./types";
+import { alertSx, tabHeaderSx } from "./styles";
+import type { SettingsDialogProps, TabPanelProps } from "./types";
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -74,7 +54,6 @@ export function SettingsDialog({
   currentNotePath,
 }: SettingsDialogProps) {
   const [tabValue, setTabValue] = useState(0);
-  /* const [config, setConfig] = useState<FullConfig | null>(null); */
   const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
   const [repoSettings, setRepoSettings] = useState<Partial<RepoSettings>>({});
   const [loading, setLoading] = useState(false);
@@ -100,9 +79,10 @@ export function SettingsDialog({
   const [newProfileSessionToken, setNewProfileSessionToken] = useState("");
   const [profileCreating, setProfileCreating] = useState(false);
 
-  const [logsFolder, setLogsFolder] = useState<string>("");
+  const [logsFolder, setLogsFolder] = useState("");
   const [loadingLogsFolder, setLoadingLogsFolder] = useState(false);
   const [copySnackbarOpen, setCopySnackbarOpen] = useState(false);
+
   const repoProvider: RepoProviderType =
     (repoSettings.provider as RepoProviderType) || REPO_PROVIDERS.git;
   const gitRepoSettings = repoSettings as Partial<GitRepoSettings>;
@@ -110,9 +90,23 @@ export function SettingsDialog({
 
   useEffect(() => {
     if (open) {
-      loadConfig();
+      void loadConfig();
     }
   }, [open]);
+
+  const resetNewProfileForm = () => {
+    setNewProfileName("");
+    setNewProfileProvider(REPO_PROVIDERS.git);
+    setNewProfileRemoteUrl("");
+    setNewProfileBranch("main");
+    setNewProfilePat("");
+    setNewProfileBucket("");
+    setNewProfileRegion("");
+    setNewProfilePrefix("");
+    setNewProfileAccessKeyId("");
+    setNewProfileSecretAccessKey("");
+    setNewProfileSessionToken("");
+  };
 
   const loadConfig = async () => {
     setLoading(true);
@@ -122,7 +116,6 @@ export function SettingsDialog({
       const response = await window.notegitApi.config.getFull();
 
       if (response.ok && response.data) {
-        /* setConfig(response.data); */
         setAppSettings(response.data.appSettings);
         setRepoSettings(response.data.repoSettings || {});
         setProfiles(response.data.profiles || []);
@@ -138,7 +131,9 @@ export function SettingsDialog({
   };
 
   const handleSaveAppSettings = async () => {
-    if (!appSettings) return;
+    if (!appSettings) {
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -354,7 +349,7 @@ export function SettingsDialog({
     setError(null);
 
     try {
-      const repoSettings: Partial<RepoSettings> =
+      const newRepoSettings: Partial<RepoSettings> =
         newProfileProvider === REPO_PROVIDERS.git
           ? {
               provider: REPO_PROVIDERS.git,
@@ -379,24 +374,14 @@ export function SettingsDialog({
 
       const response = await window.notegitApi.config.createProfile(
         newProfileName.trim(),
-        repoSettings,
+        newRepoSettings,
       );
 
       if (response.ok && response.data) {
         setSuccess("Profile created successfully");
         setProfiles([...profiles, response.data]);
         setCreatingProfile(false);
-        setNewProfileName("");
-        setNewProfileProvider(REPO_PROVIDERS.git);
-        setNewProfileRemoteUrl("");
-        setNewProfileBranch("main");
-        setNewProfilePat("");
-        setNewProfileBucket("");
-        setNewProfileRegion("");
-        setNewProfilePrefix("");
-        setNewProfileAccessKeyId("");
-        setNewProfileSecretAccessKey("");
-        setNewProfileSessionToken("");
+        resetNewProfileForm();
       } else {
         setError(response.error?.message || "Failed to create profile");
       }
@@ -458,7 +443,7 @@ export function SettingsDialog({
   }, [open, tabValue]);
 
   useEffect(() => {
-    loadLogsFolder();
+    void loadLogsFolder();
   }, [loadLogsFolder]);
 
   const handleCopyLogsFolder = () => {
@@ -546,780 +531,104 @@ export function SettingsDialog({
         )}
 
         <TabPanel value={tabValue} index={0}>
-          {appSettings && (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <FormControl fullWidth>
-                <InputLabel>Theme</InputLabel>
-                <Select
-                  value={appSettings.theme}
-                  label="Theme"
-                  onChange={(e) =>
-                    setAppSettings({
-                      ...appSettings,
-                      theme: e.target.value as any,
-                    })
-                  }
-                >
-                  <MenuItem value="light">Light</MenuItem>
-                  <MenuItem value="dark">Dark</MenuItem>
-                  <MenuItem value="system">System</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={appSettings.autoSaveEnabled}
-                    onChange={(e) =>
-                      setAppSettings({
-                        ...appSettings,
-                        autoSaveEnabled: e.target.checked,
-                      })
-                    }
-                  />
-                }
-                label="Enable Auto-save"
-              />
-
-              {appSettings.autoSaveEnabled && (
-                <TextField
-                  label="Auto-save Interval (seconds)"
-                  type="number"
-                  value={appSettings.autoSaveIntervalSec}
-                  onChange={(e) =>
-                    setAppSettings({
-                      ...appSettings,
-                      autoSaveIntervalSec: parseInt(e.target.value),
-                    })
-                  }
-                  InputProps={{ inputProps: { min: 10, max: 300 } }}
-                />
-              )}
-
-              {repoProvider === REPO_PROVIDERS.s3 && (
-                <>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={appSettings.s3AutoSyncEnabled}
-                        onChange={(e) =>
-                          setAppSettings({
-                            ...appSettings,
-                            s3AutoSyncEnabled: e.target.checked,
-                          })
-                        }
-                      />
-                    }
-                    label="Enable S3 Auto Sync"
-                  />
-
-                  {appSettings.s3AutoSyncEnabled && (
-                    <TextField
-                      label="S3 Auto Sync (in seconds)"
-                      type="number"
-                      value={appSettings.s3AutoSyncIntervalSec}
-                      onChange={(e) =>
-                        setAppSettings({
-                          ...appSettings,
-                          s3AutoSyncIntervalSec: parseInt(e.target.value),
-                        })
-                      }
-                      InputProps={{ inputProps: { min: 5, max: 3600 } }}
-                    />
-                  )}
-                </>
-              )}
-
-              <Typography variant="h6" sx={{ mt: 2 }}>
-                Editor Preferences
-              </Typography>
-
-              <TextField
-                label="Font Size"
-                type="number"
-                value={appSettings.editorPrefs.fontSize}
-                onChange={(e) =>
-                  setAppSettings({
-                    ...appSettings,
-                    editorPrefs: {
-                      ...appSettings.editorPrefs,
-                      fontSize: parseInt(e.target.value),
-                    },
-                  })
-                }
-                InputProps={{ inputProps: { min: 10, max: 24 } }}
-              />
-
-              <TextField
-                label="Tab Size"
-                type="number"
-                value={appSettings.editorPrefs.tabSize}
-                onChange={(e) =>
-                  setAppSettings({
-                    ...appSettings,
-                    editorPrefs: {
-                      ...appSettings.editorPrefs,
-                      tabSize: parseInt(e.target.value),
-                    },
-                  })
-                }
-                InputProps={{ inputProps: { min: 2, max: 8 } }}
-              />
-
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={appSettings.editorPrefs.lineNumbers}
-                    onChange={(e) =>
-                      setAppSettings({
-                        ...appSettings,
-                        editorPrefs: {
-                          ...appSettings.editorPrefs,
-                          lineNumbers: e.target.checked,
-                        },
-                      })
-                    }
-                  />
-                }
-                label="Show Line Numbers"
-              />
-
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={appSettings.editorPrefs.showPreview}
-                    onChange={(e) =>
-                      setAppSettings({
-                        ...appSettings,
-                        editorPrefs: {
-                          ...appSettings.editorPrefs,
-                          showPreview: e.target.checked,
-                        },
-                      })
-                    }
-                  />
-                }
-                label="Show Markdown Preview"
-              />
-
-              <Button
-                variant="contained"
-                onClick={handleSaveAppSettings}
-                disabled={loading}
-                sx={{ mt: 2 }}
-              >
-                Save App Settings
-              </Button>
-            </Box>
-          )}
+          <SettingsAppSettingsTab
+            appSettings={appSettings}
+            repoProvider={repoProvider}
+            loading={loading}
+            onAppSettingsChange={setAppSettings}
+            onSaveAppSettings={() => {
+              void handleSaveAppSettings();
+            }}
+          />
         </TabPanel>
 
         <TabPanel value={tabValue} index={1}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextField
-              label="Repository Type"
-              value={
-                repoProvider === REPO_PROVIDERS.git
-                  ? "Git"
-                  : repoProvider === REPO_PROVIDERS.s3
-                    ? "S3"
-                    : "Local"
-              }
-              fullWidth
-              InputProps={{
-                readOnly: true,
-              }}
-              variant="filled"
-            />
-
-            {repoProvider === REPO_PROVIDERS.git ? (
-              <>
-                <TextField
-                  label="Remote URL"
-                  value={gitRepoSettings.remoteUrl || ""}
-                  onChange={(e) =>
-                    setRepoSettings({
-                      ...repoSettings,
-                      provider: REPO_PROVIDERS.git,
-                      remoteUrl: e.target.value,
-                    })
-                  }
-                  placeholder="https://github.com/user/repo.git"
-                  fullWidth
-                  required
-                />
-
-                <TextField
-                  label="Branch"
-                  value={gitRepoSettings.branch || ""}
-                  onChange={(e) =>
-                    setRepoSettings({
-                      ...repoSettings,
-                      provider: REPO_PROVIDERS.git,
-                      branch: e.target.value,
-                    })
-                  }
-                  placeholder="main"
-                  fullWidth
-                  required
-                />
-
-                <TextField
-                  label="Personal Access Token"
-                  type="password"
-                  value={gitRepoSettings.pat || ""}
-                  onChange={(e) =>
-                    setRepoSettings({
-                      ...repoSettings,
-                      provider: REPO_PROVIDERS.git,
-                      pat: e.target.value,
-                    })
-                  }
-                  placeholder="ghp_..."
-                  fullWidth
-                  required
-                  helperText="Your Personal Access Token is stored encrypted in the app's data directory, not in your operating system's keychain."
-                />
-
-                <Alert severity="info">
-                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    How to create a GitHub Personal Access Token:
-                  </Typography>
-                  <Typography variant="body2" component="div" sx={{ mt: 1 }}>
-                    1. Go to GitHub Settings → Developer settings
-                    <br />
-                    2. Click Personal access tokens → Fine Grained Tokens
-                    <br />
-                    3. Click Generate new token
-                    <br />
-                    4. Give Token Name
-                    <br />
-                    5. Set the expirationn
-                    <br />
-                    6. Select "Only select repositories" option
-                    <br />
-                    7. Selec the repository you wat to Use
-                    <br />
-                    8. CLick on "Add Permission"
-                    <br />
-                    9. Select "Ccontent" amd make sure you gave "Reand and
-                    Write" permissions
-                    <br />
-                    10. Hit Generate Token
-                    <br />
-                    11. Copy and paste the token above
-                  </Typography>
-                </Alert>
-              </>
-            ) : repoProvider === REPO_PROVIDERS.s3 ? (
-              <>
-                <TextField
-                  label="Bucket"
-                  value={s3RepoSettings.bucket || ""}
-                  onChange={(e) =>
-                    setRepoSettings({
-                      ...repoSettings,
-                      provider: REPO_PROVIDERS.s3,
-                      bucket: e.target.value,
-                    })
-                  }
-                  placeholder="my-notes-bucket"
-                  fullWidth
-                  required
-                />
-
-                <TextField
-                  label="Region"
-                  value={s3RepoSettings.region || ""}
-                  onChange={(e) =>
-                    setRepoSettings({
-                      ...repoSettings,
-                      provider: REPO_PROVIDERS.s3,
-                      region: e.target.value,
-                    })
-                  }
-                  placeholder="us-east-1"
-                  fullWidth
-                  required
-                />
-
-                <TextField
-                  label="Prefix (optional)"
-                  value={s3RepoSettings.prefix || ""}
-                  onChange={(e) =>
-                    setRepoSettings({
-                      ...repoSettings,
-                      provider: REPO_PROVIDERS.s3,
-                      prefix: e.target.value,
-                    })
-                  }
-                  placeholder="notes/"
-                  fullWidth
-                />
-
-                <TextField
-                  label="Access Key ID"
-                  value={s3RepoSettings.accessKeyId || ""}
-                  onChange={(e) =>
-                    setRepoSettings({
-                      ...repoSettings,
-                      provider: REPO_PROVIDERS.s3,
-                      accessKeyId: e.target.value,
-                    })
-                  }
-                  fullWidth
-                  required
-                />
-
-                <TextField
-                  label="Secret Access Key"
-                  type="password"
-                  value={s3RepoSettings.secretAccessKey || ""}
-                  onChange={(e) =>
-                    setRepoSettings({
-                      ...repoSettings,
-                      provider: REPO_PROVIDERS.s3,
-                      secretAccessKey: e.target.value,
-                    })
-                  }
-                  fullWidth
-                  required
-                  helperText="Stored encrypted in the app's data directory."
-                />
-
-                <TextField
-                  label="Session Token (optional)"
-                  type="password"
-                  value={s3RepoSettings.sessionToken || ""}
-                  onChange={(e) =>
-                    setRepoSettings({
-                      ...repoSettings,
-                      provider: REPO_PROVIDERS.s3,
-                      sessionToken: e.target.value,
-                    })
-                  }
-                  fullWidth
-                />
-
-                <Alert severity="info">
-                  <Typography variant="body2">
-                    The S3 bucket must have versioning enabled to support
-                    history.
-                  </Typography>
-                </Alert>
-              </>
-            ) : (
-              <Alert severity="info">
-                <Typography variant="body2">
-                  Local repositories are stored on this device only and do not
-                  sync.
-                </Typography>
-              </Alert>
-            )}
-
-            {repoProvider !== REPO_PROVIDERS.local && (
-              <Button
-                variant="contained"
-                onClick={handleSaveRepoSettings}
-                disabled={loading}
-                sx={{ mt: 2 }}
-              >
-                Save Repository Settings
-              </Button>
-            )}
-
-            {repoSettings.localPath && (
-              <>
-                <Typography variant="h6" sx={{ mt: 4 }}>
-                  Local Repository Path
-                </Typography>
-                <Alert severity="info" sx={{ mb: 2 }}>
-                  This is where your repository is stored locally on your
-                  computer.
-                </Alert>
-                <TextField
-                  label="Local Path"
-                  value={repoSettings.localPath}
-                  fullWidth
-                  onClick={() => void handleOpenRepoFolder()}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  variant="filled"
-                />
-                <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<ContentCopyIcon />}
-                    onClick={handleCopyRepoPath}
-                  >
-                    Copy Path
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    startIcon={<FolderOpenIcon />}
-                    onClick={handleOpenRepoFolder}
-                  >
-                    Open Folder
-                  </Button>
-                </Box>
-              </>
-            )}
-          </Box>
+          <SettingsRepositoryTab
+            repoProvider={repoProvider}
+            repoSettings={repoSettings}
+            gitRepoSettings={gitRepoSettings}
+            s3RepoSettings={s3RepoSettings}
+            loading={loading}
+            onRepoSettingsChange={setRepoSettings}
+            onSaveRepoSettings={() => {
+              void handleSaveRepoSettings();
+            }}
+            onCopyRepoPath={handleCopyRepoPath}
+            onOpenRepoFolder={() => {
+              void handleOpenRepoFolder();
+            }}
+          />
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <Typography variant="h6">Profile Management</Typography>
-            <Alert severity="info">
-              Profiles allow you to work with multiple repositories. Only one
-              profile is active at a time. When creating a new profile, the app
-              will prepare the repository. Switching profiles will restart the
-              app.
-            </Alert>
-
-            <Typography variant="subtitle1" sx={{ mt: 2 }}>
-              Active Profile
-            </Typography>
-            <List>
-              {profiles.map((profile) => (
-                <ListItem
-                  key={profile.id}
-                  secondaryAction={
-                    profiles.length > 1 &&
-                    profile.id !== activeProfileId && (
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => handleDeleteProfile(profile.id)}
-                        disabled={loading}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    )
-                  }
-                  disablePadding
-                >
-                  <ListItemButton
-                    selected={profile.id === activeProfileId}
-                    onClick={() =>
-                      handleSelectProfile(profile.id, profile.name)
-                    }
-                    disabled={loading || profile.id === activeProfileId}
-                  >
-                    <ListItemText
-                      primary={
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          {profile.name}
-                          {profile.id === activeProfileId && (
-                            <Chip
-                              label="Active"
-                              size="small"
-                              color="primary"
-                              icon={<CheckIcon />}
-                            />
-                          )}
-                        </Box>
-                      }
-                      secondary={getProfileSecondary(profile)}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-
-            {!creatingProfile ? (
-              <Button
-                variant="outlined"
-                startIcon={<AddIcon />}
-                onClick={() => setCreatingProfile(true)}
-                disabled={loading}
-                sx={{ mt: 2 }}
-              >
-                Create New Profile
-              </Button>
-            ) : (
-              <Box
-                sx={{
-                  mt: 2,
-                  p: 2,
-                  border: 1,
-                  borderColor: "divider",
-                  borderRadius: 1,
-                }}
-              >
-                <Typography variant="subtitle2" sx={{ mb: 2 }}>
-                  New Profile
-                </Typography>
-                {profileCreating && (
-                  <Alert severity="info" sx={{ mb: 2 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <CircularProgress size={20} />
-                      <Typography variant="body2">
-                        Creating profile and preparing repository... This may
-                        take a few moments.
-                      </Typography>
-                    </Box>
-                  </Alert>
-                )}
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Repository type
-                    </Typography>
-                    <ToggleButtonGroup
-                      exclusive
-                      value={newProfileProvider}
-                      onChange={(_, value) =>
-                        value && setNewProfileProvider(value)
-                      }
-                      size="small"
-                    >
-                      <ToggleButton value={REPO_PROVIDERS.git}>
-                        Git
-                      </ToggleButton>
-                      <ToggleButton value={REPO_PROVIDERS.s3}>S3</ToggleButton>
-                      <ToggleButton value={REPO_PROVIDERS.local}>
-                        Local
-                      </ToggleButton>
-                    </ToggleButtonGroup>
-                  </Box>
-                  <TextField
-                    label="Profile Name"
-                    value={newProfileName}
-                    onChange={(e) => setNewProfileName(e.target.value)}
-                    placeholder="My Notes Repo"
-                    fullWidth
-                    required
-                    disabled={profileCreating}
-                    helperText="A local folder will be automatically created based on this name"
-                  />
-
-                  {newProfileProvider === REPO_PROVIDERS.git ? (
-                    <>
-                      <TextField
-                        label="Remote URL"
-                        value={newProfileRemoteUrl}
-                        onChange={(e) => setNewProfileRemoteUrl(e.target.value)}
-                        placeholder="https://github.com/user/repo.git"
-                        fullWidth
-                        required
-                        disabled={profileCreating}
-                      />
-                      <TextField
-                        label="Branch"
-                        value={newProfileBranch}
-                        onChange={(e) => setNewProfileBranch(e.target.value)}
-                        placeholder="main"
-                        fullWidth
-                        required
-                        disabled={profileCreating}
-                      />
-                      <TextField
-                        label="Personal Access Token"
-                        type="password"
-                        value={newProfilePat}
-                        onChange={(e) => setNewProfilePat(e.target.value)}
-                        placeholder="ghp_..."
-                        fullWidth
-                        required
-                        disabled={profileCreating}
-                        helperText="Your Personal Access Token is stored encrypted"
-                      />
-                    </>
-                  ) : newProfileProvider === REPO_PROVIDERS.s3 ? (
-                    <>
-                      <TextField
-                        label="Bucket"
-                        value={newProfileBucket}
-                        onChange={(e) => setNewProfileBucket(e.target.value)}
-                        placeholder="my-notes-bucket"
-                        fullWidth
-                        required
-                        disabled={profileCreating}
-                      />
-                      <TextField
-                        label="Region"
-                        value={newProfileRegion}
-                        onChange={(e) => setNewProfileRegion(e.target.value)}
-                        placeholder="us-east-1"
-                        fullWidth
-                        required
-                        disabled={profileCreating}
-                      />
-                      <TextField
-                        label="Prefix (optional)"
-                        value={newProfilePrefix}
-                        onChange={(e) => setNewProfilePrefix(e.target.value)}
-                        placeholder="notes/"
-                        fullWidth
-                        disabled={profileCreating}
-                      />
-                      <TextField
-                        label="Access Key ID"
-                        value={newProfileAccessKeyId}
-                        onChange={(e) =>
-                          setNewProfileAccessKeyId(e.target.value)
-                        }
-                        fullWidth
-                        required
-                        disabled={profileCreating}
-                      />
-                      <TextField
-                        label="Secret Access Key"
-                        type="password"
-                        value={newProfileSecretAccessKey}
-                        onChange={(e) =>
-                          setNewProfileSecretAccessKey(e.target.value)
-                        }
-                        fullWidth
-                        required
-                        disabled={profileCreating}
-                        helperText="Stored encrypted in the app's data directory."
-                      />
-                      <TextField
-                        label="Session Token (optional)"
-                        type="password"
-                        value={newProfileSessionToken}
-                        onChange={(e) =>
-                          setNewProfileSessionToken(e.target.value)
-                        }
-                        fullWidth
-                        disabled={profileCreating}
-                      />
-                    </>
-                  ) : (
-                    <Alert severity="info">
-                      Local repositories are stored on this device only and do
-                      not sync.
-                    </Alert>
-                  )}
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <Button
-                      variant="contained"
-                      onClick={handleCreateProfile}
-                      disabled={profileCreating}
-                    >
-                      {profileCreating ? "Creating..." : "Create Profile"}
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      onClick={() => {
-                        setCreatingProfile(false);
-                        setNewProfileName("");
-                        setNewProfileProvider(REPO_PROVIDERS.git);
-                        setNewProfileRemoteUrl("");
-                        setNewProfileBranch("main");
-                        setNewProfilePat("");
-                        setNewProfileBucket("");
-                        setNewProfileRegion("");
-                        setNewProfilePrefix("");
-                        setNewProfileAccessKeyId("");
-                        setNewProfileSecretAccessKey("");
-                        setNewProfileSessionToken("");
-                      }}
-                      disabled={profileCreating}
-                    >
-                      Cancel
-                    </Button>
-                  </Box>
-                </Box>
-              </Box>
-            )}
-          </Box>
+          <SettingsProfilesTab
+            profiles={profiles}
+            activeProfileId={activeProfileId}
+            loading={loading}
+            creatingProfile={creatingProfile}
+            profileCreating={profileCreating}
+            newProfileProvider={newProfileProvider}
+            newProfileName={newProfileName}
+            newProfileRemoteUrl={newProfileRemoteUrl}
+            newProfileBranch={newProfileBranch}
+            newProfilePat={newProfilePat}
+            newProfileBucket={newProfileBucket}
+            newProfileRegion={newProfileRegion}
+            newProfilePrefix={newProfilePrefix}
+            newProfileAccessKeyId={newProfileAccessKeyId}
+            newProfileSecretAccessKey={newProfileSecretAccessKey}
+            newProfileSessionToken={newProfileSessionToken}
+            onSetCreatingProfile={setCreatingProfile}
+            onSetNewProfileProvider={setNewProfileProvider}
+            onSetNewProfileName={setNewProfileName}
+            onSetNewProfileRemoteUrl={setNewProfileRemoteUrl}
+            onSetNewProfileBranch={setNewProfileBranch}
+            onSetNewProfilePat={setNewProfilePat}
+            onSetNewProfileBucket={setNewProfileBucket}
+            onSetNewProfileRegion={setNewProfileRegion}
+            onSetNewProfilePrefix={setNewProfilePrefix}
+            onSetNewProfileAccessKeyId={setNewProfileAccessKeyId}
+            onSetNewProfileSecretAccessKey={setNewProfileSecretAccessKey}
+            onSetNewProfileSessionToken={setNewProfileSessionToken}
+            onSelectProfile={(profileId, profileName) => {
+              void handleSelectProfile(profileId, profileName);
+            }}
+            onDeleteProfile={(profileId) => {
+              void handleDeleteProfile(profileId);
+            }}
+            onCreateProfile={() => {
+              void handleCreateProfile();
+            }}
+            onCancelCreateProfile={() => {
+              setCreatingProfile(false);
+              resetNewProfileForm();
+            }}
+            getProfileSecondary={getProfileSecondary}
+          />
         </TabPanel>
 
         <TabPanel value={tabValue} index={3}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <Typography variant="h6">Export Current Note</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Export the currently open note (including unsaved changes) as a
-              standalone file.
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <Button
-                variant="contained"
-                onClick={() => handleExportNote("md")}
-                disabled={exporting || !currentNoteContent}
-                fullWidth
-              >
-                Export as Markdown (.md)
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => handleExportNote("txt")}
-                disabled={exporting || !currentNoteContent}
-                fullWidth
-              >
-                Export as Text (.txt)
-              </Button>
-            </Box>
-            {!currentNoteContent && (
-              <Alert severity="info">
-                Open a note in the editor to export it.
-              </Alert>
-            )}
-
-            <Typography variant="h6" sx={{ mt: 3 }}>
-              Export Repository
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Export the entire repository as a ZIP archive for backup or
-              sharing. This includes all files and folders (excluding .git).
-            </Typography>
-            <Button
-              variant="contained"
-              onClick={handleExportRepoAsZip}
-              disabled={exporting}
-              fullWidth
-            >
-              {exporting ? "Exporting..." : "Export Repository as ZIP"}
-            </Button>
-
-            <Alert severity="info">
-              <Typography variant="body2">
-                Export operations do not modify your repository or trigger any
-                Git commands. Your work remains safely in the repository.
-              </Typography>
-            </Alert>
-          </Box>
+          <SettingsExportTab
+            currentNoteContent={currentNoteContent}
+            exporting={exporting}
+            onExportNote={(format) => {
+              void handleExportNote(format);
+            }}
+            onExportRepoAsZip={() => {
+              void handleExportRepoAsZip();
+            }}
+          />
         </TabPanel>
 
         <TabPanel value={tabValue} index={4}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <Typography variant="h6">Application Logs</Typography>
-            <Alert severity="info">
-              Logs are stored locally by day and include Git/S3 operations,
-              errors, and sync events.
-            </Alert>
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <TextField
-                label="Logs Folder"
-                value={logsFolder}
-                fullWidth
-                onClick={() => void handleOpenLogsFolder()}
-                InputProps={{ readOnly: true }}
-              />
-              <Button
-                variant="outlined"
-                startIcon={<FolderOpenIcon />}
-                onClick={handleOpenLogsFolder}
-                disabled={!logsFolder || loadingLogsFolder}
-              >
-                Open Folder
-              </Button>
-              <IconButton
-                aria-label="copy logs folder"
-                onClick={handleCopyLogsFolder}
-                disabled={!logsFolder || loadingLogsFolder}
-              >
-                <ContentCopyIcon />
-              </IconButton>
-            </Box>
-          </Box>
+          <SettingsLogsTab
+            logsFolder={logsFolder}
+            loadingLogsFolder={loadingLogsFolder}
+            onOpenLogsFolder={() => {
+              void handleOpenLogsFolder();
+            }}
+            onCopyLogsFolder={handleCopyLogsFolder}
+          />
         </TabPanel>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "flex-end", px: 3 }}>
