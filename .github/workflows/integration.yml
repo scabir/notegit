@@ -1,0 +1,113 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "badges/integration.json"
+      - "badges/coverage.json"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integration:
+    name: Integration Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          corepack enable
+          pnpm install --frozen-lockfile
+
+      - name: Install Linux runtime dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm exec playwright install-deps chromium
+
+      - name: Build app once
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm run build
+
+      - name: Run integration tests
+        id: run_integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          export PLAYWRIGHT_JSON_OUTPUT_NAME=integration-results.json
+          xvfb-run -a pnpm exec playwright test -c playwright.integration.config.ts --reporter=line,json
+          TEST_EXIT=$?
+          set -e
+          echo "test_exit=$TEST_EXIT" >> "$GITHUB_OUTPUT"
+          test -f integration-results.json
+
+      - name: Generate integration badge JSON
+        id: badge
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f integration-results.json
+          node -e "const fs=require('fs'); const input=JSON.parse(fs.readFileSync('integration-results.json','utf8')); const stats=input.stats||{}; const passed=Number(stats.expected||0); const failed=Number(stats.unexpected||0)+Number(stats.flaky||0); const skipped=Number(stats.skipped||0); const total=passed+failed+skipped; const fullyPassing=failed===0&&passed===total; const color=fullyPassing?'brightgreen':failed===0?'green':'red'; const message=`${passed}/${total} passing`; const badge={schemaVersion:1,label:'integration',message,color}; fs.mkdirSync('badges',{recursive:true}); fs.writeFileSync('badges/integration.json',JSON.stringify(badge)); fs.appendFileSync(process.env.GITHUB_OUTPUT, `integration_passed=${passed}\n`); fs.appendFileSync(process.env.GITHUB_OUTPUT, `integration_total=${total}\n`);"
+
+      - name: Upload integration artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-results
+          path: |
+            integration-results.json
+            test-results/**
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Update integration badge file on main
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- badges/integration.json; then
+            echo "No integration badge change."
+            exit 0
+          fi
+          git add badges/integration.json
+          git commit -m "chore: update integration badge [skip ci]"
+          git push
+
+      - name: Report integration pass count
+        shell: bash
+        run: |
+          echo "Integration: ${{ steps.badge.outputs.integration_passed }}/${{ steps.badge.outputs.integration_total }} passing"
+
+      - name: Fail if integration tests failed
+        if: ${{ steps.run_integration.outputs.test_exit != '0' }}
+        shell: bash
+        run: |
+          echo "::error::Integration tests failed."
+          exit 1

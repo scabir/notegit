@@ -6,6 +6,7 @@ on:
       - main
     paths-ignore:
       - "badges/coverage.json"
+      - "badges/integration.json"
   pull_request:
   workflow_dispatch:
 

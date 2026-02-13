@@ -3,6 +3,7 @@
 A Git-, S3-, or local-backed Markdown note-taking desktop app built with Electron and React.
 
 [![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/scabir/notegit/main/badges/coverage.json)](https://github.com/scabir/notegit/actions/workflows/coverage.yml)
+[![Integration](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/scabir/notegit/main/badges/integration.json)](https://github.com/scabir/notegit/actions/workflows/integration.yml)
 [![macOS DMG](https://github.com/scabir/notegit/actions/workflows/macos-dmg.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/macos-dmg.yml)
 [![Windows Installer](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml)
 [![Linux Packages](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml)
@@ -84,6 +85,7 @@ pnpm run package
 - Architecture and technical details: [docs/architecture/README.md](docs/architecture/README.md)
 - Development and build workflows: [docs/development/README.md](docs/development/README.md)
 - Testing and coverage: [docs/testing/README.md](docs/testing/README.md)
+- Integration scenarios: [docs/testing/integration-tests.md](docs/testing/integration-tests.md)
 - Build scripts: [setup/README.md](setup/README.md)
 - Build quick start: [setup/QUICK_START.md](setup/QUICK_START.md)
 

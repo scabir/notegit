@@ -37,3 +37,13 @@ pnpm run test:watch
 - `src/unit-tests/backend/`
 - `src/unit-tests/frontend/`
 - `src/unit-tests/setup.ts`
+
+## Integration tests
+
+```bash
+pnpm run test:integration
+```
+
+Integration scenario catalog:
+
+- [docs/testing/integration-tests.md](integration-tests.md)
