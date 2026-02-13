@@ -33,4 +33,7 @@ prompts/
 
 # Test Results
 lint_output.txt
-test-results
+test-results/
+
+# Local planning/scratch docs
+.local/
