@@ -1,0 +1,181 @@
+name: Linux Packages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-linux-package:
+    name: Linux ${{ matrix.target }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: deb
+            extension: deb
+            artifact_name: app-linux-deb
+          - target: rpm
+            extension: rpm
+            artifact_name: app-linux-rpm
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      CSC_FOR_PULL_REQUEST: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect package manager
+        id: detect_pm
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f pnpm-lock.yaml ]; then
+            echo "pm=pnpm" >> "$GITHUB_OUTPUT"
+          elif [ -f yarn.lock ]; then
+            echo "pm=yarn" >> "$GITHUB_OUTPUT"
+          elif [ -f package-lock.json ]; then
+            echo "pm=npm" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::No supported lock file found (pnpm-lock.yaml, yarn.lock, package-lock.json)."
+            exit 1
+          fi
+
+      - name: Detect Node version source
+        id: node_version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f .nvmrc ]; then
+            echo "use_nvmrc=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "use_nvmrc=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node (.nvmrc)
+        if: steps.node_version.outputs.use_nvmrc == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: ${{ steps.detect_pm.outputs.pm }}
+
+      - name: Setup Node (fallback)
+        if: steps.node_version.outputs.use_nvmrc != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: ${{ steps.detect_pm.outputs.pm }}
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ steps.detect_pm.outputs.pm }}" in
+            pnpm)
+              corepack enable
+              pnpm install --frozen-lockfile
+              ;;
+            yarn)
+              yarn install --frozen-lockfile
+              ;;
+            npm)
+              npm ci
+              ;;
+            *)
+              echo "::error::Unsupported package manager: ${{ steps.detect_pm.outputs.pm }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Install Linux packaging tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y rpm fakeroot
+
+      - name: Build app (if script exists)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts.build ? 0 : 1)"; then
+            case "${{ steps.detect_pm.outputs.pm }}" in
+              pnpm) pnpm run build ;;
+              yarn) yarn build ;;
+              npm) npm run build ;;
+            esac
+          else
+            echo "No build script found in package.json, skipping build step."
+          fi
+
+      - name: Package Linux ${{ matrix.target }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ steps.detect_pm.outputs.pm }}" in
+            pnpm)
+              pnpm exec electron-builder --linux ${{ matrix.target }} --x64 --publish never
+              ;;
+            yarn)
+              yarn run electron-builder --linux ${{ matrix.target }} --x64 --publish never
+              ;;
+            npm)
+              npm exec electron-builder -- --linux ${{ matrix.target }} --x64 --publish never
+              ;;
+            *)
+              echo "::error::Unsupported package manager: ${{ steps.detect_pm.outputs.pm }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Locate Linux ${{ matrix.target }} artifact
+        id: locate_pkg
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          all_packages=()
+          for dir in release dist out; do
+            if [ -d "$dir" ]; then
+              while IFS= read -r file; do
+                all_packages+=("$file")
+              done < <(find "$dir" -type f -name "*.${{ matrix.extension }}" | sort)
+            fi
+          done
+
+          if [ "${#all_packages[@]}" -eq 0 ]; then
+            while IFS= read -r file; do
+              all_packages+=("$file")
+            done < <(find . -type f -name "*.${{ matrix.extension }}" -not -path "./node_modules/*" | sort)
+          fi
+
+          if [ "${#all_packages[@]}" -eq 0 ]; then
+            echo "::error::No .${{ matrix.extension }} package found after packaging."
+            for dir in release dist out; do
+              if [ -d "$dir" ]; then
+                echo "--- $dir ---"
+                find "$dir" -maxdepth 4 -print
+              fi
+            done
+            exit 1
+          fi
+
+          selected="$(ls -1t "${all_packages[@]}" | head -n 1)"
+          if [ -z "$selected" ] || [ ! -f "$selected" ]; then
+            echo "::error::Failed to select .${{ matrix.extension }} artifact. Candidates were:"
+            printf '%s\n' "${all_packages[@]}"
+            exit 1
+          fi
+
+          echo "Selected package: $selected"
+          echo "package_path=$selected" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Linux ${{ matrix.target }} artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ steps.locate_pkg.outputs.package_path }}
+          if-no-files-found: error
+          retention-days: 14
