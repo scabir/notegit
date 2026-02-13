@@ -31,6 +31,13 @@ jobs:
             exit 1
           fi
 
+      - name: Setup pnpm
+        if: steps.detect_pm.outputs.pm == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+          run_install: false
+
       - name: Detect Node version source
         id: node_version
         shell: bash
@@ -99,4 +106,3 @@ jobs:
           files: ./coverage/lcov.info
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
-
