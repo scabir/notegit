@@ -11,7 +11,6 @@ Other targets:
 ```bash
 cd setup && ./build-windows.sh
 cd setup && ./build-linux.sh
-cd setup && ./build-all.sh
 ```
 
 Artifacts land in `release/`:

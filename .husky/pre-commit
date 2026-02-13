@@ -19,4 +19,4 @@ run_step "pnpm run format:check" pnpm run format:check
 run_step "pnpm exec eslint --max-warnings=0" pnpm exec eslint . --ext .ts,.tsx --max-warnings=0
 run_step "pnpm run build" pnpm run build
 run_step "pnpm run test:coverage" pnpm run test:coverage
-run_step "pnpm run coverage:check-staged" pnpm run coverage:check-staged
+run_step "pnpm run coverage:check" pnpm run coverage:check

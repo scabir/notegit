@@ -15,7 +15,6 @@ cd setup
 ./build-mac.sh
 ./build-windows.sh
 ./build-linux.sh
-./build-all.sh
 ```
 
 ## Output
