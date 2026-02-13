@@ -2,12 +2,12 @@
 
 A Git-, S3-, or local-backed Markdown note-taking desktop app built with Electron and React.
 
-[![Coverage](https://codecov.io/gh/scabir/notegit/branch/main/graph/badge.svg)](https://codecov.io/gh/scabir/notegit)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/scabir/notegit/main/badges/coverage.json)](https://github.com/scabir/notegit/actions/workflows/coverage.yml)
 [![macOS DMG](https://github.com/scabir/notegit/actions/workflows/macos-dmg.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/macos-dmg.yml)
 [![Windows Installer](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml)
 [![Linux Packages](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml)
 
-**Version**: 2.7.2  
+**Version**: 2.7.3  
 **License**: MIT
 
 ## Highlights

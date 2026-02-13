@@ -4,8 +4,13 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "badges/coverage.json"
   pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   coverage:
@@ -100,9 +105,32 @@ jobs:
           set -euo pipefail
           test -f coverage/lcov.info
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage/lcov.info
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Generate coverage badge JSON
+        id: badge
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f coverage/coverage-summary.json
+          COVERAGE_PCT="$(node -e "const s=require('./coverage/coverage-summary.json'); console.log(Math.round(s.total.lines.pct));")"
+          echo "coverage_pct=$COVERAGE_PCT" >> "$GITHUB_OUTPUT"
+          node -e "const fs=require('fs'); const pct=Number(process.argv[1]); const color=pct>=90?'brightgreen':pct>=80?'green':pct>=70?'yellowgreen':pct>=60?'yellow':'red'; const out={schemaVersion:1,label:'coverage',message:pct+'%',color}; fs.mkdirSync('badges',{recursive:true}); fs.writeFileSync('badges/coverage.json', JSON.stringify(out));" "$COVERAGE_PCT"
+
+      - name: Update badge file on main
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- badges/coverage.json; then
+            echo "No coverage badge change."
+            exit 0
+          fi
+          git add badges/coverage.json
+          git commit -m "chore: update coverage badge [skip ci]"
+          git push
+
+      - name: Report coverage percentage
+        shell: bash
+        run: |
+          echo "Coverage: ${{ steps.badge.outputs.coverage_pct }}%"
