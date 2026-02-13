@@ -1,0 +1,193 @@
+name: macOS DMG
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-macos-dmg:
+    name: macOS DMG (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: macos-15-intel
+            artifact_name: app-macos-x64-dmg
+          - arch: arm64
+            runner: macos-15
+            artifact_name: app-macos-arm64-dmg
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      CSC_FOR_PULL_REQUEST: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect package manager
+        id: detect_pm
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f pnpm-lock.yaml ]; then
+            echo "pm=pnpm" >> "$GITHUB_OUTPUT"
+          elif [ -f yarn.lock ]; then
+            echo "pm=yarn" >> "$GITHUB_OUTPUT"
+          elif [ -f package-lock.json ]; then
+            echo "pm=npm" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::No supported lock file found (pnpm-lock.yaml, yarn.lock, package-lock.json)."
+            exit 1
+          fi
+
+      - name: Detect Node version source
+        id: node_version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f .nvmrc ]; then
+            echo "use_nvmrc=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "use_nvmrc=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node (.nvmrc)
+        if: steps.node_version.outputs.use_nvmrc == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: ${{ steps.detect_pm.outputs.pm }}
+
+      - name: Setup Node (fallback)
+        if: steps.node_version.outputs.use_nvmrc != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: ${{ steps.detect_pm.outputs.pm }}
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ steps.detect_pm.outputs.pm }}" in
+            pnpm)
+              corepack enable
+              pnpm install --frozen-lockfile
+              ;;
+            yarn)
+              yarn install --frozen-lockfile
+              ;;
+            npm)
+              npm ci
+              ;;
+            *)
+              echo "::error::Unsupported package manager: ${{ steps.detect_pm.outputs.pm }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Build app (if script exists)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts.build ? 0 : 1)"; then
+            case "${{ steps.detect_pm.outputs.pm }}" in
+              pnpm) pnpm run build ;;
+              yarn) yarn build ;;
+              npm) npm run build ;;
+            esac
+          else
+            echo "No build script found in package.json, skipping build step."
+          fi
+
+      - name: Package DMG (${{ matrix.arch }})
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ steps.detect_pm.outputs.pm }}" in
+            pnpm)
+              pnpm exec electron-builder --mac dmg --${{ matrix.arch }} --publish never
+              ;;
+            yarn)
+              yarn run electron-builder --mac dmg --${{ matrix.arch }} --publish never
+              ;;
+            npm)
+              npm exec electron-builder -- --mac dmg --${{ matrix.arch }} --publish never
+              ;;
+            *)
+              echo "::error::Unsupported package manager: ${{ steps.detect_pm.outputs.pm }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Locate DMG artifact
+        id: locate_dmg
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          all_dmgs=()
+          for dir in release dist out; do
+            if [ -d "$dir" ]; then
+              while IFS= read -r file; do
+                all_dmgs+=("$file")
+              done < <(find "$dir" -type f -name "*.dmg" | sort)
+            fi
+          done
+
+          if [ "${#all_dmgs[@]}" -eq 0 ]; then
+            while IFS= read -r file; do
+              all_dmgs+=("$file")
+            done < <(find . -type f -name "*.dmg" -not -path "./node_modules/*" | sort)
+          fi
+
+          if [ "${#all_dmgs[@]}" -eq 0 ]; then
+            echo "::error::No DMG found after packaging. Directory contents:"
+            for dir in release dist out; do
+              if [ -d "$dir" ]; then
+                echo "--- $dir ---"
+                find "$dir" -maxdepth 4 -print
+              fi
+            done
+            echo "--- repository root ---"
+            ls -la
+            exit 1
+          fi
+
+          case "${{ matrix.arch }}" in
+            x64) arch_pattern='x64|intel|amd64' ;;
+            arm64) arch_pattern='arm64|aarch64|apple' ;;
+            *) arch_pattern='' ;;
+          esac
+
+          arch_dmgs=()
+          while IFS= read -r file; do
+            if [ -n "$file" ]; then
+              arch_dmgs+=("$file")
+            fi
+          done < <(printf '%s\n' "${all_dmgs[@]}" | grep -Ei "$arch_pattern" || true)
+          if [ "${#arch_dmgs[@]}" -gt 0 ]; then
+            selected="$(ls -1t "${arch_dmgs[@]}" | head -n 1)"
+          else
+            selected="$(ls -1t "${all_dmgs[@]}" | head -n 1)"
+          fi
+
+          if [ -z "$selected" ] || [ ! -f "$selected" ]; then
+            echo "::error::Failed to select a DMG artifact. Candidates were:"
+            printf '%s\n' "${all_dmgs[@]}"
+            exit 1
+          fi
+
+          echo "Selected DMG: $selected"
+          echo "dmg_path=$selected" >> "$GITHUB_OUTPUT"
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ steps.locate_dmg.outputs.dmg_path }}
+          if-no-files-found: error
+          retention-days: 14
