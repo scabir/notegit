@@ -1,4 +1,4 @@
-import type { RepoStatus } from '../../../shared/types';
+import type { RepoStatus } from "../../../shared/types";
 
 export interface StatusBarUncommittedChipProps {
   status: RepoStatus | null;

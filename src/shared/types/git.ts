@@ -1,4 +1,4 @@
-import type { RepoProviderType } from './config';
+import type { RepoProviderType } from "./config";
 
 export interface RepoStatus {
   provider: RepoProviderType;
@@ -34,7 +34,7 @@ export interface DiffHunk {
 }
 
 export interface DiffLine {
-  type: 'add' | 'remove' | 'context';
+  type: "add" | "remove" | "context";
   content: string;
   oldLineNumber?: number;
   newLineNumber?: number;

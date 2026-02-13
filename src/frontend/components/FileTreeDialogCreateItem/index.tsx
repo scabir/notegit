@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Dialog,
   DialogTitle,
@@ -8,10 +8,13 @@ import {
   Button,
   Typography,
   Box,
-} from '@mui/material';
-import { dialogInfoSx, dialogErrorSx } from './styles';
-import { DIALOG_CREATE_ITEM_TEXT, DIALOG_CREATE_ITEM_TEST_ID } from './constants';
-import type { DialogCreateItemProps } from './types';
+} from "@mui/material";
+import { dialogInfoSx, dialogErrorSx } from "./styles";
+import {
+  DIALOG_CREATE_ITEM_TEXT,
+  DIALOG_CREATE_ITEM_TEST_ID,
+} from "./constants";
+import type { DialogCreateItemProps } from "./types";
 
 export function DialogCreateItem({
   open,
@@ -27,12 +30,18 @@ export function DialogCreateItem({
   onClose,
   onCreate,
   testId = DIALOG_CREATE_ITEM_TEST_ID,
-  cancelLabel = 'Cancel',
-  confirmLabel = 'Create',
-  loadingLabel = 'Creating...',
+  cancelLabel = "Cancel",
+  confirmLabel = "Create",
+  loadingLabel = "Creating...",
 }: DialogCreateItemProps) {
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth data-testid={testId}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      data-testid={testId}
+    >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <Box sx={dialogInfoSx}>
@@ -48,7 +57,7 @@ export function DialogCreateItem({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyPress={(e) => {
-            if (e.key === 'Enter' && !creating) {
+            if (e.key === "Enter" && !creating) {
               onCreate();
             }
           }}
@@ -56,13 +65,15 @@ export function DialogCreateItem({
           helperText={helperText ?? DIALOG_CREATE_ITEM_TEXT.helperSpacer}
           error={Boolean(errorMessage)}
         />
-        {errorMessage && (
-          <Box sx={dialogErrorSx}>{errorMessage}</Box>
-        )}
+        {errorMessage && <Box sx={dialogErrorSx}>{errorMessage}</Box>}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{cancelLabel}</Button>
-        <Button onClick={onCreate} disabled={creating || !value.trim()} variant="contained">
+        <Button
+          onClick={onCreate}
+          disabled={creating || !value.trim()}
+          variant="contained"
+        >
           {creating ? loadingLabel : confirmLabel}
         </Button>
       </DialogActions>

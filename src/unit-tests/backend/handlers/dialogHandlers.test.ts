@@ -1,17 +1,20 @@
-import { registerDialogHandlers } from '../../../backend/handlers/dialogHandlers';
-import { dialog } from 'electron';
+import { registerDialogHandlers } from "../../../backend/handlers/dialogHandlers";
+import { dialog, shell } from "electron";
 
-jest.mock('electron', () => ({
+jest.mock("electron", () => ({
   dialog: {
     showOpenDialog: jest.fn(),
     showSaveDialog: jest.fn(),
   },
+  shell: {
+    openPath: jest.fn(),
+  },
   app: {
-    getPath: jest.fn(() => '/tmp/notegit-test'),
+    getPath: jest.fn(() => "/tmp/notegit-test"),
   },
 }));
 
-describe('dialogHandlers', () => {
+describe("dialogHandlers", () => {
   const createIpcMain = () => {
     const handlers: Record<string, (...args: any[]) => any> = {};
     const ipcMain = {
@@ -23,48 +26,86 @@ describe('dialogHandlers', () => {
     return { ipcMain, handlers };
   };
 
-  it('returns open dialog result', async () => {
-    (dialog.showOpenDialog as jest.Mock).mockResolvedValue({ canceled: false, filePaths: ['/tmp/a'] });
+  it("returns open dialog result", async () => {
+    (dialog.showOpenDialog as jest.Mock).mockResolvedValue({
+      canceled: false,
+      filePaths: ["/tmp/a"],
+    });
     const { ipcMain, handlers } = createIpcMain();
 
     registerDialogHandlers(ipcMain);
 
-    const result = await handlers['dialog:showOpenDialog'](null, { title: 'Open' });
+    const result = await handlers["dialog:showOpenDialog"](null, {
+      title: "Open",
+    });
 
     expect(result.canceled).toBe(false);
     expect(dialog.showOpenDialog).toHaveBeenCalled();
   });
 
-  it('returns fallback when open dialog fails', async () => {
-    (dialog.showOpenDialog as jest.Mock).mockRejectedValue(new Error('boom'));
+  it("returns fallback when open dialog fails", async () => {
+    (dialog.showOpenDialog as jest.Mock).mockRejectedValue(new Error("boom"));
     const { ipcMain, handlers } = createIpcMain();
 
     registerDialogHandlers(ipcMain);
 
-    const result = await handlers['dialog:showOpenDialog'](null, { title: 'Open' });
+    const result = await handlers["dialog:showOpenDialog"](null, {
+      title: "Open",
+    });
 
     expect(result).toEqual({ canceled: true, filePaths: [] });
   });
 
-  it('returns save dialog result', async () => {
-    (dialog.showSaveDialog as jest.Mock).mockResolvedValue({ canceled: false, filePath: '/tmp/out.md' });
+  it("returns save dialog result", async () => {
+    (dialog.showSaveDialog as jest.Mock).mockResolvedValue({
+      canceled: false,
+      filePath: "/tmp/out.md",
+    });
     const { ipcMain, handlers } = createIpcMain();
 
     registerDialogHandlers(ipcMain);
 
-    const result = await handlers['dialog:showSaveDialog'](null, { title: 'Save' });
+    const result = await handlers["dialog:showSaveDialog"](null, {
+      title: "Save",
+    });
 
-    expect(result.filePath).toBe('/tmp/out.md');
+    expect(result.filePath).toBe("/tmp/out.md");
   });
 
-  it('returns fallback when save dialog fails', async () => {
-    (dialog.showSaveDialog as jest.Mock).mockRejectedValue(new Error('boom'));
+  it("returns fallback when save dialog fails", async () => {
+    (dialog.showSaveDialog as jest.Mock).mockRejectedValue(new Error("boom"));
     const { ipcMain, handlers } = createIpcMain();
 
     registerDialogHandlers(ipcMain);
 
-    const result = await handlers['dialog:showSaveDialog'](null, { title: 'Save' });
+    const result = await handlers["dialog:showSaveDialog"](null, {
+      title: "Save",
+    });
 
     expect(result).toEqual({ canceled: true, filePath: undefined });
+  });
+
+  it("opens folder path through shell", async () => {
+    (shell.openPath as jest.Mock).mockResolvedValue("");
+    const { ipcMain, handlers } = createIpcMain();
+
+    registerDialogHandlers(ipcMain);
+
+    const result = await handlers["dialog:openFolder"](null, "/tmp/notegit");
+
+    expect(result).toEqual({ ok: true });
+    expect(shell.openPath).toHaveBeenCalledWith("/tmp/notegit");
+  });
+
+  it("returns failure when shell openPath reports an error", async () => {
+    (shell.openPath as jest.Mock).mockResolvedValue("cannot open");
+    const { ipcMain, handlers } = createIpcMain();
+
+    registerDialogHandlers(ipcMain);
+
+    const result = await handlers["dialog:openFolder"](null, "/tmp/notegit");
+
+    expect(result.ok).toBe(false);
+    expect(result.error?.message).toBe("cannot open");
   });
 });

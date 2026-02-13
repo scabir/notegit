@@ -1,10 +1,10 @@
-import React from 'react';
-import { Box } from '@mui/material';
-import { TreeView } from '@mui/x-tree-view';
-import { renderTreeItems } from '../FileTreeRenderer';
-import { FILE_TREE_MAIN } from './constants';
-import { treeContainerSx, treeItemLabelSx } from './styles';
-import type { FileTreeMainProps } from './types';
+import React from "react";
+import { Box } from "@mui/material";
+import { TreeView } from "@mui/x-tree-view";
+import { renderTreeItems } from "../FileTreeRenderer";
+import { FILE_TREE_MAIN } from "./constants";
+import { treeContainerSx, treeItemLabelSx } from "./styles";
+import type { FileTreeMainProps } from "./types";
 
 export function FileTreeMain({
   tree,

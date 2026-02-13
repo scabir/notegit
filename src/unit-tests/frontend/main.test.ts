@@ -1,10 +1,10 @@
-import React from 'react';
-import type { ReactElement } from 'react';
+import React from "react";
+import type { ReactElement } from "react";
 
 const renderMock = jest.fn();
 const createRootMock = jest.fn(() => ({ render: renderMock }));
 
-jest.mock('react-dom/client', () => ({
+jest.mock("react-dom/client", () => ({
   __esModule: true,
   default: {
     createRoot: createRootMock,
@@ -12,20 +12,23 @@ jest.mock('react-dom/client', () => ({
   createRoot: createRootMock,
 }));
 
-jest.mock('../../frontend/App', () => () => React.createElement('div', { 'data-testid': 'app' }));
+jest.mock(
+  "../../frontend/App",
+  () => () => React.createElement("div", { "data-testid": "app" }),
+);
 
-describe('frontend main', () => {
+describe("frontend main", () => {
   beforeEach(() => {
     renderMock.mockClear();
     createRootMock.mockClear();
     (global as any).document = {
-      getElementById: jest.fn(() => ({ id: 'root' })),
+      getElementById: jest.fn(() => ({ id: "root" })),
     };
   });
 
-  it('creates the root and renders the app', () => {
+  it("creates the root and renders the app", () => {
     jest.isolateModules(() => {
-      require('../../frontend/main');
+      require("../../frontend/main");
     });
 
     expect(createRootMock).toHaveBeenCalledTimes(1);

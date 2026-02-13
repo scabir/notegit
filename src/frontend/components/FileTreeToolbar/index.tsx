@@ -1,5 +1,11 @@
-import React from 'react';
-import { Toolbar as MuiToolbar, Tooltip, IconButton, Box, Divider } from '@mui/material';
+import React from "react";
+import {
+  Toolbar as MuiToolbar,
+  Tooltip,
+  IconButton,
+  Box,
+  Divider,
+} from "@mui/material";
 import {
   Menu as MenuIcon,
   ArrowBack as BackIcon,
@@ -8,12 +14,17 @@ import {
   CreateNewFolder as CreateFolderIcon,
   FileUpload as ImportIcon,
   UnfoldLess as CollapseAllIcon,
-} from '@mui/icons-material';
-import { TOOLBAR_TEXT } from './constants';
-import { toolbarSx } from './styles';
-import type { ToolbarAction, FileTreeToolbarProps } from './types';
+} from "@mui/icons-material";
+import { TOOLBAR_TEXT } from "./constants";
+import { toolbarSx } from "./styles";
+import type { ToolbarAction, FileTreeToolbarProps } from "./types";
 
-const ToolbarButton = ({ tooltip, icon, onClick, disabled = false }: ToolbarAction) => (
+const ToolbarButton = ({
+  tooltip,
+  icon,
+  onClick,
+  disabled = false,
+}: ToolbarAction) => (
   <Tooltip title={tooltip}>
     <span>
       <IconButton size="small" onClick={onClick} disabled={disabled}>
@@ -43,29 +54,31 @@ export function FileTreeToolbar({
     disabled: !canToggleCollapse,
   };
 
-  const actions: ToolbarAction[] = isCollapsed ? [collapseAction] : [
-    collapseAction,
-    {
-      tooltip: TOOLBAR_TEXT.newFile,
-      icon: <NoteAddIcon fontSize="small" />,
-      onClick: onNewFile,
-    },
-    {
-      tooltip: TOOLBAR_TEXT.newFolder,
-      icon: <CreateFolderIcon fontSize="small" />,
-      onClick: onNewFolder,
-    },
-    {
-      tooltip: TOOLBAR_TEXT.importFile,
-      icon: <ImportIcon fontSize="small" />,
-      onClick: onImport,
-    },
-    {
-      tooltip: TOOLBAR_TEXT.collapseAll,
-      icon: <CollapseAllIcon fontSize="small" />,
-      onClick: onCollapseAll,
-    },
-  ];
+  const actions: ToolbarAction[] = isCollapsed
+    ? [collapseAction]
+    : [
+        collapseAction,
+        {
+          tooltip: TOOLBAR_TEXT.newFile,
+          icon: <NoteAddIcon fontSize="small" />,
+          onClick: onNewFile,
+        },
+        {
+          tooltip: TOOLBAR_TEXT.newFolder,
+          icon: <CreateFolderIcon fontSize="small" />,
+          onClick: onNewFolder,
+        },
+        {
+          tooltip: TOOLBAR_TEXT.importFile,
+          icon: <ImportIcon fontSize="small" />,
+          onClick: onImport,
+        },
+        {
+          tooltip: TOOLBAR_TEXT.collapseAll,
+          icon: <CollapseAllIcon fontSize="small" />,
+          onClick: onCollapseAll,
+        },
+      ];
 
   const navigationActions: ToolbarAction[] = [
     {
@@ -96,7 +109,7 @@ export function FileTreeToolbar({
       {!isCollapsed && (
         <>
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
             {navigationActions.map((action) => (
               <ToolbarButton

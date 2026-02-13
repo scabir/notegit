@@ -1,9 +1,9 @@
-import type { FileTreeNode } from '../../../shared/types';
+import type { FileTreeNode } from "../../../shared/types";
 
 export interface FileTreeViewProps {
   tree: FileTreeNode[];
   selectedFile: string | null;
-  onSelectFile: (path: string, type: 'file' | 'folder') => void;
+  onSelectFile: (path: string, type: "file" | "folder") => void;
   onCreateFile: (parentPath: string, fileName: string) => Promise<void>;
   onCreateFolder: (parentPath: string, folderName: string) => Promise<void>;
   onDelete: (path: string) => Promise<void>;
@@ -27,6 +27,6 @@ export interface FavoriteMenuState {
 
 export interface TreeContextMenuState {
   node: FileTreeNode | null;
-  mode: 'node' | 'empty';
+  mode: "node" | "empty";
   position: { top: number; left: number } | null;
 }

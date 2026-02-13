@@ -1,8 +1,8 @@
-import React from 'react';
-import { Chip } from '@mui/material';
-import { STATUS_BAR_SYNC_CHIP } from './constants';
-import { statusChipSx } from './styles';
-import type { StatusBarSyncChipProps } from './types';
+import React from "react";
+import { Chip } from "@mui/material";
+import { STATUS_BAR_SYNC_CHIP } from "./constants";
+import { statusChipSx } from "./styles";
+import type { StatusBarSyncChipProps } from "./types";
 
 export function StatusBarSyncChip({ syncStatus }: StatusBarSyncChipProps) {
   if (!syncStatus) {

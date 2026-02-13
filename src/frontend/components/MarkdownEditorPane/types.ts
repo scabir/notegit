@@ -1,6 +1,6 @@
-import type React from 'react';
-import type { AppSettings } from '../../../shared/types';
-import type { ViewMode } from '../MarkdownEditor/types';
+import type React from "react";
+import type { AppSettings } from "../../../shared/types";
+import type { ViewMode } from "../MarkdownEditor/types";
 
 export interface MarkdownEditorPaneProps {
   isDark: boolean;

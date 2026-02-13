@@ -1,4 +1,4 @@
-import { GitAdapter } from '../adapters/GitAdapter';
+import { GitAdapter } from "../adapters/GitAdapter";
 import {
   CommitEntry,
   DiffHunk,
@@ -7,22 +7,22 @@ import {
   RepoSettings,
   GitRepoSettings,
   REPO_PROVIDERS,
-} from '../../shared/types';
-import type { HistoryProvider } from './types';
+} from "../../shared/types";
+import type { HistoryProvider } from "./types";
 
 export class GitHistoryProvider implements HistoryProvider {
   readonly type = REPO_PROVIDERS.git;
   private settings: GitRepoSettings | null = null;
   private repoPath: string | null = null;
 
-  constructor(private gitAdapter: GitAdapter) { }
+  constructor(private gitAdapter: GitAdapter) {}
 
   configure(settings: RepoSettings): void {
     if (settings.provider !== REPO_PROVIDERS.git) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
-        'GitHistoryProvider configured with non-git settings',
-        { provider: settings.provider }
+        "GitHistoryProvider configured with non-git settings",
+        { provider: settings.provider },
       );
     }
 
@@ -49,13 +49,17 @@ export class GitHistoryProvider implements HistoryProvider {
     return await this.gitAdapter.show(versionId, filePath);
   }
 
-  async getDiff(versionA: string, versionB: string, filePath: string): Promise<DiffHunk[]> {
+  async getDiff(
+    versionA: string,
+    versionB: string,
+    filePath: string,
+  ): Promise<DiffHunk[]> {
     await this.ensureRepoReady();
 
     const diffText = await this.gitAdapter.diff(versionA, versionB, filePath);
 
     const hunks: DiffHunk[] = [];
-    const lines = diffText.split('\n');
+    const lines = diffText.split("\n");
 
     let currentHunk: DiffHunk | null = null;
 
@@ -76,13 +80,13 @@ export class GitHistoryProvider implements HistoryProvider {
       }
 
       if (currentHunk) {
-        let type: 'add' | 'remove' | 'context';
-        if (line.startsWith('+')) {
-          type = 'add';
-        } else if (line.startsWith('-')) {
-          type = 'remove';
+        let type: "add" | "remove" | "context";
+        if (line.startsWith("+")) {
+          type = "add";
+        } else if (line.startsWith("-")) {
+          type = "remove";
         } else {
-          type = 'context';
+          type = "context";
         }
 
         currentHunk.lines.push({
@@ -106,8 +110,8 @@ export class GitHistoryProvider implements HistoryProvider {
       } else {
         throw this.createError(
           ApiErrorCode.VALIDATION_ERROR,
-          'No repository configured',
-          null
+          "No repository configured",
+          null,
         );
       }
     }
@@ -115,7 +119,11 @@ export class GitHistoryProvider implements HistoryProvider {
     await this.gitAdapter.init(this.repoPath);
   }
 
-  private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
+  private createError(
+    code: ApiErrorCode,
+    message: string,
+    details?: any,
+  ): ApiError {
     return {
       code,
       message,

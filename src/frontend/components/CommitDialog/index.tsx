@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -9,19 +9,24 @@ import {
   Box,
   Alert,
   CircularProgress,
-} from '@mui/material';
-import { COMMIT_DIALOG_TEXT } from './constants';
-import { contentStackSx } from './styles';
-import type { CommitDialogProps } from './types';
+} from "@mui/material";
+import { COMMIT_DIALOG_TEXT } from "./constants";
+import { contentStackSx } from "./styles";
+import type { CommitDialogProps } from "./types";
 
-export function CommitDialog({ open, filePath: _filePath, onClose, onSuccess }: CommitDialogProps) {
-  const [message, setMessage] = useState('');
+export function CommitDialog({
+  open,
+  filePath: _filePath,
+  onClose,
+  onSuccess,
+}: CommitDialogProps) {
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
-      setMessage('');
+      setMessage("");
       setError(null);
     }
   }, [open]);
@@ -53,7 +58,7 @@ export function CommitDialog({ open, filePath: _filePath, onClose, onSuccess }: 
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
       handleCommit();
     }
   };

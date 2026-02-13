@@ -1,10 +1,10 @@
-import { GitAdapter } from '../../../backend/adapters/GitAdapter';
-import { ApiErrorCode } from '../../../shared/types';
-import simpleGit, { SimpleGit } from 'simple-git';
+import { GitAdapter } from "../../../backend/adapters/GitAdapter";
+import { ApiErrorCode } from "../../../shared/types";
+import simpleGit, { SimpleGit } from "simple-git";
 
-jest.mock('simple-git');
+jest.mock("simple-git");
 
-describe('GitAdapter', () => {
+describe("GitAdapter", () => {
   let gitAdapter: GitAdapter;
   let mockGit: jest.Mocked<SimpleGit>;
 
@@ -31,89 +31,102 @@ describe('GitAdapter', () => {
     jest.clearAllMocks();
   });
 
-  describe('checkGitInstalled', () => {
-    it('should return true when git is installed', async () => {
+  describe("checkGitInstalled", () => {
+    it("should return true when git is installed", async () => {
       const result = await gitAdapter.checkGitInstalled();
       expect(result).toBe(true);
     });
   });
 
-  describe('init', () => {
-    it('should initialize git with repo path', async () => {
-      await gitAdapter.init('/path/to/repo');
-      expect(simpleGit).toHaveBeenCalledWith('/path/to/repo');
+  describe("init", () => {
+    it("should initialize git with repo path", async () => {
+      await gitAdapter.init("/path/to/repo");
+      expect(simpleGit).toHaveBeenCalledWith("/path/to/repo");
     });
   });
 
-  describe('clone', () => {
-    it('should clone repository with HTTPS and PAT', async () => {
+  describe("clone", () => {
+    it("should clone repository with HTTPS and PAT", async () => {
       mockGit.clone.mockResolvedValue(undefined as any);
 
       await gitAdapter.clone(
-        'https://github.com/user/repo.git',
-        '/path/to/local',
-        'main',
-        'ghp_token123'
+        "https://github.com/user/repo.git",
+        "/path/to/local",
+        "main",
+        "ghp_token123",
       );
 
       expect(mockGit.clone).toHaveBeenCalledWith(
-        'https://ghp_token123@github.com/user/repo.git',
-        '/path/to/local',
-        ['--branch', 'main']
+        "https://ghp_token123@github.com/user/repo.git",
+        "/path/to/local",
+        ["--branch", "main"],
       );
     });
 
-    it('should clone repository with SSH', async () => {
+    it("should clone repository with SSH", async () => {
       mockGit.clone.mockResolvedValue(undefined as any);
 
-      await gitAdapter.clone('git@github.com:user/repo.git', '/path/to/local', 'main');
+      await gitAdapter.clone(
+        "git@github.com:user/repo.git",
+        "/path/to/local",
+        "main",
+      );
 
       expect(mockGit.clone).toHaveBeenCalledWith(
-        'git@github.com:user/repo.git',
-        '/path/to/local',
-        ['--branch', 'main']
+        "git@github.com:user/repo.git",
+        "/path/to/local",
+        ["--branch", "main"],
       );
     });
 
-    it('should throw error on clone failure', async () => {
-      const error = new Error('Authentication failed');
+    it("should throw error on clone failure", async () => {
+      const error = new Error("Authentication failed");
       mockGit.clone.mockRejectedValue(error);
 
       await expect(
-        gitAdapter.clone('https://github.com/user/repo.git', '/path/to/local', 'main', 'token')
+        gitAdapter.clone(
+          "https://github.com/user/repo.git",
+          "/path/to/local",
+          "main",
+          "token",
+        ),
       ).rejects.toMatchObject({
         code: ApiErrorCode.GIT_AUTH_FAILED,
-        message: expect.stringContaining('Authentication failed'),
+        message: expect.stringContaining("Authentication failed"),
       });
     });
 
-    it('should throw clone failed for non-auth errors', async () => {
-      mockGit.clone.mockRejectedValue(new Error('boom'));
+    it("should throw clone failed for non-auth errors", async () => {
+      mockGit.clone.mockRejectedValue(new Error("boom"));
 
       await expect(
-        gitAdapter.clone('https://github.com/user/repo.git', '/path/to/local', 'main')
+        gitAdapter.clone(
+          "https://github.com/user/repo.git",
+          "/path/to/local",
+          "main",
+        ),
       ).rejects.toMatchObject({
         code: ApiErrorCode.GIT_CLONE_FAILED,
       });
     });
   });
 
-  describe('pull', () => {
-    it('should pull from remote with PAT', async () => {
-      await gitAdapter.init('/repo');
+  describe("pull", () => {
+    it("should pull from remote with PAT", async () => {
+      await gitAdapter.init("/repo");
 
       mockGit.pull.mockResolvedValue({
         files: [],
         summary: {},
       } as any);
 
-      await gitAdapter.pull('ghp_token123');
+      await gitAdapter.pull("ghp_token123");
 
       expect(mockGit.pull).toHaveBeenCalled();
     });
 
-    it('should pull from remote without PAT', async () => {
-      await gitAdapter.init('/repo');
+    it("should pull from remote without PAT", async () => {
+      await gitAdapter.init("/repo");
 
       mockGit.pull.mockResolvedValue({
         files: [],
@@ -125,18 +138,18 @@ describe('GitAdapter', () => {
       expect(mockGit.pull).toHaveBeenCalled();
     });
 
-    it('should throw auth error on pull', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.pull.mockRejectedValue(new Error('Authentication failed'));
+    it("should throw auth error on pull", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.pull.mockRejectedValue(new Error("Authentication failed"));
 
       await expect(gitAdapter.pull()).rejects.toMatchObject({
         code: ApiErrorCode.GIT_AUTH_FAILED,
       });
     });
 
-    it('should throw conflict error on pull', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.pull.mockRejectedValue(new Error('CONFLICT'));
+    it("should throw conflict error on pull", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.pull.mockRejectedValue(new Error("CONFLICT"));
 
       await expect(gitAdapter.pull()).rejects.toMatchObject({
         code: ApiErrorCode.GIT_CONFLICT,
@@ -144,19 +157,19 @@ describe('GitAdapter', () => {
     });
   });
 
-  describe('push', () => {
-    it('should push to remote with PAT', async () => {
-      await gitAdapter.init('/repo');
+  describe("push", () => {
+    it("should push to remote with PAT", async () => {
+      await gitAdapter.init("/repo");
 
       mockGit.push.mockResolvedValue(undefined as any);
 
-      await gitAdapter.push('ghp_token123');
+      await gitAdapter.push("ghp_token123");
 
       expect(mockGit.push).toHaveBeenCalled();
     });
 
-    it('should push to remote without PAT', async () => {
-      await gitAdapter.init('/repo');
+    it("should push to remote without PAT", async () => {
+      await gitAdapter.init("/repo");
 
       mockGit.push.mockResolvedValue(undefined as any);
 
@@ -165,9 +178,9 @@ describe('GitAdapter', () => {
       expect(mockGit.push).toHaveBeenCalled();
     });
 
-    it('should throw auth error on push', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.push.mockRejectedValue(new Error('403'));
+    it("should throw auth error on push", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.push.mockRejectedValue(new Error("403"));
 
       await expect(gitAdapter.push()).rejects.toMatchObject({
         code: ApiErrorCode.GIT_AUTH_FAILED,
@@ -175,16 +188,16 @@ describe('GitAdapter', () => {
     });
   });
 
-  describe('status', () => {
-    it('should get repository status', async () => {
-      await gitAdapter.init('/repo');
+  describe("status", () => {
+    it("should get repository status", async () => {
+      await gitAdapter.init("/repo");
 
       const mockStatus = {
-        current: 'main',
+        current: "main",
         ahead: 1,
         behind: 0,
-        modified: ['file1.md'],
-        not_added: ['file2.md'],
+        modified: ["file1.md"],
+        not_added: ["file2.md"],
         deleted: [],
       };
 
@@ -192,23 +205,23 @@ describe('GitAdapter', () => {
 
       const status = await gitAdapter.status();
 
-      expect(status.current).toBe('main');
+      expect(status.current).toBe("main");
       expect(status.ahead).toBe(1);
       expect(status.behind).toBe(0);
       expect(status.modified.length).toBe(1);
       expect(status.not_added.length).toBe(1);
     });
 
-    it('should return status with all fields', async () => {
-      await gitAdapter.init('/repo');
+    it("should return status with all fields", async () => {
+      await gitAdapter.init("/repo");
 
       const mockStatus = {
-        current: 'main',
+        current: "main",
         ahead: 0,
         behind: 0,
-        modified: ['a.md', 'b.md'],
-        not_added: ['c.md'],
-        deleted: ['d.md'],
+        modified: ["a.md", "b.md"],
+        not_added: ["c.md"],
+        deleted: ["d.md"],
       };
 
       mockGit.status.mockResolvedValue(mockStatus as any);
@@ -221,85 +234,90 @@ describe('GitAdapter', () => {
     });
   });
 
-  describe('add', () => {
-    it('should stage file', async () => {
-      await gitAdapter.init('/repo');
+  describe("add", () => {
+    it("should stage file", async () => {
+      await gitAdapter.init("/repo");
 
       mockGit.add.mockResolvedValue(undefined as any);
 
-      await gitAdapter.add('file.md');
+      await gitAdapter.add("file.md");
 
-      expect(mockGit.add).toHaveBeenCalledWith('file.md');
+      expect(mockGit.add).toHaveBeenCalledWith("file.md");
     });
 
-    it('throws on add failure', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.add.mockRejectedValue(new Error('add failed'));
+    it("throws on add failure", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.add.mockRejectedValue(new Error("add failed"));
 
-      await expect(gitAdapter.add('file.md')).rejects.toMatchObject({
+      await expect(gitAdapter.add("file.md")).rejects.toMatchObject({
         code: ApiErrorCode.UNKNOWN_ERROR,
       });
     });
   });
 
-  describe('commit', () => {
-    it('should commit with message', async () => {
-      await gitAdapter.init('/repo');
+  describe("commit", () => {
+    it("should commit with message", async () => {
+      await gitAdapter.init("/repo");
 
       mockGit.commit.mockResolvedValue({
-        commit: 'abc123',
+        commit: "abc123",
         summary: {},
       } as any);
 
-      await gitAdapter.commit('Update file');
+      await gitAdapter.commit("Update file");
 
-      expect(mockGit.commit).toHaveBeenCalledWith('Update file');
+      expect(mockGit.commit).toHaveBeenCalledWith("Update file");
     });
 
-    it('throws on commit failure', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.commit.mockRejectedValue(new Error('commit failed'));
+    it("throws on commit failure", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.commit.mockRejectedValue(new Error("commit failed"));
 
-      await expect(gitAdapter.commit('Update file')).rejects.toMatchObject({
+      await expect(gitAdapter.commit("Update file")).rejects.toMatchObject({
         code: ApiErrorCode.UNKNOWN_ERROR,
       });
     });
   });
 
-  describe('addRemote', () => {
-    it('adds a remote', async () => {
-      await gitAdapter.init('/repo');
+  describe("addRemote", () => {
+    it("adds a remote", async () => {
+      await gitAdapter.init("/repo");
       mockGit.addRemote = jest.fn().mockResolvedValue(undefined as any);
 
-      await gitAdapter.addRemote('https://github.com/user/repo.git', 'origin');
+      await gitAdapter.addRemote("https://github.com/user/repo.git", "origin");
 
-      expect(mockGit.addRemote).toHaveBeenCalledWith('origin', 'https://github.com/user/repo.git');
+      expect(mockGit.addRemote).toHaveBeenCalledWith(
+        "origin",
+        "https://github.com/user/repo.git",
+      );
     });
 
-    it('throws on add remote failure', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.addRemote = jest.fn().mockRejectedValue(new Error('remote failed'));
+    it("throws on add remote failure", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.addRemote = jest
+        .fn()
+        .mockRejectedValue(new Error("remote failed"));
 
       await expect(
-        gitAdapter.addRemote('https://github.com/user/repo.git', 'origin')
+        gitAdapter.addRemote("https://github.com/user/repo.git", "origin"),
       ).rejects.toMatchObject({
         code: ApiErrorCode.UNKNOWN_ERROR,
       });
     });
   });
 
-  describe('log', () => {
-    it('should get commit log', async () => {
-      await gitAdapter.init('/repo');
+  describe("log", () => {
+    it("should get commit log", async () => {
+      await gitAdapter.init("/repo");
 
       const mockLog = {
         all: [
           {
-            hash: 'abc123',
-            date: '2024-01-01',
-            message: 'Initial commit',
-            author_name: 'Test User',
-            author_email: 'test@example.com',
+            hash: "abc123",
+            date: "2024-01-01",
+            message: "Initial commit",
+            author_name: "Test User",
+            author_email: "test@example.com",
           },
         ],
       };
@@ -309,39 +327,39 @@ describe('GitAdapter', () => {
       const commits = await gitAdapter.log();
 
       expect(commits).toHaveLength(1);
-      expect(commits[0].hash).toBe('abc123');
-      expect(commits[0].message).toBe('Initial commit');
+      expect(commits[0].hash).toBe("abc123");
+      expect(commits[0].message).toBe("Initial commit");
     });
 
-    it('should get commit log for specific file', async () => {
-      await gitAdapter.init('/repo');
+    it("should get commit log for specific file", async () => {
+      await gitAdapter.init("/repo");
 
       const mockLog = {
         all: [
           {
-            hash: 'abc123',
-            date: '2024-01-01',
-            message: 'Update file',
-            author_name: 'Test User',
-            author_email: 'test@example.com',
+            hash: "abc123",
+            date: "2024-01-01",
+            message: "Update file",
+            author_name: "Test User",
+            author_email: "test@example.com",
           },
         ],
       };
 
       mockGit.log.mockResolvedValue(mockLog as any);
 
-      const commits = await gitAdapter.log('notes/file.md');
+      const commits = await gitAdapter.log("notes/file.md");
 
       expect(mockGit.log).toHaveBeenCalledWith({
-        file: 'notes/file.md',
+        file: "notes/file.md",
         maxCount: 100,
       });
       expect(commits).toHaveLength(1);
     });
 
-    it('throws on log failure', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.log.mockRejectedValue(new Error('log failed'));
+    it("throws on log failure", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.log.mockRejectedValue(new Error("log failed"));
 
       await expect(gitAdapter.log()).rejects.toMatchObject({
         code: ApiErrorCode.UNKNOWN_ERROR,
@@ -349,31 +367,33 @@ describe('GitAdapter', () => {
     });
   });
 
-  describe('show', () => {
-    it('should show file content at commit', async () => {
-      await gitAdapter.init('/repo');
+  describe("show", () => {
+    it("should show file content at commit", async () => {
+      await gitAdapter.init("/repo");
 
-      mockGit.show.mockResolvedValue('# File content at commit');
+      mockGit.show.mockResolvedValue("# File content at commit");
 
-      const content = await gitAdapter.show('abc123', 'notes/file.md');
+      const content = await gitAdapter.show("abc123", "notes/file.md");
 
-      expect(mockGit.show).toHaveBeenCalledWith(['abc123:notes/file.md']);
-      expect(content).toBe('# File content at commit');
+      expect(mockGit.show).toHaveBeenCalledWith(["abc123:notes/file.md"]);
+      expect(content).toBe("# File content at commit");
     });
 
-    it('throws on show failure', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.show.mockRejectedValue(new Error('show failed'));
+    it("throws on show failure", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.show.mockRejectedValue(new Error("show failed"));
 
-      await expect(gitAdapter.show('abc123', 'notes/file.md')).rejects.toMatchObject({
+      await expect(
+        gitAdapter.show("abc123", "notes/file.md"),
+      ).rejects.toMatchObject({
         code: ApiErrorCode.UNKNOWN_ERROR,
       });
     });
   });
 
-  describe('diff', () => {
-    it('should get diff between commits', async () => {
-      await gitAdapter.init('/repo');
+  describe("diff", () => {
+    it("should get diff between commits", async () => {
+      await gitAdapter.init("/repo");
 
       const mockDiff = `diff --git a/file.md b/file.md
 index abc123..def456 100644
@@ -388,25 +408,30 @@ index abc123..def456 100644
 
       mockGit.diff.mockResolvedValue(mockDiff);
 
-      const diff = await gitAdapter.diff('abc123', 'def456', 'file.md');
+      const diff = await gitAdapter.diff("abc123", "def456", "file.md");
 
-      expect(mockGit.diff).toHaveBeenCalledWith(['abc123', 'def456', '--', 'file.md']);
+      expect(mockGit.diff).toHaveBeenCalledWith([
+        "abc123",
+        "def456",
+        "--",
+        "file.md",
+      ]);
       expect(diff).toBe(mockDiff);
     });
 
-    it('throws on diff failure', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.diff.mockRejectedValue(new Error('diff failed'));
+    it("throws on diff failure", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.diff.mockRejectedValue(new Error("diff failed"));
 
-      await expect(gitAdapter.diff('a', 'b')).rejects.toMatchObject({
+      await expect(gitAdapter.diff("a", "b")).rejects.toMatchObject({
         code: ApiErrorCode.UNKNOWN_ERROR,
       });
     });
   });
 
-  describe('fetch', () => {
-    it('should fetch from remote', async () => {
-      await gitAdapter.init('/repo');
+  describe("fetch", () => {
+    it("should fetch from remote", async () => {
+      await gitAdapter.init("/repo");
 
       mockGit.fetch.mockResolvedValue({} as any);
 
@@ -415,53 +440,53 @@ index abc123..def456 100644
       expect(mockGit.fetch).toHaveBeenCalled();
     });
 
-    it('throws when fetch fails', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.fetch.mockRejectedValue(new Error('fetch failed'));
+    it("throws when fetch fails", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.fetch.mockRejectedValue(new Error("fetch failed"));
 
       await expect(gitAdapter.fetch()).rejects.toBeInstanceOf(Error);
     });
   });
 
-  describe('error handling', () => {
-    it('should throw error when not initialized', async () => {
+  describe("error handling", () => {
+    it("should throw error when not initialized", async () => {
       const uninitializedAdapter = new GitAdapter();
-      
+
       try {
         await uninitializedAdapter.status();
-        fail('Should have thrown an error');
+        fail("Should have thrown an error");
       } catch (error: any) {
-        expect(error.message).toContain('GitAdapter not initialized');
+        expect(error.message).toContain("GitAdapter not initialized");
         expect(error.code).toBe(ApiErrorCode.UNKNOWN_ERROR);
       }
     });
 
-    it('should handle pull errors gracefully', async () => {
-      await gitAdapter.init('/repo');
-      
-      mockGit.pull.mockRejectedValue(new Error('Network error'));
-      
+    it("should handle pull errors gracefully", async () => {
+      await gitAdapter.init("/repo");
+
+      mockGit.pull.mockRejectedValue(new Error("Network error"));
+
       await expect(gitAdapter.pull()).rejects.toMatchObject({
         code: ApiErrorCode.GIT_PULL_FAILED,
       });
     });
 
-    it('returns default ahead/behind on status failure', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.status.mockRejectedValue(new Error('status failed'));
+    it("returns default ahead/behind on status failure", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.status.mockRejectedValue(new Error("status failed"));
 
       const result = await gitAdapter.getAheadBehind();
 
       expect(result).toEqual({ ahead: 0, behind: 0 });
     });
 
-    it('returns main when current branch cannot be detected', async () => {
-      await gitAdapter.init('/repo');
-      mockGit.status.mockRejectedValue(new Error('status failed'));
+    it("returns main when current branch cannot be detected", async () => {
+      await gitAdapter.init("/repo");
+      mockGit.status.mockRejectedValue(new Error("status failed"));
 
       const result = await gitAdapter.getCurrentBranch();
 
-      expect(result).toBe('main');
+      expect(result).toBe("main");
     });
   });
 });

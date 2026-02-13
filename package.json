@@ -1,6 +1,6 @@
 {
   "name": "notegit",
-  "version": "2.5.2",
+  "version": "2.6.6",
   "packageManager": "pnpm@10.28.0",
   "description": "A Git-backed Markdown note-taking desktop application",
   "main": "dist/electron/electron/main.js",
@@ -23,8 +23,12 @@
     "test": "./node_modules/.bin/jest",
     "test:watch": "./node_modules/.bin/jest --watch",
     "test:coverage": "./node_modules/.bin/jest --coverage",
+    "coverage:check": "node scripts/check-coverage-threshold.js",
+    "coverage:check-staged": "pnpm run coverage:check",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write --ignore-unknown \"{src,docs,setup}/**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,html,yml,yaml}\" \"*.{md,json}\"",
+    "format:check": "prettier --check --ignore-unknown \"{src,docs,setup}/**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,html,yml,yaml}\" \"*.{md,json}\"",
     "prepare": "husky install"
   },
   "keywords": [
@@ -53,6 +57,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "husky": "^8.0.3",
     "jest": "^29.7.0",
+    "prettier": "^3.6.2",
     "react-test-renderer": "^18.2.0",
     "rimraf": "^5.0.5",
     "ts-jest": "^29.1.1",

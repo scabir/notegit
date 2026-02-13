@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   List,
@@ -12,14 +12,14 @@ import {
   IconButton,
   Tooltip,
   useTheme,
-} from '@mui/material';
+} from "@mui/material";
 import {
   History as HistoryIcon,
   Close as CloseIcon,
   Visibility as ViewIcon,
-} from '@mui/icons-material';
-import type { CommitEntry } from '../../../shared/types';
-import { HISTORY_PANEL_TEXT } from './constants';
+} from "@mui/icons-material";
+import type { CommitEntry } from "../../../shared/types";
+import { HISTORY_PANEL_TEXT } from "./constants";
 import {
   panelSx,
   headerSx,
@@ -35,13 +35,17 @@ import {
   hashChipSx,
   commitDateSx,
   footerSx,
-} from './styles';
-import { formatRelativeDate, getFileName } from './utils';
-import type { HistoryPanelProps } from './types';
+} from "./styles";
+import { formatRelativeDate, getFileName } from "./utils";
+import type { HistoryPanelProps } from "./types";
 
-export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelProps) {
+export function HistoryPanel({
+  filePath,
+  onViewVersion,
+  onClose,
+}: HistoryPanelProps) {
   const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
+  const isDark = theme.palette.mode === "dark";
   const [history, setHistory] = useState<CommitEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -160,20 +164,31 @@ export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelP
                               size="small"
                               sx={hashChipSx}
                             />
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               {commit.author}
                             </Typography>
                           </Box>
                         </Box>
                       }
                       secondary={
-                        <Typography variant="caption" color="text.secondary" sx={commitDateSx}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={commitDateSx}
+                        >
                           {formatRelativeDate(commit.date)}
                         </Typography>
                       }
                     />
                     {selectedHash === commit.hash && (
-                      <ViewIcon fontSize="small" color="primary" sx={{ ml: 1 }} />
+                      <ViewIcon
+                        fontSize="small"
+                        color="primary"
+                        sx={{ ml: 1 }}
+                      />
                     )}
                   </ListItemButton>
                 </ListItem>
@@ -187,7 +202,7 @@ export function HistoryPanel({ filePath, onViewVersion, onClose }: HistoryPanelP
         <Box sx={footerSx(isDark)}>
           <Typography variant="caption" color="text.secondary">
             {history.length} {HISTORY_PANEL_TEXT.commitSuffix}
-            {history.length !== 1 ? 's' : ''} found
+            {history.length !== 1 ? "s" : ""} found
           </Typography>
         </Box>
       )}

@@ -1,9 +1,9 @@
-import React from 'react';
-import { Tooltip, IconButton } from '@mui/material';
-import { History as HistoryIcon } from '@mui/icons-material';
-import { STATUS_BAR_HISTORY_ACTION } from './constants';
-import { iconButtonSx } from './styles';
-import type { StatusBarHistoryActionProps } from './types';
+import React from "react";
+import { Tooltip, IconButton } from "@mui/material";
+import { History as HistoryIcon } from "@mui/icons-material";
+import { STATUS_BAR_HISTORY_ACTION } from "./constants";
+import { iconButtonSx } from "./styles";
+import type { StatusBarHistoryActionProps } from "./types";
 
 export function StatusBarHistoryAction({
   show,
@@ -20,7 +20,7 @@ export function StatusBarHistoryAction({
       <IconButton
         size="small"
         onClick={onToggleHistory}
-        color={historyPanelOpen ? 'primary' : 'default'}
+        color={historyPanelOpen ? "primary" : "default"}
         sx={iconButtonSx}
         data-testid={STATUS_BAR_HISTORY_ACTION.testId}
       >

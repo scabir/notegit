@@ -7,11 +7,11 @@ import {
   HeadObjectCommand,
   GetBucketVersioningCommand,
   ListObjectVersionsCommand,
-} from '@aws-sdk/client-s3';
-import type { Readable } from 'stream';
-import type { S3RepoSettings } from '../../shared/types';
-import { ApiError, ApiErrorCode } from '../../shared/types';
-import { logger } from '../utils/logger';
+} from "@aws-sdk/client-s3";
+import type { Readable } from "stream";
+import type { S3RepoSettings } from "../../shared/types";
+import { ApiError, ApiErrorCode } from "../../shared/types";
+import { logger } from "../utils/logger";
 
 export interface S3ObjectSummary {
   key: string;
@@ -43,19 +43,23 @@ export class S3Adapter {
     });
   }
 
-  async getBucketVersioning(): Promise<'Enabled' | 'Suspended' | ''> {
+  async getBucketVersioning(): Promise<"Enabled" | "Suspended" | ""> {
     const client = this.ensureClient();
     const bucket = this.ensureBucket();
 
     try {
-      const response = await client.send(new GetBucketVersioningCommand({ Bucket: bucket }));
-      return response.Status || '';
+      const response = await client.send(
+        new GetBucketVersioningCommand({ Bucket: bucket }),
+      );
+      return response.Status || "";
     } catch (error: any) {
-      logger.error('Failed to get S3 bucket versioning', { bucket, error });
+      logger.error("Failed to get S3 bucket versioning", { bucket, error });
       throw this.createError(
-        this.isAuthError(error) ? ApiErrorCode.S3_AUTH_FAILED : ApiErrorCode.S3_SYNC_FAILED,
-        `Failed to get bucket versioning: ${error.message || 'Unknown error'}`,
-        error
+        this.isAuthError(error)
+          ? ApiErrorCode.S3_AUTH_FAILED
+          : ApiErrorCode.S3_SYNC_FAILED,
+        `Failed to get bucket versioning: ${error.message || "Unknown error"}`,
+        error,
       );
     }
   }
@@ -73,7 +77,7 @@ export class S3Adapter {
             Bucket: bucket,
             Prefix: prefix || undefined,
             ContinuationToken: continuationToken,
-          })
+          }),
         );
 
         for (const item of response.Contents || []) {
@@ -88,16 +92,20 @@ export class S3Adapter {
           });
         }
 
-        continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+        continuationToken = response.IsTruncated
+          ? response.NextContinuationToken
+          : undefined;
       } while (continuationToken);
 
       return results;
     } catch (error: any) {
-      logger.error('Failed to list S3 objects', { bucket, prefix, error });
+      logger.error("Failed to list S3 objects", { bucket, prefix, error });
       throw this.createError(
-        this.isAuthError(error) ? ApiErrorCode.S3_AUTH_FAILED : ApiErrorCode.S3_SYNC_FAILED,
-        `Failed to list objects: ${error.message || 'Unknown error'}`,
-        error
+        this.isAuthError(error)
+          ? ApiErrorCode.S3_AUTH_FAILED
+          : ApiErrorCode.S3_SYNC_FAILED,
+        `Failed to list objects: ${error.message || "Unknown error"}`,
+        error,
       );
     }
   }
@@ -117,7 +125,7 @@ export class S3Adapter {
             Prefix: prefix || undefined,
             KeyMarker: keyMarker,
             VersionIdMarker: versionMarker,
-          })
+          }),
         );
 
         for (const version of response.Versions || []) {
@@ -136,16 +144,24 @@ export class S3Adapter {
         }
 
         keyMarker = response.IsTruncated ? response.NextKeyMarker : undefined;
-        versionMarker = response.IsTruncated ? response.NextVersionIdMarker : undefined;
+        versionMarker = response.IsTruncated
+          ? response.NextVersionIdMarker
+          : undefined;
       } while (keyMarker);
 
       return results;
     } catch (error: any) {
-      logger.error('Failed to list S3 object versions', { bucket, prefix, error });
+      logger.error("Failed to list S3 object versions", {
+        bucket,
+        prefix,
+        error,
+      });
       throw this.createError(
-        this.isAuthError(error) ? ApiErrorCode.S3_AUTH_FAILED : ApiErrorCode.S3_SYNC_FAILED,
-        `Failed to list object versions: ${error.message || 'Unknown error'}`,
-        error
+        this.isAuthError(error)
+          ? ApiErrorCode.S3_AUTH_FAILED
+          : ApiErrorCode.S3_SYNC_FAILED,
+        `Failed to list object versions: ${error.message || "Unknown error"}`,
+        error,
       );
     }
   }
@@ -160,11 +176,11 @@ export class S3Adapter {
           Bucket: bucket,
           Key: key,
           VersionId: versionId || undefined,
-        })
+        }),
       );
 
       if (!response.Body) {
-        return Buffer.from('');
+        return Buffer.from("");
       }
 
       const body = response.Body as Readable | Buffer | Uint8Array;
@@ -178,16 +194,27 @@ export class S3Adapter {
 
       return await this.streamToBuffer(body as Readable);
     } catch (error: any) {
-      logger.error('Failed to get S3 object', { bucket, key, versionId, error });
+      logger.error("Failed to get S3 object", {
+        bucket,
+        key,
+        versionId,
+        error,
+      });
       throw this.createError(
-        this.isAuthError(error) ? ApiErrorCode.S3_AUTH_FAILED : ApiErrorCode.S3_SYNC_FAILED,
-        `Failed to get object: ${error.message || 'Unknown error'}`,
-        error
+        this.isAuthError(error)
+          ? ApiErrorCode.S3_AUTH_FAILED
+          : ApiErrorCode.S3_SYNC_FAILED,
+        `Failed to get object: ${error.message || "Unknown error"}`,
+        error,
       );
     }
   }
 
-  async putObject(key: string, body: Buffer | Uint8Array | Readable, contentType?: string): Promise<void> {
+  async putObject(
+    key: string,
+    body: Buffer | Uint8Array | Readable,
+    contentType?: string,
+  ): Promise<void> {
     const client = this.ensureClient();
     const bucket = this.ensureBucket();
 
@@ -198,14 +225,16 @@ export class S3Adapter {
           Key: key,
           Body: body,
           ContentType: contentType || undefined,
-        })
+        }),
       );
     } catch (error: any) {
-      logger.error('Failed to put S3 object', { bucket, key, error });
+      logger.error("Failed to put S3 object", { bucket, key, error });
       throw this.createError(
-        this.isAuthError(error) ? ApiErrorCode.S3_AUTH_FAILED : ApiErrorCode.S3_SYNC_FAILED,
-        `Failed to upload object: ${error.message || 'Unknown error'}`,
-        error
+        this.isAuthError(error)
+          ? ApiErrorCode.S3_AUTH_FAILED
+          : ApiErrorCode.S3_SYNC_FAILED,
+        `Failed to upload object: ${error.message || "Unknown error"}`,
+        error,
       );
     }
   }
@@ -219,7 +248,7 @@ export class S3Adapter {
         new HeadObjectCommand({
           Bucket: bucket,
           Key: key,
-        })
+        }),
       );
 
       return {
@@ -229,11 +258,13 @@ export class S3Adapter {
         eTag: response.ETag,
       };
     } catch (error: any) {
-      logger.error('Failed to head S3 object', { bucket, key, error });
+      logger.error("Failed to head S3 object", { bucket, key, error });
       throw this.createError(
-        this.isAuthError(error) ? ApiErrorCode.S3_AUTH_FAILED : ApiErrorCode.S3_SYNC_FAILED,
-        `Failed to read object metadata: ${error.message || 'Unknown error'}`,
-        error
+        this.isAuthError(error)
+          ? ApiErrorCode.S3_AUTH_FAILED
+          : ApiErrorCode.S3_SYNC_FAILED,
+        `Failed to read object metadata: ${error.message || "Unknown error"}`,
+        error,
       );
     }
   }
@@ -247,14 +278,16 @@ export class S3Adapter {
         new DeleteObjectCommand({
           Bucket: bucket,
           Key: key,
-        })
+        }),
       );
     } catch (error: any) {
-      logger.error('Failed to delete S3 object', { bucket, key, error });
+      logger.error("Failed to delete S3 object", { bucket, key, error });
       throw this.createError(
-        this.isAuthError(error) ? ApiErrorCode.S3_AUTH_FAILED : ApiErrorCode.S3_SYNC_FAILED,
-        `Failed to delete object: ${error.message || 'Unknown error'}`,
-        error
+        this.isAuthError(error)
+          ? ApiErrorCode.S3_AUTH_FAILED
+          : ApiErrorCode.S3_SYNC_FAILED,
+        `Failed to delete object: ${error.message || "Unknown error"}`,
+        error,
       );
     }
   }
@@ -263,8 +296,8 @@ export class S3Adapter {
     if (!this.client || !this.settings) {
       throw this.createError(
         ApiErrorCode.S3_SYNC_FAILED,
-        'S3 adapter is not configured',
-        null
+        "S3 adapter is not configured",
+        null,
       );
     }
     return this.client;
@@ -272,7 +305,11 @@ export class S3Adapter {
 
   private ensureBucket(): string {
     if (!this.settings?.bucket) {
-      throw this.createError(ApiErrorCode.S3_SYNC_FAILED, 'S3 bucket is not configured', null);
+      throw this.createError(
+        ApiErrorCode.S3_SYNC_FAILED,
+        "S3 bucket is not configured",
+        null,
+      );
     }
     return this.settings.bucket;
   }
@@ -280,24 +317,28 @@ export class S3Adapter {
   private async streamToBuffer(stream: Readable): Promise<Buffer> {
     const chunks: Buffer[] = [];
     return await new Promise((resolve, reject) => {
-      stream.on('data', (chunk) => {
+      stream.on("data", (chunk) => {
         chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
       });
-      stream.on('end', () => resolve(Buffer.concat(chunks)));
-      stream.on('error', reject);
+      stream.on("end", () => resolve(Buffer.concat(chunks)));
+      stream.on("error", reject);
     });
   }
 
   private isAuthError(error: any): boolean {
     return (
-      error?.name === 'CredentialsProviderError' ||
-      error?.name === 'AccessDenied' ||
-      error?.Code === 'AccessDenied' ||
+      error?.name === "CredentialsProviderError" ||
+      error?.name === "AccessDenied" ||
+      error?.Code === "AccessDenied" ||
       error?.$metadata?.httpStatusCode === 403
     );
   }
 
-  private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
+  private createError(
+    code: ApiErrorCode,
+    message: string,
+    details?: any,
+  ): ApiError {
     return {
       code,
       message,

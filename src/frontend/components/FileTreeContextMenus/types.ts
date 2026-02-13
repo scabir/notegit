@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import type { FileTreeNode } from '../../../shared/types';
+import type { ReactElement } from "react";
+import type { FileTreeNode } from "../../../shared/types";
 
 export interface FavoriteMenuState {
   anchorEl: HTMLElement | null;
@@ -8,7 +8,7 @@ export interface FavoriteMenuState {
 
 export interface TreeContextMenuState {
   node: FileTreeNode | null;
-  mode: 'node' | 'empty';
+  mode: "node" | "empty";
   position: { top: number; left: number } | null;
 }
 

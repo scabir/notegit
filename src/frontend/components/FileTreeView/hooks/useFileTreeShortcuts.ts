@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import type { RefObject } from 'react';
+import { useEffect, useRef } from "react";
+import type { RefObject } from "react";
 
 export type ShortcutHandlers = {
   openFileDialog: () => void;
@@ -16,7 +16,7 @@ export type ShortcutHandlers = {
 export function useFileTreeShortcuts(
   treeContainerRef: RefObject<HTMLDivElement>,
   handlers: ShortcutHandlers,
-  enabled = true
+  enabled = true,
 ) {
   const handlersRef = useRef(handlers);
 
@@ -35,7 +35,11 @@ export function useFileTreeShortcuts(
       }
 
       const container = treeContainerRef.current;
-      if (container && event.target instanceof Node && !container.contains(event.target)) {
+      if (
+        container &&
+        event.target instanceof Node &&
+        !container.contains(event.target)
+      ) {
         return;
       }
 
@@ -54,61 +58,61 @@ export function useFileTreeShortcuts(
       const shift = event.shiftKey;
       const key = event.key;
 
-      if (mod && key.toLowerCase() === 'a') {
+      if (mod && key.toLowerCase() === "a") {
         event.preventDefault();
         openFileDialog();
         return;
       }
 
-      if (mod && key.toLowerCase() === 'd') {
+      if (mod && key.toLowerCase() === "d") {
         event.preventDefault();
         openFolderDialog();
         return;
       }
 
-      if (mod && key.toLowerCase() === 'i') {
+      if (mod && key.toLowerCase() === "i") {
         event.preventDefault();
         handleImportFile();
         return;
       }
 
-      if ((mod && key.toLowerCase() === 'r') || key === 'F2') {
+      if ((mod && key.toLowerCase() === "r") || key === "F2") {
         event.preventDefault();
         handleOpenRenameDialog();
         return;
       }
 
-      if (mod && key.toLowerCase() === 'm') {
+      if (mod && key.toLowerCase() === "m") {
         event.preventDefault();
         handleOpenMoveDialog();
         return;
       }
 
-      if (mod && shift && key.toLowerCase() === 's') {
+      if (mod && shift && key.toLowerCase() === "s") {
         event.preventDefault();
         handleToggleFavorite();
         return;
       }
 
-      if (mod && shift && key.toLowerCase() === 'e') {
+      if (mod && shift && key.toLowerCase() === "e") {
         event.preventDefault();
         handleCollapseAll();
         return;
       }
 
-      if (mod && shift && key.toLowerCase() === 'u' && handleDuplicate) {
+      if (mod && shift && key.toLowerCase() === "u" && handleDuplicate) {
         event.preventDefault();
         handleDuplicate();
         return;
       }
 
-      if (key === 'Delete' || (mod && key === 'Backspace')) {
+      if (key === "Delete" || (mod && key === "Backspace")) {
         event.preventDefault();
         handleDelete();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [enabled, treeContainerRef]);
 }

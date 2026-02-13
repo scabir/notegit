@@ -23,11 +23,13 @@ Main process services
 ## Data storage
 
 App data lives in the OS app-data folder:
+
 - macOS: `~/Library/Application Support/notegit/`
 - Windows: `%APPDATA%/notegit/`
 - Linux: `~/.config/notegit/`
 
 Folders:
+
 - `config/` app and repo settings
 - `logs/` app logs
 - `repos/` local git clones or S3 working dir

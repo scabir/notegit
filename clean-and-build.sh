@@ -1,1 +1,0 @@
-pnpm run clean && pnpm install && pnpm run build && pnpm test

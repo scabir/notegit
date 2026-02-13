@@ -1,7 +1,7 @@
-import * as crypto from 'crypto';
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import { S3Adapter } from '../adapters/S3Adapter';
+import * as crypto from "crypto";
+import * as fs from "fs/promises";
+import * as path from "path";
+import { S3Adapter } from "../adapters/S3Adapter";
 import {
   RepoSettings,
   RepoStatus,
@@ -9,11 +9,11 @@ import {
   ApiErrorCode,
   S3RepoSettings,
   REPO_PROVIDERS,
-} from '../../shared/types';
-import { logger } from '../utils/logger';
-import type { RepoProvider } from './types';
+} from "../../shared/types";
+import { logger } from "../utils/logger";
+import type { RepoProvider } from "./types";
 
-type SyncMode = 'pull' | 'sync';
+type SyncMode = "pull" | "sync";
 
 type S3SyncManifestEntry = {
   localHash?: string;
@@ -48,9 +48,9 @@ type RemoteFileInfo = {
 
 export class S3RepoProvider implements RepoProvider {
   readonly type = REPO_PROVIDERS.s3;
-  private readonly conflictSuffix = 's3-conflict';
-  private readonly manifestFolder = '.notegit';
-  private readonly manifestFile = 's3-sync.json';
+  private readonly conflictSuffix = "s3-conflict";
+  private readonly manifestFolder = ".notegit";
+  private readonly manifestFile = "s3-sync.json";
   private readonly manifestVersion = 1;
   private settings: S3RepoSettings | null = null;
   private repoPath: string | null = null;
@@ -61,14 +61,14 @@ export class S3RepoProvider implements RepoProvider {
   private pendingSyncTimer: NodeJS.Timeout | null = null;
   private pendingSyncRequested = false;
 
-  constructor(private s3Adapter: S3Adapter) { }
+  constructor(private s3Adapter: S3Adapter) {}
 
   configure(settings: RepoSettings): void {
     if (settings.provider !== REPO_PROVIDERS.s3) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
-        'S3RepoProvider configured with non-s3 settings',
-        { provider: settings.provider }
+        "S3RepoProvider configured with non-s3 settings",
+        { provider: settings.provider },
       );
     }
 
@@ -81,8 +81,8 @@ export class S3RepoProvider implements RepoProvider {
     if (settings.provider !== REPO_PROVIDERS.s3) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
-        'S3RepoProvider cannot open non-s3 repository',
-        { provider: settings.provider }
+        "S3RepoProvider cannot open non-s3 repository",
+        { provider: settings.provider },
       );
     }
 
@@ -92,17 +92,17 @@ export class S3RepoProvider implements RepoProvider {
     if (!localPath) {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
-        'Local path is required for S3 repository',
-        null
+        "Local path is required for S3 repository",
+        null,
       );
     }
 
     const versioning = await this.s3Adapter.getBucketVersioning();
-    if (versioning !== 'Enabled') {
+    if (versioning !== "Enabled") {
       throw this.createError(
         ApiErrorCode.S3_VERSIONING_REQUIRED,
-        'S3 bucket versioning must be enabled to use history',
-        { status: versioning }
+        "S3 bucket versioning must be enabled to use history",
+        { status: versioning },
       );
     }
 
@@ -131,7 +131,7 @@ export class S3RepoProvider implements RepoProvider {
       lastSyncTime: this.lastSyncTime || undefined,
     };
 
-    logger.debug('S3 repository status', { status });
+    logger.debug("S3 repository status", { status });
     return status;
   }
 
@@ -141,11 +141,11 @@ export class S3RepoProvider implements RepoProvider {
   }
 
   async pull(): Promise<void> {
-    await this.sync('pull');
+    await this.sync("pull");
   }
 
   async push(): Promise<void> {
-    await this.sync('sync');
+    await this.sync("sync");
   }
 
   async queueDelete(_path: string): Promise<void> {
@@ -166,39 +166,39 @@ export class S3RepoProvider implements RepoProvider {
     }
 
     if (this.autoSyncTimer) {
-      logger.debug('Restarting S3 auto-sync timer', {
+      logger.debug("Restarting S3 auto-sync timer", {
         intervalMs: this.autoSyncIntervalMs,
       });
       clearInterval(this.autoSyncTimer);
       this.autoSyncTimer = null;
     }
 
-    logger.info('Starting S3 auto-sync timer', {
+    logger.info("Starting S3 auto-sync timer", {
       intervalMs: this.autoSyncIntervalMs,
     });
 
     void this.pull().catch((error) => {
-      logger.debug('Initial S3 pull failed', { error });
+      logger.debug("Initial S3 pull failed", { error });
     });
 
     this.autoSyncTimer = setInterval(async () => {
       try {
-        await this.sync('sync');
+        await this.sync("sync");
       } catch (error) {
-        logger.debug('S3 auto-sync attempt failed, will retry', { error });
+        logger.debug("S3 auto-sync attempt failed, will retry", { error });
       }
     }, this.autoSyncIntervalMs);
   }
 
   stopAutoSync(): void {
     if (this.autoSyncTimer) {
-      logger.info('Stopping S3 auto-sync timer');
+      logger.info("Stopping S3 auto-sync timer");
       clearInterval(this.autoSyncTimer);
       this.autoSyncTimer = null;
     }
   }
 
-  private async sync(mode: SyncMode = 'sync'): Promise<void> {
+  private async sync(mode: SyncMode = "sync"): Promise<void> {
     if (this.syncInProgress) {
       this.pendingSyncRequested = true;
       return;
@@ -219,7 +219,13 @@ export class S3RepoProvider implements RepoProvider {
       ]);
 
       for (const relativePath of allPaths) {
-        await this.reconcilePath(relativePath, localInfo, remoteInfo, manifest, mode);
+        await this.reconcilePath(
+          relativePath,
+          localInfo,
+          remoteInfo,
+          manifest,
+          mode,
+        );
       }
 
       manifest.updatedAt = new Date().toISOString();
@@ -239,14 +245,17 @@ export class S3RepoProvider implements RepoProvider {
 
   private async requestSync(): Promise<void> {
     try {
-      await this.sync('sync');
+      await this.sync("sync");
     } catch (error) {
       this.schedulePendingSync();
       throw error;
     }
   }
 
-  private async calculateChangeCounts(): Promise<{ localChanges: number; remoteChanges: number }> {
+  private async calculateChangeCounts(): Promise<{
+    localChanges: number;
+    remoteChanges: number;
+  }> {
     await this.ensureRepoReady();
 
     const manifest = await this.loadManifest();
@@ -292,7 +301,9 @@ export class S3RepoProvider implements RepoProvider {
     return { localChanges, remoteChanges };
   }
 
-  private async collectLocalInfo(manifest: S3SyncManifest): Promise<Map<string, LocalFileInfo>> {
+  private async collectLocalInfo(
+    manifest: S3SyncManifest,
+  ): Promise<Map<string, LocalFileInfo>> {
     const files = await this.listLocalFiles(this.repoPath!);
     const result = new Map<string, LocalFileInfo>();
 
@@ -323,7 +334,7 @@ export class S3RepoProvider implements RepoProvider {
 
     for (const object of objects) {
       const relativePath = this.fromS3Key(object.key);
-      if (!relativePath || relativePath.endsWith('/')) {
+      if (!relativePath || relativePath.endsWith("/")) {
         continue;
       }
       if (this.shouldIgnoreRemotePath(relativePath)) {
@@ -346,7 +357,7 @@ export class S3RepoProvider implements RepoProvider {
     localInfo: Map<string, LocalFileInfo>,
     remoteInfo: Map<string, RemoteFileInfo>,
     manifest: S3SyncManifest,
-    mode: SyncMode
+    mode: SyncMode,
   ): Promise<void> {
     const normalized = this.normalizeRelativePath(relativePath);
     const local = localInfo.get(normalized);
@@ -355,8 +366,8 @@ export class S3RepoProvider implements RepoProvider {
 
     const localExists = Boolean(local);
     const remoteExists = Boolean(remote);
-    const allowUpload = mode === 'sync';
-    const allowRemoteDelete = mode === 'sync';
+    const allowUpload = mode === "sync";
+    const allowRemoteDelete = mode === "sync";
     const allowDownload = true;
     const allowLocalDelete = true;
 
@@ -432,9 +443,12 @@ export class S3RepoProvider implements RepoProvider {
     if (localExists && !remoteExists) {
       if (hasBaseline && remoteChanged && localChanged) {
         this.markConflict(manifest, normalized, local!, undefined, true);
-        logger.warn('S3 conflict detected: remote deleted while local changed', {
-          file: normalized,
-        });
+        logger.warn(
+          "S3 conflict detected: remote deleted while local changed",
+          {
+            file: normalized,
+          },
+        );
         return;
       }
 
@@ -486,7 +500,7 @@ export class S3RepoProvider implements RepoProvider {
 
   private async downloadRemoteFile(
     relativePath: string,
-    remote: RemoteFileInfo
+    remote: RemoteFileInfo,
   ): Promise<LocalFileInfo> {
     const localFilePath = path.join(this.repoPath!, relativePath);
     const content = await this.s3Adapter.getObject(remote.key);
@@ -504,7 +518,10 @@ export class S3RepoProvider implements RepoProvider {
     };
   }
 
-  private async uploadLocalFile(relativePath: string, _local: LocalFileInfo): Promise<RemoteFileInfo> {
+  private async uploadLocalFile(
+    relativePath: string,
+    _local: LocalFileInfo,
+  ): Promise<RemoteFileInfo> {
     const fullPath = path.join(this.repoPath!, relativePath);
     const body = await fs.readFile(fullPath);
     await this.s3Adapter.putObject(this.toS3Key(relativePath), body);
@@ -530,7 +547,7 @@ export class S3RepoProvider implements RepoProvider {
     manifest: S3SyncManifest,
     relativePath: string,
     local: LocalFileInfo,
-    remote: RemoteFileInfo
+    remote: RemoteFileInfo,
   ): void {
     const normalized = this.normalizeRelativePath(relativePath);
     manifest.files[normalized] = {
@@ -554,7 +571,7 @@ export class S3RepoProvider implements RepoProvider {
     relativePath: string,
     local?: LocalFileInfo,
     remote?: RemoteFileInfo,
-    remoteDeleted?: boolean
+    remoteDeleted?: boolean,
   ): void {
     const normalized = this.normalizeRelativePath(relativePath);
     const entry = manifest.files[normalized] || {};
@@ -573,7 +590,7 @@ export class S3RepoProvider implements RepoProvider {
     entry.conflictRemoteDeleted = Boolean(remoteDeleted);
     entry.conflictDetectedAt = new Date().toISOString();
     manifest.files[normalized] = entry;
-    logger.warn('S3 conflict detected', { file: normalized });
+    logger.warn("S3 conflict detected", { file: normalized });
   }
 
   private clearConflict(entry: S3SyncManifestEntry): void {
@@ -588,9 +605,11 @@ export class S3RepoProvider implements RepoProvider {
     relativePath: string,
     local: LocalFileInfo | undefined,
     remote: RemoteFileInfo,
-    manifest: S3SyncManifest
+    manifest: S3SyncManifest,
   ): Promise<void> {
-    const stamp = this.formatConflictTimestamp(new Date(remote.lastModifiedMs || Date.now()));
+    const stamp = this.formatConflictTimestamp(
+      new Date(remote.lastModifiedMs || Date.now()),
+    );
     const conflictPath = await this.resolveConflictPath(relativePath, stamp);
     if (!conflictPath) {
       this.markConflict(manifest, relativePath, local, remote, false);
@@ -603,14 +622,14 @@ export class S3RepoProvider implements RepoProvider {
     await fs.writeFile(localFilePath, content);
 
     this.markConflict(manifest, relativePath, local, remote, false);
-    logger.warn('S3 conflict detected; saved remote copy locally', {
+    logger.warn("S3 conflict detected; saved remote copy locally", {
       file: relativePath,
       conflictCopy: conflictPath,
     });
   }
 
   private formatConflictTimestamp(date: Date): string {
-    const pad = (value: number) => value.toString().padStart(2, '0');
+    const pad = (value: number) => value.toString().padStart(2, "0");
     const year = date.getUTCFullYear();
     const month = pad(date.getUTCMonth() + 1);
     const day = pad(date.getUTCDate());
@@ -625,10 +644,13 @@ export class S3RepoProvider implements RepoProvider {
     const baseName = path.basename(relativePath, ext);
     const dirName = path.dirname(relativePath);
     const conflictName = `${baseName}.${this.conflictSuffix}-${stamp}${ext}`;
-    return dirName === '.' ? conflictName : path.join(dirName, conflictName);
+    return dirName === "." ? conflictName : path.join(dirName, conflictName);
   }
 
-  private async resolveConflictPath(relativePath: string, stamp: string): Promise<string | null> {
+  private async resolveConflictPath(
+    relativePath: string,
+    stamp: string,
+  ): Promise<string | null> {
     const conflictPath = this.buildConflictPath(relativePath, stamp);
     const fullPath = path.join(this.repoPath!, conflictPath);
 
@@ -649,7 +671,7 @@ export class S3RepoProvider implements RepoProvider {
   }
 
   private hashBuffer(buffer: Buffer): string {
-    return crypto.createHash('sha256').update(buffer).digest('hex');
+    return crypto.createHash("sha256").update(buffer).digest("hex");
   }
 
   private async hashFile(fullPath: string): Promise<string> {
@@ -660,14 +682,14 @@ export class S3RepoProvider implements RepoProvider {
   private async loadManifest(): Promise<S3SyncManifest> {
     const manifestPath = this.getManifestPath();
     try {
-      const content = await fs.readFile(manifestPath, 'utf-8');
+      const content = await fs.readFile(manifestPath, "utf-8");
       const parsed = JSON.parse(content) as S3SyncManifest;
       if (parsed && parsed.version === this.manifestVersion && parsed.files) {
         return parsed;
       }
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        logger.warn('Failed to read S3 sync manifest, recreating', { error });
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+        logger.warn("Failed to read S3 sync manifest, recreating", { error });
       }
     }
 
@@ -681,7 +703,11 @@ export class S3RepoProvider implements RepoProvider {
   private async saveManifest(manifest: S3SyncManifest): Promise<void> {
     const manifestPath = this.getManifestPath();
     await fs.mkdir(path.dirname(manifestPath), { recursive: true });
-    await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf-8');
+    await fs.writeFile(
+      manifestPath,
+      JSON.stringify(manifest, null, 2),
+      "utf-8",
+    );
   }
 
   private getManifestPath(): string {
@@ -692,7 +718,7 @@ export class S3RepoProvider implements RepoProvider {
     if (!eTag) {
       return undefined;
     }
-    return eTag.replace(/"/g, '');
+    return eTag.replace(/"/g, "");
   }
 
   private schedulePendingSync(): void {
@@ -702,13 +728,16 @@ export class S3RepoProvider implements RepoProvider {
 
     this.pendingSyncTimer = setTimeout(() => {
       this.pendingSyncTimer = null;
-      void this.sync('sync').catch((error) => {
-        logger.debug('Deferred S3 sync failed', { error });
+      void this.sync("sync").catch((error) => {
+        logger.debug("Deferred S3 sync failed", { error });
       });
     }, 1000);
   }
 
-  private async listLocalFiles(dirPath: string, basePath: string = dirPath): Promise<string[]> {
+  private async listLocalFiles(
+    dirPath: string,
+    basePath: string = dirPath,
+  ): Promise<string[]> {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
     const files: string[] = [];
 
@@ -735,10 +764,10 @@ export class S3RepoProvider implements RepoProvider {
   }
 
   private shouldIgnoreEntry(name: string): boolean {
-    if (name === '.git' || name === '.DS_Store') {
+    if (name === ".git" || name === ".DS_Store") {
       return true;
     }
-    if (name.startsWith('.notegit')) {
+    if (name.startsWith(".notegit")) {
       return true;
     }
     if (this.isConflictFileName(name)) {
@@ -748,7 +777,7 @@ export class S3RepoProvider implements RepoProvider {
   }
 
   private shouldIgnoreRemotePath(relativePath: string): boolean {
-    const parts = relativePath.split('/');
+    const parts = relativePath.split("/");
     return parts.some((part) => this.shouldIgnoreEntry(part));
   }
 
@@ -757,15 +786,15 @@ export class S3RepoProvider implements RepoProvider {
   }
 
   private normalizedPrefix(): string {
-    const prefix = this.settings?.prefix?.trim() || '';
+    const prefix = this.settings?.prefix?.trim() || "";
     if (!prefix) {
-      return '';
+      return "";
     }
-    return prefix.replace(/^\/+|\/+$/g, '') + '/';
+    return prefix.replace(/^\/+|\/+$/g, "") + "/";
   }
 
   private toS3Key(relativePath: string): string {
-    const normalized = relativePath.split(path.sep).join('/');
+    const normalized = relativePath.split(path.sep).join("/");
     return `${this.normalizedPrefix()}${normalized}`;
   }
 
@@ -781,7 +810,7 @@ export class S3RepoProvider implements RepoProvider {
     if (!this.settings) {
       return REPO_PROVIDERS.s3;
     }
-    const prefix = this.settings.prefix ? `/${this.settings.prefix}` : '';
+    const prefix = this.settings.prefix ? `/${this.settings.prefix}` : "";
     return `${this.settings.bucket}${prefix}`;
   }
 
@@ -792,14 +821,18 @@ export class S3RepoProvider implements RepoProvider {
       } else {
         throw this.createError(
           ApiErrorCode.VALIDATION_ERROR,
-          'No repository configured',
-          null
+          "No repository configured",
+          null,
         );
       }
     }
   }
 
-  private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
+  private createError(
+    code: ApiErrorCode,
+    message: string,
+    details?: any,
+  ): ApiError {
     return {
       code,
       message,

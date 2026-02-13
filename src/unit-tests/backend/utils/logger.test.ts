@@ -3,13 +3,13 @@ const createLoggerMock = jest.fn(() => ({
 }));
 
 const format = {
-  combine: jest.fn(() => 'combined'),
-  timestamp: jest.fn(() => 'timestamp'),
-  errors: jest.fn(() => 'errors'),
-  splat: jest.fn(() => 'splat'),
-  json: jest.fn(() => 'json'),
-  colorize: jest.fn(() => 'colorize'),
-  simple: jest.fn(() => 'simple'),
+  combine: jest.fn(() => "combined"),
+  timestamp: jest.fn(() => "timestamp"),
+  errors: jest.fn(() => "errors"),
+  splat: jest.fn(() => "splat"),
+  json: jest.fn(() => "json"),
+  colorize: jest.fn(() => "colorize"),
+  simple: jest.fn(() => "simple"),
   printf: jest.fn((fn) => fn),
 };
 
@@ -18,24 +18,24 @@ const transports = {
   Console: jest.fn(),
 };
 
-describe('logger', () => {
+describe("logger", () => {
   const originalEnv = process.env.NODE_ENV;
 
   const loadLogger = () => {
     jest.resetModules();
-    jest.doMock('electron', () => ({
+    jest.doMock("electron", () => ({
       app: {
-        getPath: jest.fn(() => '/tmp/notegit-test'),
+        getPath: jest.fn(() => "/tmp/notegit-test"),
       },
     }));
-    jest.doMock('winston', () => ({
+    jest.doMock("winston", () => ({
       createLogger: createLoggerMock,
       format,
       transports,
     }));
-    jest.doMock('winston-daily-rotate-file', () => jest.fn());
+    jest.doMock("winston-daily-rotate-file", () => jest.fn());
 
-    return jest.isolateModules(() => require('../../../backend/utils/logger'));
+    return jest.isolateModules(() => require("../../../backend/utils/logger"));
   };
 
   beforeEach(() => {
@@ -48,8 +48,8 @@ describe('logger', () => {
     process.env.NODE_ENV = originalEnv;
   });
 
-  it('creates a logger with file transports in production', () => {
-    process.env.NODE_ENV = 'production';
+  it("creates a logger with file transports in production", () => {
+    process.env.NODE_ENV = "production";
 
     loadLogger();
 
@@ -60,8 +60,8 @@ describe('logger', () => {
     expect(config?.transports).toHaveLength(2);
   });
 
-  it('adds console transport in development', () => {
-    process.env.NODE_ENV = 'development';
+  it("adds console transport in development", () => {
+    process.env.NODE_ENV = "development";
 
     const loggerModule = loadLogger() as any;
 

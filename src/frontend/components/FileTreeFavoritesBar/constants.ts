@@ -1,3 +1,3 @@
 export const FAVORITES_BAR_TEXT = {
-  title: 'Favorites',
+  title: "Favorites",
 } as const;

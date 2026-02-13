@@ -3,7 +3,7 @@ export interface AppSettings {
   autoSaveIntervalSec: number;
   s3AutoSyncEnabled: boolean;
   s3AutoSyncIntervalSec: number;
-  theme: 'light' | 'dark' | 'system';
+  theme: "light" | "dark" | "system";
   editorPrefs: EditorPreferences;
 }
 
@@ -15,12 +15,13 @@ export interface EditorPreferences {
 }
 
 export const REPO_PROVIDERS = {
-  git: 'git',
-  s3: 's3',
-  local: 'local',
+  git: "git",
+  s3: "s3",
+  local: "local",
 } as const;
 
-export type RepoProviderType = (typeof REPO_PROVIDERS)[keyof typeof REPO_PROVIDERS];
+export type RepoProviderType =
+  (typeof REPO_PROVIDERS)[keyof typeof REPO_PROVIDERS];
 
 export interface GitRepoSettings {
   provider: typeof REPO_PROVIDERS.git;
@@ -50,8 +51,8 @@ export interface LocalRepoSettings {
 export type RepoSettings = GitRepoSettings | S3RepoSettings | LocalRepoSettings;
 
 export enum AuthMethod {
-  PAT = 'pat',
-  SSH = 'ssh',
+  PAT = "pat",
+  SSH = "ssh",
 }
 
 export interface Profile {
@@ -84,7 +85,7 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   autoSaveIntervalSec: 30,
   s3AutoSyncEnabled: true,
   s3AutoSyncIntervalSec: 30,
-  theme: 'system',
+  theme: "system",
   editorPrefs: {
     fontSize: 14,
     lineNumbers: true,

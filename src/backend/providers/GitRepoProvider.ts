@@ -1,7 +1,7 @@
-import * as crypto from 'crypto';
-import * as path from 'path';
-import { GitAdapter } from '../adapters/GitAdapter';
-import { FsAdapter } from '../adapters/FsAdapter';
+import * as crypto from "crypto";
+import * as path from "path";
+import { GitAdapter } from "../adapters/GitAdapter";
+import { FsAdapter } from "../adapters/FsAdapter";
 import {
   RepoSettings,
   RepoStatus,
@@ -9,9 +9,9 @@ import {
   ApiErrorCode,
   GitRepoSettings,
   REPO_PROVIDERS,
-} from '../../shared/types';
-import { logger } from '../utils/logger';
-import type { RepoProvider } from './types';
+} from "../../shared/types";
+import { logger } from "../utils/logger";
+import type { RepoProvider } from "./types";
 
 export class GitRepoProvider implements RepoProvider {
   readonly type = REPO_PROVIDERS.git;
@@ -22,15 +22,15 @@ export class GitRepoProvider implements RepoProvider {
 
   constructor(
     private gitAdapter: GitAdapter,
-    private fsAdapter: FsAdapter
-  ) { }
+    private fsAdapter: FsAdapter,
+  ) {}
 
   configure(settings: RepoSettings): void {
     if (settings.provider !== REPO_PROVIDERS.git) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
-        'GitRepoProvider configured with non-git settings',
-        { provider: settings.provider }
+        "GitRepoProvider configured with non-git settings",
+        { provider: settings.provider },
       );
     }
 
@@ -42,8 +42,8 @@ export class GitRepoProvider implements RepoProvider {
     if (settings.provider !== REPO_PROVIDERS.git) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
-        'GitRepoProvider cannot open non-git repository',
-        { provider: settings.provider }
+        "GitRepoProvider cannot open non-git repository",
+        { provider: settings.provider },
       );
     }
 
@@ -53,45 +53,47 @@ export class GitRepoProvider implements RepoProvider {
     if (!localPath) {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
-        'Local path is required for Git repository',
-        null
+        "Local path is required for Git repository",
+        null,
       );
     }
 
     const exists = await this.fsAdapter.exists(localPath);
 
     if (!exists) {
-      logger.info('Git repo not found locally, cloning...', { localPath });
+      logger.info("Git repo not found locally, cloning...", { localPath });
 
       try {
         await this.gitAdapter.clone(
           settings.remoteUrl,
           localPath,
           settings.branch,
-          settings.pat
+          settings.pat,
         );
       } catch (cloneError: any) {
         if (
-          cloneError.message?.includes('Remote branch') &&
-          cloneError.message?.includes('not found')
+          cloneError.message?.includes("Remote branch") &&
+          cloneError.message?.includes("not found")
         ) {
-          logger.info('Empty repository detected, initializing locally...', { localPath });
+          logger.info("Empty repository detected, initializing locally...", {
+            localPath,
+          });
 
           await this.fsAdapter.mkdir(localPath, { recursive: true });
           await this.gitAdapter.init(localPath);
 
           const repoName = this.extractRepoName(settings.remoteUrl);
-          const readmePath = path.join(localPath, 'README.md');
+          const readmePath = path.join(localPath, "README.md");
           await this.fsAdapter.writeFile(
             readmePath,
-            `# ${repoName}\n\nThis repository was initialized by notegit.\n`
+            `# ${repoName}\n\nThis repository was initialized by notegit.\n`,
           );
 
           await this.gitAdapter.addRemote(settings.remoteUrl);
-          await this.gitAdapter.add('README.md');
-          await this.gitAdapter.commit('Initial commit from notegit');
+          await this.gitAdapter.add("README.md");
+          await this.gitAdapter.commit("Initial commit from notegit");
 
-          logger.info('Pushing initial commit to create remote branch...', {
+          logger.info("Pushing initial commit to create remote branch...", {
             branch: settings.branch,
           });
           await this.gitAdapter.push(settings.pat);
@@ -100,7 +102,7 @@ export class GitRepoProvider implements RepoProvider {
         }
       }
     } else {
-      logger.info('Git repo exists locally, opening...', { localPath });
+      logger.info("Git repo exists locally, opening...", { localPath });
       await this.gitAdapter.init(localPath);
     }
 
@@ -125,16 +127,16 @@ export class GitRepoProvider implements RepoProvider {
       needsPull: behind > 0,
     };
 
-    logger.debug('Git repository status', { status });
+    logger.debug("Git repository status", { status });
     return status;
   }
 
   async fetch(): Promise<RepoStatus> {
     await this.ensureRepoReady();
 
-    logger.info('Fetching from git remote');
+    logger.info("Fetching from git remote");
     await this.gitAdapter.fetch();
-    logger.info('Fetch completed successfully');
+    logger.info("Fetch completed successfully");
 
     return await this.getStatus();
   }
@@ -145,14 +147,14 @@ export class GitRepoProvider implements RepoProvider {
     if (!this.settings) {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
-        'Repository settings not found',
-        null
+        "Repository settings not found",
+        null,
       );
     }
 
-    logger.info('Pulling from git remote');
+    logger.info("Pulling from git remote");
     await this.gitAdapter.pull(this.settings.pat);
-    logger.info('Pull completed successfully');
+    logger.info("Pull completed successfully");
   }
 
   async push(): Promise<void> {
@@ -161,11 +163,11 @@ export class GitRepoProvider implements RepoProvider {
 
   startAutoSync(_intervalMs?: number): void {
     if (this.autoSyncTimer) {
-      logger.debug('Git auto-sync timer already running');
+      logger.debug("Git auto-sync timer already running");
       return;
     }
 
-    logger.info('Starting git auto-sync timer', {
+    logger.info("Starting git auto-sync timer", {
       intervalMs: this.AUTO_SYNC_INTERVAL,
     });
 
@@ -173,14 +175,14 @@ export class GitRepoProvider implements RepoProvider {
       try {
         await this.tryAutoPush();
       } catch (error) {
-        logger.debug('Git auto-sync attempt failed, will retry', { error });
+        logger.debug("Git auto-sync attempt failed, will retry", { error });
       }
     }, this.AUTO_SYNC_INTERVAL);
   }
 
   stopAutoSync(): void {
     if (this.autoSyncTimer) {
-      logger.info('Stopping git auto-sync timer');
+      logger.info("Stopping git auto-sync timer");
       clearInterval(this.autoSyncTimer);
       this.autoSyncTimer = null;
     }
@@ -192,42 +194,44 @@ export class GitRepoProvider implements RepoProvider {
     if (!this.settings) {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
-        'Repository settings not found',
-        null
+        "Repository settings not found",
+        null,
       );
     }
 
-    logger.info('Performing git pull-then-push sync');
+    logger.info("Performing git pull-then-push sync");
 
     await this.gitAdapter.fetch();
 
     const { ahead, behind } = await this.gitAdapter.getAheadBehind();
 
     if (behind > 0) {
-      logger.info('Remote has changes, pulling', { behind });
+      logger.info("Remote has changes, pulling", { behind });
       try {
         await this.gitAdapter.pull(this.settings.pat);
       } catch (error: any) {
         if (
           error.code === ApiErrorCode.GIT_CONFLICT ||
-          error.message?.includes('CONFLICT') ||
-          error.message?.includes('Automatic merge failed')
+          error.message?.includes("CONFLICT") ||
+          error.message?.includes("Automatic merge failed")
         ) {
-          logger.warn('Merge conflict detected, committing conflicted state');
+          logger.warn("Merge conflict detected, committing conflicted state");
 
-          await this.gitAdapter.add('.');
-          await this.gitAdapter.commit('Merge remote changes - conflicts present');
+          await this.gitAdapter.add(".");
+          await this.gitAdapter.commit(
+            "Merge remote changes - conflicts present",
+          );
 
-          logger.info('Conflicts committed with markers');
+          logger.info("Conflicts committed with markers");
         } else {
           throw error;
         }
       }
     }
 
-    logger.info('Pushing to remote', { ahead });
+    logger.info("Pushing to remote", { ahead });
     await this.gitAdapter.push(this.settings.pat);
-    logger.info('Push completed successfully');
+    logger.info("Push completed successfully");
   }
 
   private async tryAutoPush(): Promise<void> {
@@ -242,18 +246,18 @@ export class GitRepoProvider implements RepoProvider {
         return;
       }
 
-      logger.debug('Git auto-push: commits waiting', { ahead: status.ahead });
+      logger.debug("Git auto-push: commits waiting", { ahead: status.ahead });
 
       await this.gitAdapter.fetch();
 
-      logger.info('Git auto-push: syncing');
+      logger.info("Git auto-push: syncing");
       await this.performPullThenPush();
 
-      logger.info('Git auto-push: push successful', {
+      logger.info("Git auto-push: push successful", {
         commitsCount: status.ahead,
       });
     } catch (error) {
-      logger.debug('Git auto-push: offline or failed', { error });
+      logger.debug("Git auto-push: offline or failed", { error });
     }
   }
 
@@ -264,8 +268,8 @@ export class GitRepoProvider implements RepoProvider {
       } else {
         throw this.createError(
           ApiErrorCode.VALIDATION_ERROR,
-          'No repository configured',
-          null
+          "No repository configured",
+          null,
         );
       }
     }
@@ -279,10 +283,18 @@ export class GitRepoProvider implements RepoProvider {
       return match[1];
     }
 
-    return crypto.createHash('md5').update(remoteUrl).digest('hex').substring(0, 8);
+    return crypto
+      .createHash("md5")
+      .update(remoteUrl)
+      .digest("hex")
+      .substring(0, 8);
   }
 
-  private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
+  private createError(
+    code: ApiErrorCode,
+    message: string,
+    details?: any,
+  ): ApiError {
     return {
       code,
       message,

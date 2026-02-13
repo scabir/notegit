@@ -2,7 +2,7 @@
 
 Complete guide to using notegit - your Git-, S3-, or local-backed markdown note-taking application.
 
-**Version**: 2.5.2  
+**Version**: 2.6.6  
 **Last Updated**: February 5, 2026
 
 ---
@@ -72,6 +72,7 @@ For S3 repositories, see **Connecting to an S3 Bucket** below. For Local reposit
 - **Bucket versioning** enabled (required for history)
 
 Steps:
+
 1. Click **Connect to Repository**
 2. **Repository type**: S3
 3. Enter **Bucket**, **Region**, optional **Prefix**
@@ -86,6 +87,7 @@ Notes: **Prefix** scopes notes to a folder (e.g., `notes/`). Credentials are sto
 Local repositories are stored on your device only and do not sync.
 
 Steps:
+
 1. Click **Connect to Repository**
 2. **Repository type**: Local
 3. Enter a **Local Repository Name**
@@ -218,11 +220,13 @@ Git operations apply to Git repositories only.
 ### Data Location
 
 Your data is stored in:
+
 - **macOS**: `~/Library/Application Support/notegit/`
 - **Windows**: `%APPDATA%/notegit/`
 - **Linux**: `~/.config/notegit/`
 
 **Contains**:
+
 - `config/`: Settings files
 - `repos/`: Local repository clones
 - `logs/`: Application logs
@@ -237,16 +241,16 @@ Click the question mark icon to the right of the **Settings** button in the top 
 
 ### File tree shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl/Cmd + A` | Add a new file (placed in the current folder or root) |
-| `Ctrl/Cmd + D` | Create a new folder inside the selected directory |
-| `Delete` / `Cmd + Delete` (mac) | Remove the selected file or folder |
-| `Ctrl/Cmd + I` | Import a file into the selected folder |
-| `Ctrl/Cmd + R` / `F2` | Rename the selected file or folder |
-| `Ctrl/Cmd + M` | Move the selected item to another folder via the picker |
-| `Ctrl/Cmd + Shift + U` | Duplicate the selected file in place |
-| `Ctrl/Cmd + Shift + S` | Toggle favorite on the selected item and surface it in the favorites bar |
+| Shortcut                        | Action                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------ |
+| `Ctrl/Cmd + A`                  | Add a new file (placed in the current folder or root)                    |
+| `Ctrl/Cmd + D`                  | Create a new folder inside the selected directory                        |
+| `Delete` / `Cmd + Delete` (mac) | Remove the selected file or folder                                       |
+| `Ctrl/Cmd + I`                  | Import a file into the selected folder                                   |
+| `Ctrl/Cmd + R` / `F2`           | Rename the selected file or folder                                       |
+| `Ctrl/Cmd + M`                  | Move the selected item to another folder via the picker                  |
+| `Ctrl/Cmd + Shift + U`          | Duplicate the selected file in place                                     |
+| `Ctrl/Cmd + Shift + S`          | Toggle favorite on the selected item and surface it in the favorites bar |
 
 Right-click any file or folder in the tree to open a context menu that mirrors the toolbar actions (rename, move, favorite/unfavorite, delete) along with their icons; if nothing is selected, right-clicking the empty tree background still shows New File, New Folder, and Import options (also with icons).
 
@@ -254,33 +258,33 @@ Clicking empty space in the tree clears the selection so you can start a new act
 
 ### Markdown editor shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl/Cmd + B` | Bold |
-| `Ctrl/Cmd + T` | Italic |
-| `Ctrl/Cmd + H` | Heading (`## `) |
-| ``Ctrl/Cmd + ` `` | Wrap the selection in inline code |
+| Shortcut                     | Action                                              |
+| ---------------------------- | --------------------------------------------------- |
+| `Ctrl/Cmd + B`               | Bold                                                |
+| `Ctrl/Cmd + T`               | Italic                                              |
+| `Ctrl/Cmd + H`               | Heading (`## `)                                     |
+| ``Ctrl/Cmd + ` ``            | Wrap the selection in inline code                   |
 | `Ctrl/Cmd + Shift + {` / `}` | Surround text with triple backticks for code blocks |
-| `Ctrl/Cmd + L` | Insert a link template |
-| `Ctrl/Cmd + Shift + T` | Insert a markdown table skeleton |
-| `Ctrl/Cmd + Shift + F` | Insert a numbered footnote marker plus definition |
-| `Ctrl/Cmd + Shift + L` | Toggle a task list for the selection |
-| `Ctrl/Cmd + Shift + H` | Highlight text with `==` markers |
-| `Ctrl/Cmd + Shift + D` | Insert a definition list pair |
-| `Ctrl/Cmd + Shift + M` | Insert a Mermaid diagram block |
+| `Ctrl/Cmd + L`               | Insert a link template                              |
+| `Ctrl/Cmd + Shift + T`       | Insert a markdown table skeleton                    |
+| `Ctrl/Cmd + Shift + F`       | Insert a numbered footnote marker plus definition   |
+| `Ctrl/Cmd + Shift + L`       | Toggle a task list for the selection                |
+| `Ctrl/Cmd + Shift + H`       | Highlight text with `==` markers                    |
+| `Ctrl/Cmd + Shift + D`       | Insert a definition list pair                       |
+| `Ctrl/Cmd + Shift + M`       | Insert a Mermaid diagram block                      |
 
 ### Global shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl/Cmd + S` | Save the current note |
-| `Ctrl/Cmd + P` | Open quick file search |
-| `Ctrl/Cmd + K` | Alternate quick search key |
-| `Ctrl/Cmd + F` | Find inside the current file |
-| `Ctrl/Cmd + Shift + F` | Search across the repository |
-| `Ctrl/Cmd + ,` | Open settings |
-| `Ctrl/Cmd + Q` | Quit the application |
-| `F1` | Show or hide the shortcut helper |
+| Shortcut               | Action                           |
+| ---------------------- | -------------------------------- |
+| `Ctrl/Cmd + S`         | Save the current note            |
+| `Ctrl/Cmd + P`         | Open quick file search           |
+| `Ctrl/Cmd + K`         | Alternate quick search key       |
+| `Ctrl/Cmd + F`         | Find inside the current file     |
+| `Ctrl/Cmd + Shift + F` | Search across the repository     |
+| `Ctrl/Cmd + ,`         | Open settings                    |
+| `Ctrl/Cmd + Q`         | Quit the application             |
+| `F1`                   | Show or hide the shortcut helper |
 
 ### Favorites bar
 
@@ -290,22 +294,21 @@ Clicking empty space in the tree clears the selection so you can start a new act
 
 ### Find & replace shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Enter` | Highlight the next match |
+| Shortcut      | Action                       |
+| ------------- | ---------------------------- |
+| `Enter`       | Highlight the next match     |
 | `Shift+Enter` | Highlight the previous match |
-| `Esc` | Close the find bar |
+| `Esc`         | Close the find bar           |
 
 ### Tree navigation
 
-| Shortcut | Action |
-|----------|--------|
-| `↑` / `↓` | Move through the tree view |
-| `Enter` | Open the selected file |
-| `Delete` | Prompt to delete the selected item |
+| Shortcut  | Action                             |
+| --------- | ---------------------------------- |
+| `↑` / `↓` | Move through the tree view         |
+| `Enter`   | Open the selected file             |
+| `Delete`  | Prompt to delete the selected item |
 
 ---
-
 
 ## Troubleshooting
 
@@ -344,7 +347,7 @@ Open an issue at [GitHub Issues](https://github.com/scabir/notegit/issues) with 
 
 ## About notegit
 
-**Version**: 2.5.2  
+**Version**: 2.6.6  
 **Author**: Suleyman Cabir Ataman, PhD  
 **GitHub**: [github.com/scabir/notegit](https://github.com/scabir/notegit)  
 **License**: MIT
@@ -352,6 +355,7 @@ Open an issue at [GitHub Issues](https://github.com/scabir/notegit/issues) with 
 ### Credits
 
 Built with:
+
 - Electron - Desktop framework
 - React - UI library
 - TypeScript - Type safety

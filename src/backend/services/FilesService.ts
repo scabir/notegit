@@ -1,7 +1,7 @@
-import * as path from 'path';
-import { FsAdapter } from '../adapters/FsAdapter';
-import { ConfigService } from './ConfigService';
-import type { GitAdapter } from '../adapters/GitAdapter';
+import * as path from "path";
+import { FsAdapter } from "../adapters/FsAdapter";
+import { ConfigService } from "./ConfigService";
+import type { GitAdapter } from "../adapters/GitAdapter";
 import {
   FileTreeNode,
   FileContent,
@@ -10,8 +10,8 @@ import {
   ApiErrorCode,
   RepoProviderType,
   REPO_PROVIDERS,
-} from '../../shared/types';
-import { logger } from '../utils/logger';
+} from "../../shared/types";
+import { logger } from "../utils/logger";
 
 export class FilesService {
   private repoPath: string | null = null;
@@ -20,8 +20,8 @@ export class FilesService {
 
   constructor(
     private fsAdapter: FsAdapter,
-    private configService: ConfigService
-  ) { }
+    private configService: ConfigService,
+  ) {}
 
   setGitAdapter(gitAdapter: GitAdapter): void {
     this.gitAdapter = gitAdapter;
@@ -32,21 +32,21 @@ export class FilesService {
     if (repoSettings?.localPath) {
       this.repoPath = repoSettings.localPath;
       this.repoProvider = repoSettings.provider || null;
-      logger.debug('FilesService initialized', { repoPath: this.repoPath });
+      logger.debug("FilesService initialized", { repoPath: this.repoPath });
     }
   }
 
   async listTree(): Promise<FileTreeNode[]> {
     await this.ensureRepoPath();
 
-    logger.info('Building file tree', { repoPath: this.repoPath });
+    logger.info("Building file tree", { repoPath: this.repoPath });
 
     try {
       const tree = await this.buildTree(this.repoPath!);
-      logger.debug('File tree built', { nodeCount: this.countNodes(tree) });
+      logger.debug("File tree built", { nodeCount: this.countNodes(tree) });
       return tree;
     } catch (error: any) {
-      logger.error('Failed to build file tree', { error });
+      logger.error("Failed to build file tree", { error });
       throw error;
     }
   }
@@ -69,7 +69,7 @@ export class FilesService {
         lastModified: stats.mtime,
       };
     } catch (error: any) {
-      logger.error('Failed to read file', { filePath, error });
+      logger.error("Failed to read file", { filePath, error });
       throw error;
     }
   }
@@ -81,9 +81,9 @@ export class FilesService {
 
     try {
       await this.fsAdapter.writeFile(fullPath, content);
-      logger.info('File saved', { filePath });
+      logger.info("File saved", { filePath });
     } catch (error: any) {
-      logger.error('Failed to save file', { filePath, error });
+      logger.error("Failed to save file", { filePath, error });
       throw error;
     }
   }
@@ -95,8 +95,8 @@ export class FilesService {
     if (!this.gitAdapter) {
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
-        'GitAdapter not initialized',
-        null
+        "GitAdapter not initialized",
+        null,
       );
     }
 
@@ -107,9 +107,9 @@ export class FilesService {
 
       await this.gitAdapter.commit(message);
 
-      logger.info('File committed', { filePath, message });
+      logger.info("File committed", { filePath, message });
     } catch (error: any) {
-      logger.error('Failed to commit file', { filePath, error });
+      logger.error("Failed to commit file", { filePath, error });
       throw error;
     }
   }
@@ -121,34 +121,38 @@ export class FilesService {
     if (!this.gitAdapter) {
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
-        'GitAdapter not initialized',
-        null
+        "GitAdapter not initialized",
+        null,
       );
     }
 
     try {
       await this.gitAdapter.init(this.repoPath!);
 
-      await this.gitAdapter.add('.');
+      await this.gitAdapter.add(".");
 
       await this.gitAdapter.commit(message);
 
-      logger.info('All changes committed', { message });
+      logger.info("All changes committed", { message });
     } catch (error: any) {
-      logger.error('Failed to commit all changes', { error });
+      logger.error("Failed to commit all changes", { error });
       throw error;
     }
   }
 
-  async getGitStatus(): Promise<{ modified: string[]; added: string[]; deleted: string[] }> {
+  async getGitStatus(): Promise<{
+    modified: string[];
+    added: string[];
+    deleted: string[];
+  }> {
     await this.ensureRepoPath();
     await this.ensureGitRepo();
 
     if (!this.gitAdapter) {
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
-        'GitAdapter not initialized',
-        null
+        "GitAdapter not initialized",
+        null,
       );
     }
 
@@ -163,7 +167,7 @@ export class FilesService {
         deleted: status.deleted || [],
       };
     } catch (error: any) {
-      logger.error('Failed to get git status', { error });
+      logger.error("Failed to get git status", { error });
       throw error;
     }
   }
@@ -171,16 +175,20 @@ export class FilesService {
   async saveWithGitWorkflow(
     filePath: string,
     content: string,
-    isAutosave: boolean = false
-  ): Promise<{ pullFailed?: boolean; pushFailed?: boolean; conflictDetected?: boolean }> {
+    isAutosave: boolean = false,
+  ): Promise<{
+    pullFailed?: boolean;
+    pushFailed?: boolean;
+    conflictDetected?: boolean;
+  }> {
     await this.ensureRepoPath();
     await this.ensureGitRepo();
 
     if (!this.gitAdapter) {
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
-        'GitAdapter not initialized',
-        null
+        "GitAdapter not initialized",
+        null,
       );
     }
 
@@ -189,48 +197,58 @@ export class FilesService {
       ? `Autosave: ${fileName}`
       : `Update note: ${fileName}`;
 
-    const result: { pullFailed?: boolean; pushFailed?: boolean; conflictDetected?: boolean } = {};
+    const result: {
+      pullFailed?: boolean;
+      pushFailed?: boolean;
+      conflictDetected?: boolean;
+    } = {};
 
     try {
       await this.saveFile(filePath, content);
-      logger.debug('File saved to disk', { filePath });
+      logger.debug("File saved to disk", { filePath });
 
       await this.gitAdapter.init(this.repoPath!);
 
       try {
         await this.gitAdapter.add(filePath);
         await this.gitAdapter.commit(commitMessage);
-        logger.info('File committed', { filePath, message: commitMessage });
+        logger.info("File committed", { filePath, message: commitMessage });
       } catch (commitError: any) {
-        logger.warn('Commit failed or nothing to commit', { filePath, error: commitError });
+        logger.warn("Commit failed or nothing to commit", {
+          filePath,
+          error: commitError,
+        });
       }
 
       try {
         await this.gitAdapter.pull();
-        logger.info('Pull successful', { filePath });
+        logger.info("Pull successful", { filePath });
       } catch (pullError: any) {
-        logger.error('Pull failed', { error: pullError });
+        logger.error("Pull failed", { error: pullError });
         result.pullFailed = true;
 
-        if (pullError.message && pullError.message.toLowerCase().includes('conflict')) {
+        if (
+          pullError.message &&
+          pullError.message.toLowerCase().includes("conflict")
+        ) {
           result.conflictDetected = true;
-          logger.warn('Conflict detected during pull', { filePath });
+          logger.warn("Conflict detected during pull", { filePath });
         }
       }
 
       if (!result.conflictDetected) {
         try {
           await this.gitAdapter.push();
-          logger.info('Push successful', { filePath });
+          logger.info("Push successful", { filePath });
         } catch (pushError: any) {
-          logger.error('Push failed', { error: pushError });
+          logger.error("Push failed", { error: pushError });
           result.pushFailed = true;
         }
       }
 
       return result;
     } catch (error: any) {
-      logger.error('Save with Git workflow failed', { filePath, error });
+      logger.error("Save with Git workflow failed", { filePath, error });
       throw error;
     }
   }
@@ -243,15 +261,15 @@ export class FilesService {
     const fullPath = path.join(this.repoPath!, filePath);
 
     try {
-      let content = '';
-      if (fileName.endsWith('.md')) {
-        content = `# ${fileName.replace('.md', '')}\n\n`;
+      let content = "";
+      if (fileName.endsWith(".md")) {
+        content = `# ${fileName.replace(".md", "")}\n\n`;
       }
 
       await this.fsAdapter.writeFile(fullPath, content);
-      logger.info('File created', { filePath });
+      logger.info("File created", { filePath });
     } catch (error: any) {
-      logger.error('Failed to create file', { filePath, error });
+      logger.error("Failed to create file", { filePath, error });
       throw error;
     }
   }
@@ -260,14 +278,16 @@ export class FilesService {
     await this.ensureRepoPath();
 
     const folderName = this.normalizeNameForProvider(name);
-    const folderPath = parentPath ? path.join(parentPath, folderName) : folderName;
+    const folderPath = parentPath
+      ? path.join(parentPath, folderName)
+      : folderName;
     const fullPath = path.join(this.repoPath!, folderPath);
 
     try {
       await this.fsAdapter.mkdir(fullPath, { recursive: false });
-      logger.info('Folder created', { folderPath });
+      logger.info("Folder created", { folderPath });
     } catch (error: any) {
-      logger.error('Failed to create folder', { folderPath, error });
+      logger.error("Failed to create folder", { folderPath, error });
       throw error;
     }
   }
@@ -286,9 +306,9 @@ export class FilesService {
         await this.fsAdapter.deleteFile(fullPath);
       }
 
-      logger.info('Path deleted', { filePath });
+      logger.info("Path deleted", { filePath });
     } catch (error: any) {
-      logger.error('Failed to delete path', { filePath, error });
+      logger.error("Failed to delete path", { filePath, error });
       throw error;
     }
   }
@@ -302,9 +322,13 @@ export class FilesService {
 
     try {
       await this.fsAdapter.rename(fullOldPath, fullNewPath);
-      logger.info('Path renamed', { oldPath, newPath: normalizedNewPath });
+      logger.info("Path renamed", { oldPath, newPath: normalizedNewPath });
     } catch (error: any) {
-      logger.error('Failed to rename path', { oldPath, newPath: normalizedNewPath, error });
+      logger.error("Failed to rename path", {
+        oldPath,
+        newPath: normalizedNewPath,
+        error,
+      });
       throw error;
     }
   }
@@ -316,9 +340,9 @@ export class FilesService {
 
     try {
       await this.fsAdapter.copyFile(fullRepoPath, destPath);
-      logger.info('File saved as', { repoPath, destPath });
+      logger.info("File saved as", { repoPath, destPath });
     } catch (error: any) {
-      logger.error('Failed to save file as', { repoPath, destPath, error });
+      logger.error("Failed to save file as", { repoPath, destPath, error });
       throw error;
     }
   }
@@ -331,7 +355,10 @@ export class FilesService {
 
     const stats = await this.fsAdapter.stat(fullRepoPath);
     if (!stats.isFile()) {
-      throw this.createError(ApiErrorCode.UNKNOWN_ERROR, 'Only files can be duplicated');
+      throw this.createError(
+        ApiErrorCode.UNKNOWN_ERROR,
+        "Only files can be duplicated",
+      );
     }
 
     const { dir, name, ext } = path.parse(normalizedPath);
@@ -346,7 +373,10 @@ export class FilesService {
     }
 
     await this.fsAdapter.copyFile(fullRepoPath, fullNewPath);
-    logger.info('File duplicated', { source: normalizedPath, target: newRelativePath });
+    logger.info("File duplicated", {
+      source: normalizedPath,
+      target: newRelativePath,
+    });
 
     return newRelativePath;
   }
@@ -362,25 +392,36 @@ export class FilesService {
       await this.fsAdapter.mkdir(parentDir, { recursive: true });
 
       await this.fsAdapter.copyFile(sourcePath, fullTargetPath);
-      logger.info('File imported', { sourcePath, targetPath: normalizedTargetPath });
+      logger.info("File imported", {
+        sourcePath,
+        targetPath: normalizedTargetPath,
+      });
     } catch (error: any) {
-      logger.error('Failed to import file', { sourcePath, targetPath: normalizedTargetPath, error });
+      logger.error("Failed to import file", {
+        sourcePath,
+        targetPath: normalizedTargetPath,
+        error,
+      });
       throw error;
     }
   }
 
-
-  private async buildTree(dirPath: string, relativePath: string = ''): Promise<FileTreeNode[]> {
+  private async buildTree(
+    dirPath: string,
+    relativePath: string = "",
+  ): Promise<FileTreeNode[]> {
     const entries = await this.fsAdapter.readdir(dirPath);
     const nodes: FileTreeNode[] = [];
 
     for (const entry of entries) {
-      if (entry.startsWith('.')) {
+      if (entry.startsWith(".")) {
         continue;
       }
 
       const fullPath = path.join(dirPath, entry);
-      const entryRelativePath = relativePath ? path.join(relativePath, entry) : entry;
+      const entryRelativePath = relativePath
+        ? path.join(relativePath, entry)
+        : entry;
 
       try {
         const stats = await this.fsAdapter.stat(fullPath);
@@ -392,7 +433,7 @@ export class FilesService {
             id: entryRelativePath,
             name: entry,
             path: entryRelativePath,
-            type: 'folder',
+            type: "folder",
             children,
             isExpanded: false,
           });
@@ -403,18 +444,18 @@ export class FilesService {
             id: entryRelativePath,
             name: entry,
             path: entryRelativePath,
-            type: 'file',
+            type: "file",
             fileType,
           });
         }
       } catch (error) {
-        logger.warn('Skipping inaccessible file/folder', { entry, error });
+        logger.warn("Skipping inaccessible file/folder", { entry, error });
       }
     }
 
     nodes.sort((a, b) => {
       if (a.type !== b.type) {
-        return a.type === 'folder' ? -1 : 1;
+        return a.type === "folder" ? -1 : 1;
       }
       return a.name.localeCompare(b.name);
     });
@@ -425,49 +466,62 @@ export class FilesService {
   getFileType(filename: string): FileType {
     const ext = path.extname(filename).toLowerCase();
 
-    if (ext === '.md' || ext === '.markdown') {
+    if (ext === ".md" || ext === ".markdown") {
       return FileType.MARKDOWN;
     }
 
-    if (['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp'].includes(ext)) {
+    if (
+      [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp"].includes(ext)
+    ) {
       return FileType.IMAGE;
     }
 
-    if (ext === '.pdf') {
+    if (ext === ".pdf") {
       return FileType.PDF;
     }
 
-    if (ext === '.json') {
+    if (ext === ".json") {
       return FileType.JSON;
     }
 
     if (
       [
-        '.js',
-        '.ts',
-        '.jsx',
-        '.tsx',
-        '.py',
-        '.java',
-        '.c',
-        '.cpp',
-        '.h',
-        '.cs',
-        '.go',
-        '.rs',
-        '.rb',
-        '.php',
-        '.swift',
-        '.kt',
-        '.scala',
-        '.sh',
-        '.bash',
+        ".js",
+        ".ts",
+        ".jsx",
+        ".tsx",
+        ".py",
+        ".java",
+        ".c",
+        ".cpp",
+        ".h",
+        ".cs",
+        ".go",
+        ".rs",
+        ".rb",
+        ".php",
+        ".swift",
+        ".kt",
+        ".scala",
+        ".sh",
+        ".bash",
       ].includes(ext)
     ) {
       return FileType.CODE;
     }
 
-    if (['.txt', '.log', '.csv', '.xml', '.yml', '.yaml', '.toml', '.ini'].includes(ext)) {
+    if (
+      [
+        ".txt",
+        ".log",
+        ".csv",
+        ".xml",
+        ".yml",
+        ".yaml",
+        ".toml",
+        ".ini",
+      ].includes(ext)
+    ) {
       return FileType.TEXT;
     }
 
@@ -492,19 +546,22 @@ export class FilesService {
     if (!this.repoPath) {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
-        'No repository configured',
-        null
+        "No repository configured",
+        null,
       );
     }
   }
 
   private async ensureGitRepo(): Promise<void> {
     const repoSettings = await this.configService.getRepoSettings();
-    if (repoSettings?.provider && repoSettings.provider !== REPO_PROVIDERS.git) {
+    if (
+      repoSettings?.provider &&
+      repoSettings.provider !== REPO_PROVIDERS.git
+    ) {
       throw this.createError(
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
-        'Git operations are only available for Git repositories',
-        { provider: repoSettings.provider }
+        "Git operations are only available for Git repositories",
+        { provider: repoSettings.provider },
       );
     }
   }
@@ -513,14 +570,14 @@ export class FilesService {
     if (this.repoProvider !== REPO_PROVIDERS.s3) {
       return name;
     }
-    return name.replace(/ /g, '-');
+    return name.replace(/ /g, "-");
   }
 
   private normalizeNewPathForProvider(newPath: string): string {
     if (this.repoProvider !== REPO_PROVIDERS.s3) {
       return newPath;
     }
-    const lastSlash = newPath.lastIndexOf('/');
+    const lastSlash = newPath.lastIndexOf("/");
     if (lastSlash === -1) {
       return this.normalizeNameForProvider(newPath);
     }
@@ -530,7 +587,11 @@ export class FilesService {
     return parentPath ? `${parentPath}/${normalizedName}` : normalizedName;
   }
 
-  private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
+  private createError(
+    code: ApiErrorCode,
+    message: string,
+    details?: any,
+  ): ApiError {
     return {
       code,
       message,

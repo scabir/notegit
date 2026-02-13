@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
-import type { MouseEvent as ReactMouseEvent } from 'react';
+import { useCallback, useRef, useState } from "react";
+import type { MouseEvent as ReactMouseEvent } from "react";
 
 const MIN_WIDTH = 20;
 const MAX_WIDTH = 80;
@@ -15,11 +15,12 @@ export function useSplitPane(initialWidth = 50) {
     const handleMouseMove = (moveEvent: MouseEvent) => {
       if (!isDraggingRef.current) return;
 
-      const container = document.getElementById('editor-container');
+      const container = document.getElementById("editor-container");
       if (!container) return;
 
       const containerRect = container.getBoundingClientRect();
-      const newWidth = ((moveEvent.clientX - containerRect.left) / containerRect.width) * 100;
+      const newWidth =
+        ((moveEvent.clientX - containerRect.left) / containerRect.width) * 100;
 
       if (newWidth >= MIN_WIDTH && newWidth <= MAX_WIDTH) {
         setEditorWidth(newWidth);
@@ -28,12 +29,12 @@ export function useSplitPane(initialWidth = 50) {
 
     const handleMouseUp = () => {
       isDraggingRef.current = false;
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
   }, []);
 
   return {

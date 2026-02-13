@@ -1,11 +1,15 @@
-import React from 'react';
-import { Tooltip, IconButton } from '@mui/material';
-import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
-import { STATUS_BAR_PUSH_ACTION } from './constants';
-import { iconButtonSx } from './styles';
-import type { StatusBarPushActionProps } from './types';
+import React from "react";
+import { Tooltip, IconButton } from "@mui/material";
+import { CloudUpload as CloudUploadIcon } from "@mui/icons-material";
+import { STATUS_BAR_PUSH_ACTION } from "./constants";
+import { iconButtonSx } from "./styles";
+import type { StatusBarPushActionProps } from "./types";
 
-export function StatusBarPushAction({ onPush, tooltip, disabled }: StatusBarPushActionProps) {
+export function StatusBarPushAction({
+  onPush,
+  tooltip,
+  disabled,
+}: StatusBarPushActionProps) {
   return (
     <Tooltip title={tooltip}>
       <IconButton

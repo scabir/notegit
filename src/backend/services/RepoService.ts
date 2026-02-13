@@ -1,9 +1,9 @@
-import * as path from 'path';
-import { FsAdapter } from '../adapters/FsAdapter';
-import { ConfigService } from './ConfigService';
-import type { FilesService } from './FilesService';
-import type { RepoProvider } from '../providers/types';
-import type { S3RepoProvider } from '../providers/S3RepoProvider';
+import * as path from "path";
+import { FsAdapter } from "../adapters/FsAdapter";
+import { ConfigService } from "./ConfigService";
+import type { FilesService } from "./FilesService";
+import type { RepoProvider } from "../providers/types";
+import type { S3RepoProvider } from "../providers/S3RepoProvider";
 import {
   RepoProviderType,
   RepoSettings,
@@ -17,16 +17,16 @@ import {
   S3RepoSettings,
   LocalRepoSettings,
   REPO_PROVIDERS,
-} from '../../shared/types';
-import { logger } from '../utils/logger';
+} from "../../shared/types";
+import { logger } from "../utils/logger";
 import {
   slugifyProfileName,
   getDefaultReposBaseDir,
   extractRepoNameFromUrl,
   findUniqueFolderName,
-} from '../utils/profileHelpers';
+} from "../utils/profileHelpers";
 
-const DEFAULT_LOCAL_REPO_NAME = 'local-repo';
+const DEFAULT_LOCAL_REPO_NAME = "local-repo";
 
 interface OpenRepoOptions {
   updateConfig?: boolean;
@@ -42,8 +42,8 @@ export class RepoService {
   constructor(
     private providers: Record<RepoProviderType, RepoProvider>,
     private fsAdapter: FsAdapter,
-    private configService: ConfigService
-  ) { }
+    private configService: ConfigService,
+  ) {}
 
   setFilesService(filesService: FilesService): void {
     this.filesService = filesService;
@@ -81,7 +81,9 @@ export class RepoService {
         try {
           await previousProvider.getStatus();
         } catch (error) {
-          logger.warn('Failed to restore previous repository after prepare', { error });
+          logger.warn("Failed to restore previous repository after prepare", {
+            error,
+          });
         }
 
         if (shouldRestartAutoSync) {
@@ -122,7 +124,7 @@ export class RepoService {
 
     void this.ensureActiveProvider()
       .then((provider) => this.applyAutoSyncSettings(provider))
-      .catch((error) => logger.warn('Failed to start auto-sync', { error }));
+      .catch((error) => logger.warn("Failed to start auto-sync", { error }));
   }
 
   stopAutoPush(): void {
@@ -138,9 +140,9 @@ export class RepoService {
 
   private async openRepo(
     settings: RepoSettings,
-    options: OpenRepoOptions
+    options: OpenRepoOptions,
   ): Promise<OpenOrCloneRepoResponse> {
-    logger.info('Opening repository', {
+    logger.info("Opening repository", {
       provider: settings.provider,
     });
 
@@ -186,8 +188,8 @@ export class RepoService {
     if (!repoSettings) {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
-        'No repository configured',
-        null
+        "No repository configured",
+        null,
       );
     }
 
@@ -206,7 +208,7 @@ export class RepoService {
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
         `Unsupported repository provider: ${providerType}`,
-        null
+        null,
       );
     }
     return provider;
@@ -217,13 +219,13 @@ export class RepoService {
       const s3Settings = settings as S3RepoSettings;
       return {
         provider: REPO_PROVIDERS.s3,
-        bucket: s3Settings.bucket || '',
-        region: s3Settings.region || '',
-        prefix: s3Settings.prefix || '',
-        localPath: s3Settings.localPath || '',
-        accessKeyId: s3Settings.accessKeyId || '',
-        secretAccessKey: s3Settings.secretAccessKey || '',
-        sessionToken: s3Settings.sessionToken || '',
+        bucket: s3Settings.bucket || "",
+        region: s3Settings.region || "",
+        prefix: s3Settings.prefix || "",
+        localPath: s3Settings.localPath || "",
+        accessKeyId: s3Settings.accessKeyId || "",
+        secretAccessKey: s3Settings.secretAccessKey || "",
+        sessionToken: s3Settings.sessionToken || "",
       };
     }
 
@@ -231,17 +233,17 @@ export class RepoService {
       const localSettings = settings as LocalRepoSettings;
       return {
         provider: REPO_PROVIDERS.local,
-        localPath: localSettings.localPath || '',
+        localPath: localSettings.localPath || "",
       };
     }
 
     const gitSettings = settings as GitRepoSettings;
     return {
       provider: REPO_PROVIDERS.git,
-      remoteUrl: gitSettings.remoteUrl || '',
-      branch: gitSettings.branch || 'main',
-      localPath: gitSettings.localPath || '',
-      pat: gitSettings.pat || '',
+      remoteUrl: gitSettings.remoteUrl || "",
+      branch: gitSettings.branch || "main",
+      localPath: gitSettings.localPath || "",
+      pat: gitSettings.pat || "",
       authMethod: gitSettings.authMethod || AuthMethod.PAT,
     };
   }
@@ -253,8 +255,14 @@ export class RepoService {
     if (settings.provider === REPO_PROVIDERS.local) {
       const localSettings = settings as LocalRepoSettings;
       const rawName = localSettings.localPath?.trim();
-      const baseName = rawName ? slugifyProfileName(rawName) : DEFAULT_LOCAL_REPO_NAME;
-      const folderName = await findUniqueFolderName(baseDir, baseName, this.fsAdapter);
+      const baseName = rawName
+        ? slugifyProfileName(rawName)
+        : DEFAULT_LOCAL_REPO_NAME;
+      const folderName = await findUniqueFolderName(
+        baseDir,
+        baseName,
+        this.fsAdapter,
+      );
       return {
         ...settings,
         localPath: path.join(baseDir, folderName),
@@ -267,7 +275,11 @@ export class RepoService {
 
     if (settings.provider === REPO_PROVIDERS.git) {
       const repoName = extractRepoNameFromUrl(settings.remoteUrl);
-      const folderName = await findUniqueFolderName(baseDir, repoName, this.fsAdapter);
+      const folderName = await findUniqueFolderName(
+        baseDir,
+        repoName,
+        this.fsAdapter,
+      );
       return {
         ...settings,
         localPath: path.join(baseDir, folderName),
@@ -276,10 +288,14 @@ export class RepoService {
 
     const s3Settings = settings as S3RepoSettings;
     const suffix = s3Settings.prefix
-      ? `${s3Settings.bucket}-${s3Settings.prefix.replace(/\//g, '-')}`
+      ? `${s3Settings.bucket}-${s3Settings.prefix.replace(/\//g, "-")}`
       : s3Settings.bucket;
     const baseName = `${slugifyProfileName(suffix)}-s3`;
-    const folderName = await findUniqueFolderName(baseDir, baseName, this.fsAdapter);
+    const folderName = await findUniqueFolderName(
+      baseDir,
+      baseName,
+      this.fsAdapter,
+    );
 
     return {
       ...settings,
@@ -287,7 +303,11 @@ export class RepoService {
     };
   }
 
-  private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
+  private createError(
+    code: ApiErrorCode,
+    message: string,
+    details?: any,
+  ): ApiError {
     return {
       code,
       message,
@@ -339,13 +359,13 @@ export class RepoService {
   }
 
   private normalizeS3Path(newPath: string): string {
-    const lastSlash = newPath.lastIndexOf('/');
+    const lastSlash = newPath.lastIndexOf("/");
     if (lastSlash === -1) {
-      return newPath.replace(/ /g, '-');
+      return newPath.replace(/ /g, "-");
     }
 
     const parentPath = newPath.slice(0, lastSlash);
-    const name = newPath.slice(lastSlash + 1).replace(/ /g, '-');
+    const name = newPath.slice(lastSlash + 1).replace(/ /g, "-");
     return parentPath ? `${parentPath}/${name}` : name;
   }
 

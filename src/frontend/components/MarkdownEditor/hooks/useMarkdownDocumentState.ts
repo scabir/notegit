@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import type { AppSettings, FileContent } from '../../../../shared/types';
+import { useCallback, useEffect, useState } from "react";
+import type { AppSettings, FileContent } from "../../../../shared/types";
 
 type UseMarkdownDocumentStateParams = {
   file: FileContent | null;
@@ -12,8 +12,8 @@ export function useMarkdownDocumentState({
   onSave,
   onChange,
 }: UseMarkdownDocumentStateParams) {
-  const [content, setContent] = useState('');
-  const [savedContent, setSavedContent] = useState('');
+  const [content, setContent] = useState("");
+  const [savedContent, setSavedContent] = useState("");
   const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
 
   useEffect(() => {
@@ -48,16 +48,22 @@ export function useMarkdownDocumentState({
     if (!file) return;
 
     try {
-      const response = await window.notegitApi.export.note(file.path, content, 'md');
+      const response = await window.notegitApi.export.note(
+        file.path,
+        content,
+        "md",
+      );
       if (response.ok && response.data) {
-        console.log('Note exported to:', response.data);
-      } else if (response.error?.message !== 'Export cancelled') {
-        console.error('Failed to export note:', response.error);
-        alert(`Failed to export: ${response.error?.message || 'Unknown error'}`);
+        console.log("Note exported to:", response.data);
+      } else if (response.error?.message !== "Export cancelled") {
+        console.error("Failed to export note:", response.error);
+        alert(
+          `Failed to export: ${response.error?.message || "Unknown error"}`,
+        );
       }
     } catch (error) {
-      console.error('Export error:', error);
-      alert('Failed to export note');
+      console.error("Export error:", error);
+      alert("Failed to export note");
     }
   }, [content, file]);
 

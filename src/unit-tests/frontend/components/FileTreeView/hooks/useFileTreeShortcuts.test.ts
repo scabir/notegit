@@ -1,13 +1,13 @@
-import React from 'react';
-import TestRenderer, { act } from 'react-test-renderer';
-import { useFileTreeShortcuts } from '../../../../../frontend/components/FileTreeView/hooks/useFileTreeShortcuts';
+import React from "react";
+import TestRenderer, { act } from "react-test-renderer";
+import { useFileTreeShortcuts } from "../../../../../frontend/components/FileTreeView/hooks/useFileTreeShortcuts";
 
 const HookHarness = ({ containerRef, handlers }: any) => {
   useFileTreeShortcuts(containerRef, handlers);
   return null;
 };
 
-describe('useFileTreeShortcuts', () => {
+describe("useFileTreeShortcuts", () => {
   const setup = () => {
     const handlers = {
       openFileDialog: jest.fn(),
@@ -37,20 +37,20 @@ describe('useFileTreeShortcuts', () => {
 
     act(() => {
       TestRenderer.create(
-        React.createElement(HookHarness, { containerRef, handlers })
+        React.createElement(HookHarness, { containerRef, handlers }),
       );
     });
 
     return { handlers, listeners, container, child, outside };
   };
 
-  it('ignores default prevented events', () => {
+  it("ignores default prevented events", () => {
     const { handlers, listeners, child } = setup();
 
     listeners.keydown({
       defaultPrevented: true,
       target: child,
-      key: 'a',
+      key: "a",
       ctrlKey: true,
       metaKey: false,
       shiftKey: false,
@@ -60,13 +60,13 @@ describe('useFileTreeShortcuts', () => {
     expect(handlers.openFileDialog).not.toHaveBeenCalled();
   });
 
-  it('ignores events outside the tree container', () => {
+  it("ignores events outside the tree container", () => {
     const { handlers, listeners, outside } = setup();
 
     listeners.keydown({
       defaultPrevented: false,
       target: outside,
-      key: 'a',
+      key: "a",
       ctrlKey: true,
       metaKey: false,
       shiftKey: false,
@@ -76,13 +76,13 @@ describe('useFileTreeShortcuts', () => {
     expect(handlers.openFileDialog).not.toHaveBeenCalled();
   });
 
-  it('handles common shortcuts', () => {
+  it("handles common shortcuts", () => {
     const { handlers, listeners, child } = setup();
 
     listeners.keydown({
       defaultPrevented: false,
       target: child,
-      key: 'A',
+      key: "A",
       ctrlKey: true,
       metaKey: false,
       shiftKey: false,
@@ -92,7 +92,7 @@ describe('useFileTreeShortcuts', () => {
     listeners.keydown({
       defaultPrevented: false,
       target: child,
-      key: 'F2',
+      key: "F2",
       ctrlKey: false,
       metaKey: false,
       shiftKey: false,
@@ -102,7 +102,7 @@ describe('useFileTreeShortcuts', () => {
     listeners.keydown({
       defaultPrevented: false,
       target: child,
-      key: 'Delete',
+      key: "Delete",
       ctrlKey: false,
       metaKey: false,
       shiftKey: false,
@@ -112,7 +112,7 @@ describe('useFileTreeShortcuts', () => {
     listeners.keydown({
       defaultPrevented: false,
       target: child,
-      key: 's',
+      key: "s",
       ctrlKey: true,
       metaKey: false,
       shiftKey: true,
@@ -122,7 +122,7 @@ describe('useFileTreeShortcuts', () => {
     listeners.keydown({
       defaultPrevented: false,
       target: child,
-      key: 'e',
+      key: "e",
       ctrlKey: true,
       metaKey: false,
       shiftKey: true,

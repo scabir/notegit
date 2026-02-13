@@ -1,4 +1,4 @@
-import type { AppSettings } from '../../../shared/types';
+import type { AppSettings } from "../../../shared/types";
 
 export interface TabPanelProps {
   children?: React.ReactNode;
@@ -9,7 +9,7 @@ export interface TabPanelProps {
 export interface SettingsDialogProps {
   open: boolean;
   onClose: () => void;
-  onThemeChange?: (theme: 'light' | 'dark' | 'system') => void;
+  onThemeChange?: (theme: "light" | "dark" | "system") => void;
   onAppSettingsSaved?: (settings: AppSettings) => void;
   currentNoteContent?: string;
   currentNotePath?: string;

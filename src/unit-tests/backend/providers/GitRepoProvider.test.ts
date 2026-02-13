@@ -1,15 +1,20 @@
-import * as path from 'path';
-import { GitRepoProvider } from '../../../backend/providers/GitRepoProvider';
-import { ApiErrorCode, AuthMethod, GitRepoSettings, REPO_PROVIDERS } from '../../../shared/types';
+import * as path from "path";
+import { GitRepoProvider } from "../../../backend/providers/GitRepoProvider";
+import {
+  ApiErrorCode,
+  AuthMethod,
+  GitRepoSettings,
+  REPO_PROVIDERS,
+} from "../../../shared/types";
 
-describe('GitRepoProvider', () => {
+describe("GitRepoProvider", () => {
   const baseSettings: GitRepoSettings = {
     provider: REPO_PROVIDERS.git,
-    remoteUrl: 'https://github.com/user/my-notes.git',
-    branch: 'main',
-    pat: 'token',
+    remoteUrl: "https://github.com/user/my-notes.git",
+    branch: "main",
+    pat: "token",
     authMethod: AuthMethod.PAT,
-    localPath: '/repo',
+    localPath: "/repo",
   };
 
   const createProvider = () => {
@@ -36,87 +41,89 @@ describe('GitRepoProvider', () => {
     return { provider, gitAdapter, fsAdapter };
   };
 
-  it('rejects when configured with non-git settings', async () => {
+  it("rejects when configured with non-git settings", async () => {
     const { provider } = createProvider();
 
     await expect(
-      provider.open({ provider: REPO_PROVIDERS.s3 } as any)
+      provider.open({ provider: REPO_PROVIDERS.s3 } as any),
     ).rejects.toMatchObject({
       code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
     });
   });
 
-  it('rejects when local path is missing', async () => {
+  it("rejects when local path is missing", async () => {
     const { provider } = createProvider();
-    const settings = { ...baseSettings, localPath: '' };
+    const settings = { ...baseSettings, localPath: "" };
 
     await expect(provider.open(settings)).rejects.toMatchObject({
       code: ApiErrorCode.VALIDATION_ERROR,
     });
   });
 
-  it('clones when repo does not exist locally', async () => {
+  it("clones when repo does not exist locally", async () => {
     const { provider, gitAdapter, fsAdapter } = createProvider();
     fsAdapter.exists.mockResolvedValue(false);
     gitAdapter.clone.mockResolvedValue(undefined);
 
     await provider.open(baseSettings);
 
-    expect(fsAdapter.exists).toHaveBeenCalledWith('/repo');
+    expect(fsAdapter.exists).toHaveBeenCalledWith("/repo");
     expect(gitAdapter.clone).toHaveBeenCalledWith(
       baseSettings.remoteUrl,
       baseSettings.localPath,
       baseSettings.branch,
-      baseSettings.pat
+      baseSettings.pat,
     );
     expect(gitAdapter.init).not.toHaveBeenCalled();
   });
 
-  it('initializes empty remote repositories with a README commit', async () => {
+  it("initializes empty remote repositories with a README commit", async () => {
     const { provider, gitAdapter, fsAdapter } = createProvider();
     fsAdapter.exists.mockResolvedValue(false);
     gitAdapter.clone.mockRejectedValue(
-      new Error('Remote branch main not found in upstream origin')
+      new Error("Remote branch main not found in upstream origin"),
     );
 
     await provider.open(baseSettings);
 
-    expect(fsAdapter.mkdir).toHaveBeenCalledWith('/repo', { recursive: true });
-    expect(gitAdapter.init).toHaveBeenCalledWith('/repo');
+    expect(fsAdapter.mkdir).toHaveBeenCalledWith("/repo", { recursive: true });
+    expect(gitAdapter.init).toHaveBeenCalledWith("/repo");
     expect(fsAdapter.writeFile).toHaveBeenCalledWith(
-      path.join('/repo', 'README.md'),
-      '# my-notes\n\nThis repository was initialized by notegit.\n'
+      path.join("/repo", "README.md"),
+      "# my-notes\n\nThis repository was initialized by notegit.\n",
     );
     expect(gitAdapter.addRemote).toHaveBeenCalledWith(baseSettings.remoteUrl);
-    expect(gitAdapter.add).toHaveBeenCalledWith('README.md');
-    expect(gitAdapter.commit).toHaveBeenCalledWith('Initial commit from notegit');
+    expect(gitAdapter.add).toHaveBeenCalledWith("README.md");
+    expect(gitAdapter.commit).toHaveBeenCalledWith(
+      "Initial commit from notegit",
+    );
     expect(gitAdapter.push).toHaveBeenCalledWith(baseSettings.pat);
   });
 
-  it('opens existing repositories by initializing git', async () => {
+  it("opens existing repositories by initializing git", async () => {
     const { provider, gitAdapter, fsAdapter } = createProvider();
     fsAdapter.exists.mockResolvedValue(true);
 
     await provider.open(baseSettings);
 
-    expect(gitAdapter.init).toHaveBeenCalledWith('/repo');
+    expect(gitAdapter.init).toHaveBeenCalledWith("/repo");
     expect(gitAdapter.clone).not.toHaveBeenCalled();
   });
 
-  it('returns git status with ahead/behind and pending counts', async () => {
+  it("returns git status with ahead/behind and pending counts", async () => {
     const { provider, gitAdapter } = createProvider();
     provider.configure(baseSettings);
 
     gitAdapter.init.mockResolvedValue(undefined);
-    gitAdapter.status.mockResolvedValue({ files: ['notes.md'] });
-    gitAdapter.getCurrentBranch.mockResolvedValue('main');
+    gitAdapter.status.mockResolvedValue({ files: ["notes.md"] });
+    gitAdapter.getCurrentBranch.mockResolvedValue("main");
     gitAdapter.getAheadBehind.mockResolvedValue({ ahead: 2, behind: 1 });
 
     const status = await provider.getStatus();
 
     expect(status).toMatchObject({
       provider: REPO_PROVIDERS.git,
-      branch: 'main',
+      branch: "main",
       ahead: 2,
       behind: 1,
       pendingPushCount: 2,
@@ -125,34 +132,36 @@ describe('GitRepoProvider', () => {
     });
   });
 
-  it('commits conflicts and still pushes on pull errors', async () => {
+  it("commits conflicts and still pushes on pull errors", async () => {
     const { provider, gitAdapter } = createProvider();
     provider.configure(baseSettings);
 
     gitAdapter.init.mockResolvedValue(undefined);
     gitAdapter.fetch.mockResolvedValue(undefined);
     gitAdapter.getAheadBehind.mockResolvedValue({ ahead: 0, behind: 1 });
-    gitAdapter.pull.mockRejectedValue(new Error('CONFLICT (content): merge failed'));
+    gitAdapter.pull.mockRejectedValue(
+      new Error("CONFLICT (content): merge failed"),
+    );
     gitAdapter.add.mockResolvedValue(undefined);
     gitAdapter.commit.mockResolvedValue(undefined);
     gitAdapter.push.mockResolvedValue(undefined);
 
     await provider.push();
 
-    expect(gitAdapter.add).toHaveBeenCalledWith('.');
+    expect(gitAdapter.add).toHaveBeenCalledWith(".");
     expect(gitAdapter.commit).toHaveBeenCalledWith(
-      'Merge remote changes - conflicts present'
+      "Merge remote changes - conflicts present",
     );
     expect(gitAdapter.push).toHaveBeenCalledWith(baseSettings.pat);
   });
 
-  it('skips auto-push when no commits are ahead', async () => {
+  it("skips auto-push when no commits are ahead", async () => {
     const { provider, gitAdapter } = createProvider();
     provider.configure(baseSettings);
 
     gitAdapter.init.mockResolvedValue(undefined);
     gitAdapter.status.mockResolvedValue({ files: [] });
-    gitAdapter.getCurrentBranch.mockResolvedValue('main');
+    gitAdapter.getCurrentBranch.mockResolvedValue("main");
     gitAdapter.getAheadBehind.mockResolvedValue({ ahead: 0, behind: 0 });
 
     await (provider as any).tryAutoPush();
@@ -161,13 +170,13 @@ describe('GitRepoProvider', () => {
     expect(gitAdapter.push).not.toHaveBeenCalled();
   });
 
-  it('auto-pushes when commits are ahead', async () => {
+  it("auto-pushes when commits are ahead", async () => {
     const { provider, gitAdapter } = createProvider();
     provider.configure(baseSettings);
 
     gitAdapter.init.mockResolvedValue(undefined);
     gitAdapter.status.mockResolvedValue({ files: [] });
-    gitAdapter.getCurrentBranch.mockResolvedValue('main');
+    gitAdapter.getCurrentBranch.mockResolvedValue("main");
     gitAdapter.getAheadBehind.mockResolvedValue({ ahead: 1, behind: 0 });
     gitAdapter.fetch.mockResolvedValue(undefined);
     gitAdapter.pull.mockResolvedValue(undefined);
@@ -179,12 +188,12 @@ describe('GitRepoProvider', () => {
     expect(gitAdapter.push).toHaveBeenCalledWith(baseSettings.pat);
   });
 
-  it('starts and stops the auto-sync timer', () => {
+  it("starts and stops the auto-sync timer", () => {
     jest.useFakeTimers();
 
     const { provider } = createProvider();
-    const setIntervalSpy = jest.spyOn(global, 'setInterval');
-    const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+    const setIntervalSpy = jest.spyOn(global, "setInterval");
+    const clearIntervalSpy = jest.spyOn(global, "clearInterval");
 
     provider.startAutoSync();
     provider.startAutoSync();
@@ -200,32 +209,32 @@ describe('GitRepoProvider', () => {
     jest.useRealTimers();
   });
 
-  it('fetches from remote and returns status', async () => {
+  it("fetches from remote and returns status", async () => {
     const { provider, gitAdapter } = createProvider();
     provider.configure(baseSettings);
 
     gitAdapter.init.mockResolvedValue(undefined);
     gitAdapter.fetch.mockResolvedValue(undefined);
     gitAdapter.status.mockResolvedValue({ files: [] });
-    gitAdapter.getCurrentBranch.mockResolvedValue('main');
+    gitAdapter.getCurrentBranch.mockResolvedValue("main");
     gitAdapter.getAheadBehind.mockResolvedValue({ ahead: 0, behind: 0 });
 
     const status = await provider.fetch();
 
     expect(gitAdapter.fetch).toHaveBeenCalled();
-    expect(status.branch).toBe('main');
+    expect(status.branch).toBe("main");
   });
 
-  it('throws when pulling without settings', async () => {
+  it("throws when pulling without settings", async () => {
     const { provider } = createProvider();
-    (provider as any).repoPath = '/repo';
+    (provider as any).repoPath = "/repo";
 
     await expect(provider.pull()).rejects.toMatchObject({
       code: ApiErrorCode.VALIDATION_ERROR,
     });
   });
 
-  it('pushes without pulling when remote is up to date', async () => {
+  it("pushes without pulling when remote is up to date", async () => {
     const { provider, gitAdapter } = createProvider();
     provider.configure(baseSettings);
 
@@ -240,21 +249,21 @@ describe('GitRepoProvider', () => {
     expect(gitAdapter.push).toHaveBeenCalledWith(baseSettings.pat);
   });
 
-  it('rethrows non-conflict pull errors', async () => {
+  it("rethrows non-conflict pull errors", async () => {
     const { provider, gitAdapter } = createProvider();
     provider.configure(baseSettings);
 
     gitAdapter.init.mockResolvedValue(undefined);
     gitAdapter.fetch.mockResolvedValue(undefined);
     gitAdapter.getAheadBehind.mockResolvedValue({ ahead: 0, behind: 1 });
-    gitAdapter.pull.mockRejectedValue(new Error('network down'));
+    gitAdapter.pull.mockRejectedValue(new Error("network down"));
 
-    await expect(provider.push()).rejects.toThrow('network down');
+    await expect(provider.push()).rejects.toThrow("network down");
   });
 
-  it('falls back to a hash when extracting repo name', () => {
+  it("falls back to a hash when extracting repo name", () => {
     const { provider } = createProvider();
-    const value = (provider as any).extractRepoName('invalid-url');
+    const value = (provider as any).extractRepoName("invalid-url");
     expect(value).toHaveLength(8);
   });
 });

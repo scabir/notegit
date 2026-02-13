@@ -1,3 +1,3 @@
 export const FILE_TREE_MAIN = {
-  containerClassName: 'tree-container',
+  containerClassName: "tree-container",
 } as const;

@@ -1,8 +1,8 @@
-import type { RepoStatus } from '../../../shared/types';
-import type { ShortcutHelperHandle } from '../ShortcutHelper';
-import type { Ref } from 'react';
+import type { RepoStatus } from "../../../shared/types";
+import type { ShortcutHelperHandle } from "../ShortcutHelper";
+import type { Ref } from "react";
 
-export type SaveStatusType = 'idle' | 'saving' | 'saved' | 'error';
+export type SaveStatusType = "idle" | "saving" | "saved" | "error";
 
 export interface StatusBarProps {
   status: RepoStatus | null;

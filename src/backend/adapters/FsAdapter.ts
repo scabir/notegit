@@ -1,13 +1,13 @@
-import * as fs from 'fs/promises';
-import * as fsSync from 'fs';
-import * as path from 'path';
-import { Stats } from 'fs';
-import { ApiError, ApiErrorCode } from '../../shared/types';
+import * as fs from "fs/promises";
+import * as fsSync from "fs";
+import * as path from "path";
+import { Stats } from "fs";
+import { ApiError, ApiErrorCode } from "../../shared/types";
 
-const ENCODING_UTF8 = 'utf-8';
-const ERROR_CODE_NOT_FOUND = 'ENOENT';
-const ERROR_CODE_PERMISSION = 'EACCES';
-const ERROR_CODE_EXISTS = 'EEXIST';
+const ENCODING_UTF8 = "utf-8";
+const ERROR_CODE_NOT_FOUND = "ENOENT";
+const ERROR_CODE_PERMISSION = "EACCES";
+const ERROR_CODE_EXISTS = "EEXIST";
 
 export class FsAdapter {
   async readFile(filePath: string): Promise<string> {
@@ -15,16 +15,24 @@ export class FsAdapter {
       return await fs.readFile(filePath, ENCODING_UTF8);
     } catch (error: any) {
       if (error.code === ERROR_CODE_NOT_FOUND) {
-        throw this.createError(ApiErrorCode.FS_NOT_FOUND, `File not found: ${filePath}`, error);
+        throw this.createError(
+          ApiErrorCode.FS_NOT_FOUND,
+          `File not found: ${filePath}`,
+          error,
+        );
       }
       if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${filePath}`,
-          error
+          error,
         );
       }
-      throw this.createError(ApiErrorCode.UNKNOWN_ERROR, `Failed to read file: ${filePath}`, error);
+      throw this.createError(
+        ApiErrorCode.UNKNOWN_ERROR,
+        `Failed to read file: ${filePath}`,
+        error,
+      );
     }
   }
 
@@ -38,10 +46,14 @@ export class FsAdapter {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${filePath}`,
-          error
+          error,
         );
       }
-      throw this.createError(ApiErrorCode.UNKNOWN_ERROR, `Failed to write file: ${filePath}`, error);
+      throw this.createError(
+        ApiErrorCode.UNKNOWN_ERROR,
+        `Failed to write file: ${filePath}`,
+        error,
+      );
     }
   }
 
@@ -50,19 +62,23 @@ export class FsAdapter {
       await fs.unlink(filePath);
     } catch (error: any) {
       if (error.code === ERROR_CODE_NOT_FOUND) {
-        throw this.createError(ApiErrorCode.FS_NOT_FOUND, `File not found: ${filePath}`, error);
+        throw this.createError(
+          ApiErrorCode.FS_NOT_FOUND,
+          `File not found: ${filePath}`,
+          error,
+        );
       }
       if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${filePath}`,
-          error
+          error,
         );
       }
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to delete file: ${filePath}`,
-        error
+        error,
       );
     }
   }
@@ -72,24 +88,31 @@ export class FsAdapter {
       await fs.rename(oldPath, newPath);
     } catch (error: any) {
       if (error.code === ERROR_CODE_NOT_FOUND) {
-        throw this.createError(ApiErrorCode.FS_NOT_FOUND, `File not found: ${oldPath}`, error);
+        throw this.createError(
+          ApiErrorCode.FS_NOT_FOUND,
+          `File not found: ${oldPath}`,
+          error,
+        );
       }
       if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${oldPath}`,
-          error
+          error,
         );
       }
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to rename from ${oldPath} to ${newPath}`,
-        error
+        error,
       );
     }
   }
 
-  async mkdir(dirPath: string, options?: { recursive?: boolean }): Promise<void> {
+  async mkdir(
+    dirPath: string,
+    options?: { recursive?: boolean },
+  ): Promise<void> {
     try {
       await fs.mkdir(dirPath, options);
     } catch (error: any) {
@@ -100,35 +123,45 @@ export class FsAdapter {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${dirPath}`,
-          error
+          error,
         );
       }
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to create directory: ${dirPath}`,
-        error
+        error,
       );
     }
   }
 
-  async rmdir(dirPath: string, options?: { recursive?: boolean }): Promise<void> {
+  async rmdir(
+    dirPath: string,
+    options?: { recursive?: boolean },
+  ): Promise<void> {
     try {
-      await fs.rm(dirPath, { recursive: options?.recursive ?? true, force: true });
+      await fs.rm(dirPath, {
+        recursive: options?.recursive ?? true,
+        force: true,
+      });
     } catch (error: any) {
       if (error.code === ERROR_CODE_NOT_FOUND) {
-        throw this.createError(ApiErrorCode.FS_NOT_FOUND, `Directory not found: ${dirPath}`, error);
+        throw this.createError(
+          ApiErrorCode.FS_NOT_FOUND,
+          `Directory not found: ${dirPath}`,
+          error,
+        );
       }
       if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${dirPath}`,
-          error
+          error,
         );
       }
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to delete directory: ${dirPath}`,
-        error
+        error,
       );
     }
   }
@@ -138,19 +171,23 @@ export class FsAdapter {
       return await fs.readdir(dirPath);
     } catch (error: any) {
       if (error.code === ERROR_CODE_NOT_FOUND) {
-        throw this.createError(ApiErrorCode.FS_NOT_FOUND, `Directory not found: ${dirPath}`, error);
+        throw this.createError(
+          ApiErrorCode.FS_NOT_FOUND,
+          `Directory not found: ${dirPath}`,
+          error,
+        );
       }
       if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied: ${dirPath}`,
-          error
+          error,
         );
       }
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to read directory: ${dirPath}`,
-        error
+        error,
       );
     }
   }
@@ -160,9 +197,17 @@ export class FsAdapter {
       return await fs.stat(filePath);
     } catch (error: any) {
       if (error.code === ERROR_CODE_NOT_FOUND) {
-        throw this.createError(ApiErrorCode.FS_NOT_FOUND, `Path not found: ${filePath}`, error);
+        throw this.createError(
+          ApiErrorCode.FS_NOT_FOUND,
+          `Path not found: ${filePath}`,
+          error,
+        );
       }
-      throw this.createError(ApiErrorCode.UNKNOWN_ERROR, `Failed to stat: ${filePath}`, error);
+      throw this.createError(
+        ApiErrorCode.UNKNOWN_ERROR,
+        `Failed to stat: ${filePath}`,
+        error,
+      );
     }
   }
 
@@ -182,19 +227,23 @@ export class FsAdapter {
       await fs.copyFile(src, dest);
     } catch (error: any) {
       if (error.code === ERROR_CODE_NOT_FOUND) {
-        throw this.createError(ApiErrorCode.FS_NOT_FOUND, `Source file not found: ${src}`, error);
+        throw this.createError(
+          ApiErrorCode.FS_NOT_FOUND,
+          `Source file not found: ${src}`,
+          error,
+        );
       }
       if (error.code === ERROR_CODE_PERMISSION) {
         throw this.createError(
           ApiErrorCode.FS_PERMISSION_DENIED,
           `Permission denied`,
-          error
+          error,
         );
       }
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to copy file from ${src} to ${dest}`,
-        error
+        error,
       );
     }
   }
@@ -203,7 +252,11 @@ export class FsAdapter {
     return fsSync.existsSync(filePath);
   }
 
-  private createError(code: ApiErrorCode, message: string, details?: any): ApiError {
+  private createError(
+    code: ApiErrorCode,
+    message: string,
+    details?: any,
+  ): ApiError {
     return {
       code,
       message,

@@ -1,6 +1,6 @@
-import type { FileContent } from '../../../shared/types';
+import type { FileContent } from "../../../shared/types";
 
-export type ViewMode = 'split' | 'editor' | 'preview';
+export type ViewMode = "split" | "editor" | "preview";
 
 export interface TreePanelControls {
   onToggleTree: () => void;
@@ -35,4 +35,5 @@ export interface MarkdownEditorProps {
   onSave: (content: string) => void;
   onChange: (content: string, hasChanges: boolean) => void;
   treePanelControls?: TreePanelControls;
+  onOpenLinkedFile?: (filePath: string) => void | Promise<void>;
 }

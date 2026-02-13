@@ -1,5 +1,5 @@
-import type { RepoProviderType, RepoSettings } from '../../shared/types';
-import type { RepoStatus, CommitEntry, DiffHunk } from '../../shared/types';
+import type { RepoProviderType, RepoSettings } from "../../shared/types";
+import type { RepoStatus, CommitEntry, DiffHunk } from "../../shared/types";
 
 export interface RepoProvider {
   type: RepoProviderType;
@@ -18,5 +18,9 @@ export interface HistoryProvider {
   configure(settings: RepoSettings): void;
   getForFile(filePath: string): Promise<CommitEntry[]>;
   getVersion(versionId: string, filePath: string): Promise<string>;
-  getDiff(versionA: string, versionB: string, filePath: string): Promise<DiffHunk[]>;
+  getDiff(
+    versionA: string,
+    versionB: string,
+    filePath: string,
+  ): Promise<DiffHunk[]>;
 }

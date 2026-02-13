@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   CreateNewFolder as CreateFolderIcon,
   Delete as DeleteIcon,
@@ -9,10 +9,10 @@ import {
   Star as FavoriteIcon,
   NoteAdd as NoteAddIcon,
   ContentCopy as DuplicateIcon,
-} from '@mui/icons-material';
-import type { FileTreeNode } from '../../../shared/types';
-import type { ContextMenuItem } from '../FileTreeContextMenus/types';
-import type { TreeContextMenuAction } from './hooks/useTreeContextMenu';
+} from "@mui/icons-material";
+import type { FileTreeNode } from "../../../shared/types";
+import type { ContextMenuItem } from "../FileTreeContextMenus/types";
+import type { TreeContextMenuAction } from "./hooks/useTreeContextMenu";
 
 type BuildEmptyContextMenuItemsParams = {
   newFileLabel: string;
@@ -59,7 +59,7 @@ export const buildEmptyContextMenuItems = ({
       onCloseTreeContextMenu();
       onOpenFileDialog();
     },
-    testId: 'tree-context-new-file',
+    testId: "tree-context-new-file",
   },
   {
     label: newFolderLabel,
@@ -68,7 +68,7 @@ export const buildEmptyContextMenuItems = ({
       onCloseTreeContextMenu();
       onOpenFolderDialog();
     },
-    testId: 'tree-context-new-folder',
+    testId: "tree-context-new-folder",
   },
   {
     label: importFileLabel,
@@ -77,7 +77,7 @@ export const buildEmptyContextMenuItems = ({
       onCloseTreeContextMenu();
       onImportFile();
     },
-    testId: 'tree-context-import',
+    testId: "tree-context-import",
   },
 ];
 
@@ -91,7 +91,7 @@ export const buildNodeContextMenuItems = ({
   onAction,
 }: BuildNodeContextMenuItemsParams): ContextMenuItem[] =>
   [
-    node?.type === 'folder'
+    node?.type === "folder"
       ? {
           label: labels.newFile,
           icon: <NoteAddIcon fontSize="small" />,
@@ -99,10 +99,10 @@ export const buildNodeContextMenuItems = ({
             onCloseTreeContextMenu();
             onOpenFileDialog();
           },
-          testId: 'tree-context-node-new-file',
+          testId: "tree-context-node-new-file",
         }
       : null,
-    node?.type === 'folder'
+    node?.type === "folder"
       ? {
           label: labels.newFolder,
           icon: <CreateFolderIcon fontSize="small" />,
@@ -110,39 +110,43 @@ export const buildNodeContextMenuItems = ({
             onCloseTreeContextMenu();
             onOpenFolderDialog();
           },
-          testId: 'tree-context-node-new-folder',
+          testId: "tree-context-node-new-folder",
         }
       : null,
     {
       label: labels.rename,
       icon: <RenameIcon fontSize="small" />,
-      action: () => onAction('rename', node),
-      testId: 'tree-context-rename',
+      action: () => onAction("rename", node),
+      testId: "tree-context-rename",
     },
     {
       label: labels.move,
       icon: <MoveIcon fontSize="small" />,
-      action: () => onAction('move', node),
-      testId: 'tree-context-move',
+      action: () => onAction("move", node),
+      testId: "tree-context-move",
     },
     {
       label: isFavorite ? labels.removeFromFavorites : labels.addToFavorites,
-      icon: isFavorite ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />,
-      action: () => onAction('favorite', node),
-      testId: 'tree-context-favorite',
+      icon: isFavorite ? (
+        <FavoriteIcon fontSize="small" />
+      ) : (
+        <FavoriteBorderIcon fontSize="small" />
+      ),
+      action: () => onAction("favorite", node),
+      testId: "tree-context-favorite",
     },
-    node?.type === 'file'
+    node?.type === "file"
       ? {
           label: labels.duplicate,
           icon: <DuplicateIcon fontSize="small" />,
-          action: () => onAction('duplicate', node),
-          testId: 'tree-context-duplicate',
+          action: () => onAction("duplicate", node),
+          testId: "tree-context-duplicate",
         }
       : null,
     {
       label: labels.delete,
       icon: <DeleteIcon fontSize="small" />,
-      action: () => onAction('delete', node),
-      testId: 'tree-context-delete',
+      action: () => onAction("delete", node),
+      testId: "tree-context-delete",
     },
   ].filter(Boolean) as ContextMenuItem[];

@@ -1,21 +1,25 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Box, useTheme } from '@mui/material';
-import { EditorView } from '@codemirror/view';
-import { FindReplaceBar } from '../FindReplaceBar';
-import { MarkdownEditorHeader } from '../MarkdownEditorHeader';
-import { MarkdownEditorPane } from '../MarkdownEditorPane';
-import { MarkdownFormatToolbar } from '../MarkdownFormatToolbar';
-import type { CheatSheetType } from '../MarkdownFormatToolbar/types';
-import { MarkdownPreviewPane } from '../MarkdownPreviewPane';
-import type { MarkdownCheatSheetType } from '../MarkdownPreviewPane/types';
-import { useEditorFindReplace, useEditorGlobalShortcuts, useEditorKeymap } from '../../utils/editorHooks';
-import { MARKDOWN_EDITOR_TEXT } from './constants';
-import { useMarkdownDocumentState } from './hooks/useMarkdownDocumentState';
-import { useMarkdownEditorShortcuts } from './hooks/useMarkdownEditorShortcuts';
-import { useMarkdownFormatting } from './hooks/useMarkdownFormatting';
-import { useSplitPane } from './hooks/useSplitPane';
-import { editorContainerSx, emptyStateSx, rootSx, splitterSx } from './styles';
-import type { MarkdownEditorProps, ViewMode } from './types';
+import React, { useEffect, useRef, useState } from "react";
+import { Box, useTheme } from "@mui/material";
+import { EditorView } from "@codemirror/view";
+import { FindReplaceBar } from "../FindReplaceBar";
+import { MarkdownEditorHeader } from "../MarkdownEditorHeader";
+import { MarkdownEditorPane } from "../MarkdownEditorPane";
+import { MarkdownFormatToolbar } from "../MarkdownFormatToolbar";
+import type { CheatSheetType } from "../MarkdownFormatToolbar/types";
+import { MarkdownPreviewPane } from "../MarkdownPreviewPane";
+import type { MarkdownCheatSheetType } from "../MarkdownPreviewPane/types";
+import {
+  useEditorFindReplace,
+  useEditorGlobalShortcuts,
+  useEditorKeymap,
+} from "../../utils/editorHooks";
+import { MARKDOWN_EDITOR_TEXT } from "./constants";
+import { useMarkdownDocumentState } from "./hooks/useMarkdownDocumentState";
+import { useMarkdownEditorShortcuts } from "./hooks/useMarkdownEditorShortcuts";
+import { useMarkdownFormatting } from "./hooks/useMarkdownFormatting";
+import { useSplitPane } from "./hooks/useSplitPane";
+import { editorContainerSx, emptyStateSx, rootSx, splitterSx } from "./styles";
+import type { MarkdownEditorProps, ViewMode } from "./types";
 
 export function MarkdownEditor({
   file,
@@ -23,11 +27,13 @@ export function MarkdownEditor({
   onSave,
   onChange,
   treePanelControls,
+  onOpenLinkedFile,
 }: MarkdownEditorProps) {
   const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-  const [viewMode, setViewMode] = useState<ViewMode>('split');
-  const [cheatSheetType, setCheatSheetType] = useState<MarkdownCheatSheetType>(null);
+  const isDark = theme.palette.mode === "dark";
+  const [viewMode, setViewMode] = useState<ViewMode>("split");
+  const [cheatSheetType, setCheatSheetType] =
+    useState<MarkdownCheatSheetType>(null);
   const editorRef = useRef<any>(null);
   const editorViewRef = useRef<EditorView | null>(null);
   const { editorWidth, handleMouseDown } = useSplitPane();
@@ -80,19 +86,15 @@ export function MarkdownEditor({
   const editorKeymap = useEditorKeymap(handleSave);
 
   if (!file) {
-    return (
-      <Box sx={emptyStateSx}>
-        {MARKDOWN_EDITOR_TEXT.emptyState}
-      </Box>
-    );
+    return <Box sx={emptyStateSx}>{MARKDOWN_EDITOR_TEXT.emptyState}</Box>;
   }
 
-  const showEditor = viewMode === 'split' || viewMode === 'editor';
-  const showPreview = viewMode === 'split' || viewMode === 'preview';
+  const showEditor = viewMode === "split" || viewMode === "editor";
+  const showPreview = viewMode === "split" || viewMode === "preview";
 
   const handleSelectCheatSheet = (type: CheatSheetType) => {
     setCheatSheetType(type);
-    setViewMode('split');
+    setViewMode("split");
   };
 
   const handleCloseCheatSheet = () => {
@@ -147,7 +149,7 @@ export function MarkdownEditor({
           />
         )}
 
-        {viewMode === 'split' && (
+        {viewMode === "split" && (
           <Box onMouseDown={handleMouseDown} sx={splitterSx(isDark)} />
         )}
 
@@ -157,9 +159,11 @@ export function MarkdownEditor({
             viewMode={viewMode}
             editorWidth={editorWidth}
             repoPath={repoPath}
+            filePath={file.path}
             content={content}
             cheatSheetType={cheatSheetType}
             onCloseCheatSheet={handleCloseCheatSheet}
+            onOpenLinkedFile={onOpenLinkedFile}
           />
         )}
       </Box>
@@ -167,4 +171,4 @@ export function MarkdownEditor({
   );
 }
 
-MarkdownEditor.displayName = 'MarkdownEditor';
+MarkdownEditor.displayName = "MarkdownEditor";

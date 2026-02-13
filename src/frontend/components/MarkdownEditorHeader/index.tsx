@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Toolbar,
@@ -7,7 +7,7 @@ import {
   Tooltip,
   ToggleButtonGroup,
   ToggleButton,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Menu as MenuIcon,
   ArrowBack as BackIcon,
@@ -17,11 +17,16 @@ import {
   Visibility as PreviewIcon,
   VisibilityOff as PreviewOffIcon,
   FileDownload as ExportIcon,
-} from '@mui/icons-material';
-import { MARKDOWN_EDITOR_TEXT } from '../MarkdownEditor/constants';
-import type { ViewMode } from '../MarkdownEditor/types';
-import { headerRowSx, headerToolbarSx, splitIconRowSx, treeControlsRowSx } from './styles';
-import type { MarkdownEditorHeaderProps } from './types';
+} from "@mui/icons-material";
+import { MARKDOWN_EDITOR_TEXT } from "../MarkdownEditor/constants";
+import type { ViewMode } from "../MarkdownEditor/types";
+import {
+  headerRowSx,
+  headerToolbarSx,
+  splitIconRowSx,
+  treeControlsRowSx,
+} from "./styles";
+import type { MarkdownEditorHeaderProps } from "./types";
 
 export function MarkdownEditorHeader({
   filePath,
@@ -80,7 +85,9 @@ export function MarkdownEditorHeader({
       <ToggleButtonGroup
         value={viewMode}
         exclusive
-        onChange={(_, newMode: ViewMode | null) => newMode && onViewModeChange(newMode)}
+        onChange={(_, newMode: ViewMode | null) =>
+          newMode && onViewModeChange(newMode)
+        }
         size="small"
       >
         <ToggleButton value="editor" aria-label="editor only">
@@ -104,7 +111,12 @@ export function MarkdownEditorHeader({
       </ToggleButtonGroup>
 
       <Tooltip title={MARKDOWN_EDITOR_TEXT.saveTooltip}>
-        <IconButton size="small" onClick={onSave} disabled={!hasUnsavedChanges} color="primary">
+        <IconButton
+          size="small"
+          onClick={onSave}
+          disabled={!hasUnsavedChanges}
+          color="primary"
+        >
           <SaveIcon fontSize="small" />
         </IconButton>
       </Tooltip>

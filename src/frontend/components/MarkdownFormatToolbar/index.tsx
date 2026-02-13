@@ -1,5 +1,13 @@
-import React, { useState } from 'react';
-import { Box, Divider, IconButton, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
+import React, { useState } from "react";
+import {
+  Box,
+  Divider,
+  IconButton,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Tooltip,
+} from "@mui/material";
 import {
   FormatBold as BoldIcon,
   FormatItalic as ItalicIcon,
@@ -15,21 +23,27 @@ import {
   ListAlt as DefinitionListIcon,
   MoreHoriz as MoreIcon,
   MenuBook as CheatSheetIcon,
-} from '@mui/icons-material';
-import { MARKDOWN_EDITOR_TEXT } from '../MarkdownEditor/constants';
-import { MARKDOWN_FORMAT_TOOLBAR } from './constants';
+} from "@mui/icons-material";
+import { MARKDOWN_EDITOR_TEXT } from "../MarkdownEditor/constants";
+import { MARKDOWN_FORMAT_TOOLBAR } from "./constants";
 import {
   codeBlockIconSx,
   dividerSx,
   formatToolbarSx,
   growSx,
   headingIconSx,
-} from './styles';
-import type { MarkdownFormatToolbarProps } from './types';
+} from "./styles";
+import type { MarkdownFormatToolbarProps } from "./types";
 
-export function MarkdownFormatToolbar({ formatters, onSelectCheatSheet }: MarkdownFormatToolbarProps) {
-  const [extrasAnchorEl, setExtrasAnchorEl] = useState<null | HTMLElement>(null);
-  const [cheatSheetAnchorEl, setCheatSheetAnchorEl] = useState<null | HTMLElement>(null);
+export function MarkdownFormatToolbar({
+  formatters,
+  onSelectCheatSheet,
+}: MarkdownFormatToolbarProps) {
+  const [extrasAnchorEl, setExtrasAnchorEl] = useState<null | HTMLElement>(
+    null,
+  );
+  const [cheatSheetAnchorEl, setCheatSheetAnchorEl] =
+    useState<null | HTMLElement>(null);
 
   const handleOpenExtras = (event: React.MouseEvent<HTMLElement>) => {
     setExtrasAnchorEl(event.currentTarget);
@@ -57,7 +71,7 @@ export function MarkdownFormatToolbar({ formatters, onSelectCheatSheet }: Markdo
     setCheatSheetAnchorEl(null);
   };
 
-  const handleSelectCheatSheet = (type: 'markdown' | 'mermaid') => {
+  const handleSelectCheatSheet = (type: "markdown" | "mermaid") => {
     handleCloseCheatSheetMenu();
     onSelectCheatSheet(type);
   };
@@ -103,7 +117,7 @@ export function MarkdownFormatToolbar({ formatters, onSelectCheatSheet }: Markdo
       </Tooltip>
       <Tooltip title={MARKDOWN_EDITOR_TEXT.codeBlockTooltip}>
         <IconButton size="small" onClick={formatters.formatCodeBlock}>
-          <Box sx={codeBlockIconSx}>{'{ }'}</Box>
+          <Box sx={codeBlockIconSx}>{"{ }"}</Box>
         </IconButton>
       </Tooltip>
       <Tooltip title={MARKDOWN_EDITOR_TEXT.linkTooltip}>
@@ -143,8 +157,10 @@ export function MarkdownFormatToolbar({ formatters, onSelectCheatSheet }: Markdo
           onClick={handleOpenExtras}
           aria-label={MARKDOWN_EDITOR_TEXT.extrasTooltip}
           aria-haspopup="true"
-          aria-controls={extrasAnchorEl ? MARKDOWN_FORMAT_TOOLBAR.extrasMenuId : undefined}
-          aria-expanded={extrasAnchorEl ? 'true' : undefined}
+          aria-controls={
+            extrasAnchorEl ? MARKDOWN_FORMAT_TOOLBAR.extrasMenuId : undefined
+          }
+          aria-expanded={extrasAnchorEl ? "true" : undefined}
         >
           <MoreIcon fontSize="small" />
         </IconButton>
@@ -155,8 +171,12 @@ export function MarkdownFormatToolbar({ formatters, onSelectCheatSheet }: Markdo
           onClick={handleOpenCheatSheetMenu}
           aria-label={MARKDOWN_EDITOR_TEXT.cheatsheetTooltip}
           aria-haspopup="true"
-          aria-controls={cheatSheetAnchorEl ? MARKDOWN_FORMAT_TOOLBAR.cheatsheetMenuId : undefined}
-          aria-expanded={cheatSheetAnchorEl ? 'true' : undefined}
+          aria-controls={
+            cheatSheetAnchorEl
+              ? MARKDOWN_FORMAT_TOOLBAR.cheatsheetMenuId
+              : undefined
+          }
+          aria-expanded={cheatSheetAnchorEl ? "true" : undefined}
         >
           <CheatSheetIcon fontSize="small" />
         </IconButton>
@@ -167,8 +187,8 @@ export function MarkdownFormatToolbar({ formatters, onSelectCheatSheet }: Markdo
         anchorEl={extrasAnchorEl}
         open={Boolean(extrasAnchorEl)}
         onClose={handleCloseExtras}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <MenuItem onClick={handleInsertMermaid}>
           {MARKDOWN_EDITOR_TEXT.mermaidLabel}
@@ -182,13 +202,13 @@ export function MarkdownFormatToolbar({ formatters, onSelectCheatSheet }: Markdo
         anchorEl={cheatSheetAnchorEl}
         open={Boolean(cheatSheetAnchorEl)}
         onClose={handleCloseCheatSheetMenu}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <MenuItem onClick={() => handleSelectCheatSheet('markdown')}>
+        <MenuItem onClick={() => handleSelectCheatSheet("markdown")}>
           {MARKDOWN_EDITOR_TEXT.markdownCheatsheetLabel}
         </MenuItem>
-        <MenuItem onClick={() => handleSelectCheatSheet('mermaid')}>
+        <MenuItem onClick={() => handleSelectCheatSheet("mermaid")}>
           {MARKDOWN_EDITOR_TEXT.mermaidCheatsheetLabel}
         </MenuItem>
       </Menu>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -7,17 +7,16 @@ import {
   List,
   ListItem,
   ListItemButton,
-
   Box,
   Typography,
   CircularProgress,
   Chip,
   useTheme,
   InputAdornment,
-} from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
-import type { SearchResult } from '../../../shared/types/api';
-import { SEARCH_DIALOG_TEXT } from './constants';
+} from "@mui/material";
+import { Search as SearchIcon } from "@mui/icons-material";
+import type { SearchResult } from "../../../shared/types/api";
+import { SEARCH_DIALOG_TEXT } from "./constants";
 import {
   dialogPaperSx,
   dialogTitleSx,
@@ -37,14 +36,18 @@ import {
   matchTextSx,
   lineNumberSx,
   moreChipSx,
-} from './styles';
-import { getFileIcon, highlightMatch } from './utils';
-import type { SearchDialogProps } from './types';
+} from "./styles";
+import { getFileIcon, highlightMatch } from "./utils";
+import type { SearchDialogProps } from "./types";
 
-export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps) {
+export function SearchDialog({
+  open,
+  onClose,
+  onSelectFile,
+}: SearchDialogProps) {
   const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-  const [query, setQuery] = useState('');
+  const isDark = theme.palette.mode === "dark";
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -60,7 +63,7 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
 
   useEffect(() => {
     if (!open) {
-      setQuery('');
+      setQuery("");
       setResults([]);
       setSelectedIndex(0);
       setError(null);
@@ -83,7 +86,9 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
       setError(null);
 
       try {
-        const response = await window.notegitApi.search.query(query, { maxResults: 50 });
+        const response = await window.notegitApi.search.query(query, {
+          maxResults: 50,
+        });
 
         if (response.ok && response.data) {
           setResults(response.data);
@@ -108,16 +113,16 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
   }, [query]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setSelectedIndex((prev) => Math.max(prev - 1, 0));
-    } else if (e.key === 'Enter' && results.length > 0) {
+    } else if (e.key === "Enter" && results.length > 0) {
       e.preventDefault();
       handleSelectResult(results[selectedIndex]);
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       e.preventDefault();
       onClose();
     }
@@ -180,13 +185,17 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
 
           {!error && !loading && query && results.length === 0 && (
             <Box sx={centerStateSx}>
-              <Typography color="text.secondary">{SEARCH_DIALOG_TEXT.noResults}</Typography>
+              <Typography color="text.secondary">
+                {SEARCH_DIALOG_TEXT.noResults}
+              </Typography>
             </Box>
           )}
 
           {!error && !query && (
             <Box sx={centerStateSx}>
-              <Typography color="text.secondary">{SEARCH_DIALOG_TEXT.startTyping}</Typography>
+              <Typography color="text.secondary">
+                {SEARCH_DIALOG_TEXT.startTyping}
+              </Typography>
             </Box>
           )}
 
@@ -222,22 +231,21 @@ export function SearchDialog({ open, onClose, onSelectFile }: SearchDialogProps)
                         {result.matches.length > 0 && (
                           <Box>
                             {result.matches.slice(0, 2).map((match, idx) => (
-                              <Box
-                                key={idx}
-                                sx={matchSnippetSx(isDark)}
-                              >
-                                <Typography
-                                  variant="caption"
-                                  sx={matchTextSx}
-                                >
-                                  {highlightMatch(match.lineContent, query, isDark)}
+                              <Box key={idx} sx={matchSnippetSx(isDark)}>
+                                <Typography variant="caption" sx={matchTextSx}>
+                                  {highlightMatch(
+                                    match.lineContent,
+                                    query,
+                                    isDark,
+                                  )}
                                 </Typography>
                                 <Typography
                                   variant="caption"
                                   color="text.secondary"
                                   sx={lineNumberSx}
                                 >
-                                  {SEARCH_DIALOG_TEXT.lineLabel} {match.lineNumber}
+                                  {SEARCH_DIALOG_TEXT.lineLabel}{" "}
+                                  {match.lineNumber}
                                 </Typography>
                               </Box>
                             ))}

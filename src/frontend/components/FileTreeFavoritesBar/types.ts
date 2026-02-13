@@ -1,5 +1,5 @@
-import type { FileTreeNode } from '../../../shared/types';
-import type { MouseEvent } from 'react';
+import type { FileTreeNode } from "../../../shared/types";
+import type { MouseEvent } from "react";
 
 export type FileTreeFavoritesBarProps = {
   favorites: FileTreeNode[];

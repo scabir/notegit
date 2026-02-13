@@ -1,3 +1,3 @@
-const html = '<div></div>';
+const html = "<div></div>";
 
 export default html;

@@ -1,41 +1,44 @@
-jest.mock('@mui/material/Menu', () => {
-  const React = require('react');
+jest.mock("@mui/material/Menu", () => {
+  const React = require("react");
   return {
     __esModule: true,
     default: ({ children }: { children: React.ReactNode }) =>
-      React.createElement('div', null, children),
+      React.createElement("div", null, children),
   };
 });
 
-import React from 'react';
-import TestRenderer, { act } from 'react-test-renderer';
-import { Tooltip, IconButton, Button, TextField } from '@mui/material';
-import { TreeView } from '@mui/x-tree-view';
-import { FileTreeView } from '../../../frontend/components/FileTreeView';
-import { FILE_TREE_TEXT } from '../../../frontend/components/FileTreeView/constants';
-import { TOOLBAR_TEXT } from '../../../frontend/components/FileTreeToolbar/constants';
-import { MoveToFolderDialog } from '../../../frontend/components/MoveToFolderDialog';
-import { FileType } from '../../../shared/types';
+import React from "react";
+import TestRenderer, { act } from "react-test-renderer";
+import { Tooltip, IconButton, Button, TextField } from "@mui/material";
+import { TreeView } from "@mui/x-tree-view";
+import { FileTreeView } from "../../../frontend/components/FileTreeView";
+import { FILE_TREE_TEXT } from "../../../frontend/components/FileTreeView/constants";
+import { TOOLBAR_TEXT } from "../../../frontend/components/FileTreeToolbar/constants";
+import { MoveToFolderDialog } from "../../../frontend/components/MoveToFolderDialog";
+import { FileType } from "../../../shared/types";
 
 const tree = [
   {
-    id: 'folder',
-    name: 'folder',
-    path: 'folder',
-    type: 'folder' as const,
+    id: "folder",
+    name: "folder",
+    path: "folder",
+    type: "folder" as const,
     children: [
       {
-        id: 'folder/note.md',
-        name: 'note.md',
-        path: 'folder/note.md',
-        type: 'file' as const,
+        id: "folder/note.md",
+        name: "note.md",
+        path: "folder/note.md",
+        type: "file" as const,
         fileType: FileType.MARKDOWN,
       },
     ],
   },
 ];
 
-const getTooltipButton = (renderer: TestRenderer.ReactTestRenderer, title: string) => {
+const getTooltipButton = (
+  renderer: TestRenderer.ReactTestRenderer,
+  title: string,
+) => {
   const tooltip = renderer.root
     .findAllByType(Tooltip)
     .find((item) => item.props.title === title);
@@ -48,10 +51,10 @@ const getTooltipButton = (renderer: TestRenderer.ReactTestRenderer, title: strin
 };
 
 const flattenText = (node: any): string => {
-  if (!node) return '';
-  if (typeof node === 'string') return node;
-  if (Array.isArray(node)) return node.map(flattenText).join('');
-  return node.children ? node.children.map(flattenText).join('') : '';
+  if (!node) return "";
+  if (typeof node === "string") return node;
+  if (Array.isArray(node)) return node.map(flattenText).join("");
+  return node.children ? node.children.map(flattenText).join("") : "";
 };
 
 const createLocalStorageMock = () => {
@@ -75,11 +78,11 @@ let treeKeyHandlers: Record<string, any> = {};
 const fireShortcut = (event: Partial<KeyboardEvent>) => {
   const handler = treeKeyHandlers.keydown;
   if (!handler) {
-    throw new Error('Keyboard handler not registered');
+    throw new Error("Keyboard handler not registered");
   }
   act(() => {
     handler({
-      key: event.key || '',
+      key: event.key || "",
       ctrlKey: event.ctrlKey || false,
       metaKey: event.metaKey || false,
       shiftKey: event.shiftKey || false,
@@ -89,14 +92,14 @@ const fireShortcut = (event: Partial<KeyboardEvent>) => {
   });
 };
 
-describe('FileTreeView toolbar actions', () => {
+describe("FileTreeView toolbar actions", () => {
   const renderers: TestRenderer.ReactTestRenderer[] = [];
   const flushPromises = () => new Promise((resolve) => setImmediate(resolve));
   let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     treeKeyHandlers = {};
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     (global as any).window = {
       localStorage: createLocalStorageMock(),
       notegitApi: {
@@ -105,7 +108,9 @@ describe('FileTreeView toolbar actions', () => {
           updateFavorites: jest.fn().mockResolvedValue({ ok: true }),
         },
         dialog: {
-          showOpenDialog: jest.fn().mockResolvedValue({ canceled: true, filePaths: [] }),
+          showOpenDialog: jest
+            .fn()
+            .mockResolvedValue({ canceled: true, filePaths: [] }),
         },
       },
       confirm: jest.fn(),
@@ -142,16 +147,19 @@ describe('FileTreeView toolbar actions', () => {
           onImport: jest.fn(),
           isS3Repo: false,
           ...overrides,
-        })
+        }),
       );
     });
     renderers.push(renderer!);
     return renderer!;
   };
 
-  const openTreeContextMenu = (renderer: TestRenderer.ReactTestRenderer, nodeId: string) => {
+  const openTreeContextMenu = (
+    renderer: TestRenderer.ReactTestRenderer,
+    nodeId: string,
+  ) => {
     const label = renderer.root.find(
-      (node) => node.props && node.props['data-node-id'] === nodeId
+      (node) => node.props && node.props["data-node-id"] === nodeId,
     );
 
     if (!label) {
@@ -167,58 +175,78 @@ describe('FileTreeView toolbar actions', () => {
     });
   };
 
-  const selectTreeNode = (renderer: TestRenderer.ReactTestRenderer, nodeId: string) => {
+  const selectTreeNode = (
+    renderer: TestRenderer.ReactTestRenderer,
+    nodeId: string,
+  ) => {
     const treeView = renderer.root.findByType(TreeView);
     act(() => {
       treeView.props.onNodeSelect(null, nodeId);
     });
   };
 
-  const openRenameDialogFromContextMenu = (renderer: TestRenderer.ReactTestRenderer, nodeId: string) => {
+  const openRenameDialogFromContextMenu = (
+    renderer: TestRenderer.ReactTestRenderer,
+    nodeId: string,
+  ) => {
     openTreeContextMenu(renderer, nodeId);
     const renameMenuItem = renderer.root.find(
-      (node) => node.props && node.props['data-testid'] === 'tree-context-rename'
+      (node) =>
+        node.props && node.props["data-testid"] === "tree-context-rename",
     );
     act(() => renameMenuItem.props.onClick());
   };
 
-  const openMoveDialogFromContextMenu = (renderer: TestRenderer.ReactTestRenderer, nodeId: string) => {
+  const openMoveDialogFromContextMenu = (
+    renderer: TestRenderer.ReactTestRenderer,
+    nodeId: string,
+  ) => {
     openTreeContextMenu(renderer, nodeId);
     const moveMenuItem = renderer.root.find(
-      (node) => node.props && node.props['data-testid'] === 'tree-context-move'
+      (node) => node.props && node.props["data-testid"] === "tree-context-move",
     );
     act(() => moveMenuItem.props.onClick());
   };
 
   const triggerDeleteFromContextMenu = async (
     renderer: TestRenderer.ReactTestRenderer,
-    nodeId: string
+    nodeId: string,
   ) => {
     selectTreeNode(renderer, nodeId);
     openTreeContextMenu(renderer, nodeId);
     const deleteMenuItem = renderer.root.find(
-      (node) => node.props && node.props['data-testid'] === 'tree-context-delete'
+      (node) =>
+        node.props && node.props["data-testid"] === "tree-context-delete",
     );
     await act(async () => {
       deleteMenuItem.props.onClick();
     });
   };
 
-  const triggerFavoriteFromContextMenu = (renderer: TestRenderer.ReactTestRenderer, nodeId: string) => {
+  const triggerFavoriteFromContextMenu = (
+    renderer: TestRenderer.ReactTestRenderer,
+    nodeId: string,
+  ) => {
     openTreeContextMenu(renderer, nodeId);
     const favoriteMenuItem = renderer.root.find(
-      (node) => node.props && node.props['data-testid'] === 'tree-context-favorite'
+      (node) =>
+        node.props && node.props["data-testid"] === "tree-context-favorite",
     );
     act(() => favoriteMenuItem.props.onClick());
   };
 
-  const openTreeContainerContextMenu = (renderer: TestRenderer.ReactTestRenderer) => {
+  const openTreeContainerContextMenu = (
+    renderer: TestRenderer.ReactTestRenderer,
+  ) => {
     const container = renderer.root.find(
-      (node) => node.props && typeof node.props.className === 'string' && node.props.className.includes('tree-container')
+      (node) =>
+        node.props &&
+        typeof node.props.className === "string" &&
+        node.props.className.includes("tree-container"),
     );
 
     if (!container) {
-      throw new Error('Tree container not found');
+      throw new Error("Tree container not found");
     }
 
     act(() => {
@@ -230,69 +258,72 @@ describe('FileTreeView toolbar actions', () => {
     });
   };
 
-  describe('keyboard shortcuts', () => {
-
-    it('opens the create file dialog with Ctrl+A', () => {
+  describe("keyboard shortcuts", () => {
+    it("opens the create file dialog with Ctrl+A", () => {
       const renderer = createTreeRenderer();
       const preventDefault = jest.fn();
-      fireShortcut({ key: 'a', ctrlKey: true, preventDefault });
+      fireShortcut({ key: "a", ctrlKey: true, preventDefault });
 
       const fileDialog = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'create-file-dialog'
+        (node) =>
+          node.props && node.props["data-testid"] === "create-file-dialog",
       );
       expect(fileDialog.props.open).toBe(true);
       expect(preventDefault).toHaveBeenCalled();
     });
 
-    it('opens the create folder dialog with Ctrl+D', () => {
+    it("opens the create folder dialog with Ctrl+D", () => {
       const renderer = createTreeRenderer();
       const preventDefault = jest.fn();
-      fireShortcut({ key: 'd', ctrlKey: true, preventDefault });
+      fireShortcut({ key: "d", ctrlKey: true, preventDefault });
 
       const folderDialog = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'create-folder-dialog'
+        (node) =>
+          node.props && node.props["data-testid"] === "create-folder-dialog",
       );
       expect(folderDialog.props.open).toBe(true);
       expect(preventDefault).toHaveBeenCalled();
     });
 
-    it('triggers delete with the Delete key', async () => {
+    it("triggers delete with the Delete key", async () => {
       const onDelete = jest.fn().mockResolvedValue(undefined);
       const renderer = createTreeRenderer({ onDelete });
       const treeView = renderer.root.findByType(TreeView);
       act(() => {
-        treeView.props.onNodeSelect(null, 'folder/note.md');
+        treeView.props.onNodeSelect(null, "folder/note.md");
       });
 
       (global as any).window.confirm = jest.fn().mockReturnValue(true);
       const preventDefault = jest.fn();
-      fireShortcut({ key: 'Delete', preventDefault });
+      fireShortcut({ key: "Delete", preventDefault });
 
-      expect(onDelete).toHaveBeenCalledWith('folder/note.md');
+      expect(onDelete).toHaveBeenCalledWith("folder/note.md");
       expect(preventDefault).toHaveBeenCalled();
     });
 
-    it('opens the import dialog with Ctrl+I', () => {
+    it("opens the import dialog with Ctrl+I", () => {
       createTreeRenderer();
       const preventDefault = jest.fn();
-      fireShortcut({ key: 'i', ctrlKey: true, preventDefault });
+      fireShortcut({ key: "i", ctrlKey: true, preventDefault });
 
-      expect((global as any).window.notegitApi.dialog.showOpenDialog).toHaveBeenCalled();
+      expect(
+        (global as any).window.notegitApi.dialog.showOpenDialog,
+      ).toHaveBeenCalled();
       expect(preventDefault).toHaveBeenCalled();
     });
 
-    it('opens the rename dialog with Ctrl+R and F2', () => {
+    it("opens the rename dialog with Ctrl+R and F2", () => {
       const renderer = createTreeRenderer();
       const treeView = renderer.root.findByType(TreeView);
       act(() => {
-        treeView.props.onNodeSelect(null, 'folder/note.md');
+        treeView.props.onNodeSelect(null, "folder/note.md");
       });
 
       const preventDefault = jest.fn();
-      fireShortcut({ key: 'r', ctrlKey: true, preventDefault });
+      fireShortcut({ key: "r", ctrlKey: true, preventDefault });
 
       let renameDialog = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'rename-dialog'
+        (node) => node.props && node.props["data-testid"] === "rename-dialog",
       );
       expect(renameDialog.props.open).toBe(true);
       expect(preventDefault).toHaveBeenCalled();
@@ -302,38 +333,38 @@ describe('FileTreeView toolbar actions', () => {
       });
 
       const preventDefaultF2 = jest.fn();
-      fireShortcut({ key: 'F2', preventDefault: preventDefaultF2 });
+      fireShortcut({ key: "F2", preventDefault: preventDefaultF2 });
       renameDialog = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'rename-dialog'
+        (node) => node.props && node.props["data-testid"] === "rename-dialog",
       );
       expect(renameDialog.props.open).toBe(true);
       expect(preventDefaultF2).toHaveBeenCalled();
     });
 
-    it('opens the move dialog with Ctrl+M', () => {
+    it("opens the move dialog with Ctrl+M", () => {
       const renderer = createTreeRenderer();
       const treeView = renderer.root.findByType(TreeView);
       act(() => {
-        treeView.props.onNodeSelect(null, 'folder/note.md');
+        treeView.props.onNodeSelect(null, "folder/note.md");
       });
 
       const preventDefault = jest.fn();
-      fireShortcut({ key: 'm', ctrlKey: true, preventDefault });
+      fireShortcut({ key: "m", ctrlKey: true, preventDefault });
 
       const moveDialog = renderer.root.findByType(MoveToFolderDialog);
       expect(moveDialog.props.open).toBe(true);
       expect(preventDefault).toHaveBeenCalled();
     });
 
-    it('collapses all folders with Ctrl/Cmd+Shift+E', () => {
+    it("collapses all folders with Ctrl/Cmd+Shift+E", () => {
       const renderer = createTreeRenderer();
       let treeView = renderer.root.findByType(TreeView);
       act(() => {
-        treeView.props.onNodeToggle(null, ['folder']);
+        treeView.props.onNodeToggle(null, ["folder"]);
       });
 
       const preventDefault = jest.fn();
-      fireShortcut({ key: 'e', ctrlKey: true, shiftKey: true, preventDefault });
+      fireShortcut({ key: "e", ctrlKey: true, shiftKey: true, preventDefault });
 
       treeView = renderer.root.findByType(TreeView);
       expect(treeView.props.expanded).toEqual([]);
@@ -341,97 +372,99 @@ describe('FileTreeView toolbar actions', () => {
     });
   });
 
-  describe('favorites list', () => {
-    it('adds the selection to favorites via the context menu and exposes the list', () => {
+  describe("favorites list", () => {
+    it("adds the selection to favorites via the context menu and exposes the list", () => {
       const onSelectFile = jest.fn();
       const renderer = createTreeRenderer({ onSelectFile });
-      triggerFavoriteFromContextMenu(renderer, 'folder/note.md');
+      triggerFavoriteFromContextMenu(renderer, "folder/note.md");
 
       const favoritesSection = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'favorites-section'
+        (node) =>
+          node.props && node.props["data-testid"] === "favorites-section",
       );
       expect(favoritesSection).toBeDefined();
 
       const favoriteItem = renderer.root
         .findAllByType(Button)
-        .find((button) => flattenText(button) === 'note.md');
+        .find((button) => flattenText(button) === "note.md");
       expect(favoriteItem).toBeDefined();
 
       act(() => favoriteItem?.props.onClick());
-      expect(onSelectFile).toHaveBeenCalledWith('folder/note.md', 'file');
+      expect(onSelectFile).toHaveBeenCalledWith("folder/note.md", "file");
 
       const treeViewAfter = renderer.root.findByType(TreeView);
-      expect(treeViewAfter.props.selected).toBe('folder/note.md');
+      expect(treeViewAfter.props.selected).toBe("folder/note.md");
     });
 
-    it('opens the editor when a favorite file is clicked', () => {
+    it("opens the editor when a favorite file is clicked", () => {
       const onSelectFile = jest.fn();
       const renderer = createTreeRenderer({ onSelectFile });
-      triggerFavoriteFromContextMenu(renderer, 'folder/note.md');
+      triggerFavoriteFromContextMenu(renderer, "folder/note.md");
 
       const favoriteItem = renderer.root
         .findAllByType(Button)
-        .find((button) => flattenText(button) === 'note.md');
+        .find((button) => flattenText(button) === "note.md");
       expect(favoriteItem).toBeDefined();
 
       act(() => favoriteItem?.props.onClick());
-      expect(onSelectFile).toHaveBeenCalledWith('folder/note.md', 'file');
+      expect(onSelectFile).toHaveBeenCalledWith("folder/note.md", "file");
     });
 
-    it('selects the tree node when a favorite file is clicked', () => {
+    it("selects the tree node when a favorite file is clicked", () => {
       const renderer = createTreeRenderer();
-      triggerFavoriteFromContextMenu(renderer, 'folder/note.md');
+      triggerFavoriteFromContextMenu(renderer, "folder/note.md");
 
       const favoriteItem = renderer.root
         .findAllByType(Button)
-        .find((button) => flattenText(button) === 'note.md');
+        .find((button) => flattenText(button) === "note.md");
       expect(favoriteItem).toBeDefined();
 
       act(() => favoriteItem?.props.onClick());
 
       const treeViewAfter = renderer.root.findByType(TreeView);
-      expect(treeViewAfter.props.selected).toBe('folder/note.md');
+      expect(treeViewAfter.props.selected).toBe("folder/note.md");
     });
 
-    it('expands a favorited folder when selected from favorites', () => {
+    it("expands a favorited folder when selected from favorites", () => {
       const renderer = createTreeRenderer();
-      triggerFavoriteFromContextMenu(renderer, 'folder');
+      triggerFavoriteFromContextMenu(renderer, "folder");
 
       const favoriteItem = renderer.root
         .findAllByType(Button)
-        .find((button) => flattenText(button) === 'folder');
+        .find((button) => flattenText(button) === "folder");
       expect(favoriteItem).toBeDefined();
 
       act(() => favoriteItem?.props.onClick());
 
       const treeViewAfter = renderer.root.findByType(TreeView);
-      expect(treeViewAfter.props.expanded).toContain('folder');
+      expect(treeViewAfter.props.expanded).toContain("folder");
     });
 
-    it('toggles favorites using the configured keyboard shortcut', () => {
+    it("toggles favorites using the configured keyboard shortcut", () => {
       const renderer = createTreeRenderer();
       const treeView = renderer.root.findByType(TreeView);
       act(() => {
-        treeView.props.onNodeSelect(null, 'folder/note.md');
+        treeView.props.onNodeSelect(null, "folder/note.md");
       });
 
       const preventDefault = jest.fn();
-      fireShortcut({ key: 's', ctrlKey: true, shiftKey: true, preventDefault });
+      fireShortcut({ key: "s", ctrlKey: true, shiftKey: true, preventDefault });
 
       expect(preventDefault).toHaveBeenCalled();
       const favoritesSection = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'favorites-section'
+        (node) =>
+          node.props && node.props["data-testid"] === "favorites-section",
       );
       expect(favoritesSection).toBeDefined();
     });
 
-    it('removes a favorite via the context menu', () => {
+    it("removes a favorite via the context menu", () => {
       const renderer = createTreeRenderer();
-      triggerFavoriteFromContextMenu(renderer, 'folder/note.md');
+      triggerFavoriteFromContextMenu(renderer, "folder/note.md");
 
       const favoriteItem = renderer.root
         .findAllByType(Button)
-        .find((button) => flattenText(button) === 'note.md');
+        .find((button) => flattenText(button) === "note.md");
       expect(favoriteItem).toBeDefined();
 
       act(() => {
@@ -442,40 +475,49 @@ describe('FileTreeView toolbar actions', () => {
       });
 
       const menuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'favorite-context-menu-remove'
+        (node) =>
+          node.props &&
+          node.props["data-testid"] === "favorite-context-menu-remove",
       );
       act(() => menuItem.props.onClick());
 
       const favoritesSection = renderer.root.findAll(
-        (node) => node.props && node.props['data-testid'] === 'favorites-section'
+        (node) =>
+          node.props && node.props["data-testid"] === "favorites-section",
       );
       expect(favoritesSection.length).toBe(0);
     });
   });
 
-  describe('tree context menu', () => {
-    it('offers new file and new folder when right-clicking a folder', () => {
+  describe("tree context menu", () => {
+    it("offers new file and new folder when right-clicking a folder", () => {
       const renderer = createTreeRenderer();
-      openTreeContextMenu(renderer, 'folder');
+      openTreeContextMenu(renderer, "folder");
 
       const newFileMenuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-file'
+        (node) =>
+          node.props &&
+          node.props["data-testid"] === "tree-context-node-new-file",
       );
       const newFolderMenuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-folder'
+        (node) =>
+          node.props &&
+          node.props["data-testid"] === "tree-context-node-new-folder",
       );
 
       expect(newFileMenuItem).toBeDefined();
       expect(newFolderMenuItem).toBeDefined();
     });
 
-    it('creates a file in the right-clicked folder', async () => {
+    it("creates a file in the right-clicked folder", async () => {
       const onCreateFile = jest.fn().mockResolvedValue(undefined);
       const renderer = createTreeRenderer({ onCreateFile });
-      openTreeContextMenu(renderer, 'folder');
+      openTreeContextMenu(renderer, "folder");
 
       const newFileMenuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-file'
+        (node) =>
+          node.props &&
+          node.props["data-testid"] === "tree-context-node-new-file",
       );
       act(() => newFileMenuItem.props.onClick());
 
@@ -483,34 +525,38 @@ describe('FileTreeView toolbar actions', () => {
         .findAllByType(TextField)
         .find((field) => field.props.label === FILE_TREE_TEXT.fileNameLabel);
       if (!textField) {
-        throw new Error('File name input not found');
+        throw new Error("File name input not found");
       }
 
       act(() => {
-        textField.props.onChange({ target: { value: 'from-context' } });
+        textField.props.onChange({ target: { value: "from-context" } });
       });
 
       const createButton = renderer.root
         .findAllByType(Button)
-        .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
+        .find(
+          (button: any) => button.props?.children === FILE_TREE_TEXT.create,
+        );
       if (!createButton) {
-        throw new Error('Create button not found');
+        throw new Error("Create button not found");
       }
 
       await act(async () => {
         createButton.props.onClick();
       });
 
-      expect(onCreateFile).toHaveBeenCalledWith('folder', 'from-context.md');
+      expect(onCreateFile).toHaveBeenCalledWith("folder", "from-context.md");
     });
 
-    it('creates a folder in the right-clicked folder', async () => {
+    it("creates a folder in the right-clicked folder", async () => {
       const onCreateFolder = jest.fn().mockResolvedValue(undefined);
       const renderer = createTreeRenderer({ onCreateFolder });
-      openTreeContextMenu(renderer, 'folder');
+      openTreeContextMenu(renderer, "folder");
 
       const newFolderMenuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'tree-context-node-new-folder'
+        (node) =>
+          node.props &&
+          node.props["data-testid"] === "tree-context-node-new-folder",
       );
       act(() => newFolderMenuItem.props.onClick());
 
@@ -518,128 +564,144 @@ describe('FileTreeView toolbar actions', () => {
         .findAllByType(TextField)
         .find((field) => field.props.label === FILE_TREE_TEXT.folderNameLabel);
       if (!textField) {
-        throw new Error('Folder name input not found');
+        throw new Error("Folder name input not found");
       }
 
       act(() => {
-        textField.props.onChange({ target: { value: 'nested-from-context' } });
+        textField.props.onChange({ target: { value: "nested-from-context" } });
       });
 
       const createButton = renderer.root
         .findAllByType(Button)
-        .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
+        .find(
+          (button: any) => button.props?.children === FILE_TREE_TEXT.create,
+        );
       if (!createButton) {
-        throw new Error('Create button not found');
+        throw new Error("Create button not found");
       }
 
       await act(async () => {
         createButton.props.onClick();
       });
 
-      expect(onCreateFolder).toHaveBeenCalledWith('folder', 'nested-from-context');
+      expect(onCreateFolder).toHaveBeenCalledWith(
+        "folder",
+        "nested-from-context",
+      );
     });
 
-    it('opens rename from context menu', () => {
+    it("opens rename from context menu", () => {
       const renderer = createTreeRenderer();
-      openTreeContextMenu(renderer, 'folder/note.md');
+      openTreeContextMenu(renderer, "folder/note.md");
 
       const renameMenuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'tree-context-rename'
+        (node) =>
+          node.props && node.props["data-testid"] === "tree-context-rename",
       );
       act(() => renameMenuItem.props.onClick());
 
       const renameDialog = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'rename-dialog'
+        (node) => node.props && node.props["data-testid"] === "rename-dialog",
       );
 
       expect(renameDialog.props.open).toBe(true);
     });
 
-    it('deletes nodes via context menu', async () => {
+    it("deletes nodes via context menu", async () => {
       const onDelete = jest.fn().mockResolvedValue(undefined);
       const renderer = createTreeRenderer({ onDelete });
-      openTreeContextMenu(renderer, 'folder/note.md');
+      openTreeContextMenu(renderer, "folder/note.md");
 
       (global as any).window.confirm = jest.fn().mockReturnValue(true);
       const deleteMenuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'tree-context-delete'
+        (node) =>
+          node.props && node.props["data-testid"] === "tree-context-delete",
       );
 
       await act(async () => deleteMenuItem.props.onClick());
 
-      expect(onDelete).toHaveBeenCalledWith('folder/note.md');
+      expect(onDelete).toHaveBeenCalledWith("folder/note.md");
     });
 
-    it('duplicates file via context menu', async () => {
-      const onDuplicate = jest.fn().mockResolvedValue('folder/note(1).md');
+    it("duplicates file via context menu", async () => {
+      const onDuplicate = jest.fn().mockResolvedValue("folder/note(1).md");
       const renderer = createTreeRenderer({ onDuplicate });
-      openTreeContextMenu(renderer, 'folder/note.md');
+      openTreeContextMenu(renderer, "folder/note.md");
 
       const duplicateMenuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'tree-context-duplicate'
+        (node) =>
+          node.props && node.props["data-testid"] === "tree-context-duplicate",
       );
 
       await act(async () => duplicateMenuItem.props.onClick());
 
-      expect(onDuplicate).toHaveBeenCalledWith('folder/note.md');
+      expect(onDuplicate).toHaveBeenCalledWith("folder/note.md");
     });
   });
 
-  describe('tree background context menu', () => {
-    it('offers create options when no selection exists', () => {
+  describe("tree background context menu", () => {
+    it("offers create options when no selection exists", () => {
       const renderer = createTreeRenderer();
       openTreeContainerContextMenu(renderer);
 
       const menuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'tree-context-new-file'
+        (node) =>
+          node.props && node.props["data-testid"] === "tree-context-new-file",
       );
       expect(menuItem).toBeDefined();
     });
 
-    it('opens create file dialog from the context menu', () => {
+    it("opens create file dialog from the context menu", () => {
       const renderer = createTreeRenderer();
       openTreeContainerContextMenu(renderer);
 
       const menuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'tree-context-new-file'
+        (node) =>
+          node.props && node.props["data-testid"] === "tree-context-new-file",
       );
       act(() => menuItem.props.onClick());
 
       const fileDialog = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'create-file-dialog'
+        (node) =>
+          node.props && node.props["data-testid"] === "create-file-dialog",
       );
       expect(fileDialog.props.open).toBe(true);
     });
 
-    it('opens create folder dialog from the context menu', () => {
+    it("opens create folder dialog from the context menu", () => {
       const renderer = createTreeRenderer();
       openTreeContainerContextMenu(renderer);
 
       const menuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'tree-context-new-folder'
+        (node) =>
+          node.props && node.props["data-testid"] === "tree-context-new-folder",
       );
       act(() => menuItem.props.onClick());
 
       const folderDialog = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'create-folder-dialog'
+        (node) =>
+          node.props && node.props["data-testid"] === "create-folder-dialog",
       );
       expect(folderDialog.props.open).toBe(true);
     });
 
-    it('invokes import when selecting Import from the context menu', () => {
+    it("invokes import when selecting Import from the context menu", () => {
       const renderer = createTreeRenderer();
       openTreeContainerContextMenu(renderer);
 
       const menuItem = renderer.root.find(
-        (node) => node.props && node.props['data-testid'] === 'tree-context-import'
+        (node) =>
+          node.props && node.props["data-testid"] === "tree-context-import",
       );
       act(() => menuItem.props.onClick());
 
-      expect((global as any).window.notegitApi.dialog.showOpenDialog).toHaveBeenCalled();
+      expect(
+        (global as any).window.notegitApi.dialog.showOpenDialog,
+      ).toHaveBeenCalled();
     });
   });
 
-  it('invokes back and forward actions from the toolbar', () => {
+  it("invokes back and forward actions from the toolbar", () => {
     const onNavigateBack = jest.fn();
     const onNavigateForward = jest.fn();
     const renderer = createTreeRenderer({
@@ -649,8 +711,8 @@ describe('FileTreeView toolbar actions', () => {
       canNavigateForward: true,
     });
 
-    const backButton = getTooltipButton(renderer, 'Back');
-    const forwardButton = getTooltipButton(renderer, 'Forward');
+    const backButton = getTooltipButton(renderer, "Back");
+    const forwardButton = getTooltipButton(renderer, "Forward");
 
     act(() => {
       backButton.props.onClick();
@@ -661,10 +723,13 @@ describe('FileTreeView toolbar actions', () => {
     expect(onNavigateForward).toHaveBeenCalled();
   });
 
-  it('collapses and expands the tree via the hamburger button', () => {
-    const renderer = createTreeRenderer({ selectedFile: 'folder/note.md' });
+  it("collapses and expands the tree via the hamburger button", () => {
+    const renderer = createTreeRenderer({ selectedFile: "folder/note.md" });
 
-    const collapseButton = getTooltipButton(renderer, TOOLBAR_TEXT.collapseTree);
+    const collapseButton = getTooltipButton(
+      renderer,
+      TOOLBAR_TEXT.collapseTree,
+    );
     expect(collapseButton.props.disabled).toBe(false);
     act(() => {
       collapseButton.props.onClick();
@@ -684,13 +749,16 @@ describe('FileTreeView toolbar actions', () => {
     expect(getTooltipButton(renderer, FILE_TREE_TEXT.newFile)).toBeDefined();
   });
 
-  it('disables collapse hamburger when no file is open', () => {
+  it("disables collapse hamburger when no file is open", () => {
     const renderer = createTreeRenderer({ selectedFile: null });
-    const collapseButton = getTooltipButton(renderer, TOOLBAR_TEXT.collapseTree);
+    const collapseButton = getTooltipButton(
+      renderer,
+      TOOLBAR_TEXT.collapseTree,
+    );
     expect(collapseButton.props.disabled).toBe(true);
   });
 
-  it('invokes controlled collapse callback from hamburger button', () => {
+  it("invokes controlled collapse callback from hamburger button", () => {
     const onToggleCollapse = jest.fn();
     const renderer = createTreeRenderer({
       isCollapsed: true,
@@ -706,14 +774,14 @@ describe('FileTreeView toolbar actions', () => {
     expect(renderer.root.findAllByType(TreeView)).toHaveLength(0);
   });
 
-  it('does not register tree shortcuts when tree is collapsed', () => {
+  it("does not register tree shortcuts when tree is collapsed", () => {
     createTreeRenderer({
       isCollapsed: true,
     });
     expect(treeKeyHandlers.keydown).toBeUndefined();
   });
 
-  it('opens move dialog from context menu for selected node', () => {
+  it("opens move dialog from context menu for selected node", () => {
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -725,15 +793,15 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
-    openMoveDialogFromContextMenu(renderer, 'folder/note.md');
+    openMoveDialogFromContextMenu(renderer, "folder/note.md");
 
     const dialog = renderer.root.findByType(MoveToFolderDialog);
     expect(dialog.props.open).toBe(true);
   });
 
-  it('creates an S3-safe markdown file name when creating a file', async () => {
+  it("creates an S3-safe markdown file name when creating a file", async () => {
     const onCreateFile = jest.fn().mockResolvedValue(undefined);
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -746,7 +814,7 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: true,
-      })
+      }),
     );
 
     const newFileButton = getTooltipButton(renderer, FILE_TREE_TEXT.newFile);
@@ -759,27 +827,29 @@ describe('FileTreeView toolbar actions', () => {
       .find((field) => field.props.label === FILE_TREE_TEXT.fileNameLabel);
 
     if (!textField) {
-      throw new Error('File name input not found');
+      throw new Error("File name input not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'My Note' } });
+      textField.props.onChange({ target: { value: "My Note" } });
     });
 
     const buttons = renderer.root.findAllByType(Button);
-    const createAction = buttons.find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
+    const createAction = buttons.find(
+      (button: any) => button.props?.children === FILE_TREE_TEXT.create,
+    );
     if (!createAction) {
-      throw new Error('Create button not found');
+      throw new Error("Create button not found");
     }
 
     await act(async () => {
       createAction.props.onClick();
     });
 
-    expect(onCreateFile).toHaveBeenCalledWith('', 'My-Note.md');
+    expect(onCreateFile).toHaveBeenCalledWith("", "My-Note.md");
   });
 
-  it('shows validation error for invalid folder names', async () => {
+  it("shows validation error for invalid folder names", async () => {
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -791,10 +861,13 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
-    const newFolderButton = getTooltipButton(renderer, FILE_TREE_TEXT.newFolder);
+    const newFolderButton = getTooltipButton(
+      renderer,
+      FILE_TREE_TEXT.newFolder,
+    );
     act(() => {
       newFolderButton.props.onClick();
     });
@@ -804,27 +877,31 @@ describe('FileTreeView toolbar actions', () => {
       .find((field) => field.props.label === FILE_TREE_TEXT.folderNameLabel);
 
     if (!textField) {
-      throw new Error('Folder name input not found');
+      throw new Error("Folder name input not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'bad*name' } });
+      textField.props.onChange({ target: { value: "bad*name" } });
     });
 
     const buttons = renderer.root.findAllByType(Button);
-    const createAction = buttons.find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
+    const createAction = buttons.find(
+      (button: any) => button.props?.children === FILE_TREE_TEXT.create,
+    );
     if (!createAction) {
-      throw new Error('Create button not found');
+      throw new Error("Create button not found");
     }
 
     await act(async () => {
       createAction.props.onClick();
     });
 
-    expect(flattenText(renderer.toJSON())).toContain('Folder name contains invalid characters');
+    expect(flattenText(renderer.toJSON())).toContain(
+      "Folder name contains invalid characters",
+    );
   });
 
-  it('does not delete when confirmation is rejected', async () => {
+  it("does not delete when confirmation is rejected", async () => {
     (global as any).window.confirm = jest.fn().mockReturnValue(false);
     const onDelete = jest.fn();
 
@@ -839,24 +916,26 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     const treeView = renderer.root.findByType(TreeView);
     act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
+      treeView.props.onNodeSelect(null, "folder/note.md");
     });
-    await triggerDeleteFromContextMenu(renderer, 'folder/note.md');
+    await triggerDeleteFromContextMenu(renderer, "folder/note.md");
 
     expect(onDelete).not.toHaveBeenCalled();
   });
 
-  it('imports a file into the selected folder', async () => {
+  it("imports a file into the selected folder", async () => {
     const onImport = jest.fn().mockResolvedValue(undefined);
-    (global as any).window.notegitApi.dialog.showOpenDialog = jest.fn().mockResolvedValue({
-      canceled: false,
-      filePaths: ['/tmp/import.md'],
-    });
+    (global as any).window.notegitApi.dialog.showOpenDialog = jest
+      .fn()
+      .mockResolvedValue({
+        canceled: false,
+        filePaths: ["/tmp/import.md"],
+      });
 
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -869,12 +948,12 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport,
         isS3Repo: false,
-      })
+      }),
     );
 
     const treeView = renderer.root.findByType(TreeView);
     act(() => {
-      treeView.props.onNodeSelect(null, 'folder');
+      treeView.props.onNodeSelect(null, "folder");
     });
 
     const importButton = getTooltipButton(renderer, FILE_TREE_TEXT.importFile);
@@ -882,10 +961,10 @@ describe('FileTreeView toolbar actions', () => {
       importButton.props.onClick();
     });
 
-    expect(onImport).toHaveBeenCalledWith('/tmp/import.md', 'folder/import.md');
+    expect(onImport).toHaveBeenCalledWith("/tmp/import.md", "folder/import.md");
   });
 
-  it('collapses all folders from the toolbar', () => {
+  it("collapses all folders from the toolbar", () => {
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -897,15 +976,18 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     let treeView = renderer.root.findByType(TreeView);
     act(() => {
-      treeView.props.onNodeToggle(null, ['folder']);
+      treeView.props.onNodeToggle(null, ["folder"]);
     });
 
-    const collapseButton = getTooltipButton(renderer, FILE_TREE_TEXT.collapseAll);
+    const collapseButton = getTooltipButton(
+      renderer,
+      FILE_TREE_TEXT.collapseAll,
+    );
     act(() => {
       collapseButton.props.onClick();
     });
@@ -914,7 +996,7 @@ describe('FileTreeView toolbar actions', () => {
     expect(treeView.props.expanded).toEqual([]);
   });
 
-  it('renames a selected file', async () => {
+  it("renames a selected file", async () => {
     const onRename = jest.fn().mockResolvedValue(undefined);
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -927,35 +1009,40 @@ describe('FileTreeView toolbar actions', () => {
         onRename,
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
-    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
+    openRenameDialogFromContextMenu(renderer, "folder/note.md");
 
     const textField = renderer.root
       .findAllByType(TextField)
       .find((field) => field.props.label === FILE_TREE_TEXT.newNameLabel);
     if (!textField) {
-      throw new Error('Rename field not found');
+      throw new Error("Rename field not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'renamed.md' } });
+      textField.props.onChange({ target: { value: "renamed.md" } });
     });
 
     const buttons = renderer.root.findAllByType(Button);
-    const renameAction = buttons.find((button: any) => button.props?.children === FILE_TREE_TEXT.renameAction);
+    const renameAction = buttons.find(
+      (button: any) => button.props?.children === FILE_TREE_TEXT.renameAction,
+    );
     if (!renameAction) {
-      throw new Error('Rename action not found');
+      throw new Error("Rename action not found");
     }
 
     await act(async () => {
       renameAction.props.onClick();
     });
 
-    expect(onRename).toHaveBeenCalledWith('folder/note.md', 'folder/renamed.md');
+    expect(onRename).toHaveBeenCalledWith(
+      "folder/note.md",
+      "folder/renamed.md",
+    );
   });
 
-  it('moves a file via the move dialog', async () => {
+  it("moves a file via the move dialog", async () => {
     const onRename = jest.fn().mockResolvedValue(undefined);
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -968,19 +1055,19 @@ describe('FileTreeView toolbar actions', () => {
         onRename,
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
-    openMoveDialogFromContextMenu(renderer, 'folder/note.md');
+    openMoveDialogFromContextMenu(renderer, "folder/note.md");
 
     const dialog = renderer.root.findByType(MoveToFolderDialog);
     await act(async () => {
-      await dialog.props.onConfirm('folder');
+      await dialog.props.onConfirm("folder");
     });
 
-    expect(onRename).toHaveBeenCalledWith('folder/note.md', 'folder/note.md');
+    expect(onRename).toHaveBeenCalledWith("folder/note.md", "folder/note.md");
   });
 
-  it('selects and clears a file selection', () => {
+  it("selects and clears a file selection", () => {
     const onSelectFile = jest.fn();
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -993,31 +1080,33 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     const treeView = renderer.root.findByType(TreeView);
     act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
+      treeView.props.onNodeSelect(null, "folder/note.md");
     });
 
-    expect(onSelectFile).toHaveBeenCalledWith('folder/note.md', 'file');
+    expect(onSelectFile).toHaveBeenCalledWith("folder/note.md", "file");
 
     const container = renderer.root.findAll(
-      (node) => node.props.className === 'tree-container'
+      (node) => node.props.className === "tree-container",
     )[0];
 
     act(() => {
       container.props.onClick({
         target: {
-          classList: { contains: (value: string) => value === 'tree-container' },
+          classList: {
+            contains: (value: string) => value === "tree-container",
+          },
           closest: () => null,
         },
       });
     });
   });
 
-  it('creates a file inside the selected folder', async () => {
+  it("creates a file inside the selected folder", async () => {
     const onCreateFile = jest.fn().mockResolvedValue(undefined);
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -1030,12 +1119,12 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     const treeView = renderer.root.findByType(TreeView);
     act(() => {
-      treeView.props.onNodeSelect(null, 'folder');
+      treeView.props.onNodeSelect(null, "folder");
     });
 
     const newFileButton = getTooltipButton(renderer, FILE_TREE_TEXT.newFile);
@@ -1048,28 +1137,28 @@ describe('FileTreeView toolbar actions', () => {
       .find((field) => field.props.label === FILE_TREE_TEXT.fileNameLabel);
 
     if (!textField) {
-      throw new Error('File name input not found');
+      throw new Error("File name input not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'New Note' } });
+      textField.props.onChange({ target: { value: "New Note" } });
     });
 
     const createButton = renderer.root
       .findAllByType(Button)
       .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
     if (!createButton) {
-      throw new Error('Create button not found');
+      throw new Error("Create button not found");
     }
 
     await act(async () => {
       createButton.props.onClick();
     });
 
-    expect(onCreateFile).toHaveBeenCalledWith('folder', 'New Note.md');
+    expect(onCreateFile).toHaveBeenCalledWith("folder", "New Note.md");
   });
 
-  it('creates a file using the selected file parent path', async () => {
+  it("creates a file using the selected file parent path", async () => {
     const onCreateFile = jest.fn().mockResolvedValue(undefined);
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -1082,12 +1171,12 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     const treeView = renderer.root.findByType(TreeView);
     act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
+      treeView.props.onNodeSelect(null, "folder/note.md");
     });
 
     const newFileButton = getTooltipButton(renderer, FILE_TREE_TEXT.newFile);
@@ -1099,32 +1188,34 @@ describe('FileTreeView toolbar actions', () => {
       .findAllByType(TextField)
       .find((field) => field.props.label === FILE_TREE_TEXT.fileNameLabel);
     if (!textField) {
-      throw new Error('File name input not found');
+      throw new Error("File name input not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'child' } });
+      textField.props.onChange({ target: { value: "child" } });
     });
 
     const createButton = renderer.root
       .findAllByType(Button)
       .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
     if (!createButton) {
-      throw new Error('Create button not found');
+      throw new Error("Create button not found");
     }
 
     await act(async () => {
       createButton.props.onClick();
     });
 
-    expect(onCreateFile).toHaveBeenCalledWith('folder', 'child.md');
+    expect(onCreateFile).toHaveBeenCalledWith("folder", "child.md");
     const treeViewAfter = renderer.root.findByType(TreeView);
-    expect(treeViewAfter.props.expanded).toContain('folder');
+    expect(treeViewAfter.props.expanded).toContain("folder");
   });
 
-  it('shows permission error when creating a file is denied', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    const onCreateFile = jest.fn().mockRejectedValue(new Error('EACCES'));
+  it("shows permission error when creating a file is denied", async () => {
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const onCreateFile = jest.fn().mockRejectedValue(new Error("EACCES"));
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -1136,7 +1227,7 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     const newFileButton = getTooltipButton(renderer, FILE_TREE_TEXT.newFile);
@@ -1148,29 +1239,31 @@ describe('FileTreeView toolbar actions', () => {
       .findAllByType(TextField)
       .find((field) => field.props.label === FILE_TREE_TEXT.fileNameLabel);
     if (!textField) {
-      throw new Error('File name input not found');
+      throw new Error("File name input not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'note' } });
+      textField.props.onChange({ target: { value: "note" } });
     });
 
     const createButton = renderer.root
       .findAllByType(Button)
       .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
     if (!createButton) {
-      throw new Error('Create button not found');
+      throw new Error("Create button not found");
     }
 
     await act(async () => {
       createButton.props.onClick();
     });
 
-    expect(flattenText(renderer.toJSON())).toContain('Permission denied to create file');
+    expect(flattenText(renderer.toJSON())).toContain(
+      "Permission denied to create file",
+    );
     consoleSpy.mockRestore();
   });
 
-  it('creates a folder inside the selected folder', async () => {
+  it("creates a folder inside the selected folder", async () => {
     const onCreateFolder = jest.fn().mockResolvedValue(undefined);
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -1183,15 +1276,18 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     const treeView = renderer.root.findByType(TreeView);
     act(() => {
-      treeView.props.onNodeSelect(null, 'folder');
+      treeView.props.onNodeSelect(null, "folder");
     });
 
-    const newFolderButton = getTooltipButton(renderer, FILE_TREE_TEXT.newFolder);
+    const newFolderButton = getTooltipButton(
+      renderer,
+      FILE_TREE_TEXT.newFolder,
+    );
     act(() => {
       newFolderButton.props.onClick();
     });
@@ -1200,30 +1296,32 @@ describe('FileTreeView toolbar actions', () => {
       .findAllByType(TextField)
       .find((field) => field.props.label === FILE_TREE_TEXT.folderNameLabel);
     if (!textField) {
-      throw new Error('Folder name input not found');
+      throw new Error("Folder name input not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'nested' } });
+      textField.props.onChange({ target: { value: "nested" } });
     });
 
     const createButton = renderer.root
       .findAllByType(Button)
       .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
     if (!createButton) {
-      throw new Error('Create button not found');
+      throw new Error("Create button not found");
     }
 
     await act(async () => {
       createButton.props.onClick();
     });
 
-    expect(onCreateFolder).toHaveBeenCalledWith('folder', 'nested');
+    expect(onCreateFolder).toHaveBeenCalledWith("folder", "nested");
   });
 
-  it('shows permission error when creating a folder is denied', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    const onCreateFolder = jest.fn().mockRejectedValue(new Error('permission'));
+  it("shows permission error when creating a folder is denied", async () => {
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const onCreateFolder = jest.fn().mockRejectedValue(new Error("permission"));
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -1235,10 +1333,13 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
-    const newFolderButton = getTooltipButton(renderer, FILE_TREE_TEXT.newFolder);
+    const newFolderButton = getTooltipButton(
+      renderer,
+      FILE_TREE_TEXT.newFolder,
+    );
     act(() => {
       newFolderButton.props.onClick();
     });
@@ -1247,29 +1348,31 @@ describe('FileTreeView toolbar actions', () => {
       .findAllByType(TextField)
       .find((field) => field.props.label === FILE_TREE_TEXT.folderNameLabel);
     if (!textField) {
-      throw new Error('Folder name input not found');
+      throw new Error("Folder name input not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'docs' } });
+      textField.props.onChange({ target: { value: "docs" } });
     });
 
     const createButton = renderer.root
       .findAllByType(Button)
       .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
     if (!createButton) {
-      throw new Error('Create button not found');
+      throw new Error("Create button not found");
     }
 
     await act(async () => {
       createButton.props.onClick();
     });
 
-    expect(flattenText(renderer.toJSON())).toContain('Permission denied to create folder');
+    expect(flattenText(renderer.toJSON())).toContain(
+      "Permission denied to create folder",
+    );
     consoleSpy.mockRestore();
   });
 
-  it('shows validation error for invalid file names', async () => {
+  it("shows validation error for invalid file names", async () => {
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -1281,7 +1384,7 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     const newFileButton = getTooltipButton(renderer, FILE_TREE_TEXT.newFile);
@@ -1294,29 +1397,31 @@ describe('FileTreeView toolbar actions', () => {
       .find((field) => field.props.label === FILE_TREE_TEXT.fileNameLabel);
 
     if (!textField) {
-      throw new Error('File name input not found');
+      throw new Error("File name input not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'bad*name' } });
+      textField.props.onChange({ target: { value: "bad*name" } });
     });
 
     const createButton = renderer.root
       .findAllByType(Button)
       .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
     if (!createButton) {
-      throw new Error('Create button not found');
+      throw new Error("Create button not found");
     }
 
     await act(async () => {
       createButton.props.onClick();
     });
 
-    expect(flattenText(renderer.toJSON())).toContain('File name contains invalid characters');
+    expect(flattenText(renderer.toJSON())).toContain(
+      "File name contains invalid characters",
+    );
   });
 
-  it('shows an error when creating a duplicate file', async () => {
-    const onCreateFile = jest.fn().mockRejectedValue(new Error('exists'));
+  it("shows an error when creating a duplicate file", async () => {
+    const onCreateFile = jest.fn().mockRejectedValue(new Error("exists"));
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -1328,7 +1433,7 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     const newFileButton = getTooltipButton(renderer, FILE_TREE_TEXT.newFile);
@@ -1341,18 +1446,18 @@ describe('FileTreeView toolbar actions', () => {
       .find((field) => field.props.label === FILE_TREE_TEXT.fileNameLabel);
 
     if (!textField) {
-      throw new Error('File name input not found');
+      throw new Error("File name input not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'note' } });
+      textField.props.onChange({ target: { value: "note" } });
     });
 
     const createButton = renderer.root
       .findAllByType(Button)
       .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
     if (!createButton) {
-      throw new Error('Create button not found');
+      throw new Error("Create button not found");
     }
 
     await act(async () => {
@@ -1360,10 +1465,10 @@ describe('FileTreeView toolbar actions', () => {
     });
 
     expect(onCreateFile).toHaveBeenCalled();
-    expect(flattenText(renderer.toJSON())).toContain('already exists');
+    expect(flattenText(renderer.toJSON())).toContain("already exists");
   });
 
-  it('creates a folder using the selected file parent', async () => {
+  it("creates a folder using the selected file parent", async () => {
     const onCreateFolder = jest.fn().mockResolvedValue(undefined);
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -1376,15 +1481,18 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     const treeView = renderer.root.findByType(TreeView);
     act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
+      treeView.props.onNodeSelect(null, "folder/note.md");
     });
 
-    const newFolderButton = getTooltipButton(renderer, FILE_TREE_TEXT.newFolder);
+    const newFolderButton = getTooltipButton(
+      renderer,
+      FILE_TREE_TEXT.newFolder,
+    );
     act(() => {
       newFolderButton.props.onClick();
     });
@@ -1394,28 +1502,28 @@ describe('FileTreeView toolbar actions', () => {
       .find((field) => field.props.label === FILE_TREE_TEXT.folderNameLabel);
 
     if (!textField) {
-      throw new Error('Folder name input not found');
+      throw new Error("Folder name input not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'docs' } });
+      textField.props.onChange({ target: { value: "docs" } });
     });
 
     const createButton = renderer.root
       .findAllByType(Button)
       .find((button: any) => button.props?.children === FILE_TREE_TEXT.create);
     if (!createButton) {
-      throw new Error('Create button not found');
+      throw new Error("Create button not found");
     }
 
     await act(async () => {
       createButton.props.onClick();
     });
 
-    expect(onCreateFolder).toHaveBeenCalledWith('folder', 'docs');
+    expect(onCreateFolder).toHaveBeenCalledWith("folder", "docs");
   });
 
-  it('shows error when rename is empty', async () => {
+  it("shows error when rename is empty", async () => {
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -1427,37 +1535,39 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
-    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
+    openRenameDialogFromContextMenu(renderer, "folder/note.md");
 
     const textField = renderer.root
       .findAllByType(TextField)
       .find((field) => field.props.label === FILE_TREE_TEXT.newNameLabel);
     if (!textField) {
-      throw new Error('Rename field not found');
+      throw new Error("Rename field not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: '   ' } });
+      textField.props.onChange({ target: { value: "   " } });
     });
 
     const renameAction = renderer.root
       .findAllByType(Button)
-      .find((button: any) => button.props?.children === FILE_TREE_TEXT.renameAction);
+      .find(
+        (button: any) => button.props?.children === FILE_TREE_TEXT.renameAction,
+      );
     if (!renameAction) {
-      throw new Error('Rename action not found');
+      throw new Error("Rename action not found");
     }
 
     await act(async () => {
       renameAction.props.onClick();
     });
 
-    expect(flattenText(renderer.toJSON())).toContain('Name cannot be empty');
+    expect(flattenText(renderer.toJSON())).toContain("Name cannot be empty");
   });
 
-  it('shows validation error for invalid rename characters', async () => {
+  it("shows validation error for invalid rename characters", async () => {
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -1469,39 +1579,45 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
-    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
+    openRenameDialogFromContextMenu(renderer, "folder/note.md");
 
     const textField = renderer.root
       .findAllByType(TextField)
       .find((field) => field.props.label === FILE_TREE_TEXT.newNameLabel);
     if (!textField) {
-      throw new Error('Rename field not found');
+      throw new Error("Rename field not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'bad*name' } });
+      textField.props.onChange({ target: { value: "bad*name" } });
     });
 
     const renameAction = renderer.root
       .findAllByType(Button)
-      .find((button: any) => button.props?.children === FILE_TREE_TEXT.renameAction);
+      .find(
+        (button: any) => button.props?.children === FILE_TREE_TEXT.renameAction,
+      );
     if (!renameAction) {
-      throw new Error('Rename action not found');
+      throw new Error("Rename action not found");
     }
 
     await act(async () => {
       renameAction.props.onClick();
     });
 
-    expect(flattenText(renderer.toJSON())).toContain('Name contains invalid characters');
+    expect(flattenText(renderer.toJSON())).toContain(
+      "Name contains invalid characters",
+    );
   });
 
-  it('shows rename error when target already exists', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    const onRename = jest.fn().mockRejectedValue(new Error('already exists'));
+  it("shows rename error when target already exists", async () => {
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const onRename = jest.fn().mockRejectedValue(new Error("already exists"));
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -1513,40 +1629,46 @@ describe('FileTreeView toolbar actions', () => {
         onRename,
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
-    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
+    openRenameDialogFromContextMenu(renderer, "folder/note.md");
 
     const textField = renderer.root
       .findAllByType(TextField)
       .find((field) => field.props.label === FILE_TREE_TEXT.newNameLabel);
     if (!textField) {
-      throw new Error('Rename field not found');
+      throw new Error("Rename field not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'duplicate.md' } });
+      textField.props.onChange({ target: { value: "duplicate.md" } });
     });
 
     const renameAction = renderer.root
       .findAllByType(Button)
-      .find((button: any) => button.props?.children === FILE_TREE_TEXT.renameAction);
+      .find(
+        (button: any) => button.props?.children === FILE_TREE_TEXT.renameAction,
+      );
     if (!renameAction) {
-      throw new Error('Rename action not found');
+      throw new Error("Rename action not found");
     }
 
     await act(async () => {
       renameAction.props.onClick();
     });
 
-    expect(flattenText(renderer.toJSON())).toContain('already exists');
+    expect(flattenText(renderer.toJSON())).toContain("already exists");
     consoleSpy.mockRestore();
   });
 
-  it('shows rename error when permission is denied', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    const onRename = jest.fn().mockRejectedValue(new Error('permission denied'));
+  it("shows rename error when permission is denied", async () => {
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const onRename = jest
+      .fn()
+      .mockRejectedValue(new Error("permission denied"));
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -1558,38 +1680,40 @@ describe('FileTreeView toolbar actions', () => {
         onRename,
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
-    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
+    openRenameDialogFromContextMenu(renderer, "folder/note.md");
 
     const textField = renderer.root
       .findAllByType(TextField)
       .find((field) => field.props.label === FILE_TREE_TEXT.newNameLabel);
     if (!textField) {
-      throw new Error('Rename field not found');
+      throw new Error("Rename field not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'new.md' } });
+      textField.props.onChange({ target: { value: "new.md" } });
     });
 
     const renameAction = renderer.root
       .findAllByType(Button)
-      .find((button: any) => button.props?.children === FILE_TREE_TEXT.renameAction);
+      .find(
+        (button: any) => button.props?.children === FILE_TREE_TEXT.renameAction,
+      );
     if (!renameAction) {
-      throw new Error('Rename action not found');
+      throw new Error("Rename action not found");
     }
 
     await act(async () => {
       renameAction.props.onClick();
     });
 
-    expect(flattenText(renderer.toJSON())).toContain('Permission denied');
+    expect(flattenText(renderer.toJSON())).toContain("Permission denied");
     consoleSpy.mockRestore();
   });
 
-  it('deletes selected node when confirmed', async () => {
+  it("deletes selected node when confirmed", async () => {
     (global as any).window.confirm = jest.fn().mockReturnValue(true);
     const onDelete = jest.fn().mockResolvedValue(undefined);
     const renderer = TestRenderer.create(
@@ -1603,21 +1727,21 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
-    await triggerDeleteFromContextMenu(renderer, 'folder/note.md');
+    await triggerDeleteFromContextMenu(renderer, "folder/note.md");
 
-    expect(onDelete).toHaveBeenCalledWith('folder/note.md');
+    expect(onDelete).toHaveBeenCalledWith("folder/note.md");
   });
 
-  it('expands folders when selectedFile is nested', async () => {
+  it("expands folders when selectedFile is nested", async () => {
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
       renderer = TestRenderer.create(
         React.createElement(FileTreeView, {
           tree,
-          selectedFile: 'folder/note.md',
+          selectedFile: "folder/note.md",
           onSelectFile: jest.fn(),
           onCreateFile: jest.fn(),
           onCreateFolder: jest.fn(),
@@ -1625,7 +1749,7 @@ describe('FileTreeView toolbar actions', () => {
           onRename: jest.fn(),
           onImport: jest.fn(),
           isS3Repo: false,
-        })
+        }),
       );
     });
 
@@ -1634,10 +1758,10 @@ describe('FileTreeView toolbar actions', () => {
     });
 
     const treeView = renderer!.root.findByType(TreeView);
-    expect(treeView.props.expanded).toContain('folder');
+    expect(treeView.props.expanded).toContain("folder");
   });
 
-  it('does not rename when name is unchanged', async () => {
+  it("does not rename when name is unchanged", async () => {
     const onRename = jest.fn();
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -1650,27 +1774,29 @@ describe('FileTreeView toolbar actions', () => {
         onRename,
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
-    openRenameDialogFromContextMenu(renderer, 'folder/note.md');
+    openRenameDialogFromContextMenu(renderer, "folder/note.md");
 
     const textField = renderer.root
       .findAllByType(TextField)
       .find((field) => field.props.label === FILE_TREE_TEXT.newNameLabel);
     if (!textField) {
-      throw new Error('Rename field not found');
+      throw new Error("Rename field not found");
     }
 
     act(() => {
-      textField.props.onChange({ target: { value: 'note.md' } });
+      textField.props.onChange({ target: { value: "note.md" } });
     });
 
     const renameAction = renderer.root
       .findAllByType(Button)
-      .find((button: any) => button.props?.children === FILE_TREE_TEXT.renameAction);
+      .find(
+        (button: any) => button.props?.children === FILE_TREE_TEXT.renameAction,
+      );
     if (!renameAction) {
-      throw new Error('Rename action not found');
+      throw new Error("Rename action not found");
     }
 
     await act(async () => {
@@ -1680,11 +1806,11 @@ describe('FileTreeView toolbar actions', () => {
     expect(onRename).not.toHaveBeenCalled();
   });
 
-  it('alerts when delete fails', async () => {
+  it("alerts when delete fails", async () => {
     (global as any).window.confirm = jest.fn().mockReturnValue(true);
     (global as any).window.alert = jest.fn();
     (global as any).alert = (global as any).window.alert;
-    const onDelete = jest.fn().mockRejectedValue(new Error('delete failed'));
+    const onDelete = jest.fn().mockRejectedValue(new Error("delete failed"));
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -1696,15 +1822,15 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
-    await triggerDeleteFromContextMenu(renderer, 'folder/note.md');
+    await triggerDeleteFromContextMenu(renderer, "folder/note.md");
 
     expect((global as any).window.alert).toHaveBeenCalled();
   });
 
-  it('alerts when dialog api is missing for import', async () => {
+  it("alerts when dialog api is missing for import", async () => {
     (global as any).window.notegitApi.dialog = undefined;
     (global as any).window.alert = jest.fn();
     (global as any).alert = (global as any).window.alert;
@@ -1721,7 +1847,7 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport,
         isS3Repo: false,
-      })
+      }),
     );
 
     const importButton = getTooltipButton(renderer, FILE_TREE_TEXT.importFile);
@@ -1730,16 +1856,18 @@ describe('FileTreeView toolbar actions', () => {
     });
 
     expect((global as any).window.alert).toHaveBeenCalledWith(
-      'Dialog API not available. Please restart the app.'
+      "Dialog API not available. Please restart the app.",
     );
     expect(onImport).not.toHaveBeenCalled();
   });
 
-  it('does not import when file selection is canceled', async () => {
-    (global as any).window.notegitApi.dialog.showOpenDialog = jest.fn().mockResolvedValue({
-      canceled: true,
-      filePaths: [],
-    });
+  it("does not import when file selection is canceled", async () => {
+    (global as any).window.notegitApi.dialog.showOpenDialog = jest
+      .fn()
+      .mockResolvedValue({
+        canceled: true,
+        filePaths: [],
+      });
     const onImport = jest.fn();
 
     const renderer = TestRenderer.create(
@@ -1753,7 +1881,7 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport,
         isS3Repo: false,
-      })
+      }),
     );
 
     const importButton = getTooltipButton(renderer, FILE_TREE_TEXT.importFile);
@@ -1764,12 +1892,14 @@ describe('FileTreeView toolbar actions', () => {
     expect(onImport).not.toHaveBeenCalled();
   });
 
-  it('imports into the parent folder when a file is selected', async () => {
+  it("imports into the parent folder when a file is selected", async () => {
     const onImport = jest.fn().mockResolvedValue(undefined);
-    (global as any).window.notegitApi.dialog.showOpenDialog = jest.fn().mockResolvedValue({
-      canceled: false,
-      filePaths: ['/tmp/another.md'],
-    });
+    (global as any).window.notegitApi.dialog.showOpenDialog = jest
+      .fn()
+      .mockResolvedValue({
+        canceled: false,
+        filePaths: ["/tmp/another.md"],
+      });
 
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -1782,12 +1912,12 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport,
         isS3Repo: false,
-      })
+      }),
     );
 
     const treeView = renderer.root.findByType(TreeView);
     act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
+      treeView.props.onNodeSelect(null, "folder/note.md");
     });
 
     const importButton = getTooltipButton(renderer, FILE_TREE_TEXT.importFile);
@@ -1795,18 +1925,25 @@ describe('FileTreeView toolbar actions', () => {
       importButton.props.onClick();
     });
 
-    expect(onImport).toHaveBeenCalledWith('/tmp/another.md', 'folder/another.md');
+    expect(onImport).toHaveBeenCalledWith(
+      "/tmp/another.md",
+      "folder/another.md",
+    );
   });
 
-  it('alerts when import fails', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  it("alerts when import fails", async () => {
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     (global as any).window.alert = jest.fn();
     (global as any).alert = (global as any).window.alert;
-    (global as any).window.notegitApi.dialog.showOpenDialog = jest.fn().mockResolvedValue({
-      canceled: false,
-      filePaths: ['/tmp/bad.md'],
-    });
-    const onImport = jest.fn().mockRejectedValue(new Error('boom'));
+    (global as any).window.notegitApi.dialog.showOpenDialog = jest
+      .fn()
+      .mockResolvedValue({
+        canceled: false,
+        filePaths: ["/tmp/bad.md"],
+      });
+    const onImport = jest.fn().mockRejectedValue(new Error("boom"));
 
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -1819,7 +1956,7 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport,
         isS3Repo: false,
-      })
+      }),
     );
 
     const importButton = getTooltipButton(renderer, FILE_TREE_TEXT.importFile);
@@ -1827,15 +1964,19 @@ describe('FileTreeView toolbar actions', () => {
       importButton.props.onClick();
     });
 
-    expect((global as any).window.alert).toHaveBeenCalledWith('Failed to import file: boom');
+    expect((global as any).window.alert).toHaveBeenCalledWith(
+      "Failed to import file: boom",
+    );
     consoleSpy.mockRestore();
   });
 
-  it('alerts when move fails', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  it("alerts when move fails", async () => {
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     (global as any).window.alert = jest.fn();
     (global as any).alert = (global as any).window.alert;
-    const onRename = jest.fn().mockRejectedValue(new Error('move failed'));
+    const onRename = jest.fn().mockRejectedValue(new Error("move failed"));
 
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
@@ -1848,21 +1989,23 @@ describe('FileTreeView toolbar actions', () => {
         onRename,
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
-    openMoveDialogFromContextMenu(renderer, 'folder/note.md');
+    openMoveDialogFromContextMenu(renderer, "folder/note.md");
 
     const dialog = renderer.root.findByType(MoveToFolderDialog);
     await act(async () => {
-      await dialog.props.onConfirm('dest');
+      await dialog.props.onConfirm("dest");
     });
 
-    expect((global as any).window.alert).toHaveBeenCalledWith('Failed to move: move failed');
+    expect((global as any).window.alert).toHaveBeenCalledWith(
+      "Failed to move: move failed",
+    );
     consoleSpy.mockRestore();
   });
 
-  it('clears selection when clicking the container background', () => {
+  it("clears selection when clicking the container background", () => {
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -1874,33 +2017,34 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     const treeView = renderer.root.findByType(TreeView);
     act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
+      treeView.props.onNodeSelect(null, "folder/note.md");
     });
 
     const container = renderer.root.findAll(
-      (node) => node.props.className === 'tree-container'
+      (node) => node.props.className === "tree-container",
     )[0];
     if (!container) {
-      throw new Error('Tree container not found');
+      throw new Error("Tree container not found");
     }
 
     act(() => {
       container.props.onClick({
         target: {
-          classList: { contains: (value: string) => value === 'tree-container' },
+          classList: {
+            contains: (value: string) => value === "tree-container",
+          },
           closest: () => null,
         },
       });
     });
-
   });
 
-  it('shows creation location for selected file parent', () => {
+  it("shows creation location for selected file parent", () => {
     const renderer = TestRenderer.create(
       React.createElement(FileTreeView, {
         tree,
@@ -1912,12 +2056,12 @@ describe('FileTreeView toolbar actions', () => {
         onRename: jest.fn(),
         onImport: jest.fn(),
         isS3Repo: false,
-      })
+      }),
     );
 
     const treeView = renderer.root.findByType(TreeView);
     act(() => {
-      treeView.props.onNodeSelect(null, 'folder/note.md');
+      treeView.props.onNodeSelect(null, "folder/note.md");
     });
 
     const newFileButton = getTooltipButton(renderer, FILE_TREE_TEXT.newFile);
@@ -1925,6 +2069,8 @@ describe('FileTreeView toolbar actions', () => {
       newFileButton.props.onClick();
     });
 
-    expect(flattenText(renderer.toJSON())).toContain('Will be created in: folder');
+    expect(flattenText(renderer.toJSON())).toContain(
+      "Will be created in: folder",
+    );
   });
 });

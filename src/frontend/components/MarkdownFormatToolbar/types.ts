@@ -1,6 +1,6 @@
-import type { MarkdownFormatters } from '../MarkdownEditor/types';
+import type { MarkdownFormatters } from "../MarkdownEditor/types";
 
-export type CheatSheetType = 'markdown' | 'mermaid';
+export type CheatSheetType = "markdown" | "mermaid";
 
 export interface MarkdownFormatToolbarProps {
   formatters: MarkdownFormatters;

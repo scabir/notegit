@@ -1,45 +1,46 @@
-import * as path from 'path';
-import { app } from 'electron';
+import * as path from "path";
+import { app } from "electron";
 
 export function slugifyProfileName(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-_]/g, '-')
-    .replace(/[-_]+/g, '-')
-    .replace(/^[-_]+|[-_]+$/g, '')
-    || 'repo';
+  return (
+    name
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-_]/g, "-")
+      .replace(/[-_]+/g, "-")
+      .replace(/^[-_]+|[-_]+$/g, "") || "repo"
+  );
 }
 
 export function getDefaultReposBaseDir(): string {
-  return path.join(app.getPath('userData'), 'repos');
+  return path.join(app.getPath("userData"), "repos");
 }
 
 export function extractRepoNameFromUrl(remoteUrl: string): string {
   try {
-    const cleaned = remoteUrl.replace(/\.git$/, '');
+    const cleaned = remoteUrl.replace(/\.git$/, "");
 
-    const parts = cleaned.split('/');
+    const parts = cleaned.split("/");
     const lastPart = parts[parts.length - 1];
 
-    if (lastPart.includes(':')) {
-      const colonParts = lastPart.split(':');
+    if (lastPart.includes(":")) {
+      const colonParts = lastPart.split(":");
       const afterColon = colonParts[colonParts.length - 1];
-      const slashParts = afterColon.split('/');
-      return slashParts[slashParts.length - 1] || 'repo';
+      const slashParts = afterColon.split("/");
+      return slashParts[slashParts.length - 1] || "repo";
     }
 
-    return lastPart || 'repo';
+    return lastPart || "repo";
   } catch (error) {
-    return 'repo';
+    return "repo";
   }
 }
 
 export async function findUniqueFolderName(
   baseDir: string,
   baseName: string,
-  fsAdapter: { exists: (path: string) => Promise<boolean> }
+  fsAdapter: { exists: (path: string) => Promise<boolean> },
 ): Promise<string> {
   let folderName = baseName;
   let counter = 1;
@@ -53,5 +54,3 @@ export async function findUniqueFolderName(
 
   return folderName;
 }
-
-

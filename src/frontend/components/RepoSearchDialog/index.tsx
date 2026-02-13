@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -21,14 +21,17 @@ import {
   Tooltip,
   Divider,
   Paper,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Search as SearchIcon,
   Close as CloseIcon,
   FindReplace as ReplaceIcon,
-} from '@mui/icons-material';
-import type { RepoWideSearchResult, ReplaceResult } from '../../../shared/types';
-import { REPO_SEARCH_TEXT } from './constants';
+} from "@mui/icons-material";
+import type {
+  RepoWideSearchResult,
+  ReplaceResult,
+} from "../../../shared/types";
+import { REPO_SEARCH_TEXT } from "./constants";
 import {
   titleRowSx,
   titleTextSx,
@@ -47,19 +50,25 @@ import {
   matchButtonSx,
   extraMatchesSx,
   actionsHintSx,
-} from './styles';
-import type { RepoSearchDialogProps } from './types';
+} from "./styles";
+import type { RepoSearchDialogProps } from "./types";
 
-export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDialogProps) {
-  const [query, setQuery] = useState('');
-  const [replacement, setReplacement] = useState('');
+export function RepoSearchDialog({
+  open,
+  onClose,
+  onSelectMatch,
+}: RepoSearchDialogProps) {
+  const [query, setQuery] = useState("");
+  const [replacement, setReplacement] = useState("");
   const [caseSensitive, setCaseSensitive] = useState(false);
   const [useRegex, setUseRegex] = useState(false);
   const [searching, setSearching] = useState(false);
   const [replacing, setReplacing] = useState(false);
   const [results, setResults] = useState<RepoWideSearchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [replaceResult, setReplaceResult] = useState<ReplaceResult | null>(null);
+  const [replaceResult, setReplaceResult] = useState<ReplaceResult | null>(
+    null,
+  );
   /* const [selectedFileIndex, setSelectedFileIndex] = useState(-1); */
   const queryInputRef = useRef<HTMLInputElement>(null);
 
@@ -112,11 +121,15 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
     setError(null);
 
     try {
-      const response = await window.notegitApi.search.replaceInRepo(query, replacement, {
-        caseSensitive,
-        useRegex,
-        filePaths: [filePath],
-      });
+      const response = await window.notegitApi.search.replaceInRepo(
+        query,
+        replacement,
+        {
+          caseSensitive,
+          useRegex,
+          filePaths: [filePath],
+        },
+      );
 
       if (response.ok && response.data) {
         setReplaceResult(response.data);
@@ -139,7 +152,7 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
 
     const totalMatches = results.reduce((sum, r) => sum + r.matches.length, 0);
     const confirmed = window.confirm(
-      `Replace all ${totalMatches} matches across ${results.length} files?\n\n${REPO_SEARCH_TEXT.replaceAllConfirmSuffix}`
+      `Replace all ${totalMatches} matches across ${results.length} files?\n\n${REPO_SEARCH_TEXT.replaceAllConfirmSuffix}`,
     );
 
     if (!confirmed) return;
@@ -148,16 +161,20 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
     setError(null);
 
     try {
-      const response = await window.notegitApi.search.replaceInRepo(query, replacement, {
-        caseSensitive,
-        useRegex,
-      });
+      const response = await window.notegitApi.search.replaceInRepo(
+        query,
+        replacement,
+        {
+          caseSensitive,
+          useRegex,
+        },
+      );
 
       if (response.ok && response.data) {
         setReplaceResult(response.data);
         setResults([]);
-        setQuery('');
-        setReplacement('');
+        setQuery("");
+        setReplacement("");
       } else {
         setError(response.error?.message || REPO_SEARCH_TEXT.replaceFailed);
       }
@@ -174,7 +191,7 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSearch();
     }
@@ -246,20 +263,29 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
 
         <Button
           variant="contained"
-          startIcon={searching ? <CircularProgress size={20} /> : <SearchIcon />}
+          startIcon={
+            searching ? <CircularProgress size={20} /> : <SearchIcon />
+          }
           onClick={handleSearch}
           disabled={searching || replacing || !query.trim()}
           fullWidth
           sx={actionButtonSx}
         >
-          {searching ? REPO_SEARCH_TEXT.searching : REPO_SEARCH_TEXT.searchButton}
+          {searching
+            ? REPO_SEARCH_TEXT.searching
+            : REPO_SEARCH_TEXT.searchButton}
         </Button>
 
         {replaceResult && (
-          <Alert severity="success" sx={alertSx} onClose={() => setReplaceResult(null)}>
+          <Alert
+            severity="success"
+            sx={alertSx}
+            onClose={() => setReplaceResult(null)}
+          >
             <Typography variant="body2">
-              Replaced {replaceResult.totalReplacements} occurrences in{' '}
-              {replaceResult.filesModified} of {replaceResult.filesProcessed} files
+              Replaced {replaceResult.totalReplacements} occurrences in{" "}
+              {replaceResult.filesModified} of {replaceResult.filesProcessed}{" "}
+              files
             </Typography>
             {replaceResult.errors.length > 0 && (
               <Typography variant="caption" color="error">
@@ -271,7 +297,11 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
 
         {error && (
           <Alert
-            severity={results.length === 0 && error === REPO_SEARCH_TEXT.noMatches ? 'info' : 'error'}
+            severity={
+              results.length === 0 && error === REPO_SEARCH_TEXT.noMatches
+                ? "info"
+                : "error"
+            }
             sx={alertSx}
           >
             {error}
@@ -289,7 +319,13 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
                   <Button
                     size="small"
                     variant="outlined"
-                    startIcon={replacing ? <CircularProgress size={16} /> : <ReplaceIcon />}
+                    startIcon={
+                      replacing ? (
+                        <CircularProgress size={16} />
+                      ) : (
+                        <ReplaceIcon />
+                      )
+                    }
                     onClick={handleReplaceAll}
                     disabled={replacing}
                     color="warning"
@@ -306,13 +342,14 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
                   <React.Fragment key={fileResult.filePath}>
                     {fileIndex > 0 && <Divider />}
 
-                    <ListItem
-                      sx={fileHeaderItemSx}
-                    >
+                    <ListItem sx={fileHeaderItemSx}>
                       <ListItemText
                         primary={
                           <Box sx={fileHeaderRowSx}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ fontWeight: 600 }}
+                            >
                               {fileResult.fileName}
                             </Typography>
                             <Chip
@@ -325,7 +362,9 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
                               <Button
                                 size="small"
                                 variant="text"
-                                onClick={() => handleReplaceInFile(fileResult.filePath)}
+                                onClick={() =>
+                                  handleReplaceInFile(fileResult.filePath)
+                                }
                                 disabled={replacing}
                                 sx={replaceInFileButtonSx}
                               >
@@ -345,7 +384,12 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
                     {fileResult.matches.slice(0, 5).map((match, matchIndex) => (
                       <ListItemButton
                         key={`${fileIndex}-${matchIndex}`}
-                        onClick={() => handleSelectMatch(fileResult.filePath, match.lineNumber)}
+                        onClick={() =>
+                          handleSelectMatch(
+                            fileResult.filePath,
+                            match.lineNumber,
+                          )
+                        }
                         sx={matchButtonSx}
                       >
                         <ListItemText
@@ -359,12 +403,15 @@ export function RepoSearchDialog({ open, onClose, onSelectMatch }: RepoSearchDia
                                 Line {match.lineNumber}:
                               </Typography>
                               <Typography variant="body2" component="span">
-                                {match.lineContent.substring(0, match.matchStart)}
-                                <Box
-                                  component="span"
-                                  sx={matchHighlightSx}
-                                >
-                                  {match.lineContent.substring(match.matchStart, match.matchEnd)}
+                                {match.lineContent.substring(
+                                  0,
+                                  match.matchStart,
+                                )}
+                                <Box component="span" sx={matchHighlightSx}>
+                                  {match.lineContent.substring(
+                                    match.matchStart,
+                                    match.matchEnd,
+                                  )}
                                 </Box>
                                 {match.lineContent.substring(match.matchEnd)}
                               </Typography>

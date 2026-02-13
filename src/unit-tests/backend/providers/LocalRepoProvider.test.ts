@@ -1,7 +1,11 @@
-import { LocalRepoProvider } from '../../../backend/providers/LocalRepoProvider';
-import { ApiErrorCode, LocalRepoSettings, REPO_PROVIDERS } from '../../../shared/types';
+import { LocalRepoProvider } from "../../../backend/providers/LocalRepoProvider";
+import {
+  ApiErrorCode,
+  LocalRepoSettings,
+  REPO_PROVIDERS,
+} from "../../../shared/types";
 
-describe('LocalRepoProvider', () => {
+describe("LocalRepoProvider", () => {
   const createProvider = () => {
     const fsAdapter = {
       exists: jest.fn(),
@@ -15,40 +19,42 @@ describe('LocalRepoProvider', () => {
 
   const settings: LocalRepoSettings = {
     provider: REPO_PROVIDERS.local,
-    localPath: '/repo',
+    localPath: "/repo",
   };
 
-  it('rejects non-local settings', async () => {
+  it("rejects non-local settings", async () => {
     const { provider } = createProvider();
 
-    await expect(provider.open({ provider: REPO_PROVIDERS.git } as any)).rejects.toMatchObject({
+    await expect(
+      provider.open({ provider: REPO_PROVIDERS.git } as any),
+    ).rejects.toMatchObject({
       code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
     });
   });
 
-  it('rejects when local path is missing', async () => {
+  it("rejects when local path is missing", async () => {
     const { provider } = createProvider();
 
     await expect(
-      provider.open({ provider: REPO_PROVIDERS.local, localPath: '' } as any)
+      provider.open({ provider: REPO_PROVIDERS.local, localPath: "" } as any),
     ).rejects.toMatchObject({
       code: ApiErrorCode.VALIDATION_ERROR,
     });
   });
 
-  it('creates the local folder when it does not exist', async () => {
+  it("creates the local folder when it does not exist", async () => {
     const { provider, fsAdapter } = createProvider();
     fsAdapter.exists.mockResolvedValue(false);
     fsAdapter.mkdir.mockResolvedValue(undefined);
 
     const response = await provider.open(settings);
 
-    expect(fsAdapter.exists).toHaveBeenCalledWith('/repo');
-    expect(fsAdapter.mkdir).toHaveBeenCalledWith('/repo', { recursive: true });
-    expect(response.localPath).toBe('/repo');
+    expect(fsAdapter.exists).toHaveBeenCalledWith("/repo");
+    expect(fsAdapter.mkdir).toHaveBeenCalledWith("/repo", { recursive: true });
+    expect(response.localPath).toBe("/repo");
   });
 
-  it('rejects when local path is not a directory', async () => {
+  it("rejects when local path is not a directory", async () => {
     const { provider, fsAdapter } = createProvider();
     fsAdapter.exists.mockResolvedValue(true);
     fsAdapter.stat.mockResolvedValue({ isDirectory: () => false });
@@ -58,7 +64,7 @@ describe('LocalRepoProvider', () => {
     });
   });
 
-  it('returns a local status snapshot', async () => {
+  it("returns a local status snapshot", async () => {
     const { provider } = createProvider();
     provider.configure(settings);
 
@@ -75,7 +81,7 @@ describe('LocalRepoProvider', () => {
     });
   });
 
-  it('throws when status is requested without configuration', async () => {
+  it("throws when status is requested without configuration", async () => {
     const { provider } = createProvider();
 
     await expect(provider.getStatus()).rejects.toMatchObject({
@@ -83,7 +89,7 @@ describe('LocalRepoProvider', () => {
     });
   });
 
-  it('rejects unsupported sync operations', async () => {
+  it("rejects unsupported sync operations", async () => {
     const { provider } = createProvider();
     provider.configure(settings);
 
@@ -98,7 +104,7 @@ describe('LocalRepoProvider', () => {
     });
   });
 
-  it('treats auto sync methods as no-ops', () => {
+  it("treats auto sync methods as no-ops", () => {
     const { provider } = createProvider();
 
     expect(() => provider.startAutoSync()).not.toThrow();

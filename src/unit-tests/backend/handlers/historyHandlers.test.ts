@@ -1,6 +1,6 @@
-import { registerHistoryHandlers } from '../../../backend/handlers/historyHandlers';
+import { registerHistoryHandlers } from "../../../backend/handlers/historyHandlers";
 
-describe('historyHandlers', () => {
+describe("historyHandlers", () => {
   const createIpcMain = () => {
     const handlers: Record<string, (...args: any[]) => any> = {};
     const ipcMain = {
@@ -12,9 +12,9 @@ describe('historyHandlers', () => {
     return { ipcMain, handlers };
   };
 
-  it('returns file history', async () => {
+  it("returns file history", async () => {
     const historyService = {
-      getForFile: jest.fn().mockResolvedValue([{ hash: 'abc' }]),
+      getForFile: jest.fn().mockResolvedValue([{ hash: "abc" }]),
       getVersion: jest.fn(),
       getDiff: jest.fn(),
     } as any;
@@ -22,47 +22,56 @@ describe('historyHandlers', () => {
     const { ipcMain, handlers } = createIpcMain();
     registerHistoryHandlers(ipcMain, historyService);
 
-    const response = await handlers['history:getForFile'](null, 'notes/a.md');
+    const response = await handlers["history:getForFile"](null, "notes/a.md");
 
     expect(response.ok).toBe(true);
-    expect(response.data).toEqual([{ hash: 'abc' }]);
+    expect(response.data).toEqual([{ hash: "abc" }]);
   });
 
-  it('returns version content', async () => {
+  it("returns version content", async () => {
     const historyService = {
       getForFile: jest.fn(),
-      getVersion: jest.fn().mockResolvedValue('content'),
+      getVersion: jest.fn().mockResolvedValue("content"),
       getDiff: jest.fn(),
     } as any;
 
     const { ipcMain, handlers } = createIpcMain();
     registerHistoryHandlers(ipcMain, historyService);
 
-    const response = await handlers['history:getVersion'](null, 'hash', 'notes/a.md');
+    const response = await handlers["history:getVersion"](
+      null,
+      "hash",
+      "notes/a.md",
+    );
 
     expect(response.ok).toBe(true);
-    expect(response.data).toBe('content');
+    expect(response.data).toBe("content");
   });
 
-  it('returns diff hunks', async () => {
+  it("returns diff hunks", async () => {
     const historyService = {
       getForFile: jest.fn(),
       getVersion: jest.fn(),
-      getDiff: jest.fn().mockResolvedValue([{ header: '@@' }]),
+      getDiff: jest.fn().mockResolvedValue([{ header: "@@" }]),
     } as any;
 
     const { ipcMain, handlers } = createIpcMain();
     registerHistoryHandlers(ipcMain, historyService);
 
-    const response = await handlers['history:getDiff'](null, 'a', 'b', 'notes/a.md');
+    const response = await handlers["history:getDiff"](
+      null,
+      "a",
+      "b",
+      "notes/a.md",
+    );
 
     expect(response.ok).toBe(true);
-    expect(response.data).toEqual([{ header: '@@' }]);
+    expect(response.data).toEqual([{ header: "@@" }]);
   });
 
-  it('returns error when history fails', async () => {
+  it("returns error when history fails", async () => {
     const historyService = {
-      getForFile: jest.fn().mockRejectedValue(new Error('fail')),
+      getForFile: jest.fn().mockRejectedValue(new Error("fail")),
       getVersion: jest.fn(),
       getDiff: jest.fn(),
     } as any;
@@ -70,9 +79,9 @@ describe('historyHandlers', () => {
     const { ipcMain, handlers } = createIpcMain();
     registerHistoryHandlers(ipcMain, historyService);
 
-    const response = await handlers['history:getForFile'](null, 'notes/a.md');
+    const response = await handlers["history:getForFile"](null, "notes/a.md");
 
     expect(response.ok).toBe(false);
-    expect(response.error?.message).toBe('fail');
+    expect(response.error?.message).toBe("fail");
   });
 });

@@ -15,12 +15,12 @@ cd setup
 ./build-mac.sh
 ./build-windows.sh
 ./build-linux.sh
-./build-all.sh
 ```
 
 ## Output
 
 Artifacts are written to `release/`:
+
 - `notegit-{version}.dmg`, `notegit-{version}-mac.zip`
 - `notegit Setup {version}.exe`, `notegit {version}.exe`
 - `notegit-{version}.AppImage`, `notegit_{version}_amd64.deb`, `notegit-{version}.x86_64.rpm`
