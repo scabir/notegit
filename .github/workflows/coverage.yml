@@ -110,8 +110,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -f coverage/coverage-summary.json
-          COVERAGE_PCT="$(node -e "const s=require('./coverage/coverage-summary.json'); console.log(Math.round(s.total.lines.pct));")"
+          test -f coverage/lcov.info
+          COVERAGE_PCT="$(
+            node -e "const fs=require('fs'); const lcov=fs.readFileSync('coverage/lcov.info','utf8').split(/\r?\n/); let lf=0, lh=0; for (const line of lcov) { if (line.startsWith('LF:')) lf += Number(line.slice(3)); else if (line.startsWith('LH:')) lh += Number(line.slice(3)); } if (!lf) { console.error('No LF entries found in coverage/lcov.info'); process.exit(1); } console.log(Math.round((lh / lf) * 100));"
+          )"
           echo "coverage_pct=$COVERAGE_PCT" >> "$GITHUB_OUTPUT"
           node -e "const fs=require('fs'); const pct=Number(process.argv[1]); const color=pct>=90?'brightgreen':pct>=80?'green':pct>=70?'yellowgreen':pct>=60?'yellow':'red'; const out={schemaVersion:1,label:'coverage',message:pct+'%',color}; fs.mkdirSync('badges',{recursive:true}); fs.writeFileSync('badges/coverage.json', JSON.stringify(out));" "$COVERAGE_PCT"
 
