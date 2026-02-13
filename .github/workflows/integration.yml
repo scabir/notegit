@@ -72,7 +72,27 @@ jobs:
         run: |
           set -euo pipefail
           test -f integration-results.json
-          node -e "const fs=require('fs'); const input=JSON.parse(fs.readFileSync('integration-results.json','utf8')); const stats=input.stats||{}; const passed=Number(stats.expected||0); const failed=Number(stats.unexpected||0)+Number(stats.flaky||0); const skipped=Number(stats.skipped||0); const total=passed+failed+skipped; const fullyPassing=failed===0&&passed===total; const color=fullyPassing?'brightgreen':failed===0?'green':'red'; const message=`${passed}/${total} passing`; const badge={schemaVersion:1,label:'integration',message,color}; fs.mkdirSync('badges',{recursive:true}); fs.writeFileSync('badges/integration.json',JSON.stringify(badge)); fs.appendFileSync(process.env.GITHUB_OUTPUT, `integration_passed=${passed}\n`); fs.appendFileSync(process.env.GITHUB_OUTPUT, `integration_total=${total}\n`);"
+          node <<'NODE'
+          const fs = require("fs");
+          const input = JSON.parse(
+            fs.readFileSync("integration-results.json", "utf8"),
+          );
+          const stats = input.stats || {};
+          const passed = Number(stats.expected || 0);
+          const failed =
+            Number(stats.unexpected || 0) + Number(stats.flaky || 0);
+          const skipped = Number(stats.skipped || 0);
+          const total = passed + failed + skipped;
+          const fullyPassing = failed === 0 && passed === total;
+          const color = fullyPassing ? "brightgreen" : failed === 0 ? "green" : "red";
+          const message = `${passed}/${total} passing`;
+          const badge = { schemaVersion: 1, label: "integration", message, color };
+
+          fs.mkdirSync("badges", { recursive: true });
+          fs.writeFileSync("badges/integration.json", JSON.stringify(badge));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `integration_passed=${passed}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `integration_total=${total}\n`);
+          NODE
 
       - name: Upload integration artifacts
         if: always()
