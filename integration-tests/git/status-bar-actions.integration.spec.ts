@@ -32,7 +32,7 @@ import type { ElectronApplication } from "@playwright/test";
 import * as fs from "fs/promises";
 import * as path from "path";
 
-test("create file, edit content, commit and push", async ({
+test("(git) create file, edit content, commit and push", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -63,7 +63,7 @@ test("create file, edit content, commit and push", async ({
   }
 });
 
-test("save existing file without commit shows local changes", async ({
+test("(git) save existing file without commit shows local changes", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -95,7 +95,7 @@ test("save existing file without commit shows local changes", async ({
   }
 });
 
-test("commit all from mixed changes (multiple files)", async ({
+test("(git) commit all from mixed changes (multiple files)", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -135,7 +135,7 @@ test("commit all from mixed changes (multiple files)", async ({
   }
 });
 
-test("commit+push with no changes returns nothing to commit", async ({
+test("(git) commit+push with no changes returns nothing to commit", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -154,7 +154,7 @@ test("commit+push with no changes returns nothing to commit", async ({
   }
 });
 
-test("auto-generated commit message truncates with 'and N more'", async ({
+test("(git) auto-generated commit message truncates with 'and N more'", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -178,7 +178,7 @@ test("auto-generated commit message truncates with 'and N more'", async ({
   }
 });
 
-test("save then commit+push ends in synced status", async ({
+test("(git) save then commit+push ends in synced status", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -203,7 +203,7 @@ test("save then commit+push ends in synced status", async ({
   }
 });
 
-test("push button is disabled when no pending commits", async ({
+test("(git) push button is disabled when no pending commits", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -221,7 +221,7 @@ test("push button is disabled when no pending commits", async ({
   }
 });
 
-test("push button enables after commit and disables after push", async ({
+test("(git) push button enables after commit and disables after push", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -249,7 +249,7 @@ test("push button enables after commit and disables after push", async ({
   }
 });
 
-test("pull button enabled when behind and disabled after pull", async ({
+test("(git) pull button enabled when behind and disabled after pull", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -275,7 +275,7 @@ test("pull button enabled when behind and disabled after pull", async ({
   }
 });
 
-test("fetch refreshes behind count without changing tree", async ({
+test("(git) fetch refreshes behind count without changing tree", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -301,7 +301,7 @@ test("fetch refreshes behind count without changing tree", async ({
   }
 });
 
-test("commit dialog path via commitAll + push supports custom message", async ({
+test("(git) commit dialog path via commitAll + push supports custom message", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -324,7 +324,7 @@ test("commit dialog path via commitAll + push supports custom message", async ({
   }
 });
 
-test("save-all action persists unsaved buffer before commit+push", async ({
+test("(git) save-all action persists unsaved buffer before commit+push", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -352,7 +352,7 @@ test("save-all action persists unsaved buffer before commit+push", async ({
   }
 });
 
-test("save-all persists editor buffer while preserving other uncommitted files", async ({
+test("(git) save-all persists editor buffer while preserving other uncommitted files", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -381,7 +381,7 @@ test("save-all persists editor buffer while preserving other uncommitted files",
   }
 });
 
-test("beforeunload autosave persists content and updates local status", async ({
+test("(git) beforeunload autosave persists content and updates local status", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -413,7 +413,7 @@ test("beforeunload autosave persists content and updates local status", async ({
   }
 });
 
-test("pull conflict is surfaced without crashing", async ({
+test("(git) pull conflict is surfaced without crashing", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -437,7 +437,7 @@ test("pull conflict is surfaced without crashing", async ({
   }
 });
 
-test("push failure is surfaced and app stays responsive", async ({
+test("(git) push failure is surfaced and app stays responsive", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -460,7 +460,7 @@ test("push failure is surfaced and app stays responsive", async ({
   }
 });
 
-test("fetch failure is surfaced and app stays responsive", async ({
+test("(git) fetch failure is surfaced and app stays responsive", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -481,7 +481,7 @@ test("fetch failure is surfaced and app stays responsive", async ({
   }
 });
 
-test("commit failure is surfaced and app stays responsive", async ({
+test("(git) commit failure is surfaced and app stays responsive", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -507,7 +507,7 @@ test("commit failure is surfaced and app stays responsive", async ({
   }
 });
 
-test("push remains disabled when repo is only behind", async ({
+test("(git) push remains disabled when repo is only behind", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -528,7 +528,7 @@ test("push remains disabled when repo is only behind", async ({
   }
 });
 
-test("git unavailable warning is shown for existing git config", async ({
+test("(git) git unavailable warning is shown for existing git config", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -557,7 +557,7 @@ test("git unavailable warning is shown for existing git config", async ({
   }
 });
 
-test("offline mode handles pull/push/fetch errors and remains usable", async ({
+test("(git) offline mode handles pull/push/fetch errors and remains usable", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);

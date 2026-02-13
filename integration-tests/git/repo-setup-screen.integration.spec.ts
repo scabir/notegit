@@ -37,7 +37,7 @@ const fillAndSubmitConnectForm = async (
   await page.getByRole("button", { name: "Connect" }).click();
 };
 
-test("connect to git repo (happy path)", async ({
+test("(git) connect to git repo (happy path)", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -61,7 +61,7 @@ test("connect to git repo (happy path)", async ({
   }
 });
 
-test("connect using non-default branch", async ({
+test("(git) connect using non-default branch", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -80,7 +80,7 @@ test("connect using non-default branch", async ({
   }
 });
 
-test("connect dialog validates required git fields", async ({
+test("(git) connect dialog validates required git fields", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -101,7 +101,7 @@ test("connect dialog validates required git fields", async ({
   }
 });
 
-test("canceling setup dialog keeps app on welcome screen", async ({
+test("(git) canceling setup dialog keeps app on welcome screen", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -128,7 +128,7 @@ test("canceling setup dialog keeps app on welcome screen", async ({
   }
 });
 
-test("invalid URL connect shows error and stays on setup", async ({
+test("(git) invalid URL connect shows error and stays on setup", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -150,7 +150,7 @@ test("invalid URL connect shows error and stays on setup", async ({
   }
 });
 
-test("active profile id persists across restart", async ({
+test("(git) active profile id persists across restart", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -198,7 +198,7 @@ test("active profile id persists across restart", async ({
   }
 });
 
-test("invalid active profile id still allows workspace to load", async ({
+test("(git) invalid active profile id still allows workspace to load", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -233,7 +233,7 @@ test("invalid active profile id still allows workspace to load", async ({
   }
 });
 
-test("auth failure on clone shows error and keeps setup open", async ({
+test("(git) auth failure on clone shows error and keeps setup open", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -255,7 +255,7 @@ test("auth failure on clone shows error and keeps setup open", async ({
   }
 });
 
-test("empty remote branch bootstrap succeeds", async ({
+test("(git) empty remote branch bootstrap succeeds", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -276,7 +276,7 @@ test("empty remote branch bootstrap succeeds", async ({
   }
 });
 
-test("re-open app with existing repo skips setup", async ({
+test("(git) re-open app with existing repo skips setup", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -305,7 +305,7 @@ test("re-open app with existing repo skips setup", async ({
   }
 });
 
-test("provider lock rejects switching from git to local", async ({
+test("(git) provider lock rejects switching from git to local", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -331,7 +331,7 @@ test("provider lock rejects switching from git to local", async ({
   }
 });
 
-test("create profile and activate it", async ({
+test("(git) create profile and activate it", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);

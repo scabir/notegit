@@ -89,6 +89,20 @@ export const launchIntegrationApp = async (
   return { app, page };
 };
 
+export const launchS3IntegrationApp = async (
+  userDataDir: string,
+  options: LaunchOptions = {},
+): Promise<LaunchResult> => {
+  const mergedEnv: Record<string, string> = {
+    NOTEGIT_INTEGRATION_S3_MOCK: "1",
+    ...(options.env || {}),
+  };
+  return await launchIntegrationApp(userDataDir, {
+    ...options,
+    env: mergedEnv,
+  });
+};
+
 export const closeAppIfOpen = async (
   app: ElectronApplication | null,
 ): Promise<void> => {
@@ -213,6 +227,22 @@ export const commitAndPushAll = async (page: Page): Promise<void> => {
       exact: true,
     }),
   ).toBeVisible();
+};
+
+export const syncAll = async (page: Page): Promise<void> => {
+  await page.getByTestId("status-bar-commit-push-action").click();
+
+  await expect
+    .poll(async () => {
+      const response = await page.evaluate(async () => {
+        return await window.notegitApi.repo.getStatus();
+      });
+      if (!response.ok || !response.data) {
+        throw new Error(response.error?.message || "Failed to load repo status");
+      }
+      return response.data.hasUncommitted || response.data.pendingPushCount > 0;
+    })
+    .toBe(false);
 };
 
 export const clickFetch = async (page: Page): Promise<void> => {
@@ -610,6 +640,12 @@ export const expectConnectScreen = async (page: Page): Promise<void> => {
   const setupDialogRemoteUrlField = page.getByLabel("Remote URL");
   if ((await setupDialogRemoteUrlField.count()) > 0) {
     await expect(setupDialogRemoteUrlField).toBeVisible();
+    return;
+  }
+
+  const setupDialogS3BucketField = page.getByLabel("Bucket");
+  if ((await setupDialogS3BucketField.count()) > 0) {
+    await expect(setupDialogS3BucketField).toBeVisible();
     return;
   }
 

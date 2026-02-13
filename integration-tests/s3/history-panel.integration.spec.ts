@@ -1,35 +1,35 @@
 import {
-  apiCommitAndPushAll,
   apiGetDiff,
   apiGetHistory,
   apiGetVersion,
   appendToCurrentEditor,
   cleanupUserDataDir,
   closeAppIfOpen,
-  connectGitRepo,
+  connectS3Repo,
   createIsolatedUserDataDir,
   createMarkdownFile,
-  launchIntegrationApp,
+  launchS3IntegrationApp,
   saveCurrentFile,
+  syncAll,
 } from "../helpers/gitIntegration";
 import { expect, test } from "@playwright/test";
 import type { ElectronApplication } from "@playwright/test";
 
-test("(git) history panel loads commits for selected file", async ({
+test("(S3) history panel loads object versions for selected file", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createMarkdownFile(page, "history-panel.md");
     await appendToCurrentEditor(page, "\nhistory content\n");
     await saveCurrentFile(page);
-    await apiCommitAndPushAll(page);
+    await syncAll(page);
 
     await page.getByTestId("status-bar-history-action").click();
     await expect(
@@ -44,84 +44,61 @@ test("(git) history panel loads commits for selected file", async ({
   }
 });
 
-test("(git) historical version content can be loaded", async ({
+test("(S3) historical s3 version content can be loaded", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createMarkdownFile(page, "history-version.md");
     await appendToCurrentEditor(page, "\nversion one\n");
     await saveCurrentFile(page);
-    await apiCommitAndPushAll(page);
+    await syncAll(page);
+
+    await page.waitForTimeout(20);
+    await appendToCurrentEditor(page, "\nversion two\n");
+    await saveCurrentFile(page);
+    await syncAll(page);
 
     const history = await apiGetHistory(page, "history-version.md");
-    const content = await apiGetVersion(
+    expect(history.length).toBeGreaterThanOrEqual(2);
+
+    const oldVersion = await apiGetVersion(
+      page,
+      history[history.length - 1].hash,
+      "history-version.md",
+    );
+    const latestVersion = await apiGetVersion(
       page,
       history[0].hash,
       "history-version.md",
     );
-    expect(content).toContain("version one");
+
+    expect(oldVersion).toContain("version one");
+    expect(latestVersion).toContain("version two");
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);
   }
 });
 
-test("(git) diff between revisions returns hunks", async ({
+test("(S3) history panel shows empty state for unsynced file", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
-
-    await createMarkdownFile(page, "history-diff.md");
-    await appendToCurrentEditor(page, "\nline one\n");
-    await saveCurrentFile(page);
-    await apiCommitAndPushAll(page);
-    await appendToCurrentEditor(page, "\nline two\n");
-    await saveCurrentFile(page);
-    await apiCommitAndPushAll(page);
-
-    const history = await apiGetHistory(page, "history-diff.md");
-    expect(history.length).toBeGreaterThanOrEqual(2);
-
-    const diff = await apiGetDiff(
-      page,
-      history[1].hash,
-      history[0].hash,
-      "history-diff.md",
-    );
-    expect(diff.length).toBeGreaterThan(0);
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(git) history panel shows empty state for uncommitted file", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-  try {
-    const launched = await launchIntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createMarkdownFile(page, "history-empty.md");
-    await appendToCurrentEditor(page, "\nnot committed yet\n");
-    await saveCurrentFile(page);
 
     await page.getByTestId("status-bar-history-action").click();
     await expect(
@@ -134,21 +111,21 @@ test("(git) history panel shows empty state for uncommitted file", async ({
   }
 });
 
-test("(git) history entry opens read-only history viewer dialog", async ({
+test("(S3) history entry opens read-only history viewer dialog", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createMarkdownFile(page, "history-open-viewer.md");
     await appendToCurrentEditor(page, "\nviewer content\n");
     await saveCurrentFile(page);
-    await apiCommitAndPushAll(page);
+    await syncAll(page);
 
     await page.getByTestId("status-bar-history-action").click();
     const history = await apiGetHistory(page, "history-open-viewer.md");
@@ -163,21 +140,21 @@ test("(git) history entry opens read-only history viewer dialog", async ({
   }
 });
 
-test("(git) history panel can be closed and reopened", async ({
+test("(S3) history panel can be closed and reopened", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createMarkdownFile(page, "history-toggle.md");
     await appendToCurrentEditor(page, "\nhistory toggle\n");
     await saveCurrentFile(page);
-    await apiCommitAndPushAll(page);
+    await syncAll(page);
 
     await page.getByTestId("status-bar-history-action").click();
     await expect(
@@ -193,6 +170,72 @@ test("(git) history panel can be closed and reopened", async ({
     await expect(
       page.getByRole("heading", { name: "File History" }),
     ).toBeVisible();
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("(S3) history ordering is newest-first", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchS3IntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectS3Repo(page);
+
+    await createMarkdownFile(page, "history-order.md");
+    await appendToCurrentEditor(page, "\nold body\n");
+    await saveCurrentFile(page);
+    await syncAll(page);
+
+    await page.waitForTimeout(20);
+    await appendToCurrentEditor(page, "\nnew body\n");
+    await saveCurrentFile(page);
+    await syncAll(page);
+
+    const history = await apiGetHistory(page, "history-order.md");
+    expect(history.length).toBeGreaterThanOrEqual(2);
+    expect(history[0].message).toBe("Latest upload");
+    expect(new Date(history[0].date).getTime()).toBeGreaterThanOrEqual(
+      new Date(history[1].date).getTime(),
+    );
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("(S3) diff request is reported as unsupported", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchS3IntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectS3Repo(page);
+
+    await createMarkdownFile(page, "history-diff.md");
+    await appendToCurrentEditor(page, "\none\n");
+    await saveCurrentFile(page);
+    await syncAll(page);
+
+    await page.waitForTimeout(20);
+    await appendToCurrentEditor(page, "\ntwo\n");
+    await saveCurrentFile(page);
+    await syncAll(page);
+
+    const history = await apiGetHistory(page, "history-diff.md");
+    expect(history.length).toBeGreaterThanOrEqual(2);
+
+    await expect(
+      apiGetDiff(page, history[1].hash, history[0].hash, "history-diff.md"),
+    ).rejects.toThrow("Diff is not supported for S3 history");
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);

@@ -28,7 +28,8 @@ export class MockS3Adapter extends S3Adapter {
 
   async getBucketVersioning(): Promise<"Enabled" | "Suspended" | ""> {
     const status =
-      process.env.NOTEGIT_MOCK_S3_VERSIONING_STATUS || DEFAULT_VERSIONING_STATUS;
+      process.env.NOTEGIT_MOCK_S3_VERSIONING_STATUS ||
+      DEFAULT_VERSIONING_STATUS;
     if (status === "Enabled" || status === "Suspended" || status === "") {
       return status;
     }

@@ -2,10 +2,10 @@ import {
   appendToCurrentEditor,
   cleanupUserDataDir,
   closeAppIfOpen,
-  connectGitRepo,
+  connectS3Repo,
   createIsolatedUserDataDir,
   createMarkdownFile,
-  launchIntegrationApp,
+  launchS3IntegrationApp,
   saveCurrentFile,
 } from "../helpers/gitIntegration";
 import { expect, test } from "@playwright/test";
@@ -17,16 +17,16 @@ const readEditorContent = async (page: Page): Promise<string> => {
   return await page.locator(".cm-content").first().innerText();
 };
 
-test("(git) keyboard back/forward navigates between previously opened files", async ({
+test("(S3) keyboard back/forward navigates between previously opened files", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createMarkdownFile(page, "nav-a.md");
     await appendToCurrentEditor(page, "\nAAA_NAV\n");
@@ -53,16 +53,16 @@ test("(git) keyboard back/forward navigates between previously opened files", as
   }
 });
 
-test("(git) navigation shortcuts are ignored while dialog input is focused", async ({
+test("(S3) navigation shortcuts are ignored while dialog input is focused", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createMarkdownFile(page, "nav-focus-a.md");
     await appendToCurrentEditor(page, "\nAAA_FOCUS_NAV\n");
@@ -79,9 +79,7 @@ test("(git) navigation shortcuts are ignored while dialog input is focused", asy
     await createDialog.getByLabel("File Name").click();
 
     await page.keyboard.press(`${getModKey()}+ArrowLeft`);
-    await expect(
-      createDialog.getByLabel("File Name"),
-    ).toBeFocused();
+    await expect(createDialog.getByLabel("File Name")).toBeFocused();
     await expect
       .poll(async () => (await readEditorContent(page)).includes("BBB_FOCUS_NAV"))
       .toBe(true);
@@ -93,16 +91,16 @@ test("(git) navigation shortcuts are ignored while dialog input is focused", asy
   }
 });
 
-test("(git) back navigation with a single entry is a no-op", async ({
+test("(S3) back navigation with a single entry is a no-op", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createMarkdownFile(page, "nav-single.md");
     await appendToCurrentEditor(page, "\nSINGLE_NAV_ENTRY\n");
@@ -112,7 +110,9 @@ test("(git) back navigation with a single entry is a no-op", async ({
     await page.keyboard.press(`${getModKey()}+ArrowLeft`);
 
     await expect
-      .poll(async () => (await readEditorContent(page)).includes("SINGLE_NAV_ENTRY"))
+      .poll(async () =>
+        (await readEditorContent(page)).includes("SINGLE_NAV_ENTRY"),
+      )
       .toBe(true);
   } finally {
     await closeAppIfOpen(app);

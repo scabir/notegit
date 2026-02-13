@@ -7,16 +7,15 @@ import {
   apiRenamePath,
   cleanupUserDataDir,
   closeAppIfOpen,
-  commitAndPushAll,
-  connectGitRepo,
+  connectS3Repo,
   createIsolatedUserDataDir,
   createMarkdownFile,
   expectTreeNotToContainPath,
   expectTreeToContainPath,
   flattenTreePaths,
-  launchIntegrationApp,
+  launchS3IntegrationApp,
   listTree,
-  selectFileFromTree,
+  syncAll,
 } from "../helpers/gitIntegration";
 import { expect, test } from "@playwright/test";
 import type { ElectronApplication, Page } from "@playwright/test";
@@ -66,6 +65,7 @@ const createFolderViaEmptyTreeContextMenu = async (
   await expect(createDialog).toBeVisible();
   await createDialog.getByLabel("Folder Name").fill(folderName);
   await createDialog.getByRole("button", { name: "Create" }).click();
+  await expect(createDialog).toHaveCount(0);
 };
 
 const openNodeContextMenu = async (
@@ -81,20 +81,20 @@ const openNodeContextMenu = async (
   await expect(page.getByTestId("tree-context-menu")).toBeVisible();
 };
 
-test("(git) create folder and file inside then commit+push", async ({
+test("(S3) create folder and file inside then sync", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await apiCreateFolder(page, "", "notes");
     await apiCreateFile(page, "notes", "inside.md");
-    await commitAndPushAll(page);
+    await syncAll(page);
     await expectTreeToContainPath(page, "notes/inside.md");
   } finally {
     await closeAppIfOpen(app);
@@ -102,16 +102,16 @@ test("(git) create folder and file inside then commit+push", async ({
   }
 });
 
-test("(git) create file without extension auto-adds .md", async ({
+test("(S3) create file without extension auto-adds .md", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createFileViaDialog(page, "noext");
     await expectTreeToContainPath(page, "noext.md");
@@ -121,20 +121,18 @@ test("(git) create file without extension auto-adds .md", async ({
   }
 });
 
-test("(git) rename file then commit+push", async ({
-  request: _request,
-}, testInfo) => {
+test("(S3) rename file then sync", async ({ request: _request }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await apiCreateFile(page, "", "old-name.md");
     await apiRenamePath(page, "old-name.md", "new-name.md");
-    await commitAndPushAll(page);
+    await syncAll(page);
 
     await expectTreeToContainPath(page, "new-name.md");
     await expectTreeNotToContainPath(page, "old-name.md");
@@ -144,21 +142,21 @@ test("(git) rename file then commit+push", async ({
   }
 });
 
-test("(git) rename folder with child files then commit+push", async ({
+test("(S3) rename folder with child files then sync", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await apiCreateFolder(page, "", "docs");
     await apiCreateFile(page, "docs", "a.md");
     await apiRenamePath(page, "docs", "docs-renamed");
-    await commitAndPushAll(page);
+    await syncAll(page);
 
     await expectTreeToContainPath(page, "docs-renamed/a.md");
     await expectTreeNotToContainPath(page, "docs/a.md");
@@ -168,21 +166,23 @@ test("(git) rename folder with child files then commit+push", async ({
   }
 });
 
-test("(git) delete file then commit+push", async ({
-  request: _request,
-}, testInfo) => {
+test("(S3) delete file then sync", async ({ request: _request }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await apiCreateFile(page, "", "delete-me.md");
-    await commitAndPushAll(page);
+    await syncAll(page);
     await apiDeletePath(page, "delete-me.md");
-    await commitAndPushAll(page);
+    await expect
+      .poll(async () =>
+        flattenTreePaths(await listTree(page)).includes("delete-me.md"),
+      )
+      .toBe(false);
     await expectTreeNotToContainPath(page, "delete-me.md");
   } finally {
     await closeAppIfOpen(app);
@@ -190,22 +190,26 @@ test("(git) delete file then commit+push", async ({
   }
 });
 
-test("(git) delete folder recursively then commit+push", async ({
+test("(S3) delete folder recursively then sync", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await apiCreateFolder(page, "", "delete-folder");
     await apiCreateFile(page, "delete-folder", "x.md");
-    await commitAndPushAll(page);
+    await syncAll(page);
     await apiDeletePath(page, "delete-folder");
-    await commitAndPushAll(page);
+    await expect
+      .poll(async () =>
+        flattenTreePaths(await listTree(page)).includes("delete-folder"),
+      )
+      .toBe(false);
     await expectTreeNotToContainPath(page, "delete-folder");
     await expectTreeNotToContainPath(page, "delete-folder/x.md");
   } finally {
@@ -214,20 +218,18 @@ test("(git) delete folder recursively then commit+push", async ({
   }
 });
 
-test("(git) duplicate file then commit+push", async ({
-  request: _request,
-}, testInfo) => {
+test("(S3) duplicate file then sync", async ({ request: _request }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await apiCreateFile(page, "", "dup.md");
     const duplicatedPath = await apiDuplicateFile(page, "dup.md");
-    await commitAndPushAll(page);
+    await syncAll(page);
 
     await expectTreeToContainPath(page, "dup.md");
     await expectTreeToContainPath(page, duplicatedPath);
@@ -237,7 +239,7 @@ test("(git) duplicate file then commit+push", async ({
   }
 });
 
-test("(git) import external file then commit+push", async ({
+test("(S3) import external file then sync", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -248,13 +250,13 @@ test("(git) import external file then commit+push", async ({
   let app: ElectronApplication | null = null;
   try {
     await fs.writeFile(sourcePath, "imported content");
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await apiImportFile(page, sourcePath, "imported.txt");
-    await commitAndPushAll(page);
+    await syncAll(page);
     await expectTreeToContainPath(page, "imported.txt");
   } finally {
     await closeAppIfOpen(app);
@@ -263,16 +265,16 @@ test("(git) import external file then commit+push", async ({
   }
 });
 
-test("(git) create file dialog rejects invalid file name characters", async ({
+test("(S3) create file dialog rejects invalid file name characters", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createFileViaDialog(page, "bad:name", false);
     const createDialog = page.getByTestId("create-file-dialog");
@@ -285,16 +287,16 @@ test("(git) create file dialog rejects invalid file name characters", async ({
   }
 });
 
-test("(git) creating an existing folder path is idempotent", async ({
+test("(S3) creating an existing folder path is idempotent", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createFolderViaEmptyTreeContextMenu(page, "dupe-parent");
     await openNodeContextMenu(page, "dupe-parent");
@@ -325,16 +327,16 @@ test("(git) creating an existing folder path is idempotent", async ({
   }
 });
 
-test("(git) rename dialog rejects invalid name characters", async ({
+test("(S3) rename dialog rejects invalid name characters", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createMarkdownFile(page, "rename-target.md");
     await openNodeContextMenu(page, "rename-target.md");
@@ -353,16 +355,16 @@ test("(git) rename dialog rejects invalid name characters", async ({
   }
 });
 
-test("(git) move file into folder using context menu dialog", async ({
+test("(S3) move file into folder using context menu dialog", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createFolderViaEmptyTreeContextMenu(page, "move-target");
     await expectTreeToContainPath(page, "move-target");
@@ -383,16 +385,16 @@ test("(git) move file into folder using context menu dialog", async ({
   }
 });
 
-test("(git) favorite can be added and removed from context menus", async ({
+test("(S3) favorite can be added and removed from context menus", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createMarkdownFile(page, "favorite-note.md");
 
@@ -414,28 +416,79 @@ test("(git) favorite can be added and removed from context menus", async ({
   }
 });
 
-test("(git) right click on tree background creates folder in root", async ({
+test("(S3) right click on tree background creates folder in root", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
   try {
-    const launched = await launchIntegrationApp(userDataDir);
+    const launched = await launchS3IntegrationApp(userDataDir);
     app = launched.app;
     const page = launched.page;
-    await connectGitRepo(page);
+    await connectS3Repo(page);
 
     await createFolderViaEmptyTreeContextMenu(page, "ctx-parent");
     await expectTreeToContainPath(page, "ctx-parent");
+    await apiCreateFile(page, "ctx-parent", "ctx-child.md");
 
-    await selectFileFromTree(page, "ctx-parent");
-    await createMarkdownFile(page, "ctx-child.md");
-    await selectFileFromTree(page, "ctx-child.md");
+    await page
+      .locator(".tree-container")
+      .getByText("ctx-parent", { exact: true })
+      .first()
+      .click();
 
     await createFolderViaEmptyTreeContextMenu(page, "root-from-context");
 
     await expectTreeToContainPath(page, "root-from-context");
     await expectTreeNotToContainPath(page, "ctx-parent/root-from-context");
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("(S3) naming normalization replaces spaces with dashes on create", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchS3IntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectS3Repo(page);
+
+    await createFileViaDialog(page, "space file");
+    await expectTreeToContainPath(page, "space-file.md");
+    await expectTreeNotToContainPath(page, "space file.md");
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("(S3) naming normalization applies on rename", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  try {
+    const launched = await launchS3IntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+    await connectS3Repo(page);
+
+    await createMarkdownFile(page, "rename-space.md");
+    await openNodeContextMenu(page, "rename-space.md");
+    await page.getByTestId("tree-context-rename").click();
+
+    const renameDialog = page.getByTestId("rename-dialog");
+    await expect(renameDialog).toBeVisible();
+    await renameDialog.getByLabel("New Name").fill("renamed file.md");
+    await renameDialog.getByRole("button", { name: "Rename" }).click();
+
+    await expectTreeToContainPath(page, "renamed-file.md");
+    await expectTreeNotToContainPath(page, "renamed file.md");
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);
