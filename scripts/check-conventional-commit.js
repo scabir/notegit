@@ -6,6 +6,10 @@ const path = require("path");
 const COMMIT_MSG_FILE = process.argv[2];
 const CONVENTIONAL_COMMIT_REGEX =
   /^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._/-]+\))?!?: .+/;
+const isMergeCommitMessage = (message) =>
+  message.startsWith("Merge branch ") ||
+  message.startsWith("Merge remote-tracking branch ") ||
+  message.startsWith("Merge pull request ");
 
 if (!COMMIT_MSG_FILE) {
   console.error(
@@ -24,6 +28,10 @@ const firstLine = fs
   .readFileSync(absolutePath, "utf8")
   .split(/\r?\n/, 1)[0]
   .trim();
+
+if (isMergeCommitMessage(firstLine)) {
+  process.exit(0);
+}
 
 if (!CONVENTIONAL_COMMIT_REGEX.test(firstLine)) {
   console.error(
