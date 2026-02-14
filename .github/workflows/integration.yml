@@ -114,8 +114,10 @@ jobs:
             exit 0
           fi
           git add badges/integration.json
-          git commit -m "chore: update integration badge [skip ci]"
-          git push
+          HUSKY=0 git commit --no-verify -m "chore: update integration badge [skip ci]"
+          if ! git push; then
+            echo "::warning::Could not push integration badge update (likely protected branch rules). Continuing without failing workflow."
+          fi
 
       - name: Report integration pass count
         shell: bash

@@ -130,8 +130,10 @@ jobs:
             exit 0
           fi
           git add badges/coverage.json
-          git commit -m "chore: update coverage badge [skip ci]"
-          git push
+          HUSKY=0 git commit --no-verify -m "chore: update coverage badge [skip ci]"
+          if ! git push; then
+            echo "::warning::Could not push coverage badge update (likely protected branch rules). Continuing without failing workflow."
+          fi
 
       - name: Report coverage percentage
         shell: bash
