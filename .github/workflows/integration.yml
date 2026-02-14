@@ -16,7 +16,7 @@ permissions:
 jobs:
   integration:
     name: Integration Suite
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 90
     steps:
       - name: Checkout
@@ -41,25 +41,10 @@ jobs:
           corepack enable
           pnpm install --frozen-lockfile
 
-      - name: Install Linux runtime dependencies
+      - name: Install Playwright browser and Linux dependencies
         shell: bash
         run: |
           set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install -y \
-            xvfb \
-            libgtk-3-0 \
-            libnotify4 \
-            libnss3 \
-            libxss1 \
-            libxtst6 \
-            xauth \
-            libatspi2.0-0 \
-            libdrm2 \
-            libgbm1 \
-            libxcb-dri3-0 \
-            libxshmfence1 \
-            libasound2
           pnpm exec playwright install --with-deps chromium
 
       - name: Build app once
