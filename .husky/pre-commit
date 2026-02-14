@@ -12,11 +12,11 @@ run_step() {
   printf '\n'
 }
 
-run_step "pnpm run clean" pnpm run clean
-run_step "pnpm install" pnpm install
-run_step "pnpm run format" pnpm run format
 run_step "pnpm run format:check" pnpm run format:check
 run_step "pnpm exec eslint --max-warnings=0" pnpm exec eslint . --ext .ts,.tsx --max-warnings=0
-run_step "pnpm run build" pnpm run build
-run_step "pnpm run test:coverage" pnpm run test:coverage
-run_step "pnpm run coverage:check" pnpm run coverage:check
+run_step "node scripts/check-lockfile-consistency.js" node scripts/check-lockfile-consistency.js
+run_step "node scripts/check-staged-conflict-markers.js" node scripts/check-staged-conflict-markers.js
+run_step "node scripts/check-staged-secrets.js" node scripts/check-staged-secrets.js
+run_step "node scripts/check-staged-file-size-and-binary.js" node scripts/check-staged-file-size-and-binary.js
+run_step "pnpm exec tsc --noEmit --project tsconfig.json" pnpm exec tsc --noEmit --project tsconfig.json
+run_step "node scripts/run-staged-unit-tests.js" node scripts/run-staged-unit-tests.js

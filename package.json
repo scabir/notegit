@@ -27,6 +27,7 @@
     "test:integration:headed": "pnpm run build && pnpm exec playwright test -c playwright.integration.config.ts --headed",
     "coverage:check": "node scripts/check-coverage-threshold.js",
     "coverage:check-staged": "pnpm run coverage:check",
+    "typecheck": "tsc --noEmit --project tsconfig.json",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write --ignore-unknown \"{src,docs,setup}/**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,html,yml,yaml}\" \"*.{md,json}\"",
