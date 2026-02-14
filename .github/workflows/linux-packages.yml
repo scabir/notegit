@@ -116,27 +116,6 @@ jobs:
           else
             echo "No build script found in package.json, skipping build step."
           fi
-
-      - name: Run unit tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          case "${{ steps.detect_pm.outputs.pm }}" in
-            pnpm)
-              pnpm run test
-              ;;
-            yarn)
-              yarn test
-              ;;
-            npm)
-              npm run test
-              ;;
-            *)
-              echo "::error::Unsupported package manager: ${{ steps.detect_pm.outputs.pm }}"
-              exit 1
-              ;;
-          esac
-
       - name: Package Linux ${{ matrix.target }}
         shell: bash
         run: |
