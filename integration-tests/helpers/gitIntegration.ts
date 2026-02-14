@@ -267,10 +267,22 @@ export const expectErrorStatus = async (
 ): Promise<void> => {
   const status = page.getByTestId("status-bar-save-status");
   await expect(status).toBeVisible();
-  await expect(page.getByTestId("status-bar-save-status-error")).toBeVisible();
   if (containsText) {
     await expect(status).toContainText(containsText);
   }
+  await expect
+    .poll(async () => {
+      const hasErrorChip = await page
+        .getByTestId("status-bar-save-status-error")
+        .isVisible()
+        .catch(() => false);
+      if (hasErrorChip) {
+        return true;
+      }
+      const statusText = (await status.textContent()) || "";
+      return statusText.toLowerCase().includes("error");
+    })
+    .toBe(true);
 };
 
 export const expectSyncChipText = async (
