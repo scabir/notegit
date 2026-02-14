@@ -157,15 +157,20 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     return Boolean(target.closest(".cm-editor"));
   }, []);
 
+  const clearStatusTimer = React.useCallback(() => {
+    if (statusTimerRef.current) {
+      clearTimeout(statusTimerRef.current);
+      statusTimerRef.current = null;
+    }
+  }, []);
+
   const setTransientStatus = React.useCallback(
     (
       status: "idle" | "saving" | "saved" | "error",
       message: string,
       timeoutMs = 3000,
     ) => {
-      if (statusTimerRef.current) {
-        clearTimeout(statusTimerRef.current);
-      }
+      clearStatusTimer();
       setSaveStatus(status);
       setSaveMessage(message);
       if (timeoutMs > 0) {
@@ -177,7 +182,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         unrefTimeout(statusTimerRef.current);
       }
     },
-    [],
+    [clearStatusTimer],
   );
 
   const loadWorkspace = React.useCallback(async () => {
@@ -768,9 +773,12 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       return;
     }
 
+    clearStatusTimer();
+
     if (hasUnsavedChanges && selectedFile) {
       await handleSaveFile(editorContent);
       await new Promise((resolve) => setTimeout(resolve, 500));
+      clearStatusTimer();
     }
 
     setSaveStatus("saving");
@@ -927,16 +935,13 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
 
   useEffect(() => {
     return () => {
-      if (statusTimerRef.current) {
-        clearTimeout(statusTimerRef.current);
-        statusTimerRef.current = null;
-      }
+      clearStatusTimer();
       if (autosaveTimerRef.current) {
         clearTimeout(autosaveTimerRef.current);
         autosaveTimerRef.current = null;
       }
     };
-  }, []);
+  }, [clearStatusTimer]);
 
   return (
     <Box sx={rootSx}>
