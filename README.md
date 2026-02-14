@@ -8,7 +8,7 @@ A Git-, S3-, or local-backed Markdown note-taking desktop app built with Electro
 [![Windows Installer](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml)
 [![Linux Packages](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml)
 
-**Version**: 2.7.5  
+**Version**: 2.7.6  
 **License**: MIT
 
 ## Highlights
