@@ -334,18 +334,26 @@ export const expectTreeToContainPath = async (
   page: Page,
   expectedPath: string,
 ): Promise<void> => {
-  const tree = await listTree(page);
-  const paths = flattenTreePaths(tree);
-  expect(paths).toContain(expectedPath);
+  await expect
+    .poll(async () => {
+      const tree = await listTree(page);
+      const paths = flattenTreePaths(tree);
+      return paths.includes(expectedPath);
+    })
+    .toBe(true);
 };
 
 export const expectTreeNotToContainPath = async (
   page: Page,
   expectedPath: string,
 ): Promise<void> => {
-  const tree = await listTree(page);
-  const paths = flattenTreePaths(tree);
-  expect(paths).not.toContain(expectedPath);
+  await expect
+    .poll(async () => {
+      const tree = await listTree(page);
+      const paths = flattenTreePaths(tree);
+      return paths.includes(expectedPath);
+    })
+    .toBe(false);
 };
 
 export const apiCreateFile = async (

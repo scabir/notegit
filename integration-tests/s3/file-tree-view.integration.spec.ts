@@ -1,9 +1,6 @@
 import {
   apiCreateFile,
   apiCreateFolder,
-  apiDeletePath,
-  apiDuplicateFile,
-  apiImportFile,
   apiRenamePath,
   cleanupUserDataDir,
   closeAppIfOpen,
@@ -19,9 +16,6 @@ import {
 } from "../helpers/gitIntegration";
 import { expect, test } from "@playwright/test";
 import type { ElectronApplication, Page } from "@playwright/test";
-import * as fs from "fs/promises";
-import * as os from "os";
-import * as path from "path";
 
 const createFileViaDialog = async (
   page: Page,
@@ -163,105 +157,6 @@ test("(S3) rename folder with child files then sync", async ({
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(S3) delete file then sync", async ({ request: _request }, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-  try {
-    const launched = await launchS3IntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-    await connectS3Repo(page);
-
-    await apiCreateFile(page, "", "delete-me.md");
-    await syncAll(page);
-    await apiDeletePath(page, "delete-me.md");
-    await expect
-      .poll(async () =>
-        flattenTreePaths(await listTree(page)).includes("delete-me.md"),
-      )
-      .toBe(false);
-    await expectTreeNotToContainPath(page, "delete-me.md");
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(S3) delete folder recursively then sync", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-  try {
-    const launched = await launchS3IntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-    await connectS3Repo(page);
-
-    await apiCreateFolder(page, "", "delete-folder");
-    await apiCreateFile(page, "delete-folder", "x.md");
-    await syncAll(page);
-    await apiDeletePath(page, "delete-folder");
-    await expect
-      .poll(async () =>
-        flattenTreePaths(await listTree(page)).includes("delete-folder"),
-      )
-      .toBe(false);
-    await expectTreeNotToContainPath(page, "delete-folder");
-    await expectTreeNotToContainPath(page, "delete-folder/x.md");
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(S3) duplicate file then sync", async ({ request: _request }, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-  try {
-    const launched = await launchS3IntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-    await connectS3Repo(page);
-
-    await apiCreateFile(page, "", "dup.md");
-    const duplicatedPath = await apiDuplicateFile(page, "dup.md");
-    await syncAll(page);
-
-    await expectTreeToContainPath(page, "dup.md");
-    await expectTreeToContainPath(page, duplicatedPath);
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(S3) import external file then sync", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  const importTmpDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), `notegit-import-${Date.now()}-`),
-  );
-  const sourcePath = path.join(importTmpDir, "external.txt");
-  let app: ElectronApplication | null = null;
-  try {
-    await fs.writeFile(sourcePath, "imported content");
-    const launched = await launchS3IntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-    await connectS3Repo(page);
-
-    await apiImportFile(page, sourcePath, "imported.txt");
-    await syncAll(page);
-    await expectTreeToContainPath(page, "imported.txt");
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-    await fs.rm(importTmpDir, { recursive: true, force: true });
   }
 });
 

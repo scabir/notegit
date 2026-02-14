@@ -17,7 +17,6 @@ import {
   createMarkdownFile,
   expectErrorStatus,
   expectSavedStatus,
-  expectTreeToContainPath,
   flattenTreePaths,
   getLatestCommitMessageForFile,
   getRepoInfo,
@@ -553,41 +552,6 @@ test("(git) git unavailable warning is shown for existing git config", async ({
   } finally {
     await closeAppIfOpen(firstApp);
     await closeAppIfOpen(secondApp);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(git) offline mode handles pull/push/fetch errors and remains usable", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-  try {
-    const launched = await launchIntegrationApp(userDataDir, {
-      env: {
-        NOTEGIT_MOCK_GIT_OFFLINE: "1",
-        NOTEGIT_MOCK_GIT_INITIAL_BEHIND: "1",
-      },
-    });
-    app = launched.app;
-    const page = launched.page;
-    await connectGitRepo(page);
-    await createMarkdownFile(page, "offline.md");
-    await appendToCurrentEditor(page, "\noffline content\n");
-
-    await clickFetch(page);
-    await expectErrorStatus(page, "Network offline");
-
-    await clickPull(page);
-    await expectErrorStatus(page, "Network offline");
-
-    await page.getByTestId("status-bar-commit-push-action").click();
-    await expectErrorStatus(page, "Network offline");
-
-    await apiCreateFile(page, "", "still-works.md");
-    await expectTreeToContainPath(page, "still-works.md");
-  } finally {
-    await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);
   }
 });

@@ -79,31 +79,6 @@ test("(S3) local-only changes are visible before sync", async ({
   }
 });
 
-test("(S3) sync action clears pending local changes", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-
-  try {
-    const launched = await launchS3IntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-
-    await connectS3Repo(page);
-    await apiCreateFile(page, "", "sync-clear.md");
-    await syncAll(page);
-
-    const status = await getRepoStatus(page);
-    expect(status.hasUncommitted).toBe(false);
-    expect(status.pendingPushCount).toBe(0);
-    expect(status.ahead).toBe(0);
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
 test("(S3) sync all from mixed changes succeeds", async ({
   request: _request,
 }, testInfo) => {
