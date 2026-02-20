@@ -18,7 +18,7 @@ Main process services
 - **Handlers**: IPC endpoints for files, repo, config, search, history, export
 - **Services**: business logic (files, repo, config, history, search, export)
 - **Adapters**: filesystem, Git CLI, S3, encryption
-- **Shared types**: `src/shared/types` used in renderer + main
+- **Shared types**: `app/desktop/src/shared/types` used in renderer + main
 
 ## Data storage
 

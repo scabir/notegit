@@ -17,6 +17,9 @@ jobs:
   coverage:
     name: Unit Test Coverage
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/desktop
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,8 +62,12 @@ jobs:
         if: steps.node_version.outputs.use_nvmrc == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          node-version-file: app/desktop/.nvmrc
           cache: ${{ steps.detect_pm.outputs.pm }}
+          cache-dependency-path: |
+            app/desktop/pnpm-lock.yaml
+            app/desktop/package-lock.json
+            app/desktop/yarn.lock
 
       - name: Setup Node (fallback)
         if: steps.node_version.outputs.use_nvmrc != 'true'
@@ -68,6 +75,10 @@ jobs:
         with:
           node-version: 20
           cache: ${{ steps.detect_pm.outputs.pm }}
+          cache-dependency-path: |
+            app/desktop/pnpm-lock.yaml
+            app/desktop/package-lock.json
+            app/desktop/yarn.lock
 
       - name: Install dependencies
         shell: bash
@@ -116,11 +127,12 @@ jobs:
             node -e "const fs=require('fs'); const lcov=fs.readFileSync('coverage/lcov.info','utf8').split(/\r?\n/); let lf=0, lh=0; for (const line of lcov) { if (line.startsWith('LF:')) lf += Number(line.slice(3)); else if (line.startsWith('LH:')) lh += Number(line.slice(3)); } if (!lf) { console.error('No LF entries found in coverage/lcov.info'); process.exit(1); } console.log(Math.round((lh / lf) * 100));"
           )"
           echo "coverage_pct=$COVERAGE_PCT" >> "$GITHUB_OUTPUT"
-          node -e "const fs=require('fs'); const pct=Number(process.argv[1]); const color=pct>=90?'brightgreen':pct>=80?'green':pct>=70?'yellowgreen':pct>=60?'yellow':'red'; const out={schemaVersion:1,label:'coverage',message:pct+'%',color}; fs.mkdirSync('badges',{recursive:true}); fs.writeFileSync('badges/coverage.json', JSON.stringify(out));" "$COVERAGE_PCT"
+          node -e "const fs=require('fs'); const pct=Number(process.argv[1]); const color=pct>=90?'brightgreen':pct>=80?'green':pct>=70?'yellowgreen':pct>=60?'yellow':'red'; const out={schemaVersion:1,label:'coverage',message:pct+'%',color}; fs.mkdirSync('../../badges',{recursive:true}); fs.writeFileSync('../../badges/coverage.json', JSON.stringify(out));" "$COVERAGE_PCT"
 
       - name: Update badge file on main
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         shell: bash
+        working-directory: .
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
