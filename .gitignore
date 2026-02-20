@@ -1,4 +1,5 @@
 node_modules/
+.pnpm-store/
 dist/
 *.log
 .DS_Store
@@ -6,10 +7,10 @@ dist/
 *.env.local
 
 # Generated artifacts accidentally emitted into src
-src/backend/**/*.js
-src/backend/**/*.d.ts
-src/shared/types/**/*.js
-src/shared/types/**/*.d.ts
+app/desktop/src/backend/**/*.js
+app/desktop/src/backend/**/*.d.ts
+app/desktop/src/shared/types/**/*.js
+app/desktop/src/shared/types/**/*.d.ts
 
 # Build outputs
 build/
@@ -17,6 +18,10 @@ build/
 out/
 release/
 coverage/
+app/desktop/dist/
+app/desktop/release/
+app/desktop/coverage/
+app/desktop/.pnpm-store/
 
 # IDE
 .vscode/
@@ -34,6 +39,8 @@ prompts/
 # Test Results
 lint_output.txt
 test-results/
+app/desktop/test-results/
+app/desktop/integration-results.json
 
 # Local planning/scratch docs
 .local/

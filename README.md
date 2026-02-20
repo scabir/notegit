@@ -8,7 +8,7 @@ A Git-, S3-, or local-backed Markdown note-taking desktop app built with Electro
 [![Windows Installer](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml)
 [![Linux Packages](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml)
 
-**Version**: 2.7.7  
+**Version**: 2.7.8  
 **License**: MIT
 
 ## Highlights
@@ -49,24 +49,28 @@ Prerequisites:
 Install dependencies:
 
 ```bash
+cd app/desktop
 pnpm install
 ```
 
 Run in development:
 
 ```bash
+cd app/desktop
 pnpm run dev
 ```
 
 Build:
 
 ```bash
+cd app/desktop
 pnpm run build
 ```
 
 Quality checks:
 
 ```bash
+cd app/desktop
 pnpm run lint
 pnpm run test
 pnpm run test:coverage
@@ -76,6 +80,7 @@ pnpm run test:integration
 Package installers:
 
 ```bash
+cd app/desktop
 pnpm run package
 ```
 
@@ -86,8 +91,8 @@ pnpm run package
 - Development and build workflows: [docs/development/README.md](docs/development/README.md)
 - Testing and coverage: [docs/testing/README.md](docs/testing/README.md)
 - Integration scenarios: [docs/testing/integration-tests.md](docs/testing/integration-tests.md)
-- Build scripts: [setup/README.md](setup/README.md)
-- Build quick start: [setup/QUICK_START.md](setup/QUICK_START.md)
+- Build scripts: [app/desktop/setup/README.md](app/desktop/setup/README.md)
+- Build quick start: [app/desktop/setup/QUICK_START.md](app/desktop/setup/QUICK_START.md)
 
 ## Support
 

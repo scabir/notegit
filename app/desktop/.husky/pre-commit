@@ -1,0 +1,24 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+run_step() {
+  label="$1"
+  shift
+
+  printf '%s\n' "--------------"
+  printf '%s\n' "-- ${label} --"
+  printf '%s\n' "--------------"
+  "$@"
+  printf '\n'
+}
+
+run_step "pnpm run format:check" pnpm --dir "$PROJECT_ROOT" run format:check
+run_step "pnpm exec eslint --max-warnings=0" pnpm --dir "$PROJECT_ROOT" exec eslint . --ext .ts,.tsx --max-warnings=0
+run_step "node scripts/check-lockfile-consistency.js" node "$PROJECT_ROOT/scripts/check-lockfile-consistency.js"
+run_step "node scripts/check-staged-conflict-markers.js" node "$PROJECT_ROOT/scripts/check-staged-conflict-markers.js"
+run_step "node scripts/check-staged-secrets.js" node "$PROJECT_ROOT/scripts/check-staged-secrets.js"
+run_step "node scripts/check-staged-file-size-and-binary.js" node "$PROJECT_ROOT/scripts/check-staged-file-size-and-binary.js"
+run_step "pnpm exec tsc --noEmit --project tsconfig.json" pnpm --dir "$PROJECT_ROOT" exec tsc --noEmit --project "$PROJECT_ROOT/tsconfig.json"
+run_step "node scripts/run-staged-unit-tests.js" node "$PROJECT_ROOT/scripts/run-staged-unit-tests.js"
