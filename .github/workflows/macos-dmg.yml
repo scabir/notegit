@@ -61,6 +61,7 @@ jobs:
         if: steps.detect_pm.outputs.pm == 'pnpm'
         uses: pnpm/action-setup@v4
         with:
+          version: 10.28.0
           run_install: false
       - name: Setup Node (.nvmrc)
         if: steps.node_version.outputs.use_nvmrc == 'true'
