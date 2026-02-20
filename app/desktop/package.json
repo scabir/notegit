@@ -3,6 +3,7 @@
   "version": "2.7.8",
   "packageManager": "pnpm@10.28.0",
   "description": "A Git-backed Markdown note-taking desktop application",
+  "homepage": "https://github.com/scabir/notegit",
   "main": "dist/electron/electron/main.js",
   "author": {
     "name": "Suleyman Cabir Ataman",
