@@ -72,6 +72,31 @@ export class TranslationService {
     this.fallbackLocale = options.fallbackLocale || DEFAULT_FALLBACK_LOCALE;
   }
 
+  getFallbackLocale(): string {
+    return this.fallbackLocale;
+  }
+
+  async listSupportedLocales(domain: TranslationDomain): Promise<string[]> {
+    const domainI18nDir = path.join(this.localesRootDir, domain, I18N_DIR_NAME);
+
+    if (!(await this.fsAdapter.exists(domainI18nDir))) {
+      return [this.fallbackLocale];
+    }
+
+    const entries = await this.fsAdapter.readdir(domainI18nDir);
+    const locales = entries
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0 && isValidLocaleCode(entry));
+
+    if (!locales.includes(this.fallbackLocale)) {
+      locales.push(this.fallbackLocale);
+    }
+
+    return Array.from(new Set(locales)).sort((left, right) =>
+      left.localeCompare(right),
+    );
+  }
+
   async getBundle(
     domain: TranslationDomain,
     requestedLocale: string,

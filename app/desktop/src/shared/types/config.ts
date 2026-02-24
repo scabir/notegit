@@ -1,4 +1,7 @@
+import { DEFAULT_APP_LANGUAGE } from "./i18n";
+
 export interface AppSettings {
+  language?: string;
   autoSaveEnabled: boolean;
   autoSaveIntervalSec: number;
   s3AutoSyncEnabled: boolean;
@@ -81,6 +84,7 @@ export interface AppStateSnapshot {
 }
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
+  language: DEFAULT_APP_LANGUAGE,
   autoSaveEnabled: false,
   autoSaveIntervalSec: 30,
   s3AutoSyncEnabled: true,

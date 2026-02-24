@@ -4,7 +4,11 @@ import archiver from "archiver";
 import { dialog } from "electron";
 import { FsAdapter } from "../adapters/FsAdapter";
 import { ConfigService } from "./ConfigService";
-import { ApiError, ApiErrorCode } from "../../shared/types";
+import {
+  ApiError,
+  ApiErrorCode,
+  EXPORT_CANCELLED_REASON,
+} from "../../shared/types";
 import { logger } from "../utils/logger";
 import { createWriteStream } from "fs";
 
@@ -45,8 +49,8 @@ export class ExportService {
       if (result.canceled || !result.filePath) {
         throw this.createError(
           ApiErrorCode.VALIDATION_ERROR,
-          "Export cancelled by user",
-          null,
+          "Export cancelled",
+          { reason: EXPORT_CANCELLED_REASON },
         );
       }
 
@@ -87,8 +91,8 @@ export class ExportService {
       if (result.canceled || !result.filePath) {
         throw this.createError(
           ApiErrorCode.VALIDATION_ERROR,
-          "Export cancelled by user",
-          null,
+          "Export cancelled",
+          { reason: EXPORT_CANCELLED_REASON },
         );
       }
 

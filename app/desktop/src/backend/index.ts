@@ -12,6 +12,7 @@ import { HistoryService } from "./services/HistoryService";
 import { SearchService } from "./services/SearchService";
 import { ExportService } from "./services/ExportService";
 import { LogsService } from "./services/LogsService";
+import { TranslationService } from "./services/TranslationService";
 import { GitRepoProvider } from "./providers/GitRepoProvider";
 import { S3RepoProvider } from "./providers/S3RepoProvider";
 import { GitHistoryProvider } from "./providers/GitHistoryProvider";
@@ -26,7 +27,9 @@ import { registerDialogHandlers } from "./handlers/dialogHandlers";
 import { registerSearchHandlers } from "./handlers/searchHandlers";
 import { registerExportHandlers } from "./handlers/exportHandlers";
 import { registerLogsHandlers } from "./handlers/logsHandlers";
+import { registerI18nHandlers } from "./handlers/i18nHandlers";
 import { logger } from "./utils/logger";
+import * as path from "path";
 
 export function createBackend(ipcMain: IpcMain): void {
   logger.info("Initializing backend services");
@@ -66,6 +69,10 @@ export function createBackend(ipcMain: IpcMain): void {
   const searchService = new SearchService(fsAdapter);
   const exportService = new ExportService(fsAdapter, configService);
   const logsService = new LogsService();
+  const translationService = new TranslationService(fsAdapter, {
+    localesRootDir:
+      process.env.NOTEGIT_LOCALES_ROOT || path.resolve(__dirname, "../../src"),
+  });
 
   repoService.setFilesService(filesService);
   filesService.setGitAdapter(gitAdapter);
@@ -84,6 +91,7 @@ export function createBackend(ipcMain: IpcMain): void {
   registerSearchHandlers(ipcMain, searchService);
   registerExportHandlers(ipcMain, exportService);
   registerLogsHandlers(ipcMain, logsService);
+  registerI18nHandlers(ipcMain, translationService, configService);
 
   logger.info("Backend services initialized");
 }

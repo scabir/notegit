@@ -1,6 +1,7 @@
 import type { FileTreeNode, FileContent } from "./domain";
 import type { RepoSettings, FullConfig, AppSettings, Profile } from "./config";
 import type { RepoStatus, CommitEntry, DiffHunk } from "./git";
+import type { I18nBundle, I18nMeta } from "./i18n";
 export interface ApiResponse<T> {
   ok: boolean;
   data?: T;
@@ -176,6 +177,11 @@ export interface NotegitApi {
       destPath: string,
     ) => Promise<ApiResponse<void>>;
     getFolder: () => Promise<ApiResponse<string>>;
+  };
+  i18n: {
+    getMeta: () => Promise<ApiResponse<I18nMeta>>;
+    getFrontendBundle: () => Promise<ApiResponse<I18nBundle>>;
+    setLanguage: (language: string) => Promise<ApiResponse<void>>;
   };
 }
 

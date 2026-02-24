@@ -1,7 +1,15 @@
 import { IpcMain } from "electron";
 import { ExportService } from "../services/ExportService";
-import { ApiResponse, ApiErrorCode } from "../../shared/types";
+import {
+  ApiResponse,
+  ApiErrorCode,
+  EXPORT_CANCELLED_REASON,
+} from "../../shared/types";
 import { logger } from "../utils/logger";
+
+const isExportCancelledError = (error: any): boolean =>
+  error?.code === ApiErrorCode.VALIDATION_ERROR &&
+  error?.details?.reason === EXPORT_CANCELLED_REASON;
 
 export function registerExportHandlers(
   ipcMain: IpcMain,
@@ -26,13 +34,13 @@ export function registerExportHandlers(
           data: exportPath,
         };
       } catch (error: any) {
-        if (error.message && error.message.includes("cancelled by user")) {
+        if (isExportCancelledError(error)) {
           return {
             ok: false,
             error: {
               code: ApiErrorCode.VALIDATION_ERROR,
               message: "Export cancelled",
-              details: error,
+              details: error.details,
             },
           };
         }
@@ -60,13 +68,13 @@ export function registerExportHandlers(
         data: zipPath,
       };
     } catch (error: any) {
-      if (error.message && error.message.includes("cancelled by user")) {
+      if (isExportCancelledError(error)) {
         return {
           ok: false,
           error: {
             code: ApiErrorCode.VALIDATION_ERROR,
             message: "Export cancelled",
-            details: error,
+            details: error.details,
           },
         };
       }

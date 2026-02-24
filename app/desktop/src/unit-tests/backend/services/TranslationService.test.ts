@@ -208,4 +208,18 @@ describe("TranslationService", () => {
       translationService.getBundle("frontend", "../de-DE"),
     ).rejects.toThrow("Invalid locale code");
   });
+
+  it("lists supported locales and always includes fallback locale", async () => {
+    await writeTranslationFile(
+      tmpRootDir,
+      "frontend",
+      "de-DE",
+      "common.json",
+      JSON.stringify({ app: { name: "notegit" } }),
+    );
+
+    const locales = await translationService.listSupportedLocales("frontend");
+
+    expect(locales).toEqual(["de-DE", "en-GB"]);
+  });
 });

@@ -4,3 +4,4 @@ export * from "./config";
 export * from "./git";
 export * from "./files";
 export * from "./repoSearch";
+export * from "./i18n";

@@ -1,5 +1,5 @@
 import { registerExportHandlers } from "../../../backend/handlers/exportHandlers";
-import { ApiErrorCode } from "../../../shared/types";
+import { ApiErrorCode, EXPORT_CANCELLED_REASON } from "../../../shared/types";
 
 describe("exportHandlers", () => {
   const createIpcMain = () => {
@@ -34,7 +34,11 @@ describe("exportHandlers", () => {
 
   it("returns cancelled error for note export cancellation", async () => {
     const exportService = {
-      exportNote: jest.fn().mockRejectedValue(new Error("cancelled by user")),
+      exportNote: jest.fn().mockRejectedValue({
+        code: ApiErrorCode.VALIDATION_ERROR,
+        message: "Export cancelled",
+        details: { reason: EXPORT_CANCELLED_REASON },
+      }),
     } as any;
 
     const { ipcMain, handlers } = createIpcMain();
@@ -49,6 +53,7 @@ describe("exportHandlers", () => {
 
     expect(response.ok).toBe(false);
     expect(response.error?.code).toBe(ApiErrorCode.VALIDATION_ERROR);
+    expect(response.error?.message).toBe("Export cancelled");
   });
 
   it("returns error for note export failures", async () => {
@@ -86,9 +91,11 @@ describe("exportHandlers", () => {
 
   it("returns cancelled error for repo export cancellation", async () => {
     const exportService = {
-      exportRepoAsZip: jest
-        .fn()
-        .mockRejectedValue(new Error("cancelled by user")),
+      exportRepoAsZip: jest.fn().mockRejectedValue({
+        code: ApiErrorCode.VALIDATION_ERROR,
+        message: "Export cancelled",
+        details: { reason: EXPORT_CANCELLED_REASON },
+      }),
     } as any;
 
     const { ipcMain, handlers } = createIpcMain();
@@ -98,6 +105,7 @@ describe("exportHandlers", () => {
 
     expect(response.ok).toBe(false);
     expect(response.error?.code).toBe(ApiErrorCode.VALIDATION_ERROR);
+    expect(response.error?.message).toBe("Export cancelled");
   });
 
   it("returns error for repo export failures", async () => {

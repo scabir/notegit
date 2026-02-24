@@ -120,6 +120,11 @@ const api: NotegitApi = {
       ipcRenderer.invoke("logs:export", logType, destPath),
     getFolder: () => ipcRenderer.invoke("logs:getFolder"),
   },
+  i18n: {
+    getMeta: () => ipcRenderer.invoke("i18n:getMeta"),
+    getFrontendBundle: () => ipcRenderer.invoke("i18n:getFrontendBundle"),
+    setLanguage: (language) => ipcRenderer.invoke("i18n:setLanguage", language),
+  },
 };
 
 contextBridge.exposeInMainWorld("notegitApi", api);
