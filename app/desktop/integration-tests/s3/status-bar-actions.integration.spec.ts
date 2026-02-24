@@ -99,9 +99,12 @@ test("(S3) sync all from mixed changes succeeds", async ({
     await expectTreeToContainPath(page, "mixed-a.md");
     await expectTreeToContainPath(page, "mixed-b.md");
 
-    const status = await getRepoStatus(page);
-    expect(status.hasUncommitted).toBe(false);
-    expect(status.pendingPushCount).toBe(0);
+    await expect
+      .poll(async () => {
+        const status = await getRepoStatus(page);
+        return status.hasUncommitted || status.pendingPushCount > 0;
+      })
+      .toBe(false);
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);
