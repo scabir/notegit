@@ -1,0 +1,10 @@
+{
+  "title": "Notlarda Ara",
+  "placeholder": "Dosya adı veya içerikte ara...",
+  "helperText": "Gezinmek için ↑↓, açmak için Enter, kapatmak için Esc",
+  "noResults": "Sonuç bulunamadı",
+  "startTyping": "Tüm notlarda aramak için yazmaya başlayın",
+  "searchFailed": "Arama başarısız",
+  "lineLabel": "Satır",
+  "moreSuffix": "daha"
+}

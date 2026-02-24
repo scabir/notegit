@@ -1,0 +1,69 @@
+{
+  "title": "Ayarlar",
+  "close": "Kapat",
+  "copySnackbar": "Panoya kopyalandı",
+  "tabs": {
+    "appSettings": "Uygulama Ayarları",
+    "repository": "Depo",
+    "profiles": "Profiller",
+    "export": "Dışa Aktar",
+    "logs": "Günlükler"
+  },
+  "appSettings": {
+    "languageLabel": "Dil",
+    "languageOptionEnGb": "İngilizce (BK)",
+    "languageOptionTrTr": "Türkçe",
+    "themeLabel": "Tema",
+    "themeLight": "Açık",
+    "themeDark": "Koyu",
+    "themeSystem": "Sistem",
+    "autoSaveEnabledLabel": "Otomatik kaydetmeyi etkinleştir",
+    "autoSaveIntervalLabel": "Otomatik kaydetme aralığı (saniye)",
+    "s3AutoSyncEnabledLabel": "S3 otomatik senkronizasyonunu etkinleştir",
+    "s3AutoSyncIntervalLabel": "S3 otomatik senkronizasyon aralığı (saniye)",
+    "editorPreferencesTitle": "Düzenleyici Tercihleri",
+    "fontSizeLabel": "Yazı Boyutu",
+    "tabSizeLabel": "Sekme Boyutu",
+    "showLineNumbersLabel": "Satır Numaralarını Göster",
+    "showMarkdownPreviewLabel": "Markdown Önizlemesini Göster",
+    "saveButton": "Uygulama Ayarlarını Kaydet"
+  },
+  "error": {
+    "failedLoadConfig": "Yapılandırma yüklenemedi",
+    "failedSaveAppSettings": "Uygulama ayarları kaydedilemedi",
+    "failedSetLanguage": "Dil değiştirilemedi",
+    "gitFieldsRequired": "Lütfen gerekli tüm Git alanlarını doldurun",
+    "s3FieldsRequired": "Lütfen gerekli tüm S3 alanlarını doldurun",
+    "failedSaveRepoSettings": "Depo ayarları kaydedilemedi",
+    "noOpenNote": "Şu anda açık bir not yok",
+    "failedExportNote": "Not dışa aktarılamadı",
+    "failedExportRepository": "Depo dışa aktarılamadı",
+    "failedSwitchProfile": "Profil değiştirilemedi",
+    "profileNameRequired": "Profil adı zorunludur",
+    "allGitFieldsRequired": "Tüm Git depo alanları zorunludur",
+    "allS3FieldsRequired": "Tüm S3 depo alanları zorunludur",
+    "failedCreateProfile": "Profil oluşturulamadı",
+    "failedDeleteProfile": "Profil silinemedi",
+    "failedLoadLogsFolder": "Günlük klasörü yüklenemedi",
+    "failedOpenRepositoryFolder": "Depo klasörü açılamadı",
+    "failedOpenLogsFolder": "Günlük klasörü açılamadı"
+  },
+  "success": {
+    "appSettingsSaved": "Uygulama ayarları başarıyla kaydedildi",
+    "localRepoNoSync": "Yerel depolarda senkronizasyon ayarı yoktur",
+    "repoSettingsSaved": "Depo ayarları başarıyla kaydedildi",
+    "noteExportedPrefix": "Not başarıyla dışa aktarıldı:",
+    "repositoryExportedPrefix": "Depo başarıyla dışa aktarıldı:",
+    "profileSwitched": "Profil başarıyla değiştirildi. Uygulama yeniden başlatılacak...",
+    "profileCreated": "Profil başarıyla oluşturuldu",
+    "profileDeleted": "Profil başarıyla silindi"
+  },
+  "confirm": {
+    "deleteProfile": "Bu profili silmek istediğinizden emin misiniz? Bu işlem uzak depoyu silmez.",
+    "switchProfilePrefix": "Şuna geç:",
+    "switchProfileSuffix": "Uygulama yeniden başlatılacak.",
+    "switchProfileFallbackName": "bu profil"
+  },
+  "localRepoSecondaryLabel": "Yerel depo",
+  "exportCancelledMessage": "Dışa aktarma iptal edildi"
+}

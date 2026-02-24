@@ -64,7 +64,22 @@ describe("SettingsAppSettingsTab", () => {
       findTextFieldByLabel(renderer, "S3 Auto Sync (in seconds)"),
     ).toBeUndefined();
 
-    const themeSelect = renderer.root.findByType(Select);
+    const languageSelect = renderer.root
+      .findAllByType(Select)
+      .find((select: any) => select.props.label === "Language");
+    if (!languageSelect) {
+      throw new Error("Language select not found");
+    }
+    act(() => {
+      languageSelect.props.onChange({ target: { value: "tr-TR" } });
+    });
+
+    const themeSelect = renderer.root
+      .findAllByType(Select)
+      .find((select: any) => select.props.label === "Theme");
+    if (!themeSelect) {
+      throw new Error("Theme select not found");
+    }
     act(() => {
       themeSelect.props.onChange({ target: { value: "light" } });
     });
@@ -102,6 +117,10 @@ describe("SettingsAppSettingsTab", () => {
 
     expect(onSaveAppSettings).toHaveBeenCalledTimes(1);
 
+    expect(onAppSettingsChange).toHaveBeenCalledWith({
+      ...baseAppSettings,
+      language: "tr-TR",
+    });
     expect(onAppSettingsChange).toHaveBeenCalledWith({
       ...baseAppSettings,
       theme: "light",

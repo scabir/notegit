@@ -151,6 +151,17 @@ describe("SettingsDialog component", () => {
           export: jest.fn().mockResolvedValue({ ok: true }),
           getFolder: jest.fn().mockResolvedValue({ ok: true, data: "/logs" }),
         },
+        i18n: {
+          getMeta: jest.fn().mockResolvedValue({
+            ok: true,
+            data: {
+              currentLocale: "en-GB",
+              fallbackLocale: "en-GB",
+              supportedLocales: ["en-GB", "tr-TR"],
+            },
+          }),
+          setLanguage: jest.fn().mockResolvedValue({ ok: true }),
+        },
         dialog: {
           showSaveDialog: jest.fn(),
           showOpenDialog: jest.fn(),
@@ -252,7 +263,9 @@ describe("SettingsDialog component", () => {
 
     const updateAppSettings = (global as any).window.notegitApi.config
       .updateAppSettings;
+    const setLanguage = (global as any).window.notegitApi.i18n.setLanguage;
     expect(updateAppSettings).toHaveBeenCalled();
+    expect(setLanguage).toHaveBeenCalledWith("en-GB");
   });
 
   it("creates a new git profile from the profiles tab", async () => {

@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import type { FileTreeNode } from "../../../../shared/types";
-import { FILE_TREE_MESSAGES, INVALID_NAME_CHARS } from "../constants";
+import { INVALID_NAME_CHARS } from "../constants";
 import {
   mapCreateItemError,
   mapRenameError,
@@ -37,6 +37,33 @@ type UseFileTreeActionsParams = {
   closeCreateFolderDialog: () => void;
   closeRenameDialog: () => void;
   closeMoveDialog: () => void;
+  messages: {
+    invalidFileName: string;
+    invalidFolderName: string;
+    invalidRenameName: string;
+    emptyName: string;
+    fileAlreadyExists: (name: string) => string;
+    folderAlreadyExists: (name: string) => string;
+    permissionDeniedCreateFile: string;
+    permissionDeniedCreateFolder: string;
+    permissionDenied: string;
+    failedCreateFile: string;
+    failedCreateFolder: string;
+    failedRename: string;
+    dialogApiNotAvailable: string;
+    importDialogTitle: string;
+    importedFileNameFallback: string;
+    unknownError: string;
+    renameAlreadyExists: (itemType: "file" | "folder") => string;
+    deleteConfirmation: (
+      itemType: "folder" | "file",
+      name: string,
+      isFolder: boolean,
+    ) => string;
+    failedDeletePrefix: string;
+    failedImportPrefix: string;
+    failedMovePrefix: string;
+  };
 };
 
 export function useFileTreeActions({
@@ -63,6 +90,7 @@ export function useFileTreeActions({
   closeCreateFolderDialog,
   closeRenameDialog,
   closeMoveDialog,
+  messages,
 }: UseFileTreeActionsParams) {
   const handleOpenRenameDialog = useCallback(
     (node?: FileTreeNode) => {
@@ -96,7 +124,7 @@ export function useFileTreeActions({
     }
 
     if (INVALID_NAME_CHARS.test(fileName)) {
-      setErrorMessage(FILE_TREE_MESSAGES.invalidFileName);
+      setErrorMessage(messages.invalidFileName);
       return;
     }
 
@@ -126,7 +154,8 @@ export function useFileTreeActions({
           error,
           "file",
           fileName,
-          FILE_TREE_MESSAGES.failedCreateFile,
+          messages.failedCreateFile,
+          messages,
         ),
       );
       console.error("Failed to create file:", error);
@@ -136,6 +165,7 @@ export function useFileTreeActions({
   }, [
     closeCreateFileDialog,
     isS3Repo,
+    messages,
     newItemName,
     onCreateFile,
     selectedNode,
@@ -152,7 +182,7 @@ export function useFileTreeActions({
 
     const folderName = normalizeName(trimmedName, isS3Repo);
     if (INVALID_NAME_CHARS.test(folderName)) {
-      setErrorMessage(FILE_TREE_MESSAGES.invalidFolderName);
+      setErrorMessage(messages.invalidFolderName);
       return;
     }
 
@@ -182,7 +212,8 @@ export function useFileTreeActions({
           error,
           "folder",
           folderName,
-          FILE_TREE_MESSAGES.failedCreateFolder,
+          messages.failedCreateFolder,
+          messages,
         ),
       );
       console.error("Failed to create folder:", error);
@@ -192,6 +223,7 @@ export function useFileTreeActions({
   }, [
     closeCreateFolderDialog,
     isS3Repo,
+    messages,
     newItemName,
     onCreateFolder,
     selectedNode,
@@ -207,13 +239,13 @@ export function useFileTreeActions({
 
     const trimmedName = newItemName.trim();
     if (!trimmedName) {
-      setErrorMessage(FILE_TREE_MESSAGES.emptyName);
+      setErrorMessage(messages.emptyName);
       return;
     }
 
     const normalizedName = normalizeName(trimmedName, isS3Repo);
     if (INVALID_NAME_CHARS.test(normalizedName)) {
-      setErrorMessage(FILE_TREE_MESSAGES.invalidRenameName);
+      setErrorMessage(messages.invalidRenameName);
       return;
     }
 
@@ -245,7 +277,8 @@ export function useFileTreeActions({
         mapRenameError(
           error,
           selectedNode.type,
-          FILE_TREE_MESSAGES.failedRename,
+          messages.failedRename,
+          messages,
         ),
       );
     } finally {
@@ -254,6 +287,7 @@ export function useFileTreeActions({
   }, [
     closeRenameDialog,
     isS3Repo,
+    messages,
     newItemName,
     onRename,
     selectedNode,
@@ -269,7 +303,7 @@ export function useFileTreeActions({
       if (!targetNode) return;
 
       const itemType = targetNode.type === "folder" ? "folder" : "file";
-      const message = FILE_TREE_MESSAGES.deleteConfirmation(
+      const message = messages.deleteConfirmation(
         itemType,
         targetNode.name,
         targetNode.type === "folder",
@@ -283,12 +317,13 @@ export function useFileTreeActions({
         } catch (error) {
           console.error("Failed to delete:", error);
           alert(
-            `${FILE_TREE_MESSAGES.failedDeletePrefix} ${itemType}: ${getOperationErrorMessage(error)}`,
+            `${messages.failedDeletePrefix} ${itemType}: ${getOperationErrorMessage(error, messages.unknownError)}`,
           );
         }
       }
     },
     [
+      messages,
       onDelete,
       removeFavoritesUnderPath,
       selectedNodeForActions,
@@ -299,13 +334,13 @@ export function useFileTreeActions({
   const handleImportFile = useCallback(async () => {
     try {
       if (!window.notegitApi.dialog) {
-        alert(FILE_TREE_MESSAGES.dialogApiNotAvailable);
+        alert(messages.dialogApiNotAvailable);
         return;
       }
 
       const result = await window.notegitApi.dialog.showOpenDialog({
         properties: ["openFile"],
-        title: FILE_TREE_MESSAGES.importDialogTitle,
+        title: messages.importDialogTitle,
       });
 
       if (result.canceled || result.filePaths.length === 0) {
@@ -317,17 +352,17 @@ export function useFileTreeActions({
         sourcePath,
         selectedNodeForActions,
         isS3Repo,
-        FILE_TREE_MESSAGES.importedFileNameFallback,
+        messages.importedFileNameFallback,
       );
 
       await onImport(sourcePath, targetPath);
     } catch (error) {
       console.error("Failed to import file:", error);
       alert(
-        `${FILE_TREE_MESSAGES.failedImportPrefix}: ${getOperationErrorMessage(error)}`,
+        `${messages.failedImportPrefix}: ${getOperationErrorMessage(error, messages.unknownError)}`,
       );
     }
-  }, [isS3Repo, onImport, selectedNodeForActions]);
+  }, [isS3Repo, messages, onImport, selectedNodeForActions]);
 
   const handleMoveToFolder = useCallback(
     async (destinationPath: string) => {
@@ -346,11 +381,17 @@ export function useFileTreeActions({
       } catch (error) {
         console.error("Failed to move:", error);
         alert(
-          `${FILE_TREE_MESSAGES.failedMovePrefix}: ${getOperationErrorMessage(error)}`,
+          `${messages.failedMovePrefix}: ${getOperationErrorMessage(error, messages.unknownError)}`,
         );
       }
     },
-    [closeMoveDialog, onRename, selectedNode, updateFavoritesForPathChange],
+    [
+      closeMoveDialog,
+      messages,
+      onRename,
+      selectedNode,
+      updateFavoritesForPathChange,
+    ],
   );
 
   return {

@@ -1,7 +1,9 @@
 import React from "react";
 import { Box } from "@mui/material";
 import { Star as FavoriteIcon } from "@mui/icons-material";
-import { FILE_TREE_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import { TOOLBAR_KEYS } from "../FileTreeToolbar/constants";
+import { buildFileTreeMessages, buildFileTreeText } from "./constants";
 import { rootSx } from "./styles";
 import type { FileTreeViewProps } from "./types";
 import { FileTreeToolbar } from "../FileTreeToolbar";
@@ -41,6 +43,22 @@ export function FileTreeView({
   isCollapsed,
   onToggleCollapse,
 }: FileTreeViewProps) {
+  const { t } = useI18n();
+  const fileTreeText = React.useMemo(() => buildFileTreeText(t), [t]);
+  const fileTreeMessages = React.useMemo(() => buildFileTreeMessages(t), [t]);
+  const toolbarText = React.useMemo(
+    () => ({
+      collapseTree: t(TOOLBAR_KEYS.collapseTree),
+      expandTree: t(TOOLBAR_KEYS.expandTree),
+      back: t(TOOLBAR_KEYS.back),
+      forward: t(TOOLBAR_KEYS.forward),
+      newFile: t(TOOLBAR_KEYS.newFile),
+      newFolder: t(TOOLBAR_KEYS.newFolder),
+      importFile: t(TOOLBAR_KEYS.importFile),
+      collapseAll: t(TOOLBAR_KEYS.collapseAll),
+    }),
+    [t],
+  );
   const [internalIsTreeCollapsed, setInternalIsTreeCollapsed] =
     React.useState(false);
   const isTreeCollapsed = isCollapsed ?? internalIsTreeCollapsed;
@@ -136,6 +154,7 @@ export function FileTreeView({
     closeCreateFolderDialog,
     closeRenameDialog,
     closeMoveDialog,
+    messages: fileTreeMessages,
   });
 
   const {
@@ -192,15 +211,15 @@ export function FileTreeView({
     selectedNode,
     selectedFile,
     newItemName,
-    createLocationRoot: FILE_TREE_TEXT.createLocationRoot,
-    createLocationPrefix: FILE_TREE_TEXT.createLocationPrefix,
-    fileExtensionHint: FILE_TREE_TEXT.fileExtensionHint,
+    createLocationRoot: fileTreeText.createLocationRoot,
+    createLocationPrefix: fileTreeText.createLocationPrefix,
+    fileExtensionHint: fileTreeText.fileExtensionHint,
   });
 
   const emptyContextMenuItems: ContextMenuItem[] = buildEmptyContextMenuItems({
-    newFileLabel: FILE_TREE_TEXT.newFile,
-    newFolderLabel: FILE_TREE_TEXT.newFolder,
-    importFileLabel: FILE_TREE_TEXT.importFile,
+    newFileLabel: fileTreeText.newFile,
+    newFolderLabel: fileTreeText.newFolder,
+    importFileLabel: fileTreeText.importFile,
     onCloseTreeContextMenu: handleCloseTreeContextMenu,
     onOpenFileDialog: openCreateFileDialog,
     onOpenFolderDialog: openCreateFolderDialog,
@@ -211,14 +230,14 @@ export function FileTreeView({
     node: treeContextMenuNode,
     isFavorite: contextNodeIsFavorite,
     labels: {
-      newFile: FILE_TREE_TEXT.newFile,
-      newFolder: FILE_TREE_TEXT.newFolder,
-      rename: FILE_TREE_TEXT.rename,
-      move: FILE_TREE_TEXT.moveToFolder,
-      addToFavorites: FILE_TREE_TEXT.addToFavorites,
-      removeFromFavorites: FILE_TREE_TEXT.removeFromFavorites,
-      duplicate: FILE_TREE_TEXT.duplicate,
-      delete: FILE_TREE_TEXT.delete,
+      newFile: fileTreeText.newFile,
+      newFolder: fileTreeText.newFolder,
+      rename: fileTreeText.rename,
+      move: fileTreeText.moveToFolder,
+      addToFavorites: fileTreeText.addToFavorites,
+      removeFromFavorites: fileTreeText.removeFromFavorites,
+      duplicate: fileTreeText.duplicate,
+      delete: fileTreeText.delete,
     },
     onCloseTreeContextMenu: handleCloseTreeContextMenu,
     onOpenFileDialog: openCreateFileDialog,
@@ -240,6 +259,7 @@ export function FileTreeView({
         onNewFolder={openCreateFolderDialog}
         onImport={handleImportFile}
         onCollapseAll={handleCollapseAll}
+        text={toolbarText}
       />
 
       {!isTreeCollapsed && favoriteNodes.length > 0 && (
@@ -255,7 +275,7 @@ export function FileTreeView({
           favoriteMenuState={favoriteMenuState}
           onCloseFavoriteMenu={handleCloseFavoriteMenu}
           onRemoveFavorite={handleRemoveFavorite}
-          favoriteMenuLabel={FILE_TREE_TEXT.favoritesContextMenuItem}
+          favoriteMenuLabel={fileTreeText.favoritesContextMenuItem}
           favoriteMenuIcon={<FavoriteIcon fontSize="small" />}
           treeContextMenuState={treeContextMenuState}
           onCloseTreeContextMenu={handleCloseTreeContextMenu}
@@ -280,20 +300,20 @@ export function FileTreeView({
       {!isTreeCollapsed && (
         <FileTreeDialogs
           text={{
-            createFileTitle: FILE_TREE_TEXT.createFileTitle,
-            createFolderTitle: FILE_TREE_TEXT.createFolderTitle,
-            fileNameLabel: FILE_TREE_TEXT.fileNameLabel,
-            folderNameLabel: FILE_TREE_TEXT.folderNameLabel,
-            filePlaceholder: FILE_TREE_TEXT.filePlaceholder,
-            folderPlaceholder: FILE_TREE_TEXT.folderPlaceholder,
-            cancel: FILE_TREE_TEXT.cancel,
-            create: FILE_TREE_TEXT.create,
-            creating: FILE_TREE_TEXT.creating,
-            renameFolderTitle: FILE_TREE_TEXT.renameFolderTitle,
-            renameFileTitle: FILE_TREE_TEXT.renameFileTitle,
-            newNameLabel: FILE_TREE_TEXT.newNameLabel,
-            renameAction: FILE_TREE_TEXT.renameAction,
-            renaming: FILE_TREE_TEXT.renaming,
+            createFileTitle: fileTreeText.createFileTitle,
+            createFolderTitle: fileTreeText.createFolderTitle,
+            fileNameLabel: fileTreeText.fileNameLabel,
+            folderNameLabel: fileTreeText.folderNameLabel,
+            filePlaceholder: fileTreeText.filePlaceholder,
+            folderPlaceholder: fileTreeText.folderPlaceholder,
+            cancel: fileTreeText.cancel,
+            create: fileTreeText.create,
+            creating: fileTreeText.creating,
+            renameFolderTitle: fileTreeText.renameFolderTitle,
+            renameFileTitle: fileTreeText.renameFileTitle,
+            newNameLabel: fileTreeText.newNameLabel,
+            renameAction: fileTreeText.renameAction,
+            renaming: fileTreeText.renaming,
           }}
           tree={tree}
           selectedNode={selectedNode}

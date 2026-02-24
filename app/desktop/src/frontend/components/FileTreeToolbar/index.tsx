@@ -46,9 +46,10 @@ export function FileTreeToolbar({
   onNewFolder,
   onImport,
   onCollapseAll,
+  text = TOOLBAR_TEXT,
 }: FileTreeToolbarProps) {
   const collapseAction: ToolbarAction = {
-    tooltip: isCollapsed ? TOOLBAR_TEXT.expandTree : TOOLBAR_TEXT.collapseTree,
+    tooltip: isCollapsed ? text.expandTree : text.collapseTree,
     icon: <MenuIcon fontSize="small" />,
     onClick: onToggleCollapse,
     disabled: !canToggleCollapse,
@@ -59,22 +60,22 @@ export function FileTreeToolbar({
     : [
         collapseAction,
         {
-          tooltip: TOOLBAR_TEXT.newFile,
+          tooltip: text.newFile,
           icon: <NoteAddIcon fontSize="small" />,
           onClick: onNewFile,
         },
         {
-          tooltip: TOOLBAR_TEXT.newFolder,
+          tooltip: text.newFolder,
           icon: <CreateFolderIcon fontSize="small" />,
           onClick: onNewFolder,
         },
         {
-          tooltip: TOOLBAR_TEXT.importFile,
+          tooltip: text.importFile,
           icon: <ImportIcon fontSize="small" />,
           onClick: onImport,
         },
         {
-          tooltip: TOOLBAR_TEXT.collapseAll,
+          tooltip: text.collapseAll,
           icon: <CollapseAllIcon fontSize="small" />,
           onClick: onCollapseAll,
         },
@@ -82,13 +83,13 @@ export function FileTreeToolbar({
 
   const navigationActions: ToolbarAction[] = [
     {
-      tooltip: TOOLBAR_TEXT.back,
+      tooltip: text.back,
       icon: <BackIcon fontSize="small" />,
       onClick: onBack,
       disabled: !canGoBack,
     },
     {
-      tooltip: TOOLBAR_TEXT.forward,
+      tooltip: text.forward,
       icon: <ForwardIcon fontSize="small" />,
       onClick: onForward,
       disabled: !canGoForward,

@@ -1,0 +1,11 @@
+{
+  "bucketLabel": "Kova",
+  "branchLabel": "Dal",
+  "synced": "Senkronize",
+  "saved": "Kaydedildi",
+  "uncommitted": "İşlenmemiş değişiklikler",
+  "unsynced": "Senkronize edilmemiş değişiklikler",
+  "fetchTooltip": "Uzak depodan getir",
+  "pullTooltip": "Uzak depodan çek",
+  "pushTooltip": "Uzak depoya gönder"
+}

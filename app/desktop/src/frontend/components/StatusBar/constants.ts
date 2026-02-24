@@ -1,11 +1,11 @@
-export const STATUS_TEXT = {
-  bucketLabel: "Bucket",
-  branchLabel: "Branch",
-  synced: "Synced",
-  saved: "Saved",
-  uncommitted: "Uncommitted changes",
-  unsynced: "Unsynced changes",
-  fetchTooltip: "Fetch from remote",
-  pullTooltip: "Pull from remote",
-  pushTooltip: "Push to remote",
+export const STATUS_KEYS = {
+  bucketLabel: "statusBar.bucketLabel",
+  branchLabel: "statusBar.branchLabel",
+  synced: "statusBar.synced",
+  saved: "statusBar.saved",
+  uncommitted: "statusBar.uncommitted",
+  unsynced: "statusBar.unsynced",
+  fetchTooltip: "statusBar.fetchTooltip",
+  pullTooltip: "statusBar.pullTooltip",
+  pushTooltip: "statusBar.pushTooltip",
 } as const;

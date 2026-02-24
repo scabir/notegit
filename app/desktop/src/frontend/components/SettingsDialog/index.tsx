@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -19,14 +19,18 @@ import type {
   RepoSettings,
   S3RepoSettings,
 } from "../../../shared/types";
-import { AuthMethod, REPO_PROVIDERS } from "../../../shared/types";
+import {
+  AuthMethod,
+  DEFAULT_APP_LANGUAGE,
+  REPO_PROVIDERS,
+} from "../../../shared/types";
 import { SettingsAppSettingsTab } from "../SettingsAppSettingsTab";
 import { SettingsExportTab } from "../SettingsExportTab";
 import { SettingsLogsTab } from "../SettingsLogsTab";
 import { SettingsProfilesTab } from "../SettingsProfilesTab";
 import { SettingsRepositoryTab } from "../SettingsRepositoryTab";
-import { confirmProfileSwitch } from "../../utils/profileSwitch";
-import { SETTINGS_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import { SETTINGS_KEYS } from "./constants";
 import { alertSx, tabHeaderSx } from "./styles";
 import type { SettingsDialogProps, TabPanelProps } from "./types";
 
@@ -53,6 +57,7 @@ export function SettingsDialog({
   currentNoteContent,
   currentNotePath,
 }: SettingsDialogProps) {
+  const { t, reload } = useI18n();
   const [tabValue, setTabValue] = useState(0);
   const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
   const [repoSettings, setRepoSettings] = useState<Partial<RepoSettings>>({});
@@ -82,17 +87,15 @@ export function SettingsDialog({
   const [logsFolder, setLogsFolder] = useState("");
   const [loadingLogsFolder, setLoadingLogsFolder] = useState(false);
   const [copySnackbarOpen, setCopySnackbarOpen] = useState(false);
+  const [supportedLocales, setSupportedLocales] = useState<string[]>([
+    DEFAULT_APP_LANGUAGE,
+  ]);
 
   const repoProvider: RepoProviderType =
     (repoSettings.provider as RepoProviderType) || REPO_PROVIDERS.git;
   const gitRepoSettings = repoSettings as Partial<GitRepoSettings>;
   const s3RepoSettings = repoSettings as Partial<S3RepoSettings>;
-
-  useEffect(() => {
-    if (open) {
-      void loadConfig();
-    }
-  }, [open]);
+  const exportCancelledMessage = t(SETTINGS_KEYS.exportCancelledMessage);
 
   const resetNewProfileForm = () => {
     setNewProfileName("");
@@ -108,27 +111,48 @@ export function SettingsDialog({
     setNewProfileSessionToken("");
   };
 
-  const loadConfig = async () => {
+  const loadConfig = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
+      const i18nMetaResponse = await window.notegitApi.i18n.getMeta();
+      if (i18nMetaResponse.ok && i18nMetaResponse.data) {
+        const locales = i18nMetaResponse.data.supportedLocales.filter(
+          (locale) => locale && locale.trim().length > 0,
+        );
+        setSupportedLocales(
+          locales.length > 0 ? locales : [DEFAULT_APP_LANGUAGE],
+        );
+      } else {
+        setSupportedLocales([DEFAULT_APP_LANGUAGE]);
+      }
+
       const response = await window.notegitApi.config.getFull();
 
       if (response.ok && response.data) {
-        setAppSettings(response.data.appSettings);
+        setAppSettings({
+          ...response.data.appSettings,
+          language: response.data.appSettings.language || DEFAULT_APP_LANGUAGE,
+        });
         setRepoSettings(response.data.repoSettings || {});
         setProfiles(response.data.profiles || []);
         setActiveProfileId(response.data.activeProfileId || null);
       } else {
-        setError(response.error?.message || "Failed to load configuration");
+        setError(response.error?.message || t(SETTINGS_KEYS.failedLoadConfig));
       }
     } catch (err: any) {
-      setError(err.message || "Failed to load configuration");
+      setError(err.message || t(SETTINGS_KEYS.failedLoadConfig));
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    if (open) {
+      void loadConfig();
+    }
+  }, [loadConfig, open]);
 
   const handleSaveAppSettings = async () => {
     if (!appSettings) {
@@ -144,7 +168,21 @@ export function SettingsDialog({
         await window.notegitApi.config.updateAppSettings(appSettings);
 
       if (response.ok) {
-        setSuccess("App settings saved successfully");
+        const selectedLanguage =
+          appSettings.language?.trim() || DEFAULT_APP_LANGUAGE;
+        const setLanguageResponse =
+          await window.notegitApi.i18n.setLanguage(selectedLanguage);
+        if (!setLanguageResponse.ok) {
+          setError(
+            setLanguageResponse.error?.message ||
+              t(SETTINGS_KEYS.failedSetLanguage),
+          );
+          setLoading(false);
+          return;
+        }
+
+        await reload();
+        setSuccess(t(SETTINGS_KEYS.appSettingsSaved));
         if (onThemeChange) {
           onThemeChange(appSettings.theme);
         }
@@ -152,10 +190,12 @@ export function SettingsDialog({
           onAppSettingsSaved(appSettings);
         }
       } else {
-        setError(response.error?.message || "Failed to save app settings");
+        setError(
+          response.error?.message || t(SETTINGS_KEYS.failedSaveAppSettings),
+        );
       }
     } catch (err: any) {
-      setError(err.message || "Failed to save app settings");
+      setError(err.message || t(SETTINGS_KEYS.failedSaveAppSettings));
     } finally {
       setLoading(false);
     }
@@ -164,7 +204,7 @@ export function SettingsDialog({
   const handleSaveRepoSettings = async () => {
     if (repoProvider === REPO_PROVIDERS.local) {
       setError(null);
-      setSuccess("Local repositories do not have sync settings");
+      setSuccess(t(SETTINGS_KEYS.localRepoNoSync));
       return;
     }
 
@@ -178,7 +218,7 @@ export function SettingsDialog({
       if (repoProvider === REPO_PROVIDERS.git) {
         const gitSettings = repoSettings as Partial<GitRepoSettings>;
         if (!gitSettings.remoteUrl || !gitSettings.branch || !gitSettings.pat) {
-          setError("Please fill in all required Git fields");
+          setError(t(SETTINGS_KEYS.gitFieldsRequired));
           setLoading(false);
           return;
         }
@@ -199,7 +239,7 @@ export function SettingsDialog({
           !s3Settings.accessKeyId ||
           !s3Settings.secretAccessKey
         ) {
-          setError("Please fill in all required S3 fields");
+          setError(t(SETTINGS_KEYS.s3FieldsRequired));
           setLoading(false);
           return;
         }
@@ -220,14 +260,14 @@ export function SettingsDialog({
         await window.notegitApi.config.updateRepoSettings(settingsToSave);
 
       if (response.ok) {
-        setSuccess("Repository settings saved successfully");
+        setSuccess(t(SETTINGS_KEYS.repoSettingsSaved));
       } else {
         setError(
-          response.error?.message || "Failed to save repository settings",
+          response.error?.message || t(SETTINGS_KEYS.failedSaveRepoSettings),
         );
       }
     } catch (err: any) {
-      setError(err.message || "Failed to save repository settings");
+      setError(err.message || t(SETTINGS_KEYS.failedSaveRepoSettings));
     } finally {
       setLoading(false);
     }
@@ -241,7 +281,7 @@ export function SettingsDialog({
 
   const handleExportNote = async (format: "md" | "txt") => {
     if (!currentNoteContent || !currentNotePath) {
-      setError("No note is currently open");
+      setError(t(SETTINGS_KEYS.noOpenNote));
       return;
     }
 
@@ -257,12 +297,12 @@ export function SettingsDialog({
       );
 
       if (response.ok && response.data) {
-        setSuccess(`Note exported successfully to ${response.data}`);
-      } else if (response.error?.message !== "Export cancelled") {
-        setError(response.error?.message || "Failed to export note");
+        setSuccess(`${t(SETTINGS_KEYS.noteExportedPrefix)} ${response.data}`);
+      } else if (response.error?.message !== exportCancelledMessage) {
+        setError(response.error?.message || t(SETTINGS_KEYS.failedExportNote));
       }
     } catch (err: any) {
-      setError(err.message || "Failed to export note");
+      setError(err.message || t(SETTINGS_KEYS.failedExportNote));
     } finally {
       setExporting(false);
     }
@@ -277,12 +317,16 @@ export function SettingsDialog({
       const response = await window.notegitApi.export.repoZip();
 
       if (response.ok && response.data) {
-        setSuccess(`Repository exported successfully to ${response.data}`);
-      } else if (response.error?.message !== "Export cancelled") {
-        setError(response.error?.message || "Failed to export repository");
+        setSuccess(
+          `${t(SETTINGS_KEYS.repositoryExportedPrefix)} ${response.data}`,
+        );
+      } else if (response.error?.message !== exportCancelledMessage) {
+        setError(
+          response.error?.message || t(SETTINGS_KEYS.failedExportRepository),
+        );
       }
     } catch (err: any) {
-      setError(err.message || "Failed to export repository");
+      setError(err.message || t(SETTINGS_KEYS.failedExportRepository));
     } finally {
       setExporting(false);
     }
@@ -296,7 +340,10 @@ export function SettingsDialog({
       return;
     }
 
-    if (!confirmProfileSwitch(profileName, window.confirm)) {
+    const displayName =
+      profileName?.trim() || t(SETTINGS_KEYS.switchProfileFallbackName);
+    const switchMessage = `${t(SETTINGS_KEYS.switchProfilePrefix)} "${displayName}"? ${t(SETTINGS_KEYS.switchProfileSuffix)}`;
+    if (!window.confirm(switchMessage)) {
       return;
     }
 
@@ -308,15 +355,17 @@ export function SettingsDialog({
         await window.notegitApi.config.setActiveProfile(profileId);
 
       if (response.ok) {
-        setSuccess("Profile switched successfully. App will restart...");
+        setSuccess(t(SETTINGS_KEYS.profileSwitched));
         setTimeout(async () => {
           await window.notegitApi.config.restartApp();
         }, 1500);
       } else {
-        setError(response.error?.message || "Failed to switch profile");
+        setError(
+          response.error?.message || t(SETTINGS_KEYS.failedSwitchProfile),
+        );
       }
     } catch (err: any) {
-      setError(err.message || "Failed to switch profile");
+      setError(err.message || t(SETTINGS_KEYS.failedSwitchProfile));
     } finally {
       setLoading(false);
     }
@@ -324,13 +373,13 @@ export function SettingsDialog({
 
   const handleCreateProfile = async () => {
     if (!newProfileName.trim()) {
-      setError("Profile name is required");
+      setError(t(SETTINGS_KEYS.profileNameRequired));
       return;
     }
 
     if (newProfileProvider === REPO_PROVIDERS.git) {
       if (!newProfileRemoteUrl || !newProfileBranch || !newProfilePat) {
-        setError("All Git repository fields are required");
+        setError(t(SETTINGS_KEYS.allGitFieldsRequired));
         return;
       }
     } else if (newProfileProvider === REPO_PROVIDERS.s3) {
@@ -340,7 +389,7 @@ export function SettingsDialog({
         !newProfileAccessKeyId ||
         !newProfileSecretAccessKey
       ) {
-        setError("All S3 repository fields are required");
+        setError(t(SETTINGS_KEYS.allS3FieldsRequired));
         return;
       }
     }
@@ -378,26 +427,24 @@ export function SettingsDialog({
       );
 
       if (response.ok && response.data) {
-        setSuccess("Profile created successfully");
+        setSuccess(t(SETTINGS_KEYS.profileCreated));
         setProfiles([...profiles, response.data]);
         setCreatingProfile(false);
         resetNewProfileForm();
       } else {
-        setError(response.error?.message || "Failed to create profile");
+        setError(
+          response.error?.message || t(SETTINGS_KEYS.failedCreateProfile),
+        );
       }
     } catch (err: any) {
-      setError(err.message || "Failed to create profile");
+      setError(err.message || t(SETTINGS_KEYS.failedCreateProfile));
     } finally {
       setProfileCreating(false);
     }
   };
 
   const handleDeleteProfile = async (profileId: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this profile? This will not delete the remote repository.",
-      )
-    ) {
+    if (!confirm(t(SETTINGS_KEYS.deleteProfileConfirm))) {
       return;
     }
 
@@ -408,16 +455,18 @@ export function SettingsDialog({
       const response = await window.notegitApi.config.deleteProfile(profileId);
 
       if (response.ok) {
-        setSuccess("Profile deleted successfully");
+        setSuccess(t(SETTINGS_KEYS.profileDeleted));
         setProfiles(profiles.filter((p) => p.id !== profileId));
         if (activeProfileId === profileId) {
           setActiveProfileId(null);
         }
       } else {
-        setError(response.error?.message || "Failed to delete profile");
+        setError(
+          response.error?.message || t(SETTINGS_KEYS.failedDeleteProfile),
+        );
       }
     } catch (err: any) {
-      setError(err.message || "Failed to delete profile");
+      setError(err.message || t(SETTINGS_KEYS.failedDeleteProfile));
     } finally {
       setLoading(false);
     }
@@ -433,14 +482,16 @@ export function SettingsDialog({
       if (response.ok && response.data) {
         setLogsFolder(response.data);
       } else {
-        setError(response.error?.message || "Failed to load logs folder");
+        setError(
+          response.error?.message || t(SETTINGS_KEYS.failedLoadLogsFolder),
+        );
       }
     } catch (err: any) {
-      setError(err.message || "Failed to load logs folder");
+      setError(err.message || t(SETTINGS_KEYS.failedLoadLogsFolder));
     } finally {
       setLoadingLogsFolder(false);
     }
-  }, [open, tabValue]);
+  }, [open, t, tabValue]);
 
   useEffect(() => {
     void loadLogsFolder();
@@ -475,7 +526,7 @@ export function SettingsDialog({
     if (repoSettings.localPath) {
       await openFolderInExplorer(
         repoSettings.localPath,
-        "Failed to open repository folder",
+        t(SETTINGS_KEYS.failedOpenRepositoryFolder),
       );
     }
   };
@@ -484,7 +535,10 @@ export function SettingsDialog({
     if (!logsFolder) {
       return;
     }
-    await openFolderInExplorer(logsFolder, "Failed to open logs folder");
+    await openFolderInExplorer(
+      logsFolder,
+      t(SETTINGS_KEYS.failedOpenLogsFolder),
+    );
   };
 
   const getProfileSecondary = (profile: Profile): string => {
@@ -496,7 +550,10 @@ export function SettingsDialog({
     }
 
     if (profile.repoSettings.provider === REPO_PROVIDERS.local) {
-      return profile.repoSettings.localPath || "Local repository";
+      return (
+        profile.repoSettings.localPath ||
+        t(SETTINGS_KEYS.localRepoSecondaryLabel)
+      );
     }
 
     return profile.repoSettings.remoteUrl;
@@ -504,13 +561,15 @@ export function SettingsDialog({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{SETTINGS_TEXT.title}</DialogTitle>
+      <DialogTitle>{t(SETTINGS_KEYS.title)}</DialogTitle>
       <DialogContent>
         <Box sx={tabHeaderSx}>
           <Tabs value={tabValue} onChange={handleTabChange}>
-            {SETTINGS_TEXT.tabs.map((label) => (
-              <Tab key={label} label={label} />
-            ))}
+            <Tab label={t(SETTINGS_KEYS.tabAppSettings)} />
+            <Tab label={t(SETTINGS_KEYS.tabRepository)} />
+            <Tab label={t(SETTINGS_KEYS.tabProfiles)} />
+            <Tab label={t(SETTINGS_KEYS.tabExport)} />
+            <Tab label={t(SETTINGS_KEYS.tabLogs)} />
           </Tabs>
         </Box>
 
@@ -534,6 +593,7 @@ export function SettingsDialog({
           <SettingsAppSettingsTab
             appSettings={appSettings}
             repoProvider={repoProvider}
+            supportedLocales={supportedLocales}
             loading={loading}
             onAppSettingsChange={setAppSettings}
             onSaveAppSettings={() => {
@@ -633,7 +693,7 @@ export function SettingsDialog({
       </DialogContent>
       <DialogActions sx={{ justifyContent: "flex-end", px: 3 }}>
         <Button onClick={onClose} variant="contained">
-          Close
+          {t(SETTINGS_KEYS.close)}
         </Button>
       </DialogActions>
 
@@ -641,7 +701,7 @@ export function SettingsDialog({
         open={copySnackbarOpen}
         autoHideDuration={2000}
         onClose={() => setCopySnackbarOpen(false)}
-        message="Copied to clipboard"
+        message={t(SETTINGS_KEYS.copySnackbar)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
     </Dialog>

@@ -19,7 +19,8 @@ import type {
   RepoProviderType,
 } from "../../../shared/types";
 import { REPO_PROVIDERS } from "../../../shared/types";
-import { REPO_SETUP_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import { REPO_SETUP_KEYS } from "./constants";
 import { contentStackSx, repoTypeRowSx, patTitleSx, patListSx } from "./styles";
 import type { RepoSetupDialogProps } from "./types";
 
@@ -28,6 +29,23 @@ export function RepoSetupDialog({
   onClose,
   onSuccess,
 }: RepoSetupDialogProps) {
+  const { t } = useI18n();
+  const patGuideLines = React.useMemo(
+    () => [
+      t(REPO_SETUP_KEYS.patGuideLine1),
+      t(REPO_SETUP_KEYS.patGuideLine2),
+      t(REPO_SETUP_KEYS.patGuideLine3),
+      t(REPO_SETUP_KEYS.patGuideLine4),
+      t(REPO_SETUP_KEYS.patGuideLine5),
+      t(REPO_SETUP_KEYS.patGuideLine6),
+      t(REPO_SETUP_KEYS.patGuideLine7),
+      t(REPO_SETUP_KEYS.patGuideLine8),
+      t(REPO_SETUP_KEYS.patGuideLine9),
+      t(REPO_SETUP_KEYS.patGuideLine10),
+      t(REPO_SETUP_KEYS.patGuideLine11),
+    ],
+    [t],
+  );
   const [provider, setProvider] = useState<RepoProviderType>(
     REPO_PROVIDERS.git,
   );
@@ -53,7 +71,7 @@ export function RepoSetupDialog({
 
       if (provider === REPO_PROVIDERS.git) {
         if (!remoteUrl || !branch || !pat) {
-          setError(REPO_SETUP_TEXT.gitRequired);
+          setError(t(REPO_SETUP_KEYS.gitRequired));
           setLoading(false);
           return;
         }
@@ -68,7 +86,7 @@ export function RepoSetupDialog({
         };
       } else if (provider === REPO_PROVIDERS.s3) {
         if (!bucket || !region || !accessKeyId || !secretAccessKey) {
-          setError(REPO_SETUP_TEXT.s3Required);
+          setError(t(REPO_SETUP_KEYS.s3Required));
           setLoading(false);
           return;
         }
@@ -85,7 +103,7 @@ export function RepoSetupDialog({
         };
       } else {
         if (!localName.trim()) {
-          setError(REPO_SETUP_TEXT.localRequired);
+          setError(t(REPO_SETUP_KEYS.localRequired));
           setLoading(false);
           return;
         }
@@ -102,10 +120,10 @@ export function RepoSetupDialog({
         onSuccess();
         onClose();
       } else {
-        setError(response.error?.message || REPO_SETUP_TEXT.connectFailed);
+        setError(response.error?.message || t(REPO_SETUP_KEYS.connectFailed));
       }
     } catch (err: any) {
-      setError(err.message || REPO_SETUP_TEXT.connectFailed);
+      setError(err.message || t(REPO_SETUP_KEYS.connectFailed));
     } finally {
       setLoading(false);
     }
@@ -113,18 +131,18 @@ export function RepoSetupDialog({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{REPO_SETUP_TEXT.title}</DialogTitle>
+      <DialogTitle>{t(REPO_SETUP_KEYS.title)}</DialogTitle>
       <DialogContent>
         <Box sx={contentStackSx}>
           <Typography variant="body2" color="text.secondary">
-            {REPO_SETUP_TEXT.description}
+            {t(REPO_SETUP_KEYS.description)}
           </Typography>
 
           {error && <Alert severity="error">{error}</Alert>}
 
           <Box sx={repoTypeRowSx}>
             <Typography variant="body2" color="text.secondary">
-              {REPO_SETUP_TEXT.repoTypeLabel}
+              {t(REPO_SETUP_KEYS.repoTypeLabel)}
             </Typography>
             <ToggleButtonGroup
               exclusive
@@ -133,13 +151,13 @@ export function RepoSetupDialog({
               size="small"
             >
               <ToggleButton value={REPO_PROVIDERS.git}>
-                {REPO_SETUP_TEXT.gitLabel}
+                {t(REPO_SETUP_KEYS.gitLabel)}
               </ToggleButton>
               <ToggleButton value={REPO_PROVIDERS.s3}>
-                {REPO_SETUP_TEXT.s3Label}
+                {t(REPO_SETUP_KEYS.s3Label)}
               </ToggleButton>
               <ToggleButton value={REPO_PROVIDERS.local}>
-                {REPO_SETUP_TEXT.localLabel}
+                {t(REPO_SETUP_KEYS.localLabel)}
               </ToggleButton>
             </ToggleButtonGroup>
           </Box>
@@ -147,100 +165,84 @@ export function RepoSetupDialog({
           {provider === REPO_PROVIDERS.git ? (
             <>
               <TextField
-                label="Remote URL"
+                label={t(REPO_SETUP_KEYS.gitRemoteUrlLabel)}
                 value={remoteUrl}
                 onChange={(e) => setRemoteUrl(e.target.value)}
-                placeholder="https://github.com/user/repo.git"
+                placeholder={t(REPO_SETUP_KEYS.gitRemoteUrlPlaceholder)}
                 fullWidth
                 required
                 disabled={loading}
               />
 
               <TextField
-                label="Branch"
+                label={t(REPO_SETUP_KEYS.gitBranchLabel)}
                 value={branch}
                 onChange={(e) => setBranch(e.target.value)}
-                placeholder="main"
+                placeholder={t(REPO_SETUP_KEYS.gitBranchPlaceholder)}
                 fullWidth
                 required
                 disabled={loading}
               />
 
               <TextField
-                label="Personal Access Token"
+                label={t(REPO_SETUP_KEYS.gitPatLabel)}
                 type="password"
                 value={pat}
                 onChange={(e) => setPat(e.target.value)}
-                placeholder="ghp_..."
+                placeholder={t(REPO_SETUP_KEYS.gitPatPlaceholder)}
                 fullWidth
                 required
                 disabled={loading}
-                helperText={REPO_SETUP_TEXT.patHelper}
+                helperText={t(REPO_SETUP_KEYS.patHelper)}
               />
 
               <Alert severity="info">
                 <Typography variant="body2" sx={patTitleSx}>
-                  How to create a GitHub Personal Access Token:
+                  {t(REPO_SETUP_KEYS.patGuideTitle)}
                 </Typography>
                 <Typography variant="body2" component="div" sx={patListSx}>
-                  1. Go to GitHub Settings → Developer settings
-                  <br />
-                  2. Click Personal access tokens → Fine Grained Tokens
-                  <br />
-                  3. Click Generate new token
-                  <br />
-                  4. Give Token Name
-                  <br />
-                  5. Set the expirationn
-                  <br />
-                  6. Select "Only select repositories" option
-                  <br />
-                  7. Selec the repository you wat to Use
-                  <br />
-                  8. CLick on "Add Permission"
-                  <br />
-                  9. Select "Ccontent" amd make sure you gave "Read and and
-                  Write" permissions
-                  <br />
-                  10. Hit Generate Token
-                  <br />
-                  11. Copy and paste the token above
+                  {patGuideLines.map((line, index) => (
+                    <React.Fragment key={line}>
+                      {line}
+                      {index < patGuideLines.length - 1 && <br />}
+                    </React.Fragment>
+                  ))}
                 </Typography>
               </Alert>
             </>
           ) : provider === REPO_PROVIDERS.s3 ? (
             <>
               <TextField
-                label="Bucket"
+                label={t(REPO_SETUP_KEYS.s3BucketLabel)}
                 value={bucket}
                 onChange={(e) => setBucket(e.target.value)}
-                placeholder="my-notes-bucket"
+                placeholder={t(REPO_SETUP_KEYS.s3BucketPlaceholder)}
                 fullWidth
                 required
                 disabled={loading}
               />
 
               <TextField
-                label="Region"
+                label={t(REPO_SETUP_KEYS.s3RegionLabel)}
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
-                placeholder="us-east-1"
+                placeholder={t(REPO_SETUP_KEYS.s3RegionPlaceholder)}
                 fullWidth
                 required
                 disabled={loading}
               />
 
               <TextField
-                label="Prefix (optional)"
+                label={t(REPO_SETUP_KEYS.s3PrefixLabel)}
                 value={prefix}
                 onChange={(e) => setPrefix(e.target.value)}
-                placeholder="notes/"
+                placeholder={t(REPO_SETUP_KEYS.s3PrefixPlaceholder)}
                 fullWidth
                 disabled={loading}
               />
 
               <TextField
-                label="Access Key ID"
+                label={t(REPO_SETUP_KEYS.s3AccessKeyIdLabel)}
                 value={accessKeyId}
                 onChange={(e) => setAccessKeyId(e.target.value)}
                 fullWidth
@@ -249,18 +251,18 @@ export function RepoSetupDialog({
               />
 
               <TextField
-                label="Secret Access Key"
+                label={t(REPO_SETUP_KEYS.s3SecretAccessKeyLabel)}
                 type="password"
                 value={secretAccessKey}
                 onChange={(e) => setSecretAccessKey(e.target.value)}
                 fullWidth
                 required
                 disabled={loading}
-                helperText={REPO_SETUP_TEXT.s3SecretHelper}
+                helperText={t(REPO_SETUP_KEYS.s3SecretHelper)}
               />
 
               <TextField
-                label="Session Token (optional)"
+                label={t(REPO_SETUP_KEYS.s3SessionTokenLabel)}
                 type="password"
                 value={sessionToken}
                 onChange={(e) => setSessionToken(e.target.value)}
@@ -270,25 +272,25 @@ export function RepoSetupDialog({
 
               <Alert severity="info">
                 <Typography variant="body2">
-                  {REPO_SETUP_TEXT.s3Info}
+                  {t(REPO_SETUP_KEYS.s3Info)}
                 </Typography>
               </Alert>
             </>
           ) : (
             <>
               <TextField
-                label="Local Repository Name"
+                label={t(REPO_SETUP_KEYS.localRepoNameLabel)}
                 value={localName}
                 onChange={(e) => setLocalName(e.target.value)}
-                placeholder="My Notes"
+                placeholder={t(REPO_SETUP_KEYS.localRepoNamePlaceholder)}
                 fullWidth
                 required
                 disabled={loading}
-                helperText="A local folder will be created in your app data directory."
+                helperText={t(REPO_SETUP_KEYS.localRepoNameHelper)}
               />
               <Alert severity="info">
                 <Typography variant="body2">
-                  {REPO_SETUP_TEXT.localInfo}
+                  {t(REPO_SETUP_KEYS.localInfo)}
                 </Typography>
               </Alert>
             </>
@@ -297,7 +299,7 @@ export function RepoSetupDialog({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>
-          {REPO_SETUP_TEXT.cancel}
+          {t(REPO_SETUP_KEYS.cancel)}
         </Button>
         <Button
           variant="contained"
@@ -305,7 +307,7 @@ export function RepoSetupDialog({
           disabled={loading}
           startIcon={loading ? <CircularProgress size={20} /> : null}
         >
-          {loading ? REPO_SETUP_TEXT.connecting : REPO_SETUP_TEXT.connect}
+          {loading ? t(REPO_SETUP_KEYS.connecting) : t(REPO_SETUP_KEYS.connect)}
         </Button>
       </DialogActions>
     </Dialog>

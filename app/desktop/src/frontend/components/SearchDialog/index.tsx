@@ -16,7 +16,8 @@ import {
 } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import type { SearchResult } from "../../../shared/types/api";
-import { SEARCH_DIALOG_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import { SEARCH_DIALOG_KEYS } from "./constants";
 import {
   dialogPaperSx,
   dialogTitleSx,
@@ -45,6 +46,7 @@ export function SearchDialog({
   onClose,
   onSelectFile,
 }: SearchDialogProps) {
+  const { t } = useI18n();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [query, setQuery] = useState("");
@@ -94,11 +96,13 @@ export function SearchDialog({
           setResults(response.data);
           setSelectedIndex(0);
         } else {
-          setError(response.error?.message || SEARCH_DIALOG_TEXT.searchFailed);
+          setError(
+            response.error?.message || t(SEARCH_DIALOG_KEYS.searchFailed),
+          );
           setResults([]);
         }
       } catch (err: any) {
-        setError(err.message || SEARCH_DIALOG_TEXT.searchFailed);
+        setError(err.message || t(SEARCH_DIALOG_KEYS.searchFailed));
         setResults([]);
       } finally {
         setLoading(false);
@@ -110,7 +114,7 @@ export function SearchDialog({
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [query]);
+  }, [query, t]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
@@ -146,7 +150,7 @@ export function SearchDialog({
       <DialogTitle sx={dialogTitleSx}>
         <Box sx={titleRowSx}>
           <SearchIcon />
-          <Typography variant="h6">{SEARCH_DIALOG_TEXT.title}</Typography>
+          <Typography variant="h6">{t(SEARCH_DIALOG_KEYS.title)}</Typography>
         </Box>
       </DialogTitle>
 
@@ -155,7 +159,7 @@ export function SearchDialog({
           <TextField
             inputRef={inputRef}
             fullWidth
-            placeholder={SEARCH_DIALOG_TEXT.placeholder}
+            placeholder={t(SEARCH_DIALOG_KEYS.placeholder)}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -172,7 +176,7 @@ export function SearchDialog({
                 </InputAdornment>
               ) : null,
             }}
-            helperText={SEARCH_DIALOG_TEXT.helperText}
+            helperText={t(SEARCH_DIALOG_KEYS.helperText)}
           />
         </Box>
 
@@ -186,7 +190,7 @@ export function SearchDialog({
           {!error && !loading && query && results.length === 0 && (
             <Box sx={centerStateSx}>
               <Typography color="text.secondary">
-                {SEARCH_DIALOG_TEXT.noResults}
+                {t(SEARCH_DIALOG_KEYS.noResults)}
               </Typography>
             </Box>
           )}
@@ -194,7 +198,7 @@ export function SearchDialog({
           {!error && !query && (
             <Box sx={centerStateSx}>
               <Typography color="text.secondary">
-                {SEARCH_DIALOG_TEXT.startTyping}
+                {t(SEARCH_DIALOG_KEYS.startTyping)}
               </Typography>
             </Box>
           )}
@@ -244,14 +248,16 @@ export function SearchDialog({
                                   color="text.secondary"
                                   sx={lineNumberSx}
                                 >
-                                  {SEARCH_DIALOG_TEXT.lineLabel}{" "}
+                                  {t(SEARCH_DIALOG_KEYS.lineLabel)}{" "}
                                   {match.lineNumber}
                                 </Typography>
                               </Box>
                             ))}
                             {result.matches.length > 2 && (
                               <Chip
-                                label={`+${result.matches.length - 2} more`}
+                                label={`+${result.matches.length - 2} ${t(
+                                  SEARCH_DIALOG_KEYS.moreSuffix,
+                                )}`}
                                 size="small"
                                 sx={moreChipSx}
                               />

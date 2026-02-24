@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "Hakkında",
+  "versionPrefix": "Sürüm",
+  "description": "Electron ile geliştirilmiş, Git veya S3 destekli bir Markdown not alma masaüstü uygulaması",
+  "sections": {
+    "features": "Özellikler",
+    "author": "Geliştirici",
+    "links": "Bağlantılar",
+    "techStack": "Teknoloji Yığını"
+  },
+  "links": {
+    "githubRepository": "GitHub Deposu",
+    "website": "Web Sitesi"
+  },
+  "close": "Kapat",
+  "license": "MIT Lisansı",
+  "features": {
+    "markdownLivePreview": "Canlı önizleme ile Markdown düzenleme",
+    "gitOrS3History": "Git veya S3 sürüm geçmişi",
+    "fileAndFolderManagement": "Dosya ve klasör yönetimi",
+    "fullTextSearch": "Notlar arasında tam metin arama",
+    "darkModeSupport": "Karanlık mod desteği",
+    "autoSaveAndSync": "Otomatik kaydetme ve senkronizasyon",
+    "fileHistoryAndVersionViewing": "Dosya geçmişi ve sürüm görüntüleme"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

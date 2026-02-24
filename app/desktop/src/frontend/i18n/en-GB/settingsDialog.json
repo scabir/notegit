@@ -1,0 +1,69 @@
+{
+  "title": "Settings",
+  "close": "Close",
+  "copySnackbar": "Copied to clipboard",
+  "tabs": {
+    "appSettings": "App Settings",
+    "repository": "Repository",
+    "profiles": "Profiles",
+    "export": "Export",
+    "logs": "Logs"
+  },
+  "appSettings": {
+    "languageLabel": "Language",
+    "languageOptionEnGb": "English (UK)",
+    "languageOptionTrTr": "Turkish",
+    "themeLabel": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "autoSaveEnabledLabel": "Enable Auto-save",
+    "autoSaveIntervalLabel": "Auto-save Interval (seconds)",
+    "s3AutoSyncEnabledLabel": "Enable S3 Auto Sync",
+    "s3AutoSyncIntervalLabel": "S3 Auto Sync (in seconds)",
+    "editorPreferencesTitle": "Editor Preferences",
+    "fontSizeLabel": "Font Size",
+    "tabSizeLabel": "Tab Size",
+    "showLineNumbersLabel": "Show Line Numbers",
+    "showMarkdownPreviewLabel": "Show Markdown Preview",
+    "saveButton": "Save App Settings"
+  },
+  "error": {
+    "failedLoadConfig": "Failed to load configuration",
+    "failedSaveAppSettings": "Failed to save app settings",
+    "failedSetLanguage": "Failed to change language",
+    "gitFieldsRequired": "Please fill in all required Git fields",
+    "s3FieldsRequired": "Please fill in all required S3 fields",
+    "failedSaveRepoSettings": "Failed to save repository settings",
+    "noOpenNote": "No note is currently open",
+    "failedExportNote": "Failed to export note",
+    "failedExportRepository": "Failed to export repository",
+    "failedSwitchProfile": "Failed to switch profile",
+    "profileNameRequired": "Profile name is required",
+    "allGitFieldsRequired": "All Git repository fields are required",
+    "allS3FieldsRequired": "All S3 repository fields are required",
+    "failedCreateProfile": "Failed to create profile",
+    "failedDeleteProfile": "Failed to delete profile",
+    "failedLoadLogsFolder": "Failed to load logs folder",
+    "failedOpenRepositoryFolder": "Failed to open repository folder",
+    "failedOpenLogsFolder": "Failed to open logs folder"
+  },
+  "success": {
+    "appSettingsSaved": "App settings saved successfully",
+    "localRepoNoSync": "Local repositories do not have sync settings",
+    "repoSettingsSaved": "Repository settings saved successfully",
+    "noteExportedPrefix": "Note exported successfully to",
+    "repositoryExportedPrefix": "Repository exported successfully to",
+    "profileSwitched": "Profile switched successfully. App will restart...",
+    "profileCreated": "Profile created successfully",
+    "profileDeleted": "Profile deleted successfully"
+  },
+  "confirm": {
+    "deleteProfile": "Are you sure you want to delete this profile? This will not delete the remote repository.",
+    "switchProfilePrefix": "Switch to",
+    "switchProfileSuffix": "The app will restart.",
+    "switchProfileFallbackName": "this profile"
+  },
+  "localRepoSecondaryLabel": "Local repository",
+  "exportCancelledMessage": "Export cancelled"
+}

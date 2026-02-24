@@ -1,7 +1,7 @@
 import React from "react";
 import { AppBar, Toolbar, Box } from "@mui/material";
 import { REPO_PROVIDERS } from "../../../shared/types";
-import { WORKSPACE_TEXT } from "../EditorShell/constants";
+import { useI18n } from "../../i18n";
 import { ShortcutHelper } from "../ShortcutHelper";
 import { StatusBarBranchLabel } from "../StatusBarBranchLabel";
 import { StatusBarHeaderTitle } from "../StatusBarHeaderTitle";
@@ -17,7 +17,7 @@ import { StatusBarFetchAction } from "../StatusBarFetchAction";
 import { StatusBarPullAction } from "../StatusBarPullAction";
 import { StatusBarPushAction } from "../StatusBarPushAction";
 import { StatusBarSettingsAction } from "../StatusBarSettingsAction";
-import { STATUS_TEXT } from "./constants";
+import { STATUS_KEYS } from "./constants";
 import {
   appBarSx,
   toolbarSx,
@@ -48,6 +48,7 @@ export function StatusBar({
   onOpenSettings,
   shortcutHelperRef,
 }: StatusBarProps) {
+  const { t } = useI18n();
   const isS3 = status?.provider === REPO_PROVIDERS.s3;
   const isLocal = status?.provider === REPO_PROVIDERS.local;
   const showRemoteActions = status?.provider === REPO_PROVIDERS.git;
@@ -61,10 +62,10 @@ export function StatusBar({
     isS3,
     isLocal,
     hasUnsavedChanges,
-    uncommittedLabel: STATUS_TEXT.uncommitted,
-    unsyncedLabel: STATUS_TEXT.unsynced,
-    savedLabel: STATUS_TEXT.saved,
-    syncedLabel: STATUS_TEXT.synced,
+    uncommittedLabel: t(STATUS_KEYS.uncommitted),
+    unsyncedLabel: t(STATUS_KEYS.unsynced),
+    savedLabel: t(STATUS_KEYS.saved),
+    syncedLabel: t(STATUS_KEYS.synced),
   });
 
   return (
@@ -78,8 +79,8 @@ export function StatusBar({
                 hasStatus={hasStatus}
                 isS3={isS3}
                 branchName={branchName}
-                bucketLabel={STATUS_TEXT.bucketLabel}
-                branchLabel={STATUS_TEXT.branchLabel}
+                bucketLabel={t(STATUS_KEYS.bucketLabel)}
+                branchLabel={t(STATUS_KEYS.branchLabel)}
               />
 
               <StatusBarHeaderTitle headerTitle={headerTitle} />
@@ -90,8 +91,8 @@ export function StatusBar({
                 status={status}
                 isLocal={isLocal}
                 isS3={isS3}
-                unsyncedLabel={STATUS_TEXT.unsynced}
-                uncommittedLabel={STATUS_TEXT.uncommitted}
+                unsyncedLabel={t(STATUS_KEYS.unsynced)}
+                uncommittedLabel={t(STATUS_KEYS.uncommitted)}
                 syncStatusLabel={syncStatus?.label}
               />
             </Box>
@@ -103,9 +104,9 @@ export function StatusBar({
             <StatusBarSaveStatus
               saveStatus={saveStatus}
               saveMessage={saveMessage}
-              savingLabel={WORKSPACE_TEXT.savingLabel}
-              savedLabel={WORKSPACE_TEXT.savedLabel}
-              errorLabel={WORKSPACE_TEXT.errorLabel}
+              savingLabel={t("editorShell.labels.saving")}
+              savedLabel={t("editorShell.labels.saved")}
+              errorLabel={t("editorShell.labels.error")}
             />
           </Box>
         </Box>
@@ -115,14 +116,14 @@ export function StatusBar({
             <Box sx={actionsRowSx}>
               <StatusBarSearchAction
                 onOpenSearch={onOpenSearch}
-                tooltip={WORKSPACE_TEXT.searchTooltip}
+                tooltip={t("editorShell.tooltips.search")}
               />
 
               <StatusBarHistoryAction
                 show={showHistoryAction}
                 historyPanelOpen={historyPanelOpen}
                 onToggleHistory={onToggleHistory}
-                tooltip={WORKSPACE_TEXT.historyTooltip}
+                tooltip={t("editorShell.tooltips.history")}
               />
 
               {showHistoryAction && <Box sx={actionSeparatorSx} />}
@@ -130,34 +131,34 @@ export function StatusBar({
               <StatusBarSaveAllAction
                 hasUnsavedChanges={hasUnsavedChanges}
                 onSaveAll={onSaveAll}
-                tooltip={WORKSPACE_TEXT.saveAllTooltip}
+                tooltip={t("editorShell.tooltips.saveAll")}
               />
 
               <StatusBarCommitPushAction
                 show={showCommitAction}
                 isS3={isS3}
                 onCommitAndPush={onCommitAndPush}
-                commitPushTooltip={WORKSPACE_TEXT.commitPushTooltip}
-                syncTooltip={WORKSPACE_TEXT.syncTooltip}
+                commitPushTooltip={t("editorShell.tooltips.commitPush")}
+                syncTooltip={t("editorShell.tooltips.sync")}
               />
 
               {showRemoteActions && status && (
                 <>
                   <StatusBarFetchAction
                     onFetch={onFetch}
-                    tooltip={STATUS_TEXT.fetchTooltip}
+                    tooltip={t(STATUS_KEYS.fetchTooltip)}
                   />
 
                   <StatusBarPullAction
                     onPull={onPull}
                     disabled={!status.needsPull}
-                    tooltip={STATUS_TEXT.pullTooltip}
+                    tooltip={t(STATUS_KEYS.pullTooltip)}
                   />
 
                   <StatusBarPushAction
                     onPush={onPush}
                     disabled={status.pendingPushCount === 0}
-                    tooltip={STATUS_TEXT.pushTooltip}
+                    tooltip={t(STATUS_KEYS.pushTooltip)}
                   />
                 </>
               )}
@@ -166,7 +167,7 @@ export function StatusBar({
 
               <StatusBarSettingsAction
                 onOpenSettings={onOpenSettings}
-                tooltip={WORKSPACE_TEXT.settingsTooltip}
+                tooltip={t("editorShell.tooltips.settings")}
               />
 
               <ShortcutHelper ref={shortcutHelperRef} />

@@ -71,7 +71,8 @@ export function createBackend(ipcMain: IpcMain): void {
   const logsService = new LogsService();
   const translationService = new TranslationService(fsAdapter, {
     localesRootDir:
-      process.env.NOTEGIT_LOCALES_ROOT || path.resolve(__dirname, "../../src"),
+      process.env.NOTEGIT_LOCALES_ROOT ||
+      path.resolve(__dirname, "../../../src"),
   });
 
   repoService.setFilesService(filesService);

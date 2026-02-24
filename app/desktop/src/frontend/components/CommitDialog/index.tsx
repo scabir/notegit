@@ -10,7 +10,8 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import { COMMIT_DIALOG_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import { COMMIT_DIALOG_KEYS } from "./constants";
 import { contentStackSx } from "./styles";
 import type { CommitDialogProps } from "./types";
 
@@ -20,6 +21,7 @@ export function CommitDialog({
   onClose,
   onSuccess,
 }: CommitDialogProps) {
+  const { t } = useI18n();
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,7 @@ export function CommitDialog({
 
   const handleCommit = async () => {
     if (!message.trim()) {
-      setError(COMMIT_DIALOG_TEXT.emptyMessageError);
+      setError(t(COMMIT_DIALOG_KEYS.emptyMessageError));
       return;
     }
 
@@ -48,10 +50,10 @@ export function CommitDialog({
         onSuccess();
         onClose();
       } else {
-        setError(response.error?.message || COMMIT_DIALOG_TEXT.commitFailed);
+        setError(response.error?.message || t(COMMIT_DIALOG_KEYS.commitFailed));
       }
     } catch (err: any) {
-      setError(err.message || COMMIT_DIALOG_TEXT.commitFailed);
+      setError(err.message || t(COMMIT_DIALOG_KEYS.commitFailed));
     } finally {
       setLoading(false);
     }
@@ -65,28 +67,28 @@ export function CommitDialog({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{COMMIT_DIALOG_TEXT.title}</DialogTitle>
+      <DialogTitle>{t(COMMIT_DIALOG_KEYS.title)}</DialogTitle>
       <DialogContent>
         <Box sx={contentStackSx}>
           {error && <Alert severity="error">{error}</Alert>}
 
           <TextField
-            label={COMMIT_DIALOG_TEXT.messageLabel}
+            label={t(COMMIT_DIALOG_KEYS.messageLabel)}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             multiline
             rows={3}
             fullWidth
             autoFocus
-            placeholder={COMMIT_DIALOG_TEXT.messagePlaceholder}
+            placeholder={t(COMMIT_DIALOG_KEYS.messagePlaceholder)}
             onKeyDown={handleKeyDown}
-            helperText={COMMIT_DIALOG_TEXT.helperText}
+            helperText={t(COMMIT_DIALOG_KEYS.helperText)}
           />
         </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>
-          {COMMIT_DIALOG_TEXT.cancel}
+          {t(COMMIT_DIALOG_KEYS.cancel)}
         </Button>
         <Button
           variant="contained"
@@ -94,7 +96,9 @@ export function CommitDialog({
           disabled={loading || !message.trim()}
           startIcon={loading ? <CircularProgress size={20} /> : null}
         >
-          {loading ? COMMIT_DIALOG_TEXT.loading : COMMIT_DIALOG_TEXT.confirm}
+          {loading
+            ? t(COMMIT_DIALOG_KEYS.loading)
+            : t(COMMIT_DIALOG_KEYS.confirm)}
         </Button>
       </DialogActions>
     </Dialog>

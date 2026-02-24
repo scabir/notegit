@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { IconButton, Tooltip, Menu, Box, Typography } from "@mui/material";
 import { QuestionMarkRounded as HelpIcon } from "@mui/icons-material";
-import { WORKSPACE_TEXT } from "../EditorShell/constants";
+import { useI18n } from "../../i18n";
 import { SHORTCUT_HELPER_TEXT, SHORTCUT_HELPER_SECTIONS } from "./constants";
 import {
   shortcutMenuSx,
@@ -22,6 +22,7 @@ export type ShortcutHelperHandle = {
 
 export const ShortcutHelper = React.forwardRef<ShortcutHelperHandle>(
   (_props, ref) => {
+    const { t } = useI18n();
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const buttonRef = useRef<HTMLButtonElement | null>(null);
     const fallbackRef = useRef<HTMLElement | null>(null);
@@ -53,7 +54,7 @@ export const ShortcutHelper = React.forwardRef<ShortcutHelperHandle>(
 
     return (
       <>
-        <Tooltip title={WORKSPACE_TEXT.shortcutsTooltip}>
+        <Tooltip title={t("editorShell.tooltips.shortcuts")}>
           <IconButton
             size="small"
             ref={buttonRef}

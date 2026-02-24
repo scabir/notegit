@@ -15,7 +15,13 @@ import {
   GitHub as GitHubIcon,
   Language as WebIcon,
 } from "@mui/icons-material";
-import { APP_INFO, FEATURE_LIST, TECH_STACK } from "./constants";
+import { useI18n } from "../../i18n";
+import {
+  ABOUT_DIALOG_KEYS,
+  APP_INFO,
+  FEATURE_KEYS,
+  TECH_STACK,
+} from "./constants";
 import {
   dialogTitleSx,
   introSectionSx,
@@ -29,17 +35,17 @@ import {
 import type { AboutDialogProps } from "./types";
 
 export function AboutDialog({ open, onClose }: AboutDialogProps) {
+  const { t } = useI18n();
   const YEAR = new Date().getFullYear();
 
-  const { name, version, description, author, githubUrl, websiteUrl, license } =
-    APP_INFO;
+  const { name, version, author, githubUrl, websiteUrl } = APP_INFO;
   const hasLinks = githubUrl || websiteUrl;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={dialogTitleSx}>
         <InfoIcon color="primary" />
-        About {name}
+        {t(ABOUT_DIALOG_KEYS.titlePrefix)} {name}
       </DialogTitle>
       <DialogContent>
         <Box sx={introSectionSx}>
@@ -47,13 +53,13 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
             {name}
           </Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>
-            Version {version}
+            {t(ABOUT_DIALOG_KEYS.versionPrefix)} {version}
           </Typography>
         </Box>
 
         <Box sx={introSectionSx}>
           <Typography variant="body1" paragraph>
-            {description}
+            {t(ABOUT_DIALOG_KEYS.description)}
           </Typography>
         </Box>
 
@@ -61,12 +67,12 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
 
         <Box sx={sectionSx}>
           <Typography variant="subtitle2" gutterBottom>
-            Features
+            {t(ABOUT_DIALOG_KEYS.sectionsFeatures)}
           </Typography>
           <Box component="ul" sx={featureListSx}>
-            {FEATURE_LIST.map((feature) => (
-              <li key={feature}>
-                <Typography variant="body2">{feature}</Typography>
+            {FEATURE_KEYS.map((featureKey) => (
+              <li key={featureKey}>
+                <Typography variant="body2">{t(featureKey)}</Typography>
               </li>
             ))}
           </Box>
@@ -77,7 +83,7 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
         {author && (
           <Box sx={sectionSx}>
             <Typography variant="subtitle2" gutterBottom>
-              Author
+              {t(ABOUT_DIALOG_KEYS.sectionsAuthor)}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {author}
@@ -88,7 +94,7 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
         {hasLinks && (
           <Box sx={sectionSx}>
             <Typography variant="subtitle2" gutterBottom>
-              Links
+              {t(ABOUT_DIALOG_KEYS.sectionsLinks)}
             </Typography>
             <Box sx={linksListSx}>
               {githubUrl && (
@@ -99,7 +105,9 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
                   sx={linkRowSx}
                 >
                   <GitHubIcon fontSize="small" />
-                  <Typography variant="body2">GitHub Repository</Typography>
+                  <Typography variant="body2">
+                    {t(ABOUT_DIALOG_KEYS.linksGithubRepository)}
+                  </Typography>
                 </Link>
               )}
               {websiteUrl && (
@@ -110,7 +118,9 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
                   sx={linkRowSx}
                 >
                   <WebIcon fontSize="small" />
-                  <Typography variant="body2">Website</Typography>
+                  <Typography variant="body2">
+                    {t(ABOUT_DIALOG_KEYS.linksWebsite)}
+                  </Typography>
                 </Link>
               )}
             </Box>
@@ -121,13 +131,13 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
 
         <Box sx={sectionSx}>
           <Typography variant="subtitle2" gutterBottom>
-            Technology Stack
+            {t(ABOUT_DIALOG_KEYS.sectionsTechStack)}
           </Typography>
           <Box sx={techStackListSx}>
-            {TECH_STACK.map(({ label, icon: Icon }) => (
-              <Box key={label} sx={techChipSx}>
+            {TECH_STACK.map(({ labelKey, icon: Icon }) => (
+              <Box key={labelKey} sx={techChipSx}>
                 {Icon && <Icon fontSize="small" />}
-                <Typography variant="caption">{label}</Typography>
+                <Typography variant="caption">{t(labelKey)}</Typography>
               </Box>
             ))}
           </Box>
@@ -137,7 +147,7 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
 
         <Box>
           <Typography variant="body2" color="text.secondary" align="center">
-            {license}
+            {t(ABOUT_DIALOG_KEYS.license)}
           </Typography>
           {author && (
             <Typography variant="body2" color="text.secondary" align="center">
@@ -148,7 +158,7 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} variant="contained">
-          Close
+          {t(ABOUT_DIALOG_KEYS.close)}
         </Button>
       </DialogActions>
     </Dialog>

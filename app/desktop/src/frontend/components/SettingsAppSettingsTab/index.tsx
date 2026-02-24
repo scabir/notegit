@@ -11,27 +11,65 @@ import {
   Typography,
   Button,
 } from "@mui/material";
-import { REPO_PROVIDERS } from "../../../shared/types";
+import { DEFAULT_APP_LANGUAGE, REPO_PROVIDERS } from "../../../shared/types";
+import { useI18n } from "../../i18n";
 import type { SettingsAppSettingsTabProps } from "./types";
 
 export function SettingsAppSettingsTab({
   appSettings,
   repoProvider,
+  supportedLocales = [DEFAULT_APP_LANGUAGE],
   loading,
   onAppSettingsChange,
   onSaveAppSettings,
 }: SettingsAppSettingsTabProps) {
+  const { t } = useI18n();
+
   if (!appSettings) {
     return null;
   }
 
+  const selectedLanguage = appSettings.language || DEFAULT_APP_LANGUAGE;
+
+  const getLocaleLabel = (locale: string): string => {
+    if (locale === "en-GB") {
+      return t("settingsDialog.appSettings.languageOptionEnGb");
+    }
+
+    if (locale === "tr-TR") {
+      return t("settingsDialog.appSettings.languageOptionTrTr");
+    }
+
+    return locale;
+  };
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <FormControl fullWidth>
-        <InputLabel>Theme</InputLabel>
+        <InputLabel>{t("settingsDialog.appSettings.languageLabel")}</InputLabel>
+        <Select
+          value={selectedLanguage}
+          label={t("settingsDialog.appSettings.languageLabel")}
+          onChange={(e) =>
+            onAppSettingsChange({
+              ...appSettings,
+              language: e.target.value as string,
+            })
+          }
+        >
+          {supportedLocales.map((locale) => (
+            <MenuItem key={locale} value={locale}>
+              {getLocaleLabel(locale)}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <FormControl fullWidth>
+        <InputLabel>{t("settingsDialog.appSettings.themeLabel")}</InputLabel>
         <Select
           value={appSettings.theme}
-          label="Theme"
+          label={t("settingsDialog.appSettings.themeLabel")}
           onChange={(e) =>
             onAppSettingsChange({
               ...appSettings,
@@ -39,9 +77,15 @@ export function SettingsAppSettingsTab({
             })
           }
         >
-          <MenuItem value="light">Light</MenuItem>
-          <MenuItem value="dark">Dark</MenuItem>
-          <MenuItem value="system">System</MenuItem>
+          <MenuItem value="light">
+            {t("settingsDialog.appSettings.themeLight")}
+          </MenuItem>
+          <MenuItem value="dark">
+            {t("settingsDialog.appSettings.themeDark")}
+          </MenuItem>
+          <MenuItem value="system">
+            {t("settingsDialog.appSettings.themeSystem")}
+          </MenuItem>
         </Select>
       </FormControl>
 
@@ -57,18 +101,18 @@ export function SettingsAppSettingsTab({
             }
           />
         }
-        label="Enable Auto-save"
+        label={t("settingsDialog.appSettings.autoSaveEnabledLabel")}
       />
 
       {appSettings.autoSaveEnabled && (
         <TextField
-          label="Auto-save Interval (seconds)"
+          label={t("settingsDialog.appSettings.autoSaveIntervalLabel")}
           type="number"
           value={appSettings.autoSaveIntervalSec}
           onChange={(e) =>
             onAppSettingsChange({
               ...appSettings,
-              autoSaveIntervalSec: parseInt(e.target.value),
+              autoSaveIntervalSec: parseInt(e.target.value, 10),
             })
           }
           InputProps={{ inputProps: { min: 10, max: 300 } }}
@@ -89,18 +133,18 @@ export function SettingsAppSettingsTab({
                 }
               />
             }
-            label="Enable S3 Auto Sync"
+            label={t("settingsDialog.appSettings.s3AutoSyncEnabledLabel")}
           />
 
           {appSettings.s3AutoSyncEnabled && (
             <TextField
-              label="S3 Auto Sync (in seconds)"
+              label={t("settingsDialog.appSettings.s3AutoSyncIntervalLabel")}
               type="number"
               value={appSettings.s3AutoSyncIntervalSec}
               onChange={(e) =>
                 onAppSettingsChange({
                   ...appSettings,
-                  s3AutoSyncIntervalSec: parseInt(e.target.value),
+                  s3AutoSyncIntervalSec: parseInt(e.target.value, 10),
                 })
               }
               InputProps={{ inputProps: { min: 5, max: 3600 } }}
@@ -110,11 +154,11 @@ export function SettingsAppSettingsTab({
       )}
 
       <Typography variant="h6" sx={{ mt: 2 }}>
-        Editor Preferences
+        {t("settingsDialog.appSettings.editorPreferencesTitle")}
       </Typography>
 
       <TextField
-        label="Font Size"
+        label={t("settingsDialog.appSettings.fontSizeLabel")}
         type="number"
         value={appSettings.editorPrefs.fontSize}
         onChange={(e) =>
@@ -122,7 +166,7 @@ export function SettingsAppSettingsTab({
             ...appSettings,
             editorPrefs: {
               ...appSettings.editorPrefs,
-              fontSize: parseInt(e.target.value),
+              fontSize: parseInt(e.target.value, 10),
             },
           })
         }
@@ -130,7 +174,7 @@ export function SettingsAppSettingsTab({
       />
 
       <TextField
-        label="Tab Size"
+        label={t("settingsDialog.appSettings.tabSizeLabel")}
         type="number"
         value={appSettings.editorPrefs.tabSize}
         onChange={(e) =>
@@ -138,7 +182,7 @@ export function SettingsAppSettingsTab({
             ...appSettings,
             editorPrefs: {
               ...appSettings.editorPrefs,
-              tabSize: parseInt(e.target.value),
+              tabSize: parseInt(e.target.value, 10),
             },
           })
         }
@@ -160,7 +204,7 @@ export function SettingsAppSettingsTab({
             }
           />
         }
-        label="Show Line Numbers"
+        label={t("settingsDialog.appSettings.showLineNumbersLabel")}
       />
 
       <FormControlLabel
@@ -178,7 +222,7 @@ export function SettingsAppSettingsTab({
             }
           />
         }
-        label="Show Markdown Preview"
+        label={t("settingsDialog.appSettings.showMarkdownPreviewLabel")}
       />
 
       <Button
@@ -187,7 +231,7 @@ export function SettingsAppSettingsTab({
         disabled={loading}
         sx={{ mt: 2 }}
       >
-        Save App Settings
+        {t("settingsDialog.appSettings.saveButton")}
       </Button>
     </Box>
   );

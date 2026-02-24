@@ -6,6 +6,6 @@ export interface AboutDialogProps {
 }
 
 export type TechStackItem = {
-  label: string;
+  labelKey: string;
   icon?: SvgIconComponent;
 };

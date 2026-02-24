@@ -19,4 +19,14 @@ export type FileTreeToolbarProps = {
   onNewFolder: () => void;
   onImport: () => void;
   onCollapseAll: () => void;
+  text?: {
+    collapseTree: string;
+    expandTree: string;
+    back: string;
+    forward: string;
+    newFile: string;
+    newFolder: string;
+    importFile: string;
+    collapseAll: string;
+  };
 };

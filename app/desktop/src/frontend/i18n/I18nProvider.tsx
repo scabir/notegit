@@ -8,6 +8,15 @@ import React, {
 import type { ReactNode } from "react";
 import type { I18nBundle } from "../../shared/types";
 import { DEFAULT_APP_LANGUAGE } from "../../shared/types";
+import aboutDialogEnGb from "../i18n/en-GB/aboutDialog.json";
+import commitDialogEnGb from "../i18n/en-GB/commitDialog.json";
+import commonEnGb from "../i18n/en-GB/common.json";
+import editorShellEnGb from "../i18n/en-GB/editorShell.json";
+import fileTreeViewEnGb from "../i18n/en-GB/fileTreeView.json";
+import repoSetupDialogEnGb from "../i18n/en-GB/repoSetupDialog.json";
+import searchDialogEnGb from "../i18n/en-GB/searchDialog.json";
+import settingsDialogEnGb from "../i18n/en-GB/settingsDialog.json";
+import statusBarEnGb from "../i18n/en-GB/statusBar.json";
 import { FrontendTranslationClient } from "./TranslationClient";
 
 export interface I18nContextValue {
@@ -27,7 +36,57 @@ interface I18nProviderProps {
   client?: FrontendTranslationClient;
 }
 
-const I18nContext = createContext<I18nContextValue | null>(null);
+const defaultTranslations = {
+  aboutDialog: aboutDialogEnGb,
+  commitDialog: commitDialogEnGb,
+  common: commonEnGb,
+  editorShell: editorShellEnGb,
+  fileTreeView: fileTreeViewEnGb,
+  repoSetupDialog: repoSetupDialogEnGb,
+  searchDialog: searchDialogEnGb,
+  settingsDialog: settingsDialogEnGb,
+  statusBar: statusBarEnGb,
+} as const;
+
+const resolveDefaultTranslation = (key: string): string | undefined => {
+  const segments = key
+    .split(".")
+    .map((segment) => segment.trim())
+    .filter((segment) => segment.length > 0);
+
+  if (segments.length === 0) {
+    return undefined;
+  }
+
+  let current: unknown = defaultTranslations;
+  for (const segment of segments) {
+    if (typeof current !== "object" || current === null) {
+      return undefined;
+    }
+    current = (current as Record<string, unknown>)[segment];
+  }
+
+  return typeof current === "string" ? current : undefined;
+};
+
+const defaultContextValue: I18nContextValue = {
+  ready: true,
+  requestedLocale: DEFAULT_APP_LANGUAGE,
+  locale: DEFAULT_APP_LANGUAGE,
+  fallbackLocale: DEFAULT_APP_LANGUAGE,
+  namespaces: Object.keys(defaultTranslations),
+  validation: {
+    missingKeys: [],
+    extraKeys: [],
+    typeMismatches: [],
+    isValid: true,
+  },
+  t: (key: string) => resolveDefaultTranslation(key) || key,
+  has: (key: string) => resolveDefaultTranslation(key) !== undefined,
+  reload: async () => {},
+};
+
+const I18nContext = createContext<I18nContextValue>(defaultContextValue);
 
 export function I18nProvider({
   children,
@@ -88,10 +147,5 @@ export function I18nProvider({
 }
 
 export function useI18n(): I18nContextValue {
-  const context = useContext(I18nContext);
-  if (!context) {
-    throw new Error("useI18n must be used within an I18nProvider");
-  }
-
-  return context;
+  return useContext(I18nContext);
 }

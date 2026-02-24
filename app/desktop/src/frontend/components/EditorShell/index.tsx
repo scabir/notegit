@@ -21,6 +21,7 @@ import type {
 } from "../../../shared/types";
 import { FileType, REPO_PROVIDERS } from "../../../shared/types";
 import { startS3AutoSync } from "../../utils/s3AutoSync";
+import { useI18n } from "../../i18n";
 import {
   rootSx,
   mainContentSx,
@@ -52,6 +53,11 @@ const treePanelReducer = (
 };
 
 export function EditorShell({ onThemeChange }: EditorShellProps) {
+  const { t } = useI18n();
+  const message = React.useCallback(
+    (key: string) => t(`editorShell.messages.${key}`),
+    [t],
+  );
   const [tree, setTree] = useState<FileTreeNode[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [navigationEntries, setNavigationEntries] = useState<string[]>([]);
@@ -219,9 +225,9 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         }
       }
     } catch (error) {
-      setTransientStatus("error", "Failed to load workspace", 5000);
+      setTransientStatus("error", message("failedLoadWorkspace"), 5000);
     }
-  }, [setTransientStatus]);
+  }, [message, setTransientStatus]);
 
   useEffect(() => {
     loadWorkspace();
@@ -288,7 +294,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
           }
 
           if (!isAutosave) {
-            setSaveMessage("Saved locally");
+            setSaveMessage(message("savedLocally"));
           }
 
           const statusResponse = await window.notegitApi.repo.getStatus();
@@ -296,26 +302,26 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
             setRepoStatus(statusResponse.data);
           }
           if (!isAutosave) {
-            setTransientStatus("saved", "Saved locally", 2000);
+            setTransientStatus("saved", message("savedLocally"), 2000);
           } else {
             setSaveStatus("saved");
           }
         } else {
           setTransientStatus(
             "error",
-            response.error?.message || "Failed to save file",
+            response.error?.message || message("failedSaveFile"),
             5000,
           );
         }
       } catch (error: any) {
         setTransientStatus(
           "error",
-          error.message || "Failed to save file",
+          error.message || message("failedSaveFile"),
           5000,
         );
       }
     },
-    [selectedFile, setTransientStatus],
+    [message, selectedFile, setTransientStatus],
   );
 
   useEffect(() => {
@@ -443,16 +449,22 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
           } else {
             setTransientStatus(
               "error",
-              response.error?.message || "Failed to read file",
+              response.error?.message || message("failedReadFile"),
               5000,
             );
           }
         }
       } catch (error) {
-        setTransientStatus("error", "Failed to read file", 5000);
+        setTransientStatus("error", message("failedReadFile"), 5000);
       }
     },
-    [editorContent, pushNavigationEntry, selectedFile, setTransientStatus],
+    [
+      editorContent,
+      message,
+      pushNavigationEntry,
+      selectedFile,
+      setTransientStatus,
+    ],
   );
 
   const handleSelectFile = React.useCallback(
@@ -518,7 +530,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     try {
       const response = await window.notegitApi.repo.pull();
       if (response.ok) {
-        setTransientStatus("saved", "Pull successful", 2000);
+        setTransientStatus("saved", message("pullSuccessful"), 2000);
         await loadWorkspace();
         if (selectedFile) {
           const fileResponse = await window.notegitApi.files.read(selectedFile);
@@ -529,12 +541,12 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       } else {
         setTransientStatus(
           "error",
-          response.error?.message || "Failed to pull",
+          response.error?.message || message("failedPull"),
           5000,
         );
       }
     } catch (error) {
-      setTransientStatus("error", "Failed to pull", 5000);
+      setTransientStatus("error", message("failedPull"), 5000);
     }
   };
 
@@ -561,7 +573,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       const response = await window.notegitApi.repo.fetch();
       if (response.ok && response.data) {
         setRepoStatus(response.data);
-        setTransientStatus("saved", "Fetch successful", 2000);
+        setTransientStatus("saved", message("fetchSuccessful"), 2000);
         if (
           s3AutoSyncCleanupRef.current &&
           response.data.provider !== REPO_PROVIDERS.s3
@@ -572,12 +584,12 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       } else {
         setTransientStatus(
           "error",
-          response.error?.message || "Failed to fetch",
+          response.error?.message || message("failedFetch"),
           5000,
         );
       }
     } catch (error) {
-      setTransientStatus("error", "Failed to fetch", 5000);
+      setTransientStatus("error", message("failedFetch"), 5000);
     }
   };
 
@@ -585,7 +597,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     try {
       const response = await window.notegitApi.repo.push();
       if (response.ok) {
-        setTransientStatus("saved", "Push successful", 2000);
+        setTransientStatus("saved", message("pushSuccessful"), 2000);
         if (isS3Repo) {
           await loadWorkspace();
           if (selectedFile) {
@@ -603,12 +615,12 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       } else {
         setTransientStatus(
           "error",
-          response.error?.message || "Failed to push",
+          response.error?.message || message("failedPush"),
           5000,
         );
       }
     } catch (error) {
-      setTransientStatus("error", "Failed to push", 5000);
+      setTransientStatus("error", message("failedPush"), 5000);
     }
   };
 
@@ -626,7 +638,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       return;
     }
 
-    throw new Error(response.error?.message || "Failed to create file");
+    throw new Error(response.error?.message || message("failedCreateFile"));
   };
 
   const handleCreateFolder = async (parentPath: string, folderName: string) => {
@@ -642,7 +654,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       return;
     }
 
-    throw new Error(response.error?.message || "Failed to create folder");
+    throw new Error(response.error?.message || message("failedCreateFolder"));
   };
 
   const handleDelete = async (path: string) => {
@@ -663,7 +675,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       return;
     }
 
-    throw new Error(response.error?.message || "Failed to delete");
+    throw new Error(response.error?.message || message("failedDelete"));
   };
 
   const handleRename = async (oldPath: string, newPath: string) => {
@@ -694,10 +706,10 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       if (repoStatus?.provider === REPO_PROVIDERS.git) {
         try {
           await window.notegitApi.files.commitAll(
-            `Move: ${oldPath} -> ${newPath}`,
+            `${message("moveCommitMessagePrefix")} ${oldPath} -> ${newPath}`,
           );
         } catch (commitError) {
-          setTransientStatus("error", "Failed to auto-commit move", 5000);
+          setTransientStatus("error", message("failedAutoCommitMove"), 5000);
         }
       }
 
@@ -712,7 +724,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       return;
     }
 
-    throw new Error(response.error?.message || "Failed to rename");
+    throw new Error(response.error?.message || message("failedRename"));
   };
 
   const handleImport = async (sourcePath: string, targetPath: string) => {
@@ -732,7 +744,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       return;
     }
 
-    throw new Error(response.error?.message || "Failed to import file");
+    throw new Error(response.error?.message || message("failedImportFile"));
   };
 
   const handleEditorChange = (content: string, hasChanges: boolean) => {
@@ -757,11 +769,13 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         await handleSelectFile(response.data, "file");
         return response.data;
       }
-      throw new Error(response.error?.message || "Failed to duplicate file");
+      throw new Error(
+        response.error?.message || message("failedDuplicateFile"),
+      );
     } catch (error: any) {
       setTransientStatus(
         "error",
-        error.message || "Failed to duplicate file",
+        error.message || message("failedDuplicateFile"),
         5000,
       );
       throw error;
@@ -782,14 +796,16 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     }
 
     setSaveStatus("saving");
-    setSaveMessage(isS3Repo ? "Syncing..." : "Committing and pushing...");
+    setSaveMessage(
+      isS3Repo ? message("syncing") : message("committingAndPushing"),
+    );
 
     try {
       if (isS3Repo) {
         const response = await window.notegitApi.repo.push();
         if (response.ok) {
           setSaveStatus("saved");
-          setSaveMessage("Synced successfully");
+          setSaveMessage(message("syncedSuccessfully"));
           await loadWorkspace();
           if (selectedFile) {
             const fileResponse =
@@ -800,7 +816,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
           }
         } else {
           setSaveStatus("error");
-          setSaveMessage(response.error?.message || "Failed to sync");
+          setSaveMessage(response.error?.message || message("failedSync"));
         }
       } else {
         const response = await window.notegitApi.files.commitAndPushAll();
@@ -808,15 +824,15 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         if (response.ok) {
           if (response.data?.message === "Nothing to commit") {
             setSaveStatus("idle");
-            setSaveMessage("Nothing to commit");
+            setSaveMessage(message("nothingToCommit"));
           } else {
             setSaveStatus("saved");
-            setSaveMessage("Committed and pushed successfully");
+            setSaveMessage(message("committedAndPushedSuccessfully"));
           }
         } else {
           setSaveStatus("error");
           setSaveMessage(
-            response.error?.message || "Failed to commit and push",
+            response.error?.message || message("failedCommitAndPush"),
           );
         }
       }
@@ -837,7 +853,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       setSaveStatus("error");
       setSaveMessage(
         error.message ||
-          (isS3Repo ? "Failed to sync" : "Failed to commit and push"),
+          (isS3Repo ? message("failedSync") : message("failedCommitAndPush")),
       );
 
       setTimeout(() => {

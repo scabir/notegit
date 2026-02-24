@@ -1,0 +1,10 @@
+{
+  "title": "Search Notes",
+  "placeholder": "Search by file name or content...",
+  "helperText": "Use \u2191\u2193 to navigate, Enter to open, Esc to close",
+  "noResults": "No results found",
+  "startTyping": "Start typing to search across all notes",
+  "searchFailed": "Search failed",
+  "lineLabel": "Line",
+  "moreSuffix": "more"
+}
