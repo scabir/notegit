@@ -11,6 +11,7 @@ import {
   FolderOpen as FolderOpenIcon,
   ContentCopy as ContentCopyIcon,
 } from "@mui/icons-material";
+import { useI18n } from "../../i18n";
 import type { SettingsLogsTabProps } from "./types";
 
 export function SettingsLogsTab({
@@ -19,17 +20,18 @@ export function SettingsLogsTab({
   onOpenLogsFolder,
   onCopyLogsFolder,
 }: SettingsLogsTabProps) {
+  const { t } = useI18n();
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <Typography variant="h6">Application Logs</Typography>
-      <Alert severity="info">
-        Logs are stored locally by day and include Git/S3 operations, errors,
-        and sync events.
-      </Alert>
+      <Typography variant="h6">
+        {t("settingsLogsTab.applicationLogsTitle")}
+      </Typography>
+      <Alert severity="info">{t("settingsLogsTab.info")}</Alert>
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
         <TextField
-          label="Logs Folder"
+          label={t("settingsLogsTab.logsFolderLabel")}
           value={logsFolder}
           fullWidth
           onClick={onOpenLogsFolder}
@@ -41,10 +43,10 @@ export function SettingsLogsTab({
           onClick={onOpenLogsFolder}
           disabled={!logsFolder || loadingLogsFolder}
         >
-          Open Folder
+          {t("settingsLogsTab.openFolderButton")}
         </Button>
         <IconButton
-          aria-label="copy logs folder"
+          aria-label={t("settingsLogsTab.copyLogsFolderAriaLabel")}
           onClick={onCopyLogsFolder}
           disabled={!logsFolder || loadingLogsFolder}
         >

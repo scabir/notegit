@@ -21,6 +21,7 @@ import {
   Check as CheckIcon,
 } from "@mui/icons-material";
 import { REPO_PROVIDERS } from "../../../shared/types";
+import { useI18n } from "../../i18n";
 import type { SettingsProfilesTabProps } from "./types";
 
 export function SettingsProfilesTab({
@@ -58,17 +59,17 @@ export function SettingsProfilesTab({
   onCancelCreateProfile,
   getProfileSecondary,
 }: SettingsProfilesTabProps) {
+  const { t } = useI18n();
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <Typography variant="h6">Profile Management</Typography>
-      <Alert severity="info">
-        Profiles allow you to work with multiple repositories. Only one profile
-        is active at a time. When creating a new profile, the app will prepare
-        the repository. Switching profiles will restart the app.
-      </Alert>
+      <Typography variant="h6">
+        {t("settingsProfilesTab.profileManagementTitle")}
+      </Typography>
+      <Alert severity="info">{t("settingsProfilesTab.info")}</Alert>
 
       <Typography variant="subtitle1" sx={{ mt: 2 }}>
-        Active Profile
+        {t("settingsProfilesTab.activeProfileTitle")}
       </Typography>
       <List>
         {profiles.map((profile) => (
@@ -79,7 +80,7 @@ export function SettingsProfilesTab({
               profile.id !== activeProfileId && (
                 <IconButton
                   edge="end"
-                  aria-label="delete"
+                  aria-label={t("settingsProfilesTab.deleteAriaLabel")}
                   onClick={() => onDeleteProfile(profile.id)}
                   disabled={loading}
                 >
@@ -100,7 +101,7 @@ export function SettingsProfilesTab({
                     {profile.name}
                     {profile.id === activeProfileId && (
                       <Chip
-                        label="Active"
+                        label={t("settingsProfilesTab.activeChipLabel")}
                         size="small"
                         color="primary"
                         icon={<CheckIcon />}
@@ -123,7 +124,7 @@ export function SettingsProfilesTab({
           disabled={loading}
           sx={{ mt: 2 }}
         >
-          Create New Profile
+          {t("settingsProfilesTab.createNewProfileButton")}
         </Button>
       ) : (
         <Box
@@ -136,15 +137,14 @@ export function SettingsProfilesTab({
           }}
         >
           <Typography variant="subtitle2" sx={{ mb: 2 }}>
-            New Profile
+            {t("settingsProfilesTab.newProfileTitle")}
           </Typography>
           {profileCreating && (
             <Alert severity="info" sx={{ mb: 2 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <CircularProgress size={20} />
                 <Typography variant="body2">
-                  Creating profile and preparing repository... This may take a
-                  few moments.
+                  {t("settingsProfilesTab.creatingProfileMessage")}
                 </Typography>
               </Box>
             </Alert>
@@ -152,7 +152,7 @@ export function SettingsProfilesTab({
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                Repository type
+                {t("settingsProfilesTab.repositoryTypeLabel")}
               </Typography>
               <ToggleButtonGroup
                 exclusive
@@ -160,84 +160,92 @@ export function SettingsProfilesTab({
                 onChange={(_, value) => value && onSetNewProfileProvider(value)}
                 size="small"
               >
-                <ToggleButton value={REPO_PROVIDERS.git}>Git</ToggleButton>
-                <ToggleButton value={REPO_PROVIDERS.s3}>S3</ToggleButton>
-                <ToggleButton value={REPO_PROVIDERS.local}>Local</ToggleButton>
+                <ToggleButton value={REPO_PROVIDERS.git}>
+                  {t("settingsProfilesTab.repoType.git")}
+                </ToggleButton>
+                <ToggleButton value={REPO_PROVIDERS.s3}>
+                  {t("settingsProfilesTab.repoType.s3")}
+                </ToggleButton>
+                <ToggleButton value={REPO_PROVIDERS.local}>
+                  {t("settingsProfilesTab.repoType.local")}
+                </ToggleButton>
               </ToggleButtonGroup>
             </Box>
             <TextField
-              label="Profile Name"
+              label={t("settingsProfilesTab.profileNameLabel")}
               value={newProfileName}
               onChange={(e) => onSetNewProfileName(e.target.value)}
-              placeholder="My Notes Repo"
+              placeholder={t("settingsProfilesTab.profileNamePlaceholder")}
               fullWidth
               required
               disabled={profileCreating}
-              helperText="A local folder will be automatically created based on this name"
+              helperText={t("settingsProfilesTab.profileNameHelper")}
             />
 
             {newProfileProvider === REPO_PROVIDERS.git ? (
               <>
                 <TextField
-                  label="Remote URL"
+                  label={t("settingsProfilesTab.git.remoteUrlLabel")}
                   value={newProfileRemoteUrl}
                   onChange={(e) => onSetNewProfileRemoteUrl(e.target.value)}
-                  placeholder="https://github.com/user/repo.git"
+                  placeholder={t(
+                    "settingsProfilesTab.git.remoteUrlPlaceholder",
+                  )}
                   fullWidth
                   required
                   disabled={profileCreating}
                 />
                 <TextField
-                  label="Branch"
+                  label={t("settingsProfilesTab.git.branchLabel")}
                   value={newProfileBranch}
                   onChange={(e) => onSetNewProfileBranch(e.target.value)}
-                  placeholder="main"
+                  placeholder={t("settingsProfilesTab.git.branchPlaceholder")}
                   fullWidth
                   required
                   disabled={profileCreating}
                 />
                 <TextField
-                  label="Personal Access Token"
+                  label={t("settingsProfilesTab.git.patLabel")}
                   type="password"
                   value={newProfilePat}
                   onChange={(e) => onSetNewProfilePat(e.target.value)}
-                  placeholder="ghp_..."
+                  placeholder={t("settingsProfilesTab.git.patPlaceholder")}
                   fullWidth
                   required
                   disabled={profileCreating}
-                  helperText="Your Personal Access Token is stored encrypted"
+                  helperText={t("settingsProfilesTab.git.patHelperText")}
                 />
               </>
             ) : newProfileProvider === REPO_PROVIDERS.s3 ? (
               <>
                 <TextField
-                  label="Bucket"
+                  label={t("settingsProfilesTab.s3.bucketLabel")}
                   value={newProfileBucket}
                   onChange={(e) => onSetNewProfileBucket(e.target.value)}
-                  placeholder="my-notes-bucket"
+                  placeholder={t("settingsProfilesTab.s3.bucketPlaceholder")}
                   fullWidth
                   required
                   disabled={profileCreating}
                 />
                 <TextField
-                  label="Region"
+                  label={t("settingsProfilesTab.s3.regionLabel")}
                   value={newProfileRegion}
                   onChange={(e) => onSetNewProfileRegion(e.target.value)}
-                  placeholder="us-east-1"
+                  placeholder={t("settingsProfilesTab.s3.regionPlaceholder")}
                   fullWidth
                   required
                   disabled={profileCreating}
                 />
                 <TextField
-                  label="Prefix (optional)"
+                  label={t("settingsProfilesTab.s3.prefixLabel")}
                   value={newProfilePrefix}
                   onChange={(e) => onSetNewProfilePrefix(e.target.value)}
-                  placeholder="notes/"
+                  placeholder={t("settingsProfilesTab.s3.prefixPlaceholder")}
                   fullWidth
                   disabled={profileCreating}
                 />
                 <TextField
-                  label="Access Key ID"
+                  label={t("settingsProfilesTab.s3.accessKeyIdLabel")}
                   value={newProfileAccessKeyId}
                   onChange={(e) => onSetNewProfileAccessKeyId(e.target.value)}
                   fullWidth
@@ -245,7 +253,7 @@ export function SettingsProfilesTab({
                   disabled={profileCreating}
                 />
                 <TextField
-                  label="Secret Access Key"
+                  label={t("settingsProfilesTab.s3.secretAccessKeyLabel")}
                   type="password"
                   value={newProfileSecretAccessKey}
                   onChange={(e) =>
@@ -254,10 +262,12 @@ export function SettingsProfilesTab({
                   fullWidth
                   required
                   disabled={profileCreating}
-                  helperText="Stored encrypted in the app's data directory."
+                  helperText={t(
+                    "settingsProfilesTab.s3.secretAccessKeyHelperText",
+                  )}
                 />
                 <TextField
-                  label="Session Token (optional)"
+                  label={t("settingsProfilesTab.s3.sessionTokenLabel")}
                   type="password"
                   value={newProfileSessionToken}
                   onChange={(e) => onSetNewProfileSessionToken(e.target.value)}
@@ -267,8 +277,7 @@ export function SettingsProfilesTab({
               </>
             ) : (
               <Alert severity="info">
-                Local repositories are stored on this device only and do not
-                sync.
+                {t("settingsProfilesTab.local.info")}
               </Alert>
             )}
             <Box sx={{ display: "flex", gap: 1 }}>
@@ -277,14 +286,16 @@ export function SettingsProfilesTab({
                 onClick={onCreateProfile}
                 disabled={profileCreating}
               >
-                {profileCreating ? "Creating..." : "Create Profile"}
+                {profileCreating
+                  ? t("settingsProfilesTab.creatingButton")
+                  : t("settingsProfilesTab.createProfileButton")}
               </Button>
               <Button
                 variant="outlined"
                 onClick={onCancelCreateProfile}
                 disabled={profileCreating}
               >
-                Cancel
+                {t("settingsProfilesTab.cancelButton")}
               </Button>
             </Box>
           </Box>

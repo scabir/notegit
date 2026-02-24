@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Repository Type",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Local"
+  },
+  "git": {
+    "remoteUrlLabel": "Remote URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Branch",
+    "branchPlaceholder": "main",
+    "patLabel": "Personal Access Token",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Your Personal Access Token is stored encrypted in the app's data directory, not in your operating system's keychain.",
+    "patGuide": {
+      "title": "How to create a GitHub Personal Access Token:",
+      "line1": "1. Go to GitHub Settings -> Developer settings",
+      "line2": "2. Click Personal access tokens -> Fine Grained Tokens",
+      "line3": "3. Click Generate new token",
+      "line4": "4. Give Token Name",
+      "line5": "5. Set the expirationn",
+      "line6": "6. Select \"Only select repositories\" option",
+      "line7": "7. Selec the repository you wat to Use",
+      "line8": "8. CLick on \"Add Permission\"",
+      "line9": "9. Select \"Ccontent\" amd make sure you gave \"Reand and Write\" permissions",
+      "line10": "10. Hit Generate Token",
+      "line11": "11. Copy and paste the token above"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Region",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefix (optional)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Stored encrypted in the app's data directory.",
+    "sessionTokenLabel": "Session Token (optional)",
+    "info": "The S3 bucket must have versioning enabled to support history."
+  },
+  "local": {
+    "info": "Local repositories are stored on this device only and do not sync."
+  },
+  "saveButton": "Save Repository Settings",
+  "localPath": {
+    "title": "Local Repository Path",
+    "description": "This is where your repository is stored locally on your computer.",
+    "label": "Local Path",
+    "copyPathButton": "Copy Path",
+    "openFolderButton": "Open Folder"
+  }
+}

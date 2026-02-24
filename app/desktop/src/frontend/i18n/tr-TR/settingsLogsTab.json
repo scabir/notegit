@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "Uygulama Günlükleri",
+  "info": "Günlükler günlük olarak yerelde saklanır ve Git/S3 işlemlerini, hataları ve senkronizasyon olaylarını içerir.",
+  "logsFolderLabel": "Günlük Klasörü",
+  "openFolderButton": "Klasörü Aç",
+  "copyLogsFolderAriaLabel": "günlük klasörünü kopyala"
+}

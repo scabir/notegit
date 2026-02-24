@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Depo Türü",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Yerel"
+  },
+  "git": {
+    "remoteUrlLabel": "Uzak URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Dal",
+    "branchPlaceholder": "main",
+    "patLabel": "Kişisel Erişim Jetonu",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Kişisel Erişim Jetonunuz uygulamanın veri dizininde şifreli olarak saklanır, işletim sisteminizin anahtar zincirinde saklanmaz.",
+    "patGuide": {
+      "title": "GitHub Kişisel Erişim Jetonu nasıl oluşturulur:",
+      "line1": "1. GitHub Ayarlar -> Geliştirici ayarları bölümüne gidin",
+      "line2": "2. Personal access tokens -> Fine Grained Tokens seçeneğine tıklayın",
+      "line3": "3. Generate new token seçeneğine tıklayın",
+      "line4": "4. Jetona bir ad verin",
+      "line5": "5. Son kullanma tarihini belirleyin",
+      "line6": "6. \"Only select repositories\" seçeneğini seçin",
+      "line7": "7. Kullanmak istediğiniz depoyu seçin",
+      "line8": "8. \"Add Permission\" seçeneğine tıklayın",
+      "line9": "9. \"Content\" için \"Read and Write\" izinlerini verin",
+      "line10": "10. Generate Token düğmesine basın",
+      "line11": "11. Oluşturulan jetonu yukarıya kopyalayıp yapıştırın"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Kova",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Bölge",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Ön ek (isteğe bağlı)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Erişim Anahtarı Kimliği",
+    "secretAccessKeyLabel": "Gizli Erişim Anahtarı",
+    "secretAccessKeyHelperText": "Uygulamanın veri dizininde şifreli olarak saklanır.",
+    "sessionTokenLabel": "Oturum Jetonu (isteğe bağlı)",
+    "info": "Geçmiş desteği için S3 kovasında sürümleme etkin olmalıdır."
+  },
+  "local": {
+    "info": "Yerel depolar yalnızca bu cihazda saklanır ve senkronize edilmez."
+  },
+  "saveButton": "Depo Ayarlarını Kaydet",
+  "localPath": {
+    "title": "Yerel Depo Yolu",
+    "description": "Depo bilgisayarınızda yerel olarak bu konumda saklanır.",
+    "label": "Yerel Yol",
+    "copyPathButton": "Yolu Kopyala",
+    "openFolderButton": "Klasörü Aç"
+  }
+}

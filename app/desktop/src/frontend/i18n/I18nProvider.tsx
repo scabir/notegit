@@ -15,6 +15,10 @@ import editorShellEnGb from "../i18n/en-GB/editorShell.json";
 import fileTreeViewEnGb from "../i18n/en-GB/fileTreeView.json";
 import repoSetupDialogEnGb from "../i18n/en-GB/repoSetupDialog.json";
 import searchDialogEnGb from "../i18n/en-GB/searchDialog.json";
+import settingsExportTabEnGb from "../i18n/en-GB/settingsExportTab.json";
+import settingsLogsTabEnGb from "../i18n/en-GB/settingsLogsTab.json";
+import settingsProfilesTabEnGb from "../i18n/en-GB/settingsProfilesTab.json";
+import settingsRepositoryTabEnGb from "../i18n/en-GB/settingsRepositoryTab.json";
 import settingsDialogEnGb from "../i18n/en-GB/settingsDialog.json";
 import statusBarEnGb from "../i18n/en-GB/statusBar.json";
 import { FrontendTranslationClient } from "./TranslationClient";
@@ -44,7 +48,11 @@ const defaultTranslations = {
   fileTreeView: fileTreeViewEnGb,
   repoSetupDialog: repoSetupDialogEnGb,
   searchDialog: searchDialogEnGb,
+  settingsExportTab: settingsExportTabEnGb,
   settingsDialog: settingsDialogEnGb,
+  settingsLogsTab: settingsLogsTabEnGb,
+  settingsProfilesTab: settingsProfilesTabEnGb,
+  settingsRepositoryTab: settingsRepositoryTabEnGb,
   statusBar: statusBarEnGb,
 } as const;
 

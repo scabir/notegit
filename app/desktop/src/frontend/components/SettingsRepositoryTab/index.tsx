@@ -5,6 +5,7 @@ import {
   FolderOpen as FolderOpenIcon,
 } from "@mui/icons-material";
 import { REPO_PROVIDERS } from "../../../shared/types";
+import { useI18n } from "../../i18n";
 import type { SettingsRepositoryTabProps } from "./types";
 
 export function SettingsRepositoryTab({
@@ -18,17 +19,34 @@ export function SettingsRepositoryTab({
   onCopyRepoPath,
   onOpenRepoFolder,
 }: SettingsRepositoryTabProps) {
+  const { t } = useI18n();
+
+  const gitPatGuideLines = [
+    t("settingsRepositoryTab.git.patGuide.line1"),
+    t("settingsRepositoryTab.git.patGuide.line2"),
+    t("settingsRepositoryTab.git.patGuide.line3"),
+    t("settingsRepositoryTab.git.patGuide.line4"),
+    t("settingsRepositoryTab.git.patGuide.line5"),
+    t("settingsRepositoryTab.git.patGuide.line6"),
+    t("settingsRepositoryTab.git.patGuide.line7"),
+    t("settingsRepositoryTab.git.patGuide.line8"),
+    t("settingsRepositoryTab.git.patGuide.line9"),
+    t("settingsRepositoryTab.git.patGuide.line10"),
+    t("settingsRepositoryTab.git.patGuide.line11"),
+  ];
+
+  const repoTypeLabel =
+    repoProvider === REPO_PROVIDERS.git
+      ? t("settingsRepositoryTab.repoType.git")
+      : repoProvider === REPO_PROVIDERS.s3
+        ? t("settingsRepositoryTab.repoType.s3")
+        : t("settingsRepositoryTab.repoType.local");
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <TextField
-        label="Repository Type"
-        value={
-          repoProvider === REPO_PROVIDERS.git
-            ? "Git"
-            : repoProvider === REPO_PROVIDERS.s3
-              ? "S3"
-              : "Local"
-        }
+        label={t("settingsRepositoryTab.repositoryTypeLabel")}
+        value={repoTypeLabel}
         fullWidth
         InputProps={{
           readOnly: true,
@@ -39,7 +57,7 @@ export function SettingsRepositoryTab({
       {repoProvider === REPO_PROVIDERS.git ? (
         <>
           <TextField
-            label="Remote URL"
+            label={t("settingsRepositoryTab.git.remoteUrlLabel")}
             value={gitRepoSettings.remoteUrl || ""}
             onChange={(e) =>
               onRepoSettingsChange({
@@ -48,13 +66,13 @@ export function SettingsRepositoryTab({
                 remoteUrl: e.target.value,
               })
             }
-            placeholder="https://github.com/user/repo.git"
+            placeholder={t("settingsRepositoryTab.git.remoteUrlPlaceholder")}
             fullWidth
             required
           />
 
           <TextField
-            label="Branch"
+            label={t("settingsRepositoryTab.git.branchLabel")}
             value={gitRepoSettings.branch || ""}
             onChange={(e) =>
               onRepoSettingsChange({
@@ -63,13 +81,13 @@ export function SettingsRepositoryTab({
                 branch: e.target.value,
               })
             }
-            placeholder="main"
+            placeholder={t("settingsRepositoryTab.git.branchPlaceholder")}
             fullWidth
             required
           />
 
           <TextField
-            label="Personal Access Token"
+            label={t("settingsRepositoryTab.git.patLabel")}
             type="password"
             value={gitRepoSettings.pat || ""}
             onChange={(e) =>
@@ -79,46 +97,30 @@ export function SettingsRepositoryTab({
                 pat: e.target.value,
               })
             }
-            placeholder="ghp_..."
+            placeholder={t("settingsRepositoryTab.git.patPlaceholder")}
             fullWidth
             required
-            helperText="Your Personal Access Token is stored encrypted in the app's data directory, not in your operating system's keychain."
+            helperText={t("settingsRepositoryTab.git.patHelperText")}
           />
 
           <Alert severity="info">
             <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-              How to create a GitHub Personal Access Token:
+              {t("settingsRepositoryTab.git.patGuide.title")}
             </Typography>
             <Typography variant="body2" component="div" sx={{ mt: 1 }}>
-              1. Go to GitHub Settings → Developer settings
-              <br />
-              2. Click Personal access tokens → Fine Grained Tokens
-              <br />
-              3. Click Generate new token
-              <br />
-              4. Give Token Name
-              <br />
-              5. Set the expirationn
-              <br />
-              6. Select "Only select repositories" option
-              <br />
-              7. Selec the repository you wat to Use
-              <br />
-              8. CLick on "Add Permission"
-              <br />
-              9. Select "Ccontent" amd make sure you gave "Reand and Write"
-              permissions
-              <br />
-              10. Hit Generate Token
-              <br />
-              11. Copy and paste the token above
+              {gitPatGuideLines.map((line, index) => (
+                <React.Fragment key={line}>
+                  {line}
+                  {index < gitPatGuideLines.length - 1 ? <br /> : null}
+                </React.Fragment>
+              ))}
             </Typography>
           </Alert>
         </>
       ) : repoProvider === REPO_PROVIDERS.s3 ? (
         <>
           <TextField
-            label="Bucket"
+            label={t("settingsRepositoryTab.s3.bucketLabel")}
             value={s3RepoSettings.bucket || ""}
             onChange={(e) =>
               onRepoSettingsChange({
@@ -127,13 +129,13 @@ export function SettingsRepositoryTab({
                 bucket: e.target.value,
               })
             }
-            placeholder="my-notes-bucket"
+            placeholder={t("settingsRepositoryTab.s3.bucketPlaceholder")}
             fullWidth
             required
           />
 
           <TextField
-            label="Region"
+            label={t("settingsRepositoryTab.s3.regionLabel")}
             value={s3RepoSettings.region || ""}
             onChange={(e) =>
               onRepoSettingsChange({
@@ -142,13 +144,13 @@ export function SettingsRepositoryTab({
                 region: e.target.value,
               })
             }
-            placeholder="us-east-1"
+            placeholder={t("settingsRepositoryTab.s3.regionPlaceholder")}
             fullWidth
             required
           />
 
           <TextField
-            label="Prefix (optional)"
+            label={t("settingsRepositoryTab.s3.prefixLabel")}
             value={s3RepoSettings.prefix || ""}
             onChange={(e) =>
               onRepoSettingsChange({
@@ -157,12 +159,12 @@ export function SettingsRepositoryTab({
                 prefix: e.target.value,
               })
             }
-            placeholder="notes/"
+            placeholder={t("settingsRepositoryTab.s3.prefixPlaceholder")}
             fullWidth
           />
 
           <TextField
-            label="Access Key ID"
+            label={t("settingsRepositoryTab.s3.accessKeyIdLabel")}
             value={s3RepoSettings.accessKeyId || ""}
             onChange={(e) =>
               onRepoSettingsChange({
@@ -176,7 +178,7 @@ export function SettingsRepositoryTab({
           />
 
           <TextField
-            label="Secret Access Key"
+            label={t("settingsRepositoryTab.s3.secretAccessKeyLabel")}
             type="password"
             value={s3RepoSettings.secretAccessKey || ""}
             onChange={(e) =>
@@ -188,11 +190,11 @@ export function SettingsRepositoryTab({
             }
             fullWidth
             required
-            helperText="Stored encrypted in the app's data directory."
+            helperText={t("settingsRepositoryTab.s3.secretAccessKeyHelperText")}
           />
 
           <TextField
-            label="Session Token (optional)"
+            label={t("settingsRepositoryTab.s3.sessionTokenLabel")}
             type="password"
             value={s3RepoSettings.sessionToken || ""}
             onChange={(e) =>
@@ -207,14 +209,14 @@ export function SettingsRepositoryTab({
 
           <Alert severity="info">
             <Typography variant="body2">
-              The S3 bucket must have versioning enabled to support history.
+              {t("settingsRepositoryTab.s3.info")}
             </Typography>
           </Alert>
         </>
       ) : (
         <Alert severity="info">
           <Typography variant="body2">
-            Local repositories are stored on this device only and do not sync.
+            {t("settingsRepositoryTab.local.info")}
           </Typography>
         </Alert>
       )}
@@ -226,20 +228,20 @@ export function SettingsRepositoryTab({
           disabled={loading}
           sx={{ mt: 2 }}
         >
-          Save Repository Settings
+          {t("settingsRepositoryTab.saveButton")}
         </Button>
       )}
 
       {repoSettings.localPath && (
         <>
           <Typography variant="h6" sx={{ mt: 4 }}>
-            Local Repository Path
+            {t("settingsRepositoryTab.localPath.title")}
           </Typography>
           <Alert severity="info" sx={{ mb: 2 }}>
-            This is where your repository is stored locally on your computer.
+            {t("settingsRepositoryTab.localPath.description")}
           </Alert>
           <TextField
-            label="Local Path"
+            label={t("settingsRepositoryTab.localPath.label")}
             value={repoSettings.localPath}
             fullWidth
             onClick={onOpenRepoFolder}
@@ -254,14 +256,14 @@ export function SettingsRepositoryTab({
               startIcon={<ContentCopyIcon />}
               onClick={onCopyRepoPath}
             >
-              Copy Path
+              {t("settingsRepositoryTab.localPath.copyPathButton")}
             </Button>
             <Button
               variant="outlined"
               startIcon={<FolderOpenIcon />}
               onClick={onOpenRepoFolder}
             >
-              Open Folder
+              {t("settingsRepositoryTab.localPath.openFolderButton")}
             </Button>
           </Box>
         </>

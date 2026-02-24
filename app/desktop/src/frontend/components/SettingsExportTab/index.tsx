@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Typography, Button, Alert } from "@mui/material";
+import { useI18n } from "../../i18n";
 import type { SettingsExportTabProps } from "./types";
 
 export function SettingsExportTab({
@@ -8,12 +9,15 @@ export function SettingsExportTab({
   onExportNote,
   onExportRepoAsZip,
 }: SettingsExportTabProps) {
+  const { t } = useI18n();
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <Typography variant="h6">Export Current Note</Typography>
+      <Typography variant="h6">
+        {t("settingsExportTab.exportCurrentNoteTitle")}
+      </Typography>
       <Typography variant="body2" color="text.secondary">
-        Export the currently open note (including unsaved changes) as a
-        standalone file.
+        {t("settingsExportTab.exportCurrentNoteDescription")}
       </Typography>
       <Box sx={{ display: "flex", gap: 2 }}>
         <Button
@@ -22,7 +26,7 @@ export function SettingsExportTab({
           disabled={exporting || !currentNoteContent}
           fullWidth
         >
-          Export as Markdown (.md)
+          {t("settingsExportTab.exportMarkdownButton")}
         </Button>
         <Button
           variant="outlined"
@@ -30,19 +34,18 @@ export function SettingsExportTab({
           disabled={exporting || !currentNoteContent}
           fullWidth
         >
-          Export as Text (.txt)
+          {t("settingsExportTab.exportTextButton")}
         </Button>
       </Box>
       {!currentNoteContent && (
-        <Alert severity="info">Open a note in the editor to export it.</Alert>
+        <Alert severity="info">{t("settingsExportTab.openNoteHint")}</Alert>
       )}
 
       <Typography variant="h6" sx={{ mt: 3 }}>
-        Export Repository
+        {t("settingsExportTab.exportRepositoryTitle")}
       </Typography>
       <Typography variant="body2" color="text.secondary">
-        Export the entire repository as a ZIP archive for backup or sharing.
-        This includes all files and folders (excluding .git).
+        {t("settingsExportTab.exportRepositoryDescription")}
       </Typography>
       <Button
         variant="contained"
@@ -50,13 +53,14 @@ export function SettingsExportTab({
         disabled={exporting}
         fullWidth
       >
-        {exporting ? "Exporting..." : "Export Repository as ZIP"}
+        {exporting
+          ? t("settingsExportTab.exportingButton")
+          : t("settingsExportTab.exportRepositoryButton")}
       </Button>
 
       <Alert severity="info">
         <Typography variant="body2">
-          Export operations do not modify your repository or trigger any Git
-          commands. Your work remains safely in the repository.
+          {t("settingsExportTab.safetyInfo")}
         </Typography>
       </Alert>
     </Box>

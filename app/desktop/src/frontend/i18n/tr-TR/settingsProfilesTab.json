@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "Profil Yönetimi",
+  "info": "Profiller birden fazla depoyla çalışmanızı sağlar. Aynı anda yalnızca bir profil aktif olur. Yeni profil oluştururken uygulama depoyu hazırlar. Profil değiştirildiğinde uygulama yeniden başlatılır.",
+  "activeProfileTitle": "Aktif Profil",
+  "activeChipLabel": "Aktif",
+  "deleteAriaLabel": "sil",
+  "createNewProfileButton": "Yeni Profil Oluştur",
+  "newProfileTitle": "Yeni Profil",
+  "creatingProfileMessage": "Profil oluşturuluyor ve depo hazırlanıyor... Bu işlem biraz sürebilir.",
+  "repositoryTypeLabel": "Depo türü",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Yerel"
+  },
+  "profileNameLabel": "Profil Adı",
+  "profileNamePlaceholder": "Notlarım Deposu",
+  "profileNameHelper": "Bu ada göre otomatik olarak yerel bir klasör oluşturulacaktır",
+  "git": {
+    "remoteUrlLabel": "Uzak URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Dal",
+    "branchPlaceholder": "main",
+    "patLabel": "Kişisel Erişim Jetonu",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Kişisel Erişim Jetonunuz şifreli olarak saklanır"
+  },
+  "s3": {
+    "bucketLabel": "Kova",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Bölge",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Ön ek (isteğe bağlı)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Erişim Anahtarı Kimliği",
+    "secretAccessKeyLabel": "Gizli Erişim Anahtarı",
+    "secretAccessKeyHelperText": "Uygulamanın veri dizininde şifreli olarak saklanır.",
+    "sessionTokenLabel": "Oturum Jetonu (isteğe bağlı)"
+  },
+  "local": {
+    "info": "Yerel depolar yalnızca bu cihazda saklanır ve senkronize edilmez."
+  },
+  "createProfileButton": "Profil Oluştur",
+  "creatingButton": "Oluşturuluyor...",
+  "cancelButton": "İptal"
+}
