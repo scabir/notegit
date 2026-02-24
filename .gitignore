@@ -44,3 +44,6 @@ app/desktop/integration-results.json
 
 # Local planning/scratch docs
 .local/
+
+#local docs
+app/desktop/docs
