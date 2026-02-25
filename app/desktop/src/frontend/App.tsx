@@ -16,8 +16,10 @@ import { RepoSetupDialog } from "./components/RepoSetupDialog";
 import { EditorShell } from "./components/EditorShell";
 import type { RepoProviderType } from "../shared/types";
 import { REPO_PROVIDERS } from "../shared/types";
+import { useI18n } from "./i18n";
 
 function App() {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [setupDialogOpen, setSetupDialogOpen] = useState(false);
   const [gitInstalled, setGitInstalled] = useState<boolean | null>(null);
@@ -101,6 +103,10 @@ function App() {
     setHasRepo(true);
   };
 
+  const appText = (key: string): string => t(`common.app.${key}`);
+
+  const gitText = (key: string): string => t(`common.gitMissing.${key}`);
+
   if (loading) {
     return (
       <ThemeProvider theme={theme}>
@@ -138,10 +144,7 @@ function App() {
             notegit
           </Typography>
           <Alert severity="error" sx={{ maxWidth: 600 }}>
-            <Typography variant="body2">
-              Git is not installed on your system. Please install Git to use
-              notegit.
-            </Typography>
+            <Typography variant="body2">{gitText("message")}</Typography>
             <Typography variant="body2" sx={{ mt: 1 }}>
               Visit{" "}
               <a
@@ -151,7 +154,7 @@ function App() {
               >
                 https://git-scm.com/downloads
               </a>{" "}
-              to download Git.
+              {gitText("downloadPrompt")}
             </Typography>
           </Alert>
         </Box>
@@ -178,13 +181,11 @@ function App() {
             notegit
           </Typography>
           <Typography variant="body1" color="text.secondary" gutterBottom>
-            Git-backed Markdown note-taking application
+            {appText("tagline")}
           </Typography>
 
           <Alert severity="info" sx={{ maxWidth: 600, mt: 2 }}>
-            <Typography variant="body2">
-              Welcome to notegit! To get started, connect to a Git repository.
-            </Typography>
+            <Typography variant="body2">{appText("welcome")}</Typography>
           </Alert>
 
           <Button
@@ -193,7 +194,7 @@ function App() {
             sx={{ mt: 2 }}
             size="large"
           >
-            Connect to Repository
+            {appText("connectToRepository")}
           </Button>
 
           <RepoSetupDialog

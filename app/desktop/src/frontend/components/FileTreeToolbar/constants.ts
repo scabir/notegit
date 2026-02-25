@@ -1,4 +1,4 @@
-import enGbFileTreeView from "../../i18n/en-GB/fileTreeView.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 export const TOOLBAR_KEYS = {
   collapseTree: "fileTreeView.toolbar.collapseTree",
@@ -11,13 +11,15 @@ export const TOOLBAR_KEYS = {
   collapseAll: "fileTreeView.toolbar.collapseAll",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const TOOLBAR_TEXT = {
-  collapseTree: enGbFileTreeView.toolbar.collapseTree,
-  expandTree: enGbFileTreeView.toolbar.expandTree,
-  back: enGbFileTreeView.toolbar.back,
-  forward: enGbFileTreeView.toolbar.forward,
-  newFile: enGbFileTreeView.toolbar.newFile,
-  newFolder: enGbFileTreeView.toolbar.newFolder,
-  importFile: enGbFileTreeView.toolbar.importFile,
-  collapseAll: enGbFileTreeView.toolbar.collapseAll,
+  collapseTree: defaultText(TOOLBAR_KEYS.collapseTree),
+  expandTree: defaultText(TOOLBAR_KEYS.expandTree),
+  back: defaultText(TOOLBAR_KEYS.back),
+  forward: defaultText(TOOLBAR_KEYS.forward),
+  newFile: defaultText(TOOLBAR_KEYS.newFile),
+  newFolder: defaultText(TOOLBAR_KEYS.newFolder),
+  importFile: defaultText(TOOLBAR_KEYS.importFile),
+  collapseAll: defaultText(TOOLBAR_KEYS.collapseAll),
 } as const;

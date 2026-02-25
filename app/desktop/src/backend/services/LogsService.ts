@@ -39,6 +39,13 @@ export class LogsService {
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to read ${logType} log: ${error.message}`,
         error,
+        {
+          messageKey: "logs.errors.failedReadLogTemplate",
+          messageParams: {
+            logType,
+            message: error.message,
+          },
+        },
       );
     }
   }
@@ -93,6 +100,10 @@ export class LogsService {
           ApiErrorCode.FS_NOT_FOUND,
           `Log file not found: ${logType}`,
           null,
+          {
+            messageKey: "logs.errors.logFileNotFound",
+            messageParams: { logType },
+          },
         );
       }
 
@@ -108,6 +119,13 @@ export class LogsService {
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to export ${logType} log: ${error.message}`,
         error,
+        {
+          messageKey: "logs.errors.failedExportLogTemplate",
+          messageParams: {
+            logType,
+            message: error.message,
+          },
+        },
       );
     }
   }
@@ -116,11 +134,30 @@ export class LogsService {
     code: ApiErrorCode,
     message: string,
     details?: any,
+    localization?: {
+      messageKey: string;
+      messageParams?: Record<string, string | number | boolean>;
+    },
   ): ApiError {
+    const baseDetails =
+      details && typeof details === "object" && !Array.isArray(details)
+        ? { ...details }
+        : details !== undefined
+          ? { cause: details }
+          : {};
+
+    const enrichedDetails = localization
+      ? {
+          ...baseDetails,
+          messageKey: localization.messageKey,
+          messageParams: localization.messageParams,
+        }
+      : details;
+
     return {
       code,
       message,
-      details,
+      details: enrichedDetails,
     };
   }
 }

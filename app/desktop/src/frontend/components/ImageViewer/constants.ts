@@ -1,4 +1,4 @@
-import enGbImageViewer from "../../i18n/en-GB/imageViewer.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 type TranslateFn = (key: string) => string;
 
@@ -10,6 +10,8 @@ export const IMAGE_VIEWER_KEYS = {
   forwardTooltip: "imageViewer.forwardTooltip",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const buildImageViewerText = (t: TranslateFn) => ({
   emptyState: t(IMAGE_VIEWER_KEYS.emptyState),
   imagePreviewAlt: t(IMAGE_VIEWER_KEYS.imagePreviewAlt),
@@ -19,9 +21,9 @@ export const buildImageViewerText = (t: TranslateFn) => ({
 });
 
 export const IMAGE_VIEWER_TEXT = {
-  emptyState: enGbImageViewer.emptyState,
-  imagePreviewAlt: enGbImageViewer.imagePreviewAlt,
-  showTreeTooltip: enGbImageViewer.showTreeTooltip,
-  backTooltip: enGbImageViewer.backTooltip,
-  forwardTooltip: enGbImageViewer.forwardTooltip,
+  emptyState: defaultText(IMAGE_VIEWER_KEYS.emptyState),
+  imagePreviewAlt: defaultText(IMAGE_VIEWER_KEYS.imagePreviewAlt),
+  showTreeTooltip: defaultText(IMAGE_VIEWER_KEYS.showTreeTooltip),
+  backTooltip: defaultText(IMAGE_VIEWER_KEYS.backTooltip),
+  forwardTooltip: defaultText(IMAGE_VIEWER_KEYS.forwardTooltip),
 } as const;

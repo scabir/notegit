@@ -1,5 +1,12 @@
 {
   "app": {
-    "name": "notegit"
+    "name": "notegit",
+    "tagline": "Git destekli Markdown not alma uygulaması",
+    "welcome": "notegit'e hoş geldiniz! Başlamak için bir Git deposuna bağlanın.",
+    "connectToRepository": "Depoya Bağlan"
+  },
+  "gitMissing": {
+    "message": "Sisteminizde Git kurulu değil. notegit'i kullanmak için lütfen Git yükleyin.",
+    "downloadPrompt": "Git'i indirmek için."
   }
 }

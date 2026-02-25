@@ -8,11 +8,23 @@ import {
 } from "../../shared/types";
 import { RepoService } from "../services/RepoService";
 import { logger } from "../utils/logger";
+import {
+  BackendTranslate,
+  createFallbackBackendTranslator,
+} from "../i18n/backendTranslator";
+import { localizeApiError } from "../i18n/localizeApiError";
 
 export function registerRepoHandlers(
   ipcMain: IpcMain,
   repoService: RepoService,
+  translate: BackendTranslate = createFallbackBackendTranslator(),
 ): void {
+  const t = (
+    key: string,
+    fallback?: string,
+    params?: Record<string, string | number | boolean>,
+  ): Promise<string> => translate(key, { fallback, params });
+
   ipcMain.handle(
     "repo:openOrClone",
     async (
@@ -30,10 +42,15 @@ export function registerRepoHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to open or clone repository",
+                message:
+                  error.message ||
+                  (await t(
+                    "repo.errors.failedOpenOrClone",
+                    "Failed to open or clone repository",
+                  )),
                 details: error,
               },
         };
@@ -55,10 +72,15 @@ export function registerRepoHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to get repository status",
+                message:
+                  error.message ||
+                  (await t(
+                    "repo.errors.failedGetRepositoryStatus",
+                    "Failed to get repository status",
+                  )),
                 details: error,
               },
         };
@@ -78,10 +100,15 @@ export function registerRepoHandlers(
       return {
         ok: false,
         error: error.code
-          ? error
+          ? await localizeApiError(error, translate)
           : {
               code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || "Failed to fetch from remote",
+              message:
+                error.message ||
+                (await t(
+                  "repo.errors.failedFetchFromRemote",
+                  "Failed to fetch from remote",
+                )),
               details: error,
             },
       };
@@ -99,10 +126,15 @@ export function registerRepoHandlers(
       return {
         ok: false,
         error: error.code
-          ? error
+          ? await localizeApiError(error, translate)
           : {
               code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || "Failed to pull from remote",
+              message:
+                error.message ||
+                (await t(
+                  "repo.errors.failedPullFromRemote",
+                  "Failed to pull from remote",
+                )),
               details: error,
             },
       };
@@ -120,10 +152,15 @@ export function registerRepoHandlers(
       return {
         ok: false,
         error: error.code
-          ? error
+          ? await localizeApiError(error, translate)
           : {
               code: ApiErrorCode.UNKNOWN_ERROR,
-              message: error.message || "Failed to push to remote",
+              message:
+                error.message ||
+                (await t(
+                  "repo.errors.failedPushToRemote",
+                  "Failed to push to remote",
+                )),
               details: error,
             },
       };
@@ -142,7 +179,12 @@ export function registerRepoHandlers(
         ok: false,
         error: {
           code: ApiErrorCode.UNKNOWN_ERROR,
-          message: error.message || "Failed to start auto-push",
+          message:
+            error.message ||
+            (await t(
+              "repo.errors.failedStartAutoPush",
+              "Failed to start auto-push",
+            )),
           details: error,
         },
       };

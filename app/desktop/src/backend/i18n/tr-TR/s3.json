@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Bucket sürümleme bilgisi alınamadı: {message}",
+    "failedListObjects": "Nesneler listelenemedi: {message}",
+    "failedListObjectVersions": "Nesne sürümleri listelenemedi: {message}",
+    "failedGetObject": "Nesne alınamadı: {message}",
+    "failedUploadObject": "Nesne yüklenemedi: {message}",
+    "failedReadObjectMetadata": "Nesne meta verisi okunamadı: {message}",
+    "failedDeleteObject": "Nesne silinemedi: {message}",
+    "notConfigured": "S3 adaptörü yapılandırılmamış",
+    "bucketNotConfigured": "S3 bucket yapılandırılmamış"
+  }
+}

@@ -1,4 +1,4 @@
-import enGbHistoryPanel from "../../i18n/en-GB/historyPanel.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 export const HISTORY_PANEL_KEYS = {
   title: "historyPanel.title",
@@ -16,19 +16,31 @@ export const HISTORY_PANEL_KEYS = {
   relativeTimeDaysAgoTemplate: "historyPanel.relativeTime.daysAgoTemplate",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const HISTORY_PANEL_TEXT = {
-  title: enGbHistoryPanel.title,
-  closeTooltip: enGbHistoryPanel.closeTooltip,
-  selectFile: enGbHistoryPanel.selectFile,
-  noCommits: enGbHistoryPanel.noCommits,
-  loadFailed: enGbHistoryPanel.loadFailed,
-  commitFoundSingularTemplate: enGbHistoryPanel.commitFoundSingularTemplate,
-  commitFoundPluralTemplate: enGbHistoryPanel.commitFoundPluralTemplate,
+  title: defaultText(HISTORY_PANEL_KEYS.title),
+  closeTooltip: defaultText(HISTORY_PANEL_KEYS.closeTooltip),
+  selectFile: defaultText(HISTORY_PANEL_KEYS.selectFile),
+  noCommits: defaultText(HISTORY_PANEL_KEYS.noCommits),
+  loadFailed: defaultText(HISTORY_PANEL_KEYS.loadFailed),
+  commitFoundSingularTemplate: defaultText(
+    HISTORY_PANEL_KEYS.commitFoundSingularTemplate,
+  ),
+  commitFoundPluralTemplate: defaultText(
+    HISTORY_PANEL_KEYS.commitFoundPluralTemplate,
+  ),
   relativeTime: {
-    justNow: enGbHistoryPanel.relativeTime.justNow,
-    minutesAgoTemplate: enGbHistoryPanel.relativeTime.minutesAgoTemplate,
-    hoursAgoTemplate: enGbHistoryPanel.relativeTime.hoursAgoTemplate,
-    yesterday: enGbHistoryPanel.relativeTime.yesterday,
-    daysAgoTemplate: enGbHistoryPanel.relativeTime.daysAgoTemplate,
+    justNow: defaultText(HISTORY_PANEL_KEYS.relativeTimeJustNow),
+    minutesAgoTemplate: defaultText(
+      HISTORY_PANEL_KEYS.relativeTimeMinutesAgoTemplate,
+    ),
+    hoursAgoTemplate: defaultText(
+      HISTORY_PANEL_KEYS.relativeTimeHoursAgoTemplate,
+    ),
+    yesterday: defaultText(HISTORY_PANEL_KEYS.relativeTimeYesterday),
+    daysAgoTemplate: defaultText(
+      HISTORY_PANEL_KEYS.relativeTimeDaysAgoTemplate,
+    ),
   },
 } as const;

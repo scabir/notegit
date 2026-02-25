@@ -1,4 +1,4 @@
-import enGbMarkdownEditor from "../../i18n/en-GB/markdownEditor.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 type TranslateFn = (key: string) => string;
 
@@ -55,6 +55,8 @@ export const MARKDOWN_EDITOR_KEYS = {
   mermaidRenderErrorPrefix: "markdownEditor.messages.mermaidRenderErrorPrefix",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const buildMarkdownEditorText = (t: TranslateFn) => ({
   emptyState: t(MARKDOWN_EDITOR_KEYS.emptyState),
   unsaved: t(MARKDOWN_EDITOR_KEYS.unsaved),
@@ -108,70 +110,81 @@ export const buildMarkdownEditorMessages = (t: TranslateFn) => {
 };
 
 export const MARKDOWN_EDITOR_TEXT = {
-  emptyState: enGbMarkdownEditor.emptyState,
-  unsaved: enGbMarkdownEditor.unsaved,
-  showTreeTooltip: enGbMarkdownEditor.showTreeTooltip,
-  backTooltip: enGbMarkdownEditor.backTooltip,
-  forwardTooltip: enGbMarkdownEditor.forwardTooltip,
-  saveTooltip: enGbMarkdownEditor.saveTooltip,
-  exportTooltip: enGbMarkdownEditor.exportTooltip,
-  editorOnlyTooltip: enGbMarkdownEditor.editorOnlyTooltip,
-  splitViewTooltip: enGbMarkdownEditor.splitViewTooltip,
-  previewOnlyTooltip: enGbMarkdownEditor.previewOnlyTooltip,
-  viewModeAriaEditorOnly: enGbMarkdownEditor.viewModeAriaEditorOnly,
-  viewModeAriaSplitView: enGbMarkdownEditor.viewModeAriaSplitView,
-  viewModeAriaPreviewOnly: enGbMarkdownEditor.viewModeAriaPreviewOnly,
-  boldTooltip: enGbMarkdownEditor.boldTooltip,
-  italicTooltip: enGbMarkdownEditor.italicTooltip,
-  headingTooltip: enGbMarkdownEditor.headingTooltip,
-  bulletTooltip: enGbMarkdownEditor.bulletTooltip,
-  numberedTooltip: enGbMarkdownEditor.numberedTooltip,
-  quoteTooltip: enGbMarkdownEditor.quoteTooltip,
-  inlineCodeTooltip: enGbMarkdownEditor.inlineCodeTooltip,
-  codeBlockTooltip: enGbMarkdownEditor.codeBlockTooltip,
-  linkTooltip: enGbMarkdownEditor.linkTooltip,
-  tableTooltip: enGbMarkdownEditor.tableTooltip,
-  extrasTooltip: enGbMarkdownEditor.extrasTooltip,
-  cheatsheetTooltip: enGbMarkdownEditor.cheatsheetTooltip,
-  shortcutsTooltip: enGbMarkdownEditor.shortcutsTooltip,
-  mermaidLabel: enGbMarkdownEditor.mermaidLabel,
-  rawMarkdownLabel: enGbMarkdownEditor.rawMarkdownLabel,
-  markdownCheatsheetLabel: enGbMarkdownEditor.markdownCheatsheetLabel,
-  mermaidCheatsheetLabel: enGbMarkdownEditor.mermaidCheatsheetLabel,
-  closeCheatsheetLabel: enGbMarkdownEditor.closeCheatsheetLabel,
-  footnoteLabel: enGbMarkdownEditor.footnoteLabel,
-  taskListLabel: enGbMarkdownEditor.taskListLabel,
-  highlightLabel: enGbMarkdownEditor.highlightLabel,
-  definitionListLabel: enGbMarkdownEditor.definitionListLabel,
+  emptyState: defaultText(MARKDOWN_EDITOR_KEYS.emptyState),
+  unsaved: defaultText(MARKDOWN_EDITOR_KEYS.unsaved),
+  showTreeTooltip: defaultText(MARKDOWN_EDITOR_KEYS.showTreeTooltip),
+  backTooltip: defaultText(MARKDOWN_EDITOR_KEYS.backTooltip),
+  forwardTooltip: defaultText(MARKDOWN_EDITOR_KEYS.forwardTooltip),
+  saveTooltip: defaultText(MARKDOWN_EDITOR_KEYS.saveTooltip),
+  exportTooltip: defaultText(MARKDOWN_EDITOR_KEYS.exportTooltip),
+  editorOnlyTooltip: defaultText(MARKDOWN_EDITOR_KEYS.editorOnlyTooltip),
+  splitViewTooltip: defaultText(MARKDOWN_EDITOR_KEYS.splitViewTooltip),
+  previewOnlyTooltip: defaultText(MARKDOWN_EDITOR_KEYS.previewOnlyTooltip),
+  viewModeAriaEditorOnly: defaultText(
+    MARKDOWN_EDITOR_KEYS.viewModeAriaEditorOnly,
+  ),
+  viewModeAriaSplitView: defaultText(
+    MARKDOWN_EDITOR_KEYS.viewModeAriaSplitView,
+  ),
+  viewModeAriaPreviewOnly: defaultText(
+    MARKDOWN_EDITOR_KEYS.viewModeAriaPreviewOnly,
+  ),
+  boldTooltip: defaultText(MARKDOWN_EDITOR_KEYS.boldTooltip),
+  italicTooltip: defaultText(MARKDOWN_EDITOR_KEYS.italicTooltip),
+  headingTooltip: defaultText(MARKDOWN_EDITOR_KEYS.headingTooltip),
+  bulletTooltip: defaultText(MARKDOWN_EDITOR_KEYS.bulletTooltip),
+  numberedTooltip: defaultText(MARKDOWN_EDITOR_KEYS.numberedTooltip),
+  quoteTooltip: defaultText(MARKDOWN_EDITOR_KEYS.quoteTooltip),
+  inlineCodeTooltip: defaultText(MARKDOWN_EDITOR_KEYS.inlineCodeTooltip),
+  codeBlockTooltip: defaultText(MARKDOWN_EDITOR_KEYS.codeBlockTooltip),
+  linkTooltip: defaultText(MARKDOWN_EDITOR_KEYS.linkTooltip),
+  tableTooltip: defaultText(MARKDOWN_EDITOR_KEYS.tableTooltip),
+  extrasTooltip: defaultText(MARKDOWN_EDITOR_KEYS.extrasTooltip),
+  cheatsheetTooltip: defaultText(MARKDOWN_EDITOR_KEYS.cheatsheetTooltip),
+  shortcutsTooltip: defaultText(MARKDOWN_EDITOR_KEYS.shortcutsTooltip),
+  mermaidLabel: defaultText(MARKDOWN_EDITOR_KEYS.mermaidLabel),
+  rawMarkdownLabel: defaultText(MARKDOWN_EDITOR_KEYS.rawMarkdownLabel),
+  markdownCheatsheetLabel: defaultText(
+    MARKDOWN_EDITOR_KEYS.markdownCheatsheetLabel,
+  ),
+  mermaidCheatsheetLabel: defaultText(
+    MARKDOWN_EDITOR_KEYS.mermaidCheatsheetLabel,
+  ),
+  closeCheatsheetLabel: defaultText(MARKDOWN_EDITOR_KEYS.closeCheatsheetLabel),
+  footnoteLabel: defaultText(MARKDOWN_EDITOR_KEYS.footnoteLabel),
+  taskListLabel: defaultText(MARKDOWN_EDITOR_KEYS.taskListLabel),
+  highlightLabel: defaultText(MARKDOWN_EDITOR_KEYS.highlightLabel),
+  definitionListLabel: defaultText(MARKDOWN_EDITOR_KEYS.definitionListLabel),
 } as const;
 
 export const MARKDOWN_EDITOR_MESSAGES = {
-  failedExportNote: enGbMarkdownEditor.messages.failedExportNote,
+  failedExportNote: defaultText(MARKDOWN_EDITOR_KEYS.failedExportNote),
   failedExport: (message: string) =>
-    template(enGbMarkdownEditor.messages.failedExportTemplate, {
+    template(defaultText(MARKDOWN_EDITOR_KEYS.failedExportTemplate), {
       message,
     }),
-  unknownError: enGbMarkdownEditor.messages.unknownError,
-  failedRenderMermaid: enGbMarkdownEditor.messages.failedRenderMermaid,
-  mermaidRenderErrorPrefix:
-    enGbMarkdownEditor.messages.mermaidRenderErrorPrefix,
+  unknownError: defaultText(MARKDOWN_EDITOR_KEYS.unknownError),
+  failedRenderMermaid: defaultText(MARKDOWN_EDITOR_KEYS.failedRenderMermaid),
+  mermaidRenderErrorPrefix: defaultText(
+    MARKDOWN_EDITOR_KEYS.mermaidRenderErrorPrefix,
+  ),
 } as const;
 
 export const MARKDOWN_INSERT_DEFAULTS = {
-  bold: enGbMarkdownEditor.insertDefaults.bold,
-  italic: enGbMarkdownEditor.insertDefaults.italic,
-  code: enGbMarkdownEditor.insertDefaults.code,
-  codeBlock: enGbMarkdownEditor.insertDefaults.codeBlock,
-  heading: enGbMarkdownEditor.insertDefaults.heading,
-  quote: enGbMarkdownEditor.insertDefaults.quote,
-  listItem: enGbMarkdownEditor.insertDefaults.listItem,
-  linkText: enGbMarkdownEditor.insertDefaults.linkText,
-  table: enGbMarkdownEditor.insertDefaults.table,
-  rawMarkdown: enGbMarkdownEditor.insertDefaults.rawMarkdown,
-  footnote: enGbMarkdownEditor.insertDefaults.footnote,
-  taskList: enGbMarkdownEditor.insertDefaults.taskList,
-  highlight: enGbMarkdownEditor.insertDefaults.highlight,
-  definitionList: enGbMarkdownEditor.insertDefaults.definitionList,
+  bold: defaultText("markdownEditor.insertDefaults.bold"),
+  italic: defaultText("markdownEditor.insertDefaults.italic"),
+  code: defaultText("markdownEditor.insertDefaults.code"),
+  codeBlock: defaultText("markdownEditor.insertDefaults.codeBlock"),
+  heading: defaultText("markdownEditor.insertDefaults.heading"),
+  quote: defaultText("markdownEditor.insertDefaults.quote"),
+  listItem: defaultText("markdownEditor.insertDefaults.listItem"),
+  linkText: defaultText("markdownEditor.insertDefaults.linkText"),
+  table: defaultText("markdownEditor.insertDefaults.table"),
+  rawMarkdown: defaultText("markdownEditor.insertDefaults.rawMarkdown"),
+  footnote: defaultText("markdownEditor.insertDefaults.footnote"),
+  taskList: defaultText("markdownEditor.insertDefaults.taskList"),
+  highlight: defaultText("markdownEditor.insertDefaults.highlight"),
+  definitionList: defaultText("markdownEditor.insertDefaults.definitionList"),
   mermaid: `erDiagram
           CUSTOMER }|..|{ DELIVERY-ADDRESS : has
           CUSTOMER ||--o{ ORDER : places

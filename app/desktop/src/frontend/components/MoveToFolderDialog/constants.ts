@@ -1,4 +1,4 @@
-import enGbMoveToFolderDialog from "../../i18n/en-GB/moveToFolderDialog.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 type TranslateFn = (key: string) => string;
 
@@ -27,6 +27,8 @@ export const MOVE_DIALOG_KEYS = {
   errorDuplicateItemTemplate: "moveToFolderDialog.errors.duplicateItemTemplate",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const buildMoveDialogText = (t: TranslateFn) => ({
   title: t(MOVE_DIALOG_KEYS.title),
   movingLabel: t(MOVE_DIALOG_KEYS.movingLabel),
@@ -52,22 +54,22 @@ export const buildMoveDialogErrors = (t: TranslateFn) => {
 };
 
 export const MOVE_DIALOG_TEXT = {
-  title: enGbMoveToFolderDialog.title,
-  movingLabel: enGbMoveToFolderDialog.movingLabel,
-  currentLocationLabel: enGbMoveToFolderDialog.currentLocationLabel,
-  selectDestination: enGbMoveToFolderDialog.selectDestination,
-  rootLabel: enGbMoveToFolderDialog.rootLabel,
-  noFolders: enGbMoveToFolderDialog.noFolders,
-  cancel: enGbMoveToFolderDialog.cancel,
-  confirm: enGbMoveToFolderDialog.confirm,
-  rootFallback: enGbMoveToFolderDialog.rootFallback,
+  title: defaultText(MOVE_DIALOG_KEYS.title),
+  movingLabel: defaultText(MOVE_DIALOG_KEYS.movingLabel),
+  currentLocationLabel: defaultText(MOVE_DIALOG_KEYS.currentLocationLabel),
+  selectDestination: defaultText(MOVE_DIALOG_KEYS.selectDestination),
+  rootLabel: defaultText(MOVE_DIALOG_KEYS.rootLabel),
+  noFolders: defaultText(MOVE_DIALOG_KEYS.noFolders),
+  cancel: defaultText(MOVE_DIALOG_KEYS.cancel),
+  confirm: defaultText(MOVE_DIALOG_KEYS.confirm),
+  rootFallback: defaultText(MOVE_DIALOG_KEYS.rootFallback),
 } as const;
 
 export const MOVE_DIALOG_ERRORS = {
-  selectDestination: enGbMoveToFolderDialog.errors.selectDestination,
-  sameLocation: enGbMoveToFolderDialog.errors.sameLocation,
+  selectDestination: defaultText(MOVE_DIALOG_KEYS.errorSelectDestination),
+  sameLocation: defaultText(MOVE_DIALOG_KEYS.errorSameLocation),
   duplicateItem: (name: string) =>
-    template(enGbMoveToFolderDialog.errors.duplicateItemTemplate, {
+    template(defaultText(MOVE_DIALOG_KEYS.errorDuplicateItemTemplate), {
       name,
     }),
 } as const;

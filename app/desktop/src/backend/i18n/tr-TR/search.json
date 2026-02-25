@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "Arama başarısız",
+    "failedRepoWideSearch": "Depo genelinde arama başarısız",
+    "failedRepoWideReplace": "Depo genelinde değiştirme başarısız",
+    "repositoryNotInitialized": "Depo başlatılmamış",
+    "searchFailed": "Arama başarısız",
+    "repoWideSearchFailedTemplate": "Depo genelinde arama başarısız: {message}",
+    "repoWideReplaceFailedTemplate": "Depo genelinde değiştirme başarısız: {message}"
+  }
+}

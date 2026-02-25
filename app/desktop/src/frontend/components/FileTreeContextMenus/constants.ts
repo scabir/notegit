@@ -1,4 +1,4 @@
-import enGbFileTreeContextMenus from "../../i18n/en-GB/fileTreeContextMenus.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 type TranslateFn = (key: string) => string;
 
@@ -15,6 +15,8 @@ export const FILE_TREE_CONTEXT_MENUS_KEYS = {
   treeItemActionsAria: "fileTreeContextMenus.treeItemActionsAria",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const buildFileTreeContextMenusText = (t: TranslateFn) => ({
   favoriteActionsAria: t(FILE_TREE_CONTEXT_MENUS_KEYS.favoriteActionsAria),
   treeBackgroundActionsAria: t(
@@ -24,7 +26,13 @@ export const buildFileTreeContextMenusText = (t: TranslateFn) => ({
 });
 
 export const FILE_TREE_CONTEXT_MENUS_TEXT = {
-  favoriteActionsAria: enGbFileTreeContextMenus.favoriteActionsAria,
-  treeBackgroundActionsAria: enGbFileTreeContextMenus.treeBackgroundActionsAria,
-  treeItemActionsAria: enGbFileTreeContextMenus.treeItemActionsAria,
+  favoriteActionsAria: defaultText(
+    FILE_TREE_CONTEXT_MENUS_KEYS.favoriteActionsAria,
+  ),
+  treeBackgroundActionsAria: defaultText(
+    FILE_TREE_CONTEXT_MENUS_KEYS.treeBackgroundActionsAria,
+  ),
+  treeItemActionsAria: defaultText(
+    FILE_TREE_CONTEXT_MENUS_KEYS.treeItemActionsAria,
+  ),
 } as const;

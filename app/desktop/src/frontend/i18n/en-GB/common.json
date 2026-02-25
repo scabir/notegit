@@ -1,5 +1,12 @@
 {
   "app": {
-    "name": "notegit"
+    "name": "notegit",
+    "tagline": "Git-backed Markdown note-taking application",
+    "welcome": "Welcome to notegit! To get started, connect to a Git repository.",
+    "connectToRepository": "Connect to Repository"
+  },
+  "gitMissing": {
+    "message": "Git is not installed on your system. Please install Git to use notegit.",
+    "downloadPrompt": "to download Git."
   }
 }

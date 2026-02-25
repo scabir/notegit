@@ -1,4 +1,4 @@
-import enGbSearchDialog from "../../i18n/en-GB/searchDialog.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 export const SEARCH_DIALOG_KEYS = {
   title: "searchDialog.title",
@@ -11,13 +11,15 @@ export const SEARCH_DIALOG_KEYS = {
   moreSuffix: "searchDialog.moreSuffix",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const SEARCH_DIALOG_TEXT = {
-  title: enGbSearchDialog.title,
-  placeholder: enGbSearchDialog.placeholder,
-  helperText: enGbSearchDialog.helperText,
-  noResults: enGbSearchDialog.noResults,
-  startTyping: enGbSearchDialog.startTyping,
-  searchFailed: enGbSearchDialog.searchFailed,
-  lineLabel: enGbSearchDialog.lineLabel,
-  moreSuffix: enGbSearchDialog.moreSuffix,
+  title: defaultText(SEARCH_DIALOG_KEYS.title),
+  placeholder: defaultText(SEARCH_DIALOG_KEYS.placeholder),
+  helperText: defaultText(SEARCH_DIALOG_KEYS.helperText),
+  noResults: defaultText(SEARCH_DIALOG_KEYS.noResults),
+  startTyping: defaultText(SEARCH_DIALOG_KEYS.startTyping),
+  searchFailed: defaultText(SEARCH_DIALOG_KEYS.searchFailed),
+  lineLabel: defaultText(SEARCH_DIALOG_KEYS.lineLabel),
+  moreSuffix: defaultText(SEARCH_DIALOG_KEYS.moreSuffix),
 } as const;

@@ -7,11 +7,23 @@ import {
 } from "../../shared/types";
 import { HistoryService } from "../services/HistoryService";
 import { logger } from "../utils/logger";
+import {
+  BackendTranslate,
+  createFallbackBackendTranslator,
+} from "../i18n/backendTranslator";
+import { localizeApiError } from "../i18n/localizeApiError";
 
 export function registerHistoryHandlers(
   ipcMain: IpcMain,
   historyService: HistoryService,
+  translate: BackendTranslate = createFallbackBackendTranslator(),
 ): void {
+  const t = (
+    key: string,
+    fallback?: string,
+    params?: Record<string, string | number | boolean>,
+  ): Promise<string> => translate(key, { fallback, params });
+
   ipcMain.handle(
     "history:getForFile",
     async (_event, path: string): Promise<ApiResponse<CommitEntry[]>> => {
@@ -26,10 +38,15 @@ export function registerHistoryHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to get file history",
+                message:
+                  error.message ||
+                  (await t(
+                    "history.errors.failedGetFileHistory",
+                    "Failed to get file history",
+                  )),
                 details: error,
               },
         };
@@ -55,10 +72,15 @@ export function registerHistoryHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to get file version",
+                message:
+                  error.message ||
+                  (await t(
+                    "history.errors.failedGetFileVersion",
+                    "Failed to get file version",
+                  )),
                 details: error,
               },
         };
@@ -85,10 +107,15 @@ export function registerHistoryHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to get diff",
+                message:
+                  error.message ||
+                  (await t(
+                    "history.errors.failedGetDiff",
+                    "Failed to get diff",
+                  )),
                 details: error,
               },
         };

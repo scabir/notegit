@@ -6,11 +6,23 @@ import {
 } from "../services/SearchService";
 import { ApiResponse, ApiErrorCode } from "../../shared/types/api";
 import { logger } from "../utils/logger";
+import {
+  BackendTranslate,
+  createFallbackBackendTranslator,
+} from "../i18n/backendTranslator";
+import { localizeApiError } from "../i18n/localizeApiError";
 
 export function registerSearchHandlers(
   ipcMain: IpcMain,
   searchService: SearchService,
+  translate: BackendTranslate = createFallbackBackendTranslator(),
 ) {
+  const t = (
+    key: string,
+    fallback?: string,
+    params?: Record<string, string | number | boolean>,
+  ): Promise<string> => translate(key, { fallback, params });
+
   ipcMain.handle(
     "search:query",
     async (
@@ -29,10 +41,11 @@ export function registerSearchHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to search",
+                message:
+                  error.message || (await t("search.errors.failedSearch")),
                 details: error,
               },
         };
@@ -55,10 +68,15 @@ export function registerSearchHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to perform repo-wide search",
+                message:
+                  error.message ||
+                  (await t(
+                    "search.errors.failedRepoWideSearch",
+                    "Failed to perform repo-wide search",
+                  )),
                 details: error,
               },
         };
@@ -94,10 +112,15 @@ export function registerSearchHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to perform repo-wide replace",
+                message:
+                  error.message ||
+                  (await t(
+                    "search.errors.failedRepoWideReplace",
+                    "Failed to perform repo-wide replace",
+                  )),
                 details: error,
               },
         };

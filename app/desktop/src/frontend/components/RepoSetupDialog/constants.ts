@@ -1,4 +1,4 @@
-import enGbRepoSetupDialog from "../../i18n/en-GB/repoSetupDialog.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 export const REPO_SETUP_KEYS = {
   title: "repoSetupDialog.title",
@@ -50,22 +50,24 @@ export const REPO_SETUP_KEYS = {
   patGuideLine11: "repoSetupDialog.patGuide.line11",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const REPO_SETUP_TEXT = {
-  title: enGbRepoSetupDialog.title,
-  description: enGbRepoSetupDialog.description,
-  repoTypeLabel: enGbRepoSetupDialog.repoTypeLabel,
-  gitLabel: enGbRepoSetupDialog.gitLabel,
-  s3Label: enGbRepoSetupDialog.s3Label,
-  localLabel: enGbRepoSetupDialog.localLabel,
-  cancel: enGbRepoSetupDialog.cancel,
-  connect: enGbRepoSetupDialog.connect,
-  connecting: enGbRepoSetupDialog.connecting,
-  gitRequired: enGbRepoSetupDialog.gitRequired,
-  s3Required: enGbRepoSetupDialog.s3Required,
-  localRequired: enGbRepoSetupDialog.localRequired,
-  connectFailed: enGbRepoSetupDialog.connectFailed,
-  patHelper: enGbRepoSetupDialog.patHelper,
-  s3SecretHelper: enGbRepoSetupDialog.s3SecretHelper,
-  s3Info: enGbRepoSetupDialog.s3Info,
-  localInfo: enGbRepoSetupDialog.localInfo,
+  title: defaultText(REPO_SETUP_KEYS.title),
+  description: defaultText(REPO_SETUP_KEYS.description),
+  repoTypeLabel: defaultText(REPO_SETUP_KEYS.repoTypeLabel),
+  gitLabel: defaultText(REPO_SETUP_KEYS.gitLabel),
+  s3Label: defaultText(REPO_SETUP_KEYS.s3Label),
+  localLabel: defaultText(REPO_SETUP_KEYS.localLabel),
+  cancel: defaultText(REPO_SETUP_KEYS.cancel),
+  connect: defaultText(REPO_SETUP_KEYS.connect),
+  connecting: defaultText(REPO_SETUP_KEYS.connecting),
+  gitRequired: defaultText(REPO_SETUP_KEYS.gitRequired),
+  s3Required: defaultText(REPO_SETUP_KEYS.s3Required),
+  localRequired: defaultText(REPO_SETUP_KEYS.localRequired),
+  connectFailed: defaultText(REPO_SETUP_KEYS.connectFailed),
+  patHelper: defaultText(REPO_SETUP_KEYS.patHelper),
+  s3SecretHelper: defaultText(REPO_SETUP_KEYS.s3SecretHelper),
+  s3Info: defaultText(REPO_SETUP_KEYS.s3Info),
+  localInfo: defaultText(REPO_SETUP_KEYS.localInfo),
 } as const;

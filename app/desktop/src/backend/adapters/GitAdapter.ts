@@ -54,6 +54,9 @@ export class GitAdapter {
           ApiErrorCode.GIT_AUTH_FAILED,
           "Authentication failed. Please check your credentials.",
           error,
+          {
+            messageKey: "git.errors.authenticationFailed",
+          },
         );
       }
 
@@ -61,6 +64,10 @@ export class GitAdapter {
         ApiErrorCode.GIT_CLONE_FAILED,
         `Failed to clone repository: ${error.message}`,
         error,
+        {
+          messageKey: "git.errors.failedCloneRepository",
+          messageParams: { message: error.message },
+        },
       );
     }
   }
@@ -78,6 +85,10 @@ export class GitAdapter {
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to get git status: ${error.message}`,
         error,
+        {
+          messageKey: "git.errors.failedGetStatus",
+          messageParams: { message: error.message },
+        },
       );
     }
   }
@@ -105,6 +116,9 @@ export class GitAdapter {
           ApiErrorCode.GIT_AUTH_FAILED,
           "Authentication failed during pull",
           error,
+          {
+            messageKey: "git.errors.authenticationFailedPull",
+          },
         );
       }
 
@@ -113,6 +127,9 @@ export class GitAdapter {
           ApiErrorCode.GIT_CONFLICT,
           "Merge conflict detected. Please resolve conflicts manually.",
           error,
+          {
+            messageKey: "git.errors.mergeConflictDetected",
+          },
         );
       }
 
@@ -120,6 +137,10 @@ export class GitAdapter {
         ApiErrorCode.GIT_PULL_FAILED,
         `Failed to pull: ${error.message}`,
         error,
+        {
+          messageKey: "git.errors.failedPull",
+          messageParams: { message: error.message },
+        },
       );
     }
   }
@@ -147,6 +168,9 @@ export class GitAdapter {
           ApiErrorCode.GIT_AUTH_FAILED,
           "Authentication failed during push",
           error,
+          {
+            messageKey: "git.errors.authenticationFailedPush",
+          },
         );
       }
 
@@ -154,6 +178,10 @@ export class GitAdapter {
         ApiErrorCode.GIT_PUSH_FAILED,
         `Failed to push: ${error.message}`,
         error,
+        {
+          messageKey: "git.errors.failedPush",
+          messageParams: { message: error.message },
+        },
       );
     }
   }
@@ -182,6 +210,10 @@ export class GitAdapter {
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to add file: ${error.message}`,
         error,
+        {
+          messageKey: "git.errors.failedAddFile",
+          messageParams: { message: error.message },
+        },
       );
     }
   }
@@ -198,6 +230,10 @@ export class GitAdapter {
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to commit: ${error.message}`,
         error,
+        {
+          messageKey: "git.errors.failedCommit",
+          messageParams: { message: error.message },
+        },
       );
     }
   }
@@ -214,6 +250,10 @@ export class GitAdapter {
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to add remote: ${error.message}`,
         error,
+        {
+          messageKey: "git.errors.failedAddRemote",
+          messageParams: { message: error.message },
+        },
       );
     }
   }
@@ -236,6 +276,10 @@ export class GitAdapter {
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to get git log: ${error.message}`,
         error,
+        {
+          messageKey: "git.errors.failedGetLog",
+          messageParams: { message: error.message },
+        },
       );
     }
   }
@@ -260,6 +304,10 @@ export class GitAdapter {
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to show file: ${error.message}`,
         error,
+        {
+          messageKey: "git.errors.failedShowFile",
+          messageParams: { message: error.message },
+        },
       );
     }
   }
@@ -286,6 +334,10 @@ export class GitAdapter {
         ApiErrorCode.UNKNOWN_ERROR,
         `Failed to get diff: ${error.message}`,
         error,
+        {
+          messageKey: "git.errors.failedGetDiff",
+          messageParams: { message: error.message },
+        },
       );
     }
   }
@@ -327,6 +379,9 @@ export class GitAdapter {
         ApiErrorCode.UNKNOWN_ERROR,
         "GitAdapter not initialized. Call init() first.",
         null,
+        {
+          messageKey: "git.errors.notInitialized",
+        },
       );
     }
   }
@@ -335,11 +390,30 @@ export class GitAdapter {
     code: ApiErrorCode,
     message: string,
     details?: any,
+    localization?: {
+      messageKey: string;
+      messageParams?: Record<string, string | number | boolean>;
+    },
   ): ApiError {
+    const baseDetails =
+      details && typeof details === "object" && !Array.isArray(details)
+        ? { ...details }
+        : details !== undefined
+          ? { cause: details }
+          : {};
+
+    const enrichedDetails = localization
+      ? {
+          ...baseDetails,
+          messageKey: localization.messageKey,
+          messageParams: localization.messageParams,
+        }
+      : details;
+
     return {
       code,
       message,
-      details,
+      details: enrichedDetails,
     };
   }
 }

@@ -11,14 +11,22 @@ import {
 } from "../../shared/types";
 import { logger } from "../utils/logger";
 import { createWriteStream } from "fs";
+import {
+  BackendTranslate,
+  createFallbackBackendTranslator,
+} from "../i18n/backendTranslator";
 
 export class ExportService {
   private repoPath: string | null = null;
+  private translate: BackendTranslate;
 
   constructor(
     private fsAdapter: FsAdapter,
     private configService: ConfigService,
-  ) {}
+    translate: BackendTranslate = createFallbackBackendTranslator(),
+  ) {
+    this.translate = translate;
+  }
 
   async init(): Promise<void> {
     const repoSettings = await this.configService.getRepoSettings();
@@ -34,22 +42,44 @@ export class ExportService {
     defaultExtension: "md" | "txt" = "md",
   ): Promise<string> {
     try {
+      const title = await this.translate("export.dialog.exportNoteTitle", {
+        fallback: "Export Note",
+      });
+      const markdownFiles = await this.translate(
+        "export.dialog.markdownFiles",
+        {
+          fallback: "Markdown Files",
+        },
+      );
+      const textFiles = await this.translate("export.dialog.textFiles", {
+        fallback: "Text Files",
+      });
+      const allFiles = await this.translate("export.dialog.allFiles", {
+        fallback: "All Files",
+      });
+
       const result = await dialog.showSaveDialog({
-        title: "Export Note",
+        title,
         defaultPath:
           fileName.replace(/\.(md|txt)$/, "") + `.${defaultExtension}`,
         filters: [
-          { name: "Markdown Files", extensions: ["md"] },
-          { name: "Text Files", extensions: ["txt"] },
-          { name: "All Files", extensions: ["*"] },
+          { name: markdownFiles, extensions: ["md"] },
+          { name: textFiles, extensions: ["txt"] },
+          { name: allFiles, extensions: ["*"] },
         ],
         properties: ["createDirectory", "showOverwriteConfirmation"],
       });
 
       if (result.canceled || !result.filePath) {
+        const cancelledMessage = await this.translate(
+          "export.errors.cancelled",
+          {
+            fallback: "Export cancelled",
+          },
+        );
         throw this.createError(
           ApiErrorCode.VALIDATION_ERROR,
-          "Export cancelled",
+          cancelledMessage,
           { reason: EXPORT_CANCELLED_REASON },
         );
       }
@@ -65,11 +95,16 @@ export class ExportService {
         throw error;
       }
       logger.error("Failed to export note", { fileName, error });
-      throw this.createError(
-        ApiErrorCode.UNKNOWN_ERROR,
-        `Failed to export note: ${error.message}`,
-        error,
+      const template = await this.translate(
+        "export.errors.failedExportNoteTemplate",
+        {
+          fallback: "Failed to export note: {message}",
+          params: {
+            message: error.message,
+          },
+        },
       );
+      throw this.createError(ApiErrorCode.UNKNOWN_ERROR, template, error);
     }
   }
 
@@ -78,20 +113,35 @@ export class ExportService {
 
     try {
       const repoName = path.basename(this.repoPath!);
+      const title = await this.translate("export.dialog.exportRepoZipTitle", {
+        fallback: "Export Repository as Zip",
+      });
+      const zipArchives = await this.translate("export.dialog.zipArchives", {
+        fallback: "Zip Archives",
+      });
+      const allFiles = await this.translate("export.dialog.allFiles", {
+        fallback: "All Files",
+      });
       const result = await dialog.showSaveDialog({
-        title: "Export Repository as Zip",
+        title,
         defaultPath: `${repoName}-export.zip`,
         filters: [
-          { name: "Zip Archives", extensions: ["zip"] },
-          { name: "All Files", extensions: ["*"] },
+          { name: zipArchives, extensions: ["zip"] },
+          { name: allFiles, extensions: ["*"] },
         ],
         properties: ["createDirectory", "showOverwriteConfirmation"],
       });
 
       if (result.canceled || !result.filePath) {
+        const cancelledMessage = await this.translate(
+          "export.errors.cancelled",
+          {
+            fallback: "Export cancelled",
+          },
+        );
         throw this.createError(
           ApiErrorCode.VALIDATION_ERROR,
-          "Export cancelled",
+          cancelledMessage,
           { reason: EXPORT_CANCELLED_REASON },
         );
       }
@@ -107,11 +157,16 @@ export class ExportService {
         throw error;
       }
       logger.error("Failed to export repository as zip", { error });
-      throw this.createError(
-        ApiErrorCode.UNKNOWN_ERROR,
-        `Failed to export repository: ${error.message}`,
-        error,
+      const template = await this.translate(
+        "export.errors.failedExportRepoTemplate",
+        {
+          fallback: "Failed to export repository: {message}",
+          params: {
+            message: error.message,
+          },
+        },
       );
+      throw this.createError(ApiErrorCode.UNKNOWN_ERROR, template, error);
     }
   }
 
@@ -164,9 +219,15 @@ export class ExportService {
     }
 
     if (!this.repoPath) {
+      const noRepoMessage = await this.translate(
+        "export.errors.noRepositoryConfigured",
+        {
+          fallback: "No repository configured",
+        },
+      );
       throw this.createError(
         ApiErrorCode.VALIDATION_ERROR,
-        "No repository configured",
+        noRepoMessage,
         null,
       );
     }

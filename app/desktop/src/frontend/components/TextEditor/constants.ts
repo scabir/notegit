@@ -1,4 +1,4 @@
-import enGbTextEditor from "../../i18n/en-GB/textEditor.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 type TranslateFn = (key: string) => string;
 
@@ -25,6 +25,8 @@ export const TEXT_EDITOR_KEYS = {
   unknownError: "textEditor.messages.unknownError",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const buildTextEditorText = (t: TranslateFn) => ({
   emptyState: t(TEXT_EDITOR_KEYS.emptyState),
   modified: t(TEXT_EDITOR_KEYS.modified),
@@ -48,20 +50,18 @@ export const buildTextEditorMessages = (t: TranslateFn) => {
 };
 
 export const TEXT_EDITOR_TEXT = {
-  emptyState: enGbTextEditor.emptyState,
-  modified: enGbTextEditor.modified,
-  showTreeTooltip: enGbTextEditor.showTreeTooltip,
-  backTooltip: enGbTextEditor.backTooltip,
-  forwardTooltip: enGbTextEditor.forwardTooltip,
-  saveTooltip: enGbTextEditor.saveTooltip,
-  exportTooltip: enGbTextEditor.exportTooltip,
+  emptyState: defaultText(TEXT_EDITOR_KEYS.emptyState),
+  modified: defaultText(TEXT_EDITOR_KEYS.modified),
+  showTreeTooltip: defaultText(TEXT_EDITOR_KEYS.showTreeTooltip),
+  backTooltip: defaultText(TEXT_EDITOR_KEYS.backTooltip),
+  forwardTooltip: defaultText(TEXT_EDITOR_KEYS.forwardTooltip),
+  saveTooltip: defaultText(TEXT_EDITOR_KEYS.saveTooltip),
+  exportTooltip: defaultText(TEXT_EDITOR_KEYS.exportTooltip),
 } as const;
 
 export const TEXT_EDITOR_MESSAGES = {
-  failedExportNote: enGbTextEditor.messages.failedExportNote,
+  failedExportNote: defaultText(TEXT_EDITOR_KEYS.failedExportNote),
   failedExport: (message: string) =>
-    template(enGbTextEditor.messages.failedExportTemplate, {
-      message,
-    }),
-  unknownError: enGbTextEditor.messages.unknownError,
+    template(defaultText(TEXT_EDITOR_KEYS.failedExportTemplate), { message }),
+  unknownError: defaultText(TEXT_EDITOR_KEYS.unknownError),
 } as const;

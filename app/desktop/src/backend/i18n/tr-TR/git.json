@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "Kimlik doğrulama başarısız. Lütfen kimlik bilgilerinizi kontrol edin.",
+    "authenticationFailedPull": "Pull sırasında kimlik doğrulama başarısız",
+    "authenticationFailedPush": "Push sırasında kimlik doğrulama başarısız",
+    "mergeConflictDetected": "Birleştirme çakışması algılandı. Lütfen çakışmaları manuel çözün.",
+    "failedCloneRepository": "Depo klonlanamadı: {message}",
+    "failedGetStatus": "Git durumu alınamadı: {message}",
+    "failedPull": "Pull başarısız: {message}",
+    "failedPush": "Push başarısız: {message}",
+    "failedAddFile": "Dosya eklenemedi: {message}",
+    "failedCommit": "Commit başarısız: {message}",
+    "failedAddRemote": "Uzak depo eklenemedi: {message}",
+    "failedGetLog": "Git kayıtları alınamadı: {message}",
+    "failedShowFile": "Dosya gösterilemedi: {message}",
+    "failedGetDiff": "Diff alınamadı: {message}",
+    "notInitialized": "Git adaptörü başlatılmamış"
+  }
+}

@@ -36,3 +36,17 @@ export interface SaveAsRequest {
   repoPath: string;
   destinationPath: string;
 }
+
+export const COMMIT_AND_PUSH_RESULTS = {
+  SYNCED: "synced",
+  NOTHING_TO_COMMIT: "nothing_to_commit",
+  COMMITTED_AND_PUSHED: "committed_and_pushed",
+} as const;
+
+export type CommitAndPushResult =
+  (typeof COMMIT_AND_PUSH_RESULTS)[keyof typeof COMMIT_AND_PUSH_RESULTS];
+
+export interface CommitAndPushAllResponse {
+  message: string;
+  result: CommitAndPushResult;
+}

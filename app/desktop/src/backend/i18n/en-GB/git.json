@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "Authentication failed. Please check your credentials.",
+    "authenticationFailedPull": "Authentication failed during pull",
+    "authenticationFailedPush": "Authentication failed during push",
+    "mergeConflictDetected": "Merge conflict detected. Please resolve conflicts manually.",
+    "failedCloneRepository": "Failed to clone repository: {message}",
+    "failedGetStatus": "Failed to get git status: {message}",
+    "failedPull": "Failed to pull: {message}",
+    "failedPush": "Failed to push: {message}",
+    "failedAddFile": "Failed to add file: {message}",
+    "failedCommit": "Failed to commit: {message}",
+    "failedAddRemote": "Failed to add remote: {message}",
+    "failedGetLog": "Failed to get git log: {message}",
+    "failedShowFile": "Failed to show file: {message}",
+    "failedGetDiff": "Failed to get diff: {message}",
+    "notInitialized": "Git adapter is not initialized"
+  }
+}

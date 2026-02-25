@@ -1,4 +1,4 @@
-import enGbFileTreeView from "../../i18n/en-GB/fileTreeView.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 type TranslateFn = (key: string) => string;
 
@@ -76,6 +76,8 @@ export const FILE_TREE_KEYS = {
     failedMovePrefix: "fileTreeView.messages.failedMovePrefix",
   },
 } as const;
+
+const defaultText = (key: string): string => getDefaultTranslation(key);
 
 export const buildFileTreeText = (t: TranslateFn) => ({
   newFile: t(FILE_TREE_KEYS.text.newFile),
@@ -169,44 +171,8 @@ export const buildFileTreeMessages = (t: TranslateFn) => {
   };
 };
 
-export const FILE_TREE_TEXT = { ...enGbFileTreeView.text };
-
-const enGbMessages = enGbFileTreeView.messages;
-export const FILE_TREE_MESSAGES = {
-  invalidFileName: enGbMessages.invalidFileName,
-  invalidFolderName: enGbMessages.invalidFolderName,
-  invalidRenameName: enGbMessages.invalidRenameName,
-  emptyName: enGbMessages.emptyName,
-  fileAlreadyExists: (name: string) =>
-    template(enGbMessages.fileAlreadyExistsTemplate, { name }),
-  folderAlreadyExists: (name: string) =>
-    template(enGbMessages.folderAlreadyExistsTemplate, { name }),
-  permissionDeniedCreateFile: enGbMessages.permissionDeniedCreateFile,
-  permissionDeniedCreateFolder: enGbMessages.permissionDeniedCreateFolder,
-  permissionDenied: enGbMessages.permissionDenied,
-  failedCreateFile: enGbMessages.failedCreateFile,
-  failedCreateFolder: enGbMessages.failedCreateFolder,
-  failedRename: enGbMessages.failedRename,
-  dialogApiNotAvailable: enGbMessages.dialogApiNotAvailable,
-  importDialogTitle: enGbMessages.importDialogTitle,
-  importedFileNameFallback: enGbMessages.importedFileNameFallback,
-  unknownError: enGbMessages.unknownError,
-  renameAlreadyExists: (itemType: "file" | "folder") =>
-    template(enGbMessages.renameAlreadyExistsTemplate, { itemType }),
-  deleteConfirmation: (
-    itemType: "folder" | "file",
-    name: string,
-    isFolder: boolean,
-  ) =>
-    template(enGbMessages.deleteConfirmationTemplate, {
-      itemType,
-      name,
-      extra: isFolder ? enGbMessages.deleteConfirmationFolderExtra : "",
-    }),
-  failedDeletePrefix: enGbMessages.failedDeletePrefix,
-  failedImportPrefix: enGbMessages.failedImportPrefix,
-  failedMovePrefix: enGbMessages.failedMovePrefix,
-};
+export const FILE_TREE_TEXT = buildFileTreeText(defaultText);
+export const FILE_TREE_MESSAGES = buildFileTreeMessages(defaultText);
 
 export const INVALID_NAME_CHARS = /[<>:"/\\|?*]/;
 export const FAVORITES_STORAGE_KEY = "notegit-tree-favorites";

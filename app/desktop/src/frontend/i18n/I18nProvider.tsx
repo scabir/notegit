@@ -8,30 +8,11 @@ import React, {
 import type { ReactNode } from "react";
 import type { I18nBundle } from "../../shared/types";
 import { DEFAULT_APP_LANGUAGE } from "../../shared/types";
-import aboutDialogEnGb from "../i18n/en-GB/aboutDialog.json";
-import commitDialogEnGb from "../i18n/en-GB/commitDialog.json";
-import commonEnGb from "../i18n/en-GB/common.json";
-import editorShellEnGb from "../i18n/en-GB/editorShell.json";
-import fileTreeContextMenusEnGb from "../i18n/en-GB/fileTreeContextMenus.json";
-import fileTreeViewEnGb from "../i18n/en-GB/fileTreeView.json";
-import findReplaceBarEnGb from "../i18n/en-GB/findReplaceBar.json";
-import historyPanelEnGb from "../i18n/en-GB/historyPanel.json";
-import historyViewerEnGb from "../i18n/en-GB/historyViewer.json";
-import imageViewerEnGb from "../i18n/en-GB/imageViewer.json";
-import markdownEditorEnGb from "../i18n/en-GB/markdownEditor.json";
-import moveToFolderDialogEnGb from "../i18n/en-GB/moveToFolderDialog.json";
-import repoSearchDialogEnGb from "../i18n/en-GB/repoSearchDialog.json";
-import repoSetupDialogEnGb from "../i18n/en-GB/repoSetupDialog.json";
-import searchDialogEnGb from "../i18n/en-GB/searchDialog.json";
-import shortcutHelperEnGb from "../i18n/en-GB/shortcutHelper.json";
-import settingsExportTabEnGb from "../i18n/en-GB/settingsExportTab.json";
-import settingsLogsTabEnGb from "../i18n/en-GB/settingsLogsTab.json";
-import settingsProfilesTabEnGb from "../i18n/en-GB/settingsProfilesTab.json";
-import settingsRepositoryTabEnGb from "../i18n/en-GB/settingsRepositoryTab.json";
-import settingsDialogEnGb from "../i18n/en-GB/settingsDialog.json";
-import statusBarEnGb from "../i18n/en-GB/statusBar.json";
-import textEditorEnGb from "../i18n/en-GB/textEditor.json";
 import { FrontendTranslationClient } from "./TranslationClient";
+import {
+  defaultTranslations,
+  resolveDefaultTranslation,
+} from "./defaultTranslations";
 
 export interface I18nContextValue {
   ready: boolean;
@@ -49,53 +30,6 @@ interface I18nProviderProps {
   children?: ReactNode;
   client?: FrontendTranslationClient;
 }
-
-const defaultTranslations = {
-  aboutDialog: aboutDialogEnGb,
-  commitDialog: commitDialogEnGb,
-  common: commonEnGb,
-  editorShell: editorShellEnGb,
-  fileTreeContextMenus: fileTreeContextMenusEnGb,
-  fileTreeView: fileTreeViewEnGb,
-  findReplaceBar: findReplaceBarEnGb,
-  historyPanel: historyPanelEnGb,
-  historyViewer: historyViewerEnGb,
-  imageViewer: imageViewerEnGb,
-  markdownEditor: markdownEditorEnGb,
-  moveToFolderDialog: moveToFolderDialogEnGb,
-  repoSearchDialog: repoSearchDialogEnGb,
-  repoSetupDialog: repoSetupDialogEnGb,
-  searchDialog: searchDialogEnGb,
-  shortcutHelper: shortcutHelperEnGb,
-  settingsExportTab: settingsExportTabEnGb,
-  settingsDialog: settingsDialogEnGb,
-  settingsLogsTab: settingsLogsTabEnGb,
-  settingsProfilesTab: settingsProfilesTabEnGb,
-  settingsRepositoryTab: settingsRepositoryTabEnGb,
-  statusBar: statusBarEnGb,
-  textEditor: textEditorEnGb,
-} as const;
-
-const resolveDefaultTranslation = (key: string): string | undefined => {
-  const segments = key
-    .split(".")
-    .map((segment) => segment.trim())
-    .filter((segment) => segment.length > 0);
-
-  if (segments.length === 0) {
-    return undefined;
-  }
-
-  let current: unknown = defaultTranslations;
-  for (const segment of segments) {
-    if (typeof current !== "object" || current === null) {
-      return undefined;
-    }
-    current = (current as Record<string, unknown>)[segment];
-  }
-
-  return typeof current === "string" ? current : undefined;
-};
 
 const defaultContextValue: I18nContextValue = {
   ready: true,

@@ -48,6 +48,9 @@ export class HistoryService {
         ApiErrorCode.VALIDATION_ERROR,
         "No repository configured",
         null,
+        {
+          messageKey: "history.errors.noRepositoryConfigured",
+        },
       );
     }
 
@@ -65,6 +68,12 @@ export class HistoryService {
         ApiErrorCode.VALIDATION_ERROR,
         `Unsupported history provider: ${repoSettings.provider}`,
         null,
+        {
+          messageKey: "history.errors.unsupportedProvider",
+          messageParams: {
+            provider: repoSettings.provider,
+          },
+        },
       );
     }
 
@@ -83,11 +92,30 @@ export class HistoryService {
     code: ApiErrorCode,
     message: string,
     details?: any,
+    localization?: {
+      messageKey: string;
+      messageParams?: Record<string, string | number | boolean>;
+    },
   ): ApiError {
+    const baseDetails =
+      details && typeof details === "object" && !Array.isArray(details)
+        ? { ...details }
+        : details !== undefined
+          ? { cause: details }
+          : {};
+
+    const enrichedDetails = localization
+      ? {
+          ...baseDetails,
+          messageKey: localization.messageKey,
+          messageParams: localization.messageParams,
+        }
+      : details;
+
     return {
       code,
       message,
-      details,
+      details: enrichedDetails,
     };
   }
 }

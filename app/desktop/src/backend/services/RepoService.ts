@@ -190,6 +190,9 @@ export class RepoService {
         ApiErrorCode.VALIDATION_ERROR,
         "No repository configured",
         null,
+        {
+          messageKey: "repo.errors.noRepositoryConfigured",
+        },
       );
     }
 
@@ -209,6 +212,12 @@ export class RepoService {
         ApiErrorCode.VALIDATION_ERROR,
         `Unsupported repository provider: ${providerType}`,
         null,
+        {
+          messageKey: "repo.errors.unsupportedProvider",
+          messageParams: {
+            provider: providerType,
+          },
+        },
       );
     }
     return provider;
@@ -307,11 +316,30 @@ export class RepoService {
     code: ApiErrorCode,
     message: string,
     details?: any,
+    localization?: {
+      messageKey: string;
+      messageParams?: Record<string, string | number | boolean>;
+    },
   ): ApiError {
+    const baseDetails =
+      details && typeof details === "object" && !Array.isArray(details)
+        ? { ...details }
+        : details !== undefined
+          ? { cause: details }
+          : {};
+
+    const enrichedDetails = localization
+      ? {
+          ...baseDetails,
+          messageKey: localization.messageKey,
+          messageParams: localization.messageParams,
+        }
+      : details;
+
     return {
       code,
       message,
-      details,
+      details: enrichedDetails,
     };
   }
 

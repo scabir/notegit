@@ -1,7 +1,7 @@
 import { Code as CodeIcon } from "@mui/icons-material";
 import type { TechStackItem } from "./types";
 import versionInfo from "../../../../version.json";
-import enGbAboutDialog from "../../i18n/en-GB/aboutDialog.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 export const ABOUT_DIALOG_KEYS = {
   titlePrefix: "aboutDialog.titlePrefix",
@@ -17,14 +17,16 @@ export const ABOUT_DIALOG_KEYS = {
   license: "aboutDialog.license",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const APP_INFO = {
   name: "notegit",
   version: versionInfo.version,
-  description: enGbAboutDialog.description,
+  description: defaultText(ABOUT_DIALOG_KEYS.description),
   author: "Suleyman Cabir Ataman",
   githubUrl: "https://github.com/scabir",
   websiteUrl: "",
-  license: enGbAboutDialog.license,
+  license: defaultText(ABOUT_DIALOG_KEYS.license),
 } as const;
 
 export const FEATURE_KEYS = [

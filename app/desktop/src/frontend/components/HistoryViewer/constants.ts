@@ -1,4 +1,4 @@
-import enGbHistoryViewer from "../../i18n/en-GB/historyViewer.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 export const HISTORY_VIEWER_KEYS = {
   readOnly: "historyViewer.readOnly",
@@ -11,13 +11,15 @@ export const HISTORY_VIEWER_KEYS = {
   readOnlyNotice: "historyViewer.readOnlyNotice",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const HISTORY_VIEWER_TEXT = {
-  readOnly: enGbHistoryViewer.readOnly,
-  closeTooltip: enGbHistoryViewer.closeTooltip,
-  preview: enGbHistoryViewer.preview,
-  source: enGbHistoryViewer.source,
-  copyContent: enGbHistoryViewer.copyContent,
-  close: enGbHistoryViewer.close,
-  loadFailed: enGbHistoryViewer.loadFailed,
-  readOnlyNotice: enGbHistoryViewer.readOnlyNotice,
+  readOnly: defaultText(HISTORY_VIEWER_KEYS.readOnly),
+  closeTooltip: defaultText(HISTORY_VIEWER_KEYS.closeTooltip),
+  preview: defaultText(HISTORY_VIEWER_KEYS.preview),
+  source: defaultText(HISTORY_VIEWER_KEYS.source),
+  copyContent: defaultText(HISTORY_VIEWER_KEYS.copyContent),
+  close: defaultText(HISTORY_VIEWER_KEYS.close),
+  loadFailed: defaultText(HISTORY_VIEWER_KEYS.loadFailed),
+  readOnlyNotice: defaultText(HISTORY_VIEWER_KEYS.readOnlyNotice),
 } as const;

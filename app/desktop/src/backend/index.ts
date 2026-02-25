@@ -30,6 +30,7 @@ import { registerLogsHandlers } from "./handlers/logsHandlers";
 import { registerI18nHandlers } from "./handlers/i18nHandlers";
 import { logger } from "./utils/logger";
 import * as path from "path";
+import { createBackendTranslator } from "./i18n/backendTranslator";
 
 export function createBackend(ipcMain: IpcMain): void {
   logger.info("Initializing backend services");
@@ -67,13 +68,14 @@ export function createBackend(ipcMain: IpcMain): void {
     configService,
   );
   const searchService = new SearchService(fsAdapter);
-  const exportService = new ExportService(fsAdapter, configService);
   const logsService = new LogsService();
   const translationService = new TranslationService(fsAdapter, {
     localesRootDir:
       process.env.NOTEGIT_LOCALES_ROOT ||
       path.resolve(__dirname, "../../../src"),
   });
+  const translate = createBackendTranslator(translationService, configService);
+  const exportService = new ExportService(fsAdapter, configService, translate);
 
   repoService.setFilesService(filesService);
   filesService.setGitAdapter(gitAdapter);
@@ -84,15 +86,21 @@ export function createBackend(ipcMain: IpcMain): void {
     }
   });
 
-  registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
-  registerRepoHandlers(ipcMain, repoService);
-  registerFilesHandlers(ipcMain, filesService, repoService);
-  registerHistoryHandlers(ipcMain, historyService);
-  registerDialogHandlers(ipcMain);
-  registerSearchHandlers(ipcMain, searchService);
-  registerExportHandlers(ipcMain, exportService);
-  registerLogsHandlers(ipcMain, logsService);
-  registerI18nHandlers(ipcMain, translationService, configService);
+  registerConfigHandlers(
+    ipcMain,
+    configService,
+    repoService,
+    gitAdapter,
+    translate,
+  );
+  registerRepoHandlers(ipcMain, repoService, translate);
+  registerFilesHandlers(ipcMain, filesService, repoService, translate);
+  registerHistoryHandlers(ipcMain, historyService, translate);
+  registerDialogHandlers(ipcMain, translate);
+  registerSearchHandlers(ipcMain, searchService, translate);
+  registerExportHandlers(ipcMain, exportService, translate);
+  registerLogsHandlers(ipcMain, logsService, translate);
+  registerI18nHandlers(ipcMain, translationService, configService, translate);
 
   logger.info("Backend services initialized");
 }

@@ -5,16 +5,30 @@ import {
   FileContent,
   ApiErrorCode,
   REPO_PROVIDERS,
+  COMMIT_AND_PUSH_RESULTS,
+  CommitAndPushAllResponse,
 } from "../../shared/types";
 import { FilesService } from "../services/FilesService";
 import { logger } from "../utils/logger";
 import { RepoService } from "../services/RepoService";
+import {
+  BackendTranslate,
+  createFallbackBackendTranslator,
+} from "../i18n/backendTranslator";
+import { localizeApiError } from "../i18n/localizeApiError";
 
 export function registerFilesHandlers(
   ipcMain: IpcMain,
   filesService: FilesService,
   repoService: RepoService,
+  translate: BackendTranslate = createFallbackBackendTranslator(),
 ): void {
+  const t = (
+    key: string,
+    fallback?: string,
+    params?: Record<string, string | number | boolean>,
+  ): Promise<string> => translate(key, { fallback, params });
+
   ipcMain.handle(
     "files:listTree",
     async (): Promise<ApiResponse<FileTreeNode[]>> => {
@@ -29,10 +43,10 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to list files",
+                message: error.message || (await t("files.errors.list")),
                 details: error,
               },
         };
@@ -54,10 +68,10 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to read file",
+                message: error.message || (await t("files.errors.read")),
                 details: error,
               },
         };
@@ -87,10 +101,10 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to save file",
+                message: error.message || (await t("files.errors.save")),
                 details: error,
               },
         };
@@ -127,10 +141,15 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to save with Git workflow",
+                message:
+                  error.message ||
+                  (await t(
+                    "files.errors.saveWithGitWorkflow",
+                    "Failed to save with Git workflow",
+                  )),
                 details: error,
               },
         };
@@ -155,10 +174,10 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to commit file",
+                message: error.message || (await t("files.errors.commitFile")),
                 details: error,
               },
         };
@@ -179,10 +198,15 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to commit all changes",
+                message:
+                  error.message ||
+                  (await t(
+                    "files.errors.commitAll",
+                    "Failed to commit all changes",
+                  )),
                 details: error,
               },
         };
@@ -192,33 +216,51 @@ export function registerFilesHandlers(
 
   ipcMain.handle(
     "files:commitAndPushAll",
-    async (): Promise<ApiResponse<{ message: string }>> => {
+    async (): Promise<ApiResponse<CommitAndPushAllResponse>> => {
       try {
         const statusResponse = await repoService.getStatus();
 
         if (statusResponse.provider === REPO_PROVIDERS.s3) {
           await repoService.push();
+          const message = await t(
+            "files.success.syncedSuccessfully",
+            "Synced successfully",
+          );
           return {
             ok: true,
-            data: { message: "Synced successfully" },
+            data: {
+              message,
+              result: COMMIT_AND_PUSH_RESULTS.SYNCED,
+            },
           };
         }
 
         if (statusResponse.provider === REPO_PROVIDERS.local) {
+          const message = await t(
+            "files.errors.localRepoNoSync",
+            "Local repositories do not support sync",
+          );
           return {
             ok: false,
             error: {
               code: ApiErrorCode.VALIDATION_ERROR,
-              message: "Local repositories do not support sync",
+              message,
               details: { provider: statusResponse.provider },
             },
           };
         }
 
         if (!statusResponse.hasUncommitted) {
+          const message = await t(
+            "files.success.nothingToCommit",
+            "Nothing to commit",
+          );
           return {
             ok: true,
-            data: { message: "Nothing to commit" },
+            data: {
+              message,
+              result: COMMIT_AND_PUSH_RESULTS.NOTHING_TO_COMMIT,
+            },
           };
         }
 
@@ -229,7 +271,8 @@ export function registerFilesHandlers(
           ...gitStatus.deleted,
         ].slice(0, 5);
 
-        let commitMessage = "Update: ";
+        const updatePrefix = await t("files.commit.updatePrefix", "Update:");
+        let commitMessage = `${updatePrefix} `;
         if (changedFiles.length > 0) {
           commitMessage += changedFiles.join(", ");
           if (
@@ -238,29 +281,56 @@ export function registerFilesHandlers(
               gitStatus.deleted.length >
             5
           ) {
-            commitMessage += ` and ${gitStatus.modified.length + gitStatus.added.length + gitStatus.deleted.length - 5} more`;
+            const extraCount =
+              gitStatus.modified.length +
+              gitStatus.added.length +
+              gitStatus.deleted.length -
+              5;
+            const andMore = await t(
+              "files.commit.andMore",
+              "and {count} more",
+              {
+                count: extraCount,
+              },
+            );
+            commitMessage += ` ${andMore}`;
           }
         } else {
-          commitMessage += "multiple files";
+          commitMessage += await t(
+            "files.commit.multipleFiles",
+            "multiple files",
+          );
         }
 
         await filesService.commitAll(commitMessage);
 
         await repoService.push();
 
+        const message = await t(
+          "files.success.committedAndPushedSuccessfully",
+          "Changes committed and pushed successfully",
+        );
         return {
           ok: true,
-          data: { message: "Changes committed and pushed successfully" },
+          data: {
+            message,
+            result: COMMIT_AND_PUSH_RESULTS.COMMITTED_AND_PUSHED,
+          },
         };
       } catch (error: any) {
         logger.error("Failed to commit and push all changes", { error });
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to commit and push changes",
+                message:
+                  error.message ||
+                  (await t(
+                    "files.errors.commitAndPush",
+                    "Failed to commit and push changes",
+                  )),
                 details: error,
               },
         };
@@ -285,10 +355,10 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to create file",
+                message: error.message || (await t("files.errors.createFile")),
                 details: error,
               },
         };
@@ -313,10 +383,15 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to create folder",
+                message:
+                  error.message ||
+                  (await t(
+                    "files.errors.createFolder",
+                    "Failed to create folder",
+                  )),
                 details: error,
               },
         };
@@ -340,10 +415,10 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to delete",
+                message: error.message || (await t("files.errors.delete")),
                 details: error,
               },
         };
@@ -375,10 +450,10 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to rename",
+                message: error.message || (await t("files.errors.rename")),
                 details: error,
               },
         };
@@ -403,10 +478,10 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to save file",
+                message: error.message || (await t("files.errors.save")),
                 details: error,
               },
         };
@@ -428,10 +503,15 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to duplicate file",
+                message:
+                  error.message ||
+                  (await t(
+                    "files.errors.duplicateFile",
+                    "Failed to duplicate file",
+                  )),
                 details: error,
               },
         };
@@ -460,10 +540,10 @@ export function registerFilesHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: error.message || "Failed to import file",
+                message: error.message || (await t("files.errors.importFile")),
                 details: error,
               },
         };

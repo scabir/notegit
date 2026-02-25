@@ -1,4 +1,4 @@
-import enGbSettingsDialog from "../../i18n/en-GB/settingsDialog.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 export const SETTINGS_KEYS = {
   title: "settingsDialog.title",
@@ -43,13 +43,15 @@ export const SETTINGS_KEYS = {
   localRepoSecondaryLabel: "settingsDialog.localRepoSecondaryLabel",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const SETTINGS_TEXT = {
-  title: enGbSettingsDialog.title,
+  title: defaultText(SETTINGS_KEYS.title),
   tabs: [
-    enGbSettingsDialog.tabs.appSettings,
-    enGbSettingsDialog.tabs.repository,
-    enGbSettingsDialog.tabs.profiles,
-    enGbSettingsDialog.tabs.export,
-    enGbSettingsDialog.tabs.logs,
+    defaultText(SETTINGS_KEYS.tabAppSettings),
+    defaultText(SETTINGS_KEYS.tabRepository),
+    defaultText(SETTINGS_KEYS.tabProfiles),
+    defaultText(SETTINGS_KEYS.tabExport),
+    defaultText(SETTINGS_KEYS.tabLogs),
   ],
 } as const;

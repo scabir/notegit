@@ -259,6 +259,77 @@ export const clickPush = async (page: Page): Promise<void> => {
   await page.getByTestId("status-bar-push-action").click();
 };
 
+const SETTINGS_TITLE_REGEX = /^(Settings|Ayarlar)$/;
+const SETTINGS_SAVE_APP_BUTTON_REGEX =
+  /^(Save App Settings|Uygulama Ayarlarını Kaydet)$/;
+const SETTINGS_CLOSE_BUTTON_REGEX = /^(Close|Kapat)$/;
+const SETTINGS_APP_TAB_REGEX = /^(App Settings|Uygulama Ayarları)$/;
+
+const getLanguageOptionRegex = (locale: "en-GB" | "tr-TR"): RegExp => {
+  if (locale === "tr-TR") {
+    return /^Türkçe$/;
+  }
+
+  return /^English \(UK\)$/;
+};
+
+export const openSettingsDialog = async (page: Page): Promise<void> => {
+  await page.getByTestId("status-bar-settings-action").click();
+  await expect(
+    page.getByRole("heading", { name: SETTINGS_TITLE_REGEX }),
+  ).toBeVisible();
+};
+
+export const closeSettingsDialog = async (page: Page): Promise<void> => {
+  const settingsDialog = page.getByRole("dialog").filter({
+    has: page.getByRole("heading", { name: SETTINGS_TITLE_REGEX }),
+  });
+  if ((await settingsDialog.count()) === 0) {
+    return;
+  }
+
+  const closeButton = settingsDialog
+    .locator("button")
+    .filter({ hasText: SETTINGS_CLOSE_BUTTON_REGEX })
+    .last();
+  await expect(closeButton).toBeVisible();
+  await closeButton.click();
+
+  await expect(settingsDialog).toHaveCount(0);
+};
+
+export const switchAppLanguageFromSettings = async (
+  page: Page,
+  locale: "en-GB" | "tr-TR",
+): Promise<void> => {
+  await openSettingsDialog(page);
+
+  const settingsDialog = page.getByRole("dialog").last();
+  const appSettingsTab = settingsDialog.getByRole("tab", {
+    name: SETTINGS_APP_TAB_REGEX,
+  });
+  await expect(appSettingsTab).toBeVisible();
+  await appSettingsTab.click();
+
+  const appSettingsPanel = settingsDialog.locator("#settings-tabpanel-0");
+  await expect(appSettingsPanel).toBeVisible();
+
+  const languageSelect = appSettingsPanel.locator("[role='combobox']").first();
+  await expect(languageSelect).toBeVisible();
+  await languageSelect.click();
+  await page
+    .getByRole("option", { name: getLanguageOptionRegex(locale) })
+    .click();
+  await page
+    .getByRole("button", { name: SETTINGS_SAVE_APP_BUTTON_REGEX })
+    .click();
+
+  const expectedTitle = locale === "tr-TR" ? "Ayarlar" : "Settings";
+  await expect(
+    page.getByRole("heading", { name: expectedTitle }),
+  ).toBeVisible();
+};
+
 export const expectSavedStatus = async (page: Page): Promise<void> => {
   await expect(page.getByTestId("status-bar-save-status-saved")).toBeVisible();
 };

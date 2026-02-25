@@ -269,7 +269,11 @@ export class ConfigService {
       throw {
         code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
         message: "Repository provider cannot be changed",
-        details: { from: existing.provider, to: settings.provider },
+        details: {
+          from: existing.provider,
+          to: settings.provider,
+          messageKey: "config.errors.repoProviderCannotChange",
+        },
       };
     }
 
@@ -503,6 +507,9 @@ export class ConfigService {
       throw {
         code: ApiErrorCode.VALIDATION_ERROR,
         message: "S3 bucket, region, access key, and secret are required",
+        details: {
+          messageKey: "config.errors.s3RequiredFields",
+        },
       };
     }
 
@@ -548,6 +555,7 @@ export class ConfigService {
         details: {
           from: profiles[index].repoSettings.provider,
           to: updates.repoSettings.provider,
+          messageKey: "config.errors.repoProviderCannotChange",
         },
       };
     }

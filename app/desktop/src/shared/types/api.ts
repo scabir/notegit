@@ -2,6 +2,7 @@ import type { FileTreeNode, FileContent } from "./domain";
 import type { RepoSettings, FullConfig, AppSettings, Profile } from "./config";
 import type { RepoStatus, CommitEntry, DiffHunk } from "./git";
 import type { I18nBundle, I18nMeta } from "./i18n";
+import type { CommitAndPushAllResponse } from "./files";
 export interface ApiResponse<T> {
   ok: boolean;
   data?: T;
@@ -103,7 +104,7 @@ export interface NotegitApi {
     >;
     commit: (path: string, message: string) => Promise<ApiResponse<void>>;
     commitAll: (message: string) => Promise<ApiResponse<void>>;
-    commitAndPushAll: () => Promise<ApiResponse<{ message: string }>>;
+    commitAndPushAll: () => Promise<ApiResponse<CommitAndPushAllResponse>>;
     create: (parentPath: string, name: string) => Promise<ApiResponse<void>>;
     createFile: (
       parentPath: string,

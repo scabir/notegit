@@ -1,4 +1,4 @@
-import enGbCommitDialog from "../../i18n/en-GB/commitDialog.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 export const COMMIT_DIALOG_KEYS = {
   title: "commitDialog.title",
@@ -12,14 +12,16 @@ export const COMMIT_DIALOG_KEYS = {
   commitFailed: "commitDialog.commitFailed",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const COMMIT_DIALOG_TEXT = {
-  title: enGbCommitDialog.title,
-  messageLabel: enGbCommitDialog.messageLabel,
-  messagePlaceholder: enGbCommitDialog.messagePlaceholder,
-  helperText: enGbCommitDialog.helperText,
-  cancel: enGbCommitDialog.cancel,
-  confirm: enGbCommitDialog.confirm,
-  loading: enGbCommitDialog.loading,
-  emptyMessageError: enGbCommitDialog.emptyMessageError,
-  commitFailed: enGbCommitDialog.commitFailed,
+  title: defaultText(COMMIT_DIALOG_KEYS.title),
+  messageLabel: defaultText(COMMIT_DIALOG_KEYS.messageLabel),
+  messagePlaceholder: defaultText(COMMIT_DIALOG_KEYS.messagePlaceholder),
+  helperText: defaultText(COMMIT_DIALOG_KEYS.helperText),
+  cancel: defaultText(COMMIT_DIALOG_KEYS.cancel),
+  confirm: defaultText(COMMIT_DIALOG_KEYS.confirm),
+  loading: defaultText(COMMIT_DIALOG_KEYS.loading),
+  emptyMessageError: defaultText(COMMIT_DIALOG_KEYS.emptyMessageError),
+  commitFailed: defaultText(COMMIT_DIALOG_KEYS.commitFailed),
 } as const;

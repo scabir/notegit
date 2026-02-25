@@ -1,5 +1,5 @@
 import { registerFilesHandlers } from "../../../backend/handlers/filesHandlers";
-import { REPO_PROVIDERS } from "../../../shared/types";
+import { COMMIT_AND_PUSH_RESULTS, REPO_PROVIDERS } from "../../../shared/types";
 
 describe("filesHandlers", () => {
   const createIpcMain = () => {
@@ -192,6 +192,7 @@ describe("filesHandlers", () => {
 
     expect(response.ok).toBe(true);
     expect(response.data?.message).toBe("Synced successfully");
+    expect(response.data?.result).toBe(COMMIT_AND_PUSH_RESULTS.SYNCED);
     expect(repoService.push).toHaveBeenCalled();
     expect(filesService.commitAll).not.toHaveBeenCalled();
   });
@@ -242,6 +243,9 @@ describe("filesHandlers", () => {
 
     expect(response.ok).toBe(true);
     expect(response.data?.message).toBe("Nothing to commit");
+    expect(response.data?.result).toBe(
+      COMMIT_AND_PUSH_RESULTS.NOTHING_TO_COMMIT,
+    );
     expect(filesService.commitAll).not.toHaveBeenCalled();
     expect(repoService.push).not.toHaveBeenCalled();
   });
@@ -272,6 +276,9 @@ describe("filesHandlers", () => {
     expect(repoService.push).toHaveBeenCalled();
     expect(response.data?.message).toBe(
       "Changes committed and pushed successfully",
+    );
+    expect(response.data?.result).toBe(
+      COMMIT_AND_PUSH_RESULTS.COMMITTED_AND_PUSHED,
     );
   });
 

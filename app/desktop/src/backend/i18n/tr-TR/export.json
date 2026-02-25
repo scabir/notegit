@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "Notu Dışa Aktar",
+    "exportRepoZipTitle": "Depoyu Zip Olarak Dışa Aktar",
+    "markdownFiles": "Markdown Dosyaları",
+    "textFiles": "Metin Dosyaları",
+    "zipArchives": "Zip Arşivleri",
+    "allFiles": "Tüm Dosyalar"
+  },
+  "errors": {
+    "cancelled": "Dışa aktarma iptal edildi",
+    "failedExportNote": "Not dışa aktarılamadı",
+    "failedExportRepositoryZip": "Depo zip olarak dışa aktarılamadı",
+    "failedExportNoteTemplate": "Not dışa aktarılamadı: {message}",
+    "failedExportRepoTemplate": "Depo dışa aktarılamadı: {message}",
+    "noRepositoryConfigured": "Yapılandırılmış depo yok"
+  }
+}

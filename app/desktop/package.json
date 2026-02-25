@@ -1,6 +1,6 @@
 {
   "name": "notegit",
-  "version": "2.7.8",
+  "version": "2.8.0",
   "packageManager": "pnpm@10.28.0",
   "description": "A Git-backed Markdown note-taking desktop application",
   "homepage": "https://github.com/scabir/notegit",

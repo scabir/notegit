@@ -19,7 +19,11 @@ import type {
   FileContent,
   RepoStatus,
 } from "../../../shared/types";
-import { FileType, REPO_PROVIDERS } from "../../../shared/types";
+import {
+  COMMIT_AND_PUSH_RESULTS,
+  FileType,
+  REPO_PROVIDERS,
+} from "../../../shared/types";
 import { startS3AutoSync } from "../../utils/s3AutoSync";
 import { useI18n } from "../../i18n";
 import {
@@ -822,7 +826,9 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         const response = await window.notegitApi.files.commitAndPushAll();
 
         if (response.ok) {
-          if (response.data?.message === "Nothing to commit") {
+          if (
+            response.data?.result === COMMIT_AND_PUSH_RESULTS.NOTHING_TO_COMMIT
+          ) {
             setSaveStatus("idle");
             setSaveMessage(message("nothingToCommit"));
           } else {

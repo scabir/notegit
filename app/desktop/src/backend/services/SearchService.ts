@@ -33,11 +33,30 @@ export class SearchService {
     code: ApiErrorCode,
     message: string,
     details: any,
+    localization?: {
+      messageKey: string;
+      messageParams?: Record<string, string | number | boolean>;
+    },
   ): ApiError {
+    const baseDetails =
+      details && typeof details === "object" && !Array.isArray(details)
+        ? { ...details }
+        : details !== undefined
+          ? { cause: details }
+          : {};
+
+    const enrichedDetails = localization
+      ? {
+          ...baseDetails,
+          messageKey: localization.messageKey,
+          messageParams: localization.messageParams,
+        }
+      : details;
+
     return {
       code,
       message,
-      details,
+      details: enrichedDetails,
     };
   }
 
@@ -47,6 +66,9 @@ export class SearchService {
         ApiErrorCode.REPO_NOT_INITIALIZED,
         "Repository not initialized",
         null,
+        {
+          messageKey: "search.errors.repositoryNotInitialized",
+        },
       );
     }
   }
@@ -123,6 +145,9 @@ export class SearchService {
         ApiErrorCode.UNKNOWN_ERROR,
         "Search failed",
         error,
+        {
+          messageKey: "search.errors.searchFailed",
+        },
       );
     }
   }
@@ -255,6 +280,12 @@ export class SearchService {
         ApiErrorCode.UNKNOWN_ERROR,
         `Repo-wide search failed: ${error.message}`,
         error,
+        {
+          messageKey: "search.errors.repoWideSearchFailedTemplate",
+          messageParams: {
+            message: error.message,
+          },
+        },
       );
     }
   }
@@ -338,6 +369,12 @@ export class SearchService {
         ApiErrorCode.UNKNOWN_ERROR,
         `Repo-wide replace failed: ${error.message}`,
         error,
+        {
+          messageKey: "search.errors.repoWideReplaceFailedTemplate",
+          messageParams: {
+            message: error.message,
+          },
+        },
       );
     }
   }

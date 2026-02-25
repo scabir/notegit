@@ -1,4 +1,4 @@
-import enGbFindReplaceBar from "../../i18n/en-GB/findReplaceBar.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 type TranslateFn = (key: string) => string;
 
@@ -13,6 +13,8 @@ export const FIND_REPLACE_KEYS = {
   close: "findReplaceBar.close",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const buildFindReplaceText = (t: TranslateFn) => ({
   findPlaceholder: t(FIND_REPLACE_KEYS.findPlaceholder),
   replacePlaceholder: t(FIND_REPLACE_KEYS.replacePlaceholder),
@@ -25,12 +27,12 @@ export const buildFindReplaceText = (t: TranslateFn) => ({
 });
 
 export const FIND_REPLACE_TEXT = {
-  findPlaceholder: enGbFindReplaceBar.findPlaceholder,
-  replacePlaceholder: enGbFindReplaceBar.replacePlaceholder,
-  noMatches: enGbFindReplaceBar.noMatches,
-  findPrevious: enGbFindReplaceBar.findPrevious,
-  findNext: enGbFindReplaceBar.findNext,
-  replaceCurrent: enGbFindReplaceBar.replaceCurrent,
-  replaceAll: enGbFindReplaceBar.replaceAll,
-  close: enGbFindReplaceBar.close,
+  findPlaceholder: defaultText(FIND_REPLACE_KEYS.findPlaceholder),
+  replacePlaceholder: defaultText(FIND_REPLACE_KEYS.replacePlaceholder),
+  noMatches: defaultText(FIND_REPLACE_KEYS.noMatches),
+  findPrevious: defaultText(FIND_REPLACE_KEYS.findPrevious),
+  findNext: defaultText(FIND_REPLACE_KEYS.findNext),
+  replaceCurrent: defaultText(FIND_REPLACE_KEYS.replaceCurrent),
+  replaceAll: defaultText(FIND_REPLACE_KEYS.replaceAll),
+  close: defaultText(FIND_REPLACE_KEYS.close),
 } as const;

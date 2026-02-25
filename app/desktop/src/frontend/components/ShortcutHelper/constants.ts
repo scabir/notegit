@@ -1,4 +1,4 @@
-import enGbShortcutHelper from "../../i18n/en-GB/shortcutHelper.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 type TranslateFn = (key: string) => string;
 
@@ -6,6 +6,8 @@ export const SHORTCUT_HELPER_KEYS = {
   title: "shortcutHelper.title",
   footer: "shortcutHelper.footer",
 } as const;
+
+const defaultText = (key: string): string => getDefaultTranslation(key);
 
 export const SHORTCUT_HELPER_SECTIONS = [
   {
@@ -125,6 +127,6 @@ export const buildShortcutHelperSections = (t: TranslateFn) =>
   }));
 
 export const SHORTCUT_HELPER_TEXT = {
-  title: enGbShortcutHelper.title,
-  footer: enGbShortcutHelper.footer,
+  title: defaultText(SHORTCUT_HELPER_KEYS.title),
+  footer: defaultText(SHORTCUT_HELPER_KEYS.footer),
 } as const;

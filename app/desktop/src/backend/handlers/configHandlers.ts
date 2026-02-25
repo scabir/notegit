@@ -11,13 +11,25 @@ import { ConfigService } from "../services/ConfigService";
 import { RepoService } from "../services/RepoService";
 import { GitAdapter } from "../adapters/GitAdapter";
 import { logger } from "../utils/logger";
+import {
+  BackendTranslate,
+  createFallbackBackendTranslator,
+} from "../i18n/backendTranslator";
+import { localizeApiError } from "../i18n/localizeApiError";
 
 export function registerConfigHandlers(
   ipcMain: IpcMain,
   configService: ConfigService,
   repoService: RepoService,
   gitAdapter: GitAdapter,
+  translate: BackendTranslate = createFallbackBackendTranslator(),
 ): void {
+  const t = (
+    key: string,
+    fallback?: string,
+    params?: Record<string, string | number | boolean>,
+  ): Promise<string> => translate(key, { fallback, params });
+
   ipcMain.handle(
     "config:getFull",
     async (): Promise<ApiResponse<FullConfig>> => {
@@ -33,7 +45,10 @@ export function registerConfigHandlers(
           ok: false,
           error: {
             code: ApiErrorCode.UNKNOWN_ERROR,
-            message: "Failed to load configuration",
+            message: await t(
+              "config.errors.failedLoadConfiguration",
+              "Failed to load configuration",
+            ),
             details: error,
           },
         };
@@ -63,7 +78,10 @@ export function registerConfigHandlers(
           ok: false,
           error: {
             code: ApiErrorCode.UNKNOWN_ERROR,
-            message: "Failed to update app settings",
+            message: await t(
+              "config.errors.failedUpdateAppSettings",
+              "Failed to update app settings",
+            ),
             details: error,
           },
         };
@@ -84,10 +102,13 @@ export function registerConfigHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: "Failed to update repository settings",
+                message: await t(
+                  "config.errors.failedUpdateRepositorySettings",
+                  "Failed to update repository settings",
+                ),
                 details: error,
               },
         };
@@ -110,7 +131,10 @@ export function registerConfigHandlers(
           ok: false,
           error: {
             code: ApiErrorCode.UNKNOWN_ERROR,
-            message: "Failed to load application settings",
+            message: await t(
+              "config.errors.failedLoadApplicationSettings",
+              "Failed to load application settings",
+            ),
             details: error,
           },
         };
@@ -152,7 +176,10 @@ export function registerConfigHandlers(
           ok: false,
           error: {
             code: ApiErrorCode.UNKNOWN_ERROR,
-            message: "Failed to load favorites",
+            message: await t(
+              "config.errors.failedLoadFavorites",
+              "Failed to load favorites",
+            ),
             details: error,
           },
         };
@@ -174,7 +201,10 @@ export function registerConfigHandlers(
           ok: false,
           error: {
             code: ApiErrorCode.UNKNOWN_ERROR,
-            message: "Failed to save favorites",
+            message: await t(
+              "config.errors.failedSaveFavorites",
+              "Failed to save favorites",
+            ),
             details: error,
           },
         };
@@ -197,7 +227,10 @@ export function registerConfigHandlers(
           ok: false,
           error: {
             code: ApiErrorCode.UNKNOWN_ERROR,
-            message: "Failed to load profiles",
+            message: await t(
+              "config.errors.failedLoadProfiles",
+              "Failed to load profiles",
+            ),
             details: error,
           },
         };
@@ -220,7 +253,10 @@ export function registerConfigHandlers(
           ok: false,
           error: {
             code: ApiErrorCode.UNKNOWN_ERROR,
-            message: "Failed to load active profile ID",
+            message: await t(
+              "config.errors.failedLoadActiveProfileId",
+              "Failed to load active profile ID",
+            ),
             details: error,
           },
         };
@@ -254,10 +290,18 @@ export function registerConfigHandlers(
           return {
             ok: false,
             error: prepareError.code
-              ? prepareError
+              ? await localizeApiError(prepareError, translate)
               : {
                   code: ApiErrorCode.UNKNOWN_ERROR,
-                  message: `Failed to prepare repository: ${prepareError.message || "Unknown error"}`,
+                  message: await t(
+                    "config.errors.failedPrepareRepositoryTemplate",
+                    "Failed to prepare repository: {message}",
+                    {
+                      message:
+                        prepareError.message ||
+                        (await t("common.errors.unknown")),
+                    },
+                  ),
                   details: prepareError,
                 },
           };
@@ -272,10 +316,17 @@ export function registerConfigHandlers(
         return {
           ok: false,
           error: error.code
-            ? error
+            ? await localizeApiError(error, translate)
             : {
                 code: ApiErrorCode.UNKNOWN_ERROR,
-                message: `Failed to create profile: ${error.message || "Unknown error"}`,
+                message: await t(
+                  "config.errors.failedCreateProfileTemplate",
+                  "Failed to create profile: {message}",
+                  {
+                    message:
+                      error.message || (await t("common.errors.unknown")),
+                  },
+                ),
                 details: error,
               },
         };
@@ -297,7 +348,10 @@ export function registerConfigHandlers(
           ok: false,
           error: {
             code: ApiErrorCode.UNKNOWN_ERROR,
-            message: "Failed to delete profile",
+            message: await t(
+              "config.errors.failedDeleteProfile",
+              "Failed to delete profile",
+            ),
             details: error,
           },
         };
@@ -319,7 +373,10 @@ export function registerConfigHandlers(
           ok: false,
           error: {
             code: ApiErrorCode.UNKNOWN_ERROR,
-            message: "Failed to set active profile",
+            message: await t(
+              "config.errors.failedSetActiveProfile",
+              "Failed to set active profile",
+            ),
             details: error,
           },
         };

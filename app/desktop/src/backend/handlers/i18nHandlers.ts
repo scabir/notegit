@@ -9,6 +9,10 @@ import {
 import { ConfigService } from "../services/ConfigService";
 import { TranslationService } from "../services/TranslationService";
 import { logger } from "../utils/logger";
+import {
+  BackendTranslate,
+  createFallbackBackendTranslator,
+} from "../i18n/backendTranslator";
 
 const isLocaleSupported = (
   locale: string,
@@ -19,7 +23,14 @@ export function registerI18nHandlers(
   ipcMain: IpcMain,
   translationService: TranslationService,
   configService: ConfigService,
+  translate: BackendTranslate = createFallbackBackendTranslator(),
 ): void {
+  const t = (
+    key: string,
+    fallback?: string,
+    params?: Record<string, string | number | boolean>,
+  ): Promise<string> => translate(key, { fallback, params });
+
   ipcMain.handle("i18n:getMeta", async (): Promise<ApiResponse<I18nMeta>> => {
     try {
       const supportedLocales =
@@ -42,7 +53,10 @@ export function registerI18nHandlers(
         ok: false,
         error: {
           code: ApiErrorCode.UNKNOWN_ERROR,
-          message: "Failed to load i18n metadata",
+          message: await t(
+            "i18n.errors.failedLoadMetadata",
+            "Failed to load i18n metadata",
+          ),
           details: error,
         },
       };
@@ -70,7 +84,10 @@ export function registerI18nHandlers(
           ok: false,
           error: {
             code: ApiErrorCode.UNKNOWN_ERROR,
-            message: "Failed to load frontend translations",
+            message: await t(
+              "i18n.errors.failedLoadFrontendTranslations",
+              "Failed to load frontend translations",
+            ),
             details: error,
           },
         };
@@ -88,7 +105,10 @@ export function registerI18nHandlers(
             ok: false,
             error: {
               code: ApiErrorCode.VALIDATION_ERROR,
-              message: "Language is required",
+              message: await t(
+                "i18n.errors.languageRequired",
+                "Language is required",
+              ),
             },
           };
         }
@@ -100,7 +120,13 @@ export function registerI18nHandlers(
             ok: false,
             error: {
               code: ApiErrorCode.VALIDATION_ERROR,
-              message: `Unsupported language: ${normalizedLanguage}`,
+              message: await t(
+                "i18n.errors.unsupportedLanguage",
+                "Unsupported language: {language}",
+                {
+                  language: normalizedLanguage,
+                },
+              ),
               details: { supportedLocales },
             },
           };
@@ -116,7 +142,10 @@ export function registerI18nHandlers(
           ok: false,
           error: {
             code: ApiErrorCode.UNKNOWN_ERROR,
-            message: "Failed to set language",
+            message: await t(
+              "i18n.errors.failedSetLanguage",
+              "Failed to set language",
+            ),
             details: error,
           },
         };

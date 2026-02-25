@@ -1,4 +1,4 @@
-import enGbRepoSearchDialog from "../../i18n/en-GB/repoSearchDialog.json";
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
 
 export const REPO_SEARCH_KEYS = {
   title: "repoSearchDialog.title",
@@ -30,25 +30,29 @@ export const REPO_SEARCH_KEYS = {
   extraMatchesTemplate: "repoSearchDialog.extraMatchesTemplate",
 } as const;
 
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
 export const REPO_SEARCH_TEXT = {
-  title: enGbRepoSearchDialog.title,
-  findLabel: enGbRepoSearchDialog.findLabel,
-  findPlaceholder: enGbRepoSearchDialog.findPlaceholder,
-  replaceLabel: enGbRepoSearchDialog.replaceLabel,
-  replacePlaceholder: enGbRepoSearchDialog.replacePlaceholder,
-  caseSensitive: enGbRepoSearchDialog.caseSensitive,
-  useRegex: enGbRepoSearchDialog.useRegex,
-  searching: enGbRepoSearchDialog.searching,
-  searchButton: enGbRepoSearchDialog.searchButton,
-  replaceAllButton: enGbRepoSearchDialog.replaceAllButton,
-  replaceInFile: enGbRepoSearchDialog.replaceInFile,
-  close: enGbRepoSearchDialog.close,
-  searchFailed: enGbRepoSearchDialog.searchFailed,
-  replaceFailed: enGbRepoSearchDialog.replaceFailed,
-  emptyQueryError: enGbRepoSearchDialog.emptyQueryError,
-  replaceMissingError: enGbRepoSearchDialog.replaceMissingError,
-  noMatches: enGbRepoSearchDialog.noMatches,
-  replaceAllTooltip: enGbRepoSearchDialog.replaceAllTooltip,
-  repoSearchHint: enGbRepoSearchDialog.repoSearchHint,
-  replaceAllConfirmSuffix: enGbRepoSearchDialog.replaceAllConfirmSuffix,
+  title: defaultText(REPO_SEARCH_KEYS.title),
+  findLabel: defaultText(REPO_SEARCH_KEYS.findLabel),
+  findPlaceholder: defaultText(REPO_SEARCH_KEYS.findPlaceholder),
+  replaceLabel: defaultText(REPO_SEARCH_KEYS.replaceLabel),
+  replacePlaceholder: defaultText(REPO_SEARCH_KEYS.replacePlaceholder),
+  caseSensitive: defaultText(REPO_SEARCH_KEYS.caseSensitive),
+  useRegex: defaultText(REPO_SEARCH_KEYS.useRegex),
+  searching: defaultText(REPO_SEARCH_KEYS.searching),
+  searchButton: defaultText(REPO_SEARCH_KEYS.searchButton),
+  replaceAllButton: defaultText(REPO_SEARCH_KEYS.replaceAllButton),
+  replaceInFile: defaultText(REPO_SEARCH_KEYS.replaceInFile),
+  close: defaultText(REPO_SEARCH_KEYS.close),
+  searchFailed: defaultText(REPO_SEARCH_KEYS.searchFailed),
+  replaceFailed: defaultText(REPO_SEARCH_KEYS.replaceFailed),
+  emptyQueryError: defaultText(REPO_SEARCH_KEYS.emptyQueryError),
+  replaceMissingError: defaultText(REPO_SEARCH_KEYS.replaceMissingError),
+  noMatches: defaultText(REPO_SEARCH_KEYS.noMatches),
+  replaceAllTooltip: defaultText(REPO_SEARCH_KEYS.replaceAllTooltip),
+  repoSearchHint: defaultText(REPO_SEARCH_KEYS.repoSearchHint),
+  replaceAllConfirmSuffix: defaultText(
+    REPO_SEARCH_KEYS.replaceAllConfirmSuffix,
+  ),
 } as const;

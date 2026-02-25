@@ -60,6 +60,10 @@ export class S3Adapter {
           : ApiErrorCode.S3_SYNC_FAILED,
         `Failed to get bucket versioning: ${error.message || "Unknown error"}`,
         error,
+        {
+          messageKey: "s3.errors.failedGetBucketVersioning",
+          messageParams: { message: error.message || "Unknown error" },
+        },
       );
     }
   }
@@ -106,6 +110,10 @@ export class S3Adapter {
           : ApiErrorCode.S3_SYNC_FAILED,
         `Failed to list objects: ${error.message || "Unknown error"}`,
         error,
+        {
+          messageKey: "s3.errors.failedListObjects",
+          messageParams: { message: error.message || "Unknown error" },
+        },
       );
     }
   }
@@ -162,6 +170,10 @@ export class S3Adapter {
           : ApiErrorCode.S3_SYNC_FAILED,
         `Failed to list object versions: ${error.message || "Unknown error"}`,
         error,
+        {
+          messageKey: "s3.errors.failedListObjectVersions",
+          messageParams: { message: error.message || "Unknown error" },
+        },
       );
     }
   }
@@ -206,6 +218,10 @@ export class S3Adapter {
           : ApiErrorCode.S3_SYNC_FAILED,
         `Failed to get object: ${error.message || "Unknown error"}`,
         error,
+        {
+          messageKey: "s3.errors.failedGetObject",
+          messageParams: { message: error.message || "Unknown error" },
+        },
       );
     }
   }
@@ -235,6 +251,10 @@ export class S3Adapter {
           : ApiErrorCode.S3_SYNC_FAILED,
         `Failed to upload object: ${error.message || "Unknown error"}`,
         error,
+        {
+          messageKey: "s3.errors.failedUploadObject",
+          messageParams: { message: error.message || "Unknown error" },
+        },
       );
     }
   }
@@ -265,6 +285,10 @@ export class S3Adapter {
           : ApiErrorCode.S3_SYNC_FAILED,
         `Failed to read object metadata: ${error.message || "Unknown error"}`,
         error,
+        {
+          messageKey: "s3.errors.failedReadObjectMetadata",
+          messageParams: { message: error.message || "Unknown error" },
+        },
       );
     }
   }
@@ -288,6 +312,10 @@ export class S3Adapter {
           : ApiErrorCode.S3_SYNC_FAILED,
         `Failed to delete object: ${error.message || "Unknown error"}`,
         error,
+        {
+          messageKey: "s3.errors.failedDeleteObject",
+          messageParams: { message: error.message || "Unknown error" },
+        },
       );
     }
   }
@@ -298,6 +326,9 @@ export class S3Adapter {
         ApiErrorCode.S3_SYNC_FAILED,
         "S3 adapter is not configured",
         null,
+        {
+          messageKey: "s3.errors.notConfigured",
+        },
       );
     }
     return this.client;
@@ -309,6 +340,9 @@ export class S3Adapter {
         ApiErrorCode.S3_SYNC_FAILED,
         "S3 bucket is not configured",
         null,
+        {
+          messageKey: "s3.errors.bucketNotConfigured",
+        },
       );
     }
     return this.settings.bucket;
@@ -338,11 +372,30 @@ export class S3Adapter {
     code: ApiErrorCode,
     message: string,
     details?: any,
+    localization?: {
+      messageKey: string;
+      messageParams?: Record<string, string | number | boolean>;
+    },
   ): ApiError {
+    const baseDetails =
+      details && typeof details === "object" && !Array.isArray(details)
+        ? { ...details }
+        : details !== undefined
+          ? { cause: details }
+          : {};
+
+    const enrichedDetails = localization
+      ? {
+          ...baseDetails,
+          messageKey: localization.messageKey,
+          messageParams: localization.messageParams,
+        }
+      : details;
+
     return {
       code,
       message,
-      details,
+      details: enrichedDetails,
     };
   }
 }

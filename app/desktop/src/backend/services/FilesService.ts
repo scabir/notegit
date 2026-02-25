@@ -97,6 +97,9 @@ export class FilesService {
         ApiErrorCode.UNKNOWN_ERROR,
         "GitAdapter not initialized",
         null,
+        {
+          messageKey: "files.errors.gitAdapterNotInitialized",
+        },
       );
     }
 
@@ -123,6 +126,9 @@ export class FilesService {
         ApiErrorCode.UNKNOWN_ERROR,
         "GitAdapter not initialized",
         null,
+        {
+          messageKey: "files.errors.gitAdapterNotInitialized",
+        },
       );
     }
 
@@ -153,6 +159,9 @@ export class FilesService {
         ApiErrorCode.UNKNOWN_ERROR,
         "GitAdapter not initialized",
         null,
+        {
+          messageKey: "files.errors.gitAdapterNotInitialized",
+        },
       );
     }
 
@@ -189,6 +198,9 @@ export class FilesService {
         ApiErrorCode.UNKNOWN_ERROR,
         "GitAdapter not initialized",
         null,
+        {
+          messageKey: "files.errors.gitAdapterNotInitialized",
+        },
       );
     }
 
@@ -358,6 +370,10 @@ export class FilesService {
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
         "Only files can be duplicated",
+        null,
+        {
+          messageKey: "files.errors.onlyFilesCanBeDuplicated",
+        },
       );
     }
 
@@ -548,6 +564,9 @@ export class FilesService {
         ApiErrorCode.VALIDATION_ERROR,
         "No repository configured",
         null,
+        {
+          messageKey: "files.errors.noRepositoryConfigured",
+        },
       );
     }
   }
@@ -562,6 +581,12 @@ export class FilesService {
         ApiErrorCode.REPO_PROVIDER_MISMATCH,
         "Git operations are only available for Git repositories",
         { provider: repoSettings.provider },
+        {
+          messageKey: "files.errors.gitOnlyOperation",
+          messageParams: {
+            provider: repoSettings.provider,
+          },
+        },
       );
     }
   }
@@ -591,11 +616,30 @@ export class FilesService {
     code: ApiErrorCode,
     message: string,
     details?: any,
+    localization?: {
+      messageKey: string;
+      messageParams?: Record<string, string | number | boolean>;
+    },
   ): ApiError {
+    const baseDetails =
+      details && typeof details === "object" && !Array.isArray(details)
+        ? { ...details }
+        : details !== undefined
+          ? { cause: details }
+          : {};
+
+    const enrichedDetails = localization
+      ? {
+          ...baseDetails,
+          messageKey: localization.messageKey,
+          messageParams: localization.messageParams,
+        }
+      : details;
+
     return {
       code,
       message,
-      details,
+      details: enrichedDetails,
     };
   }
 }
