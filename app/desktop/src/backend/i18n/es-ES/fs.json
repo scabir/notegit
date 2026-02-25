@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "Archivo no encontrado: {path}",
+    "directoryNotFound": "Directorio no encontrado: {path}",
+    "pathNotFound": "Ruta no encontrada: {path}",
+    "sourceFileNotFound": "Archivo de origen no encontrado: {path}",
+    "permissionDenied": "Permiso denegado",
+    "permissionDeniedPath": "Permiso denegado: {path}",
+    "failedReadFile": "No se pudo leer el archivo: {path}",
+    "failedWriteFile": "No se pudo escribir el archivo: {path}",
+    "failedDeleteFile": "No se pudo eliminar el archivo: {path}",
+    "failedRename": "No se pudo renombrar de {from} a {to}",
+    "failedCreateDirectory": "No se pudo crear el directorio: {path}",
+    "failedDeleteDirectory": "No se pudo eliminar el directorio: {path}",
+    "failedReadDirectory": "No se pudo leer el directorio: {path}",
+    "failedStat": "No se pudo obtener información de: {path}",
+    "failedCopyFile": "No se pudo copiar el archivo de {from} a {to}"
+  }
+}

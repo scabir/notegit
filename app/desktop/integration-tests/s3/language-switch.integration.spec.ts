@@ -1,15 +1,30 @@
 import { expect, test } from "@playwright/test";
-import type { ElectronApplication } from "@playwright/test";
+import type { ElectronApplication, Page } from "@playwright/test";
 import {
+  apiGetFrontendBundle,
   apiGetFullConfig,
   cleanupUserDataDir,
   closeAppIfOpen,
   closeSettingsDialog,
   connectS3Repo,
   createIsolatedUserDataDir,
+  getBundleString,
   launchS3IntegrationApp,
   switchAppLanguageFromSettings,
 } from "../helpers/gitIntegration";
+
+const SWITCH_SEQUENCE = ["tr-TR", "es-ES", "en-GB"] as const;
+
+const expectS3LocaleApplied = async (page: Page, expectedLocale: string) => {
+  const bundle = await apiGetFrontendBundle(page);
+  expect(bundle.locale).toBe(expectedLocale);
+
+  const bucketLabel = getBundleString(bundle, "statusBar.bucketLabel");
+  await expect(page.getByTestId("status-bar-branch-label")).toContainText(
+    `${bucketLabel}:`,
+  );
+  return bundle;
+};
 
 test("(S3) language switch localizes bucket label and settings UI", async ({
   request: _request,
@@ -23,29 +38,21 @@ test("(S3) language switch localizes bucket label and settings UI", async ({
     const page = launched.page;
 
     await connectS3Repo(page);
-    await expect(page.getByTestId("status-bar-branch-label")).toContainText(
-      "Bucket:",
-    );
+    await expectS3LocaleApplied(page, "en-GB");
 
-    await switchAppLanguageFromSettings(page, "tr-TR");
-    await expect(
-      page.getByRole("tab", { name: "Uygulama Ayarları" }),
-    ).toBeVisible();
-    await closeSettingsDialog(page);
-    await expect(page.getByTestId("status-bar-branch-label")).toContainText(
-      "Kova:",
-    );
-    const trConfig = await apiGetFullConfig(page);
-    expect(trConfig.appSettings.language).toBe("tr-TR");
+    for (const locale of SWITCH_SEQUENCE) {
+      await switchAppLanguageFromSettings(page, locale);
+      const bundle = await expectS3LocaleApplied(page, locale);
+      await expect(
+        page.getByRole("heading", {
+          name: getBundleString(bundle, "settingsDialog.title"),
+        }),
+      ).toBeVisible();
+      await closeSettingsDialog(page);
 
-    await switchAppLanguageFromSettings(page, "en-GB");
-    await expect(page.getByRole("tab", { name: "App Settings" })).toBeVisible();
-    await closeSettingsDialog(page);
-    await expect(page.getByTestId("status-bar-branch-label")).toContainText(
-      "Bucket:",
-    );
-    const enConfig = await apiGetFullConfig(page);
-    expect(enConfig.appSettings.language).toBe("en-GB");
+      const config = await apiGetFullConfig(page);
+      expect(config.appSettings.language).toBe(locale);
+    }
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);

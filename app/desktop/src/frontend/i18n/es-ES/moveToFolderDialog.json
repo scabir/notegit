@@ -1,0 +1,16 @@
+{
+  "title": "Mover elemento",
+  "movingLabel": "Moviendo",
+  "currentLocationLabel": "Ubicación actual",
+  "selectDestination": "Selecciona la carpeta de destino:",
+  "rootLabel": "Directorio raíz",
+  "noFolders": "No hay carpetas en el repositorio",
+  "cancel": "Cancelar",
+  "confirm": "Mover aquí",
+  "rootFallback": "raíz",
+  "errors": {
+    "selectDestination": "Selecciona una carpeta de destino",
+    "sameLocation": "El elemento ya está en esta ubicación",
+    "duplicateItemTemplate": "Ya existe un elemento llamado \"{name}\" en la carpeta de destino"
+  }
+}

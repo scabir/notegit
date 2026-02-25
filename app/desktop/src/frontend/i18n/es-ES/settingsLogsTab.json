@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "Registros de la aplicación",
+  "info": "Los registros se almacenan localmente por día e incluyen operaciones de Git/S3, errores y eventos de sincronización.",
+  "logsFolderLabel": "Carpeta de registros",
+  "openFolderButton": "Abrir carpeta",
+  "copyLogsFolderAriaLabel": "copiar carpeta de registros"
+}

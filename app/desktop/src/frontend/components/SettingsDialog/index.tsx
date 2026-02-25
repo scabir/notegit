@@ -560,12 +560,21 @@ export function SettingsDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      data-testid="settings-dialog"
+    >
       <DialogTitle>{t(SETTINGS_KEYS.title)}</DialogTitle>
       <DialogContent>
         <Box sx={tabHeaderSx}>
           <Tabs value={tabValue} onChange={handleTabChange}>
-            <Tab label={t(SETTINGS_KEYS.tabAppSettings)} />
+            <Tab
+              data-testid="settings-tab-app-settings"
+              label={t(SETTINGS_KEYS.tabAppSettings)}
+            />
             <Tab label={t(SETTINGS_KEYS.tabRepository)} />
             <Tab label={t(SETTINGS_KEYS.tabProfiles)} />
             <Tab label={t(SETTINGS_KEYS.tabExport)} />
@@ -692,7 +701,11 @@ export function SettingsDialog({
         </TabPanel>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "flex-end", px: 3 }}>
-        <Button onClick={onClose} variant="contained">
+        <Button
+          data-testid="settings-close-button"
+          onClick={onClose}
+          variant="contained"
+        >
           {t(SETTINGS_KEYS.close)}
         </Button>
       </DialogActions>

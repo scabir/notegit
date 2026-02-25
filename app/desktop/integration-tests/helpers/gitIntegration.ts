@@ -47,6 +47,13 @@ type ApiResponsePayload<T> = {
   error?: ApiErrorPayload;
 };
 
+type FrontendBundlePayload = {
+  requestedLocale: string;
+  locale: string;
+  fallbackLocale: string;
+  translations: Record<string, unknown>;
+};
+
 const getModKey = () => (process.platform === "darwin" ? "Meta" : "Control");
 
 export const createIsolatedUserDataDir = async (
@@ -259,39 +266,24 @@ export const clickPush = async (page: Page): Promise<void> => {
   await page.getByTestId("status-bar-push-action").click();
 };
 
-const SETTINGS_TITLE_REGEX = /^(Settings|Ayarlar)$/;
-const SETTINGS_SAVE_APP_BUTTON_REGEX =
-  /^(Save App Settings|Uygulama Ayarlarını Kaydet)$/;
-const SETTINGS_CLOSE_BUTTON_REGEX = /^(Close|Kapat)$/;
-const SETTINGS_APP_TAB_REGEX = /^(App Settings|Uygulama Ayarları)$/;
-
-const getLanguageOptionRegex = (locale: "en-GB" | "tr-TR"): RegExp => {
-  if (locale === "tr-TR") {
-    return /^Türkçe$/;
-  }
-
-  return /^English \(UK\)$/;
-};
+const SETTINGS_DIALOG_TEST_ID = "settings-dialog";
+const SETTINGS_CLOSE_BUTTON_TEST_ID = "settings-close-button";
+const SETTINGS_APP_TAB_TEST_ID = "settings-tab-app-settings";
+const SETTINGS_LANGUAGE_SELECT_TEST_ID = "settings-language-select";
+const SETTINGS_SAVE_APP_BUTTON_TEST_ID = "settings-save-app-button";
 
 export const openSettingsDialog = async (page: Page): Promise<void> => {
   await page.getByTestId("status-bar-settings-action").click();
-  await expect(
-    page.getByRole("heading", { name: SETTINGS_TITLE_REGEX }),
-  ).toBeVisible();
+  await expect(page.getByTestId(SETTINGS_DIALOG_TEST_ID)).toBeVisible();
 };
 
 export const closeSettingsDialog = async (page: Page): Promise<void> => {
-  const settingsDialog = page.getByRole("dialog").filter({
-    has: page.getByRole("heading", { name: SETTINGS_TITLE_REGEX }),
-  });
+  const settingsDialog = page.getByTestId(SETTINGS_DIALOG_TEST_ID);
   if ((await settingsDialog.count()) === 0) {
     return;
   }
 
-  const closeButton = settingsDialog
-    .locator("button")
-    .filter({ hasText: SETTINGS_CLOSE_BUTTON_REGEX })
-    .last();
+  const closeButton = settingsDialog.getByTestId(SETTINGS_CLOSE_BUTTON_TEST_ID);
   await expect(closeButton).toBeVisible();
   await closeButton.click();
 
@@ -300,34 +292,33 @@ export const closeSettingsDialog = async (page: Page): Promise<void> => {
 
 export const switchAppLanguageFromSettings = async (
   page: Page,
-  locale: "en-GB" | "tr-TR",
+  locale: string,
 ): Promise<void> => {
   await openSettingsDialog(page);
 
-  const settingsDialog = page.getByRole("dialog").last();
-  const appSettingsTab = settingsDialog.getByRole("tab", {
-    name: SETTINGS_APP_TAB_REGEX,
-  });
+  const settingsDialog = page.getByTestId(SETTINGS_DIALOG_TEST_ID);
+  const appSettingsTab = settingsDialog.getByTestId(SETTINGS_APP_TAB_TEST_ID);
   await expect(appSettingsTab).toBeVisible();
   await appSettingsTab.click();
 
-  const appSettingsPanel = settingsDialog.locator("#settings-tabpanel-0");
-  await expect(appSettingsPanel).toBeVisible();
-
-  const languageSelect = appSettingsPanel.locator("[role='combobox']").first();
+  const languageSelect = settingsDialog.getByTestId(
+    SETTINGS_LANGUAGE_SELECT_TEST_ID,
+  );
   await expect(languageSelect).toBeVisible();
   await languageSelect.click();
-  await page
-    .getByRole("option", { name: getLanguageOptionRegex(locale) })
-    .click();
-  await page
-    .getByRole("button", { name: SETTINGS_SAVE_APP_BUTTON_REGEX })
-    .click();
+  const localeOption = page
+    .locator(`[role='option'][data-value='${locale}']`)
+    .first();
+  await expect(localeOption).toBeVisible();
+  await localeOption.click();
 
-  const expectedTitle = locale === "tr-TR" ? "Ayarlar" : "Settings";
-  await expect(
-    page.getByRole("heading", { name: expectedTitle }),
-  ).toBeVisible();
+  const saveButton = settingsDialog.getByTestId(
+    SETTINGS_SAVE_APP_BUTTON_TEST_ID,
+  );
+  await expect(saveButton).toBeVisible();
+  await saveButton.click();
+
+  await expect(settingsDialog).toBeVisible();
 };
 
 export const expectSavedStatus = async (page: Page): Promise<void> => {
@@ -706,6 +697,44 @@ export const apiGetFullConfig = async (page: Page): Promise<any> => {
     throw new Error(response.error?.message || "Failed to get full config");
   }
   return response.data;
+};
+
+export const apiGetFrontendBundle = async (
+  page: Page,
+): Promise<FrontendBundlePayload> => {
+  const response = await page.evaluate(async () => {
+    return await window.notegitApi.i18n.getFrontendBundle();
+  });
+  if (!response.ok || !response.data) {
+    throw new Error(
+      response.error?.message || "Failed to load frontend translation bundle",
+    );
+  }
+  return response.data as FrontendBundlePayload;
+};
+
+export const getBundleString = (
+  bundle: FrontendBundlePayload,
+  key: string,
+): string => {
+  const segments = key
+    .split(".")
+    .map((segment) => segment.trim())
+    .filter((segment) => segment.length > 0);
+
+  let current: unknown = bundle.translations;
+  for (const segment of segments) {
+    if (!current || typeof current !== "object") {
+      throw new Error(`Missing translation key: ${key}`);
+    }
+    current = (current as Record<string, unknown>)[segment];
+  }
+
+  if (typeof current !== "string") {
+    throw new Error(`Translation key is not a string: ${key}`);
+  }
+
+  return current;
 };
 
 export const apiUpdateRepoSettings = async (

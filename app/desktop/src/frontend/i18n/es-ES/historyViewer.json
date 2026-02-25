@@ -1,0 +1,10 @@
+{
+  "readOnly": "SOLO LECTURA",
+  "closeTooltip": "Cerrar",
+  "preview": "Vista previa",
+  "source": "Código fuente",
+  "copyContent": "Copiar contenido",
+  "close": "Cerrar",
+  "loadFailed": "No se pudo cargar la versión",
+  "readOnlyNotice": "Esta es una versión histórica. Para usar este contenido, cópialo manualmente en tu editor."
+}

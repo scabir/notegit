@@ -1,0 +1,11 @@
+{
+  "bucketLabel": "Bucket",
+  "branchLabel": "Rama",
+  "synced": "Sincronizado",
+  "saved": "Guardado",
+  "uncommitted": "Cambios sin commit",
+  "unsynced": "Cambios sin sincronizar",
+  "fetchTooltip": "Fetch desde remoto",
+  "pullTooltip": "Pull desde remoto",
+  "pushTooltip": "Push al remoto"
+}

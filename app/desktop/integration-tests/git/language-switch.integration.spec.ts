@@ -1,18 +1,33 @@
 import { expect, test } from "@playwright/test";
-import type { ElectronApplication } from "@playwright/test";
+import type { ElectronApplication, Page } from "@playwright/test";
 import {
+  apiGetFrontendBundle,
   apiGetFullConfig,
   cleanupUserDataDir,
   closeAppIfOpen,
   closeSettingsDialog,
   connectGitRepo,
   createIsolatedUserDataDir,
+  getBundleString,
   launchIntegrationApp,
   openSettingsDialog,
   switchAppLanguageFromSettings,
 } from "../helpers/gitIntegration";
 
-test("(git) language switch updates UI text between English and Turkish", async ({
+const SWITCH_SEQUENCE = ["tr-TR", "es-ES", "en-GB"] as const;
+
+const expectGitLocaleApplied = async (page: Page, expectedLocale: string) => {
+  const bundle = await apiGetFrontendBundle(page);
+  expect(bundle.locale).toBe(expectedLocale);
+
+  const branchLabel = getBundleString(bundle, "statusBar.branchLabel");
+  await expect(page.getByTestId("status-bar-branch-label")).toContainText(
+    `${branchLabel}:`,
+  );
+  return bundle;
+};
+
+test("(git) language switch updates UI text across English, Turkish, and Spanish", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -24,30 +39,21 @@ test("(git) language switch updates UI text between English and Turkish", async 
     const page = launched.page;
 
     await connectGitRepo(page);
+    await expectGitLocaleApplied(page, "en-GB");
 
-    await openSettingsDialog(page);
-    await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
-    await closeSettingsDialog(page);
+    for (const locale of SWITCH_SEQUENCE) {
+      await switchAppLanguageFromSettings(page, locale);
+      const bundle = await expectGitLocaleApplied(page, locale);
+      await expect(
+        page.getByRole("heading", {
+          name: getBundleString(bundle, "settingsDialog.title"),
+        }),
+      ).toBeVisible();
+      await closeSettingsDialog(page);
 
-    await switchAppLanguageFromSettings(page, "tr-TR");
-    await expect(
-      page.getByRole("tab", { name: "Uygulama Ayarları" }),
-    ).toBeVisible();
-    await closeSettingsDialog(page);
-    await expect(page.getByTestId("status-bar-branch-label")).toContainText(
-      "Dal:",
-    );
-    const trConfig = await apiGetFullConfig(page);
-    expect(trConfig.appSettings.language).toBe("tr-TR");
-
-    await switchAppLanguageFromSettings(page, "en-GB");
-    await expect(page.getByRole("tab", { name: "App Settings" })).toBeVisible();
-    await closeSettingsDialog(page);
-    await expect(page.getByTestId("status-bar-branch-label")).toContainText(
-      "Branch:",
-    );
-    const enConfig = await apiGetFullConfig(page);
-    expect(enConfig.appSettings.language).toBe("en-GB");
+      const config = await apiGetFullConfig(page);
+      expect(config.appSettings.language).toBe(locale);
+    }
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);
@@ -67,11 +73,12 @@ test("(git) selected language persists across restart", async ({
     const firstPage = firstLaunch.page;
 
     await connectGitRepo(firstPage);
-    await switchAppLanguageFromSettings(firstPage, "tr-TR");
+    const targetLocale = SWITCH_SEQUENCE[0];
+    await switchAppLanguageFromSettings(firstPage, targetLocale);
     await closeSettingsDialog(firstPage);
 
     const firstConfig = await apiGetFullConfig(firstPage);
-    expect(firstConfig.appSettings.language).toBe("tr-TR");
+    expect(firstConfig.appSettings.language).toBe(targetLocale);
 
     await closeAppIfOpen(firstApp);
     firstApp = null;
@@ -83,20 +90,28 @@ test("(git) selected language persists across restart", async ({
     await expect(
       secondPage.getByTestId("status-bar-settings-action"),
     ).toBeVisible();
+    const secondBundle = await apiGetFrontendBundle(secondPage);
+    expect(secondBundle.locale).toBe(targetLocale);
     await expect(
       secondPage.getByTestId("status-bar-branch-label"),
-    ).toContainText("Dal:");
+    ).toContainText(
+      `${getBundleString(secondBundle, "statusBar.branchLabel")}:`,
+    );
 
     await openSettingsDialog(secondPage);
     await expect(
-      secondPage.getByRole("heading", { name: "Ayarlar" }),
+      secondPage.getByRole("heading", {
+        name: getBundleString(secondBundle, "settingsDialog.title"),
+      }),
     ).toBeVisible();
     await expect(
-      secondPage.getByRole("tab", { name: "Uygulama Ayarları" }),
+      secondPage.getByRole("tab", {
+        name: getBundleString(secondBundle, "settingsDialog.tabs.appSettings"),
+      }),
     ).toBeVisible();
 
     const secondConfig = await apiGetFullConfig(secondPage);
-    expect(secondConfig.appSettings.language).toBe("tr-TR");
+    expect(secondConfig.appSettings.language).toBe(targetLocale);
   } finally {
     await closeAppIfOpen(firstApp);
     await closeAppIfOpen(secondApp);

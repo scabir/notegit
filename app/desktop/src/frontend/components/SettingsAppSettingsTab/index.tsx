@@ -40,6 +40,10 @@ export function SettingsAppSettingsTab({
       return t("settingsDialog.appSettings.languageOptionTrTr");
     }
 
+    if (locale === "es-ES") {
+      return t("settingsDialog.appSettings.languageOptionEsEs");
+    }
+
     return locale;
   };
 
@@ -48,6 +52,7 @@ export function SettingsAppSettingsTab({
       <FormControl fullWidth>
         <InputLabel>{t("settingsDialog.appSettings.languageLabel")}</InputLabel>
         <Select
+          data-testid="settings-language-select"
           value={selectedLanguage}
           label={t("settingsDialog.appSettings.languageLabel")}
           onChange={(e) =>
@@ -226,6 +231,7 @@ export function SettingsAppSettingsTab({
       />
 
       <Button
+        data-testid="settings-save-app-button"
         variant="contained"
         onClick={onSaveAppSettings}
         disabled={loading}
