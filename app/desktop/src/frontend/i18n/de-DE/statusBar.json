@@ -1,0 +1,11 @@
+{
+  "bucketLabel": "Bucket",
+  "branchLabel": "Zweig",
+  "synced": "Synchronisiert",
+  "saved": "Gespeichert",
+  "uncommitted": "Nicht bestätigte Änderungen",
+  "unsynced": "Nicht synchronisierte Änderungen",
+  "fetchTooltip": "Vom Remote abrufen",
+  "pullTooltip": "Vom Remote ziehen",
+  "pushTooltip": "Zum Remote pushen"
+}

@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "Konfiguration konnte nicht geladen werden",
+    "failedUpdateAppSettings": "App-Einstellungen konnten nicht aktualisiert werden",
+    "failedUpdateRepositorySettings": "Repository-Einstellungen konnten nicht aktualisiert werden",
+    "failedLoadApplicationSettings": "Anwendungseinstellungen konnten nicht geladen werden",
+    "failedLoadFavorites": "Favoriten konnten nicht geladen werden",
+    "failedSaveFavorites": "Favoriten konnten nicht gespeichert werden",
+    "failedLoadProfiles": "Profile konnten nicht geladen werden",
+    "failedLoadActiveProfileId": "ID des aktiven Profils konnte nicht geladen werden",
+    "failedPrepareRepositoryTemplate": "Repository konnte nicht vorbereitet werden: {message}",
+    "failedCreateProfileTemplate": "Profil konnte nicht erstellt werden: {message}",
+    "failedDeleteProfile": "Profil konnte nicht gelöscht werden",
+    "failedSetActiveProfile": "Aktives Profil konnte nicht gesetzt werden",
+    "repoProviderCannotChange": "Der Repository-Anbieter kann nicht geändert werden",
+    "s3RequiredFields": "S3-Bucket, Region, Zugriffsschlüssel und Geheimnis sind erforderlich"
+  }
+}

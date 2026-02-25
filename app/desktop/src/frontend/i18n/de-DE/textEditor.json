@@ -1,0 +1,14 @@
+{
+  "emptyState": "Wähle eine Datei zum Bearbeiten",
+  "modified": "Geändert",
+  "showTreeTooltip": "Dateibaum anzeigen",
+  "backTooltip": "Zurück",
+  "forwardTooltip": "Vorwärts",
+  "saveTooltip": "Auf Festplatte speichern",
+  "exportTooltip": "Notiz exportieren",
+  "messages": {
+    "failedExportNote": "Notiz konnte nicht exportiert werden",
+    "failedExportTemplate": "Export fehlgeschlagen: {message}",
+    "unknownError": "Unbekannter Fehler"
+  }
+}

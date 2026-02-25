@@ -14,7 +14,8 @@ import {
   switchAppLanguageFromSettings,
 } from "../helpers/gitIntegration";
 
-const SWITCH_SEQUENCE = ["tr-TR", "es-ES", "en-GB"] as const;
+const SWITCH_SEQUENCE = ["tr-TR", "es-ES", "de-DE", "en-GB"] as const;
+const PERSISTED_LOCALE = "de-DE";
 
 const expectGitLocaleApplied = async (page: Page, expectedLocale: string) => {
   const bundle = await apiGetFrontendBundle(page);
@@ -27,7 +28,7 @@ const expectGitLocaleApplied = async (page: Page, expectedLocale: string) => {
   return bundle;
 };
 
-test("(git) language switch updates UI text across English, Turkish, and Spanish", async ({
+test("(git) language switch updates UI text across English, Turkish, Spanish, and German", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -44,11 +45,9 @@ test("(git) language switch updates UI text across English, Turkish, and Spanish
     for (const locale of SWITCH_SEQUENCE) {
       await switchAppLanguageFromSettings(page, locale);
       const bundle = await expectGitLocaleApplied(page, locale);
-      await expect(
-        page.getByRole("heading", {
-          name: getBundleString(bundle, "settingsDialog.title"),
-        }),
-      ).toBeVisible();
+      await expect(page.getByTestId("settings-dialog-title")).toHaveText(
+        getBundleString(bundle, "settingsDialog.title"),
+      );
       await closeSettingsDialog(page);
 
       const config = await apiGetFullConfig(page);
@@ -73,7 +72,7 @@ test("(git) selected language persists across restart", async ({
     const firstPage = firstLaunch.page;
 
     await connectGitRepo(firstPage);
-    const targetLocale = SWITCH_SEQUENCE[0];
+    const targetLocale = PERSISTED_LOCALE;
     await switchAppLanguageFromSettings(firstPage, targetLocale);
     await closeSettingsDialog(firstPage);
 
@@ -99,11 +98,9 @@ test("(git) selected language persists across restart", async ({
     );
 
     await openSettingsDialog(secondPage);
-    await expect(
-      secondPage.getByRole("heading", {
-        name: getBundleString(secondBundle, "settingsDialog.title"),
-      }),
-    ).toBeVisible();
+    await expect(secondPage.getByTestId("settings-dialog-title")).toHaveText(
+      getBundleString(secondBundle, "settingsDialog.title"),
+    );
     await expect(
       secondPage.getByRole("tab", {
         name: getBundleString(secondBundle, "settingsDialog.tabs.appSettings"),

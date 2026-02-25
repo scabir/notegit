@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "Noch keine {logType}-Protokolle.",
+    "logFileEmpty": "Protokolldatei ist leer."
+  },
+  "errors": {
+    "failedGetContent": "Protokollinhalt konnte nicht abgerufen werden",
+    "failedExport": "Protokolle konnten nicht exportiert werden",
+    "failedGetFolder": "Protokollordner konnte nicht abgerufen werden",
+    "failedReadLogTemplate": "{logType}-Protokoll konnte nicht gelesen werden: {message}",
+    "logFileNotFound": "Protokolldatei nicht gefunden: {logType}",
+    "failedExportLogTemplate": "{logType}-Protokoll konnte nicht exportiert werden: {message}"
+  }
+}

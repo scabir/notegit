@@ -44,6 +44,10 @@ export function SettingsAppSettingsTab({
       return t("settingsDialog.appSettings.languageOptionEsEs");
     }
 
+    if (locale === "de-DE") {
+      return t("settingsDialog.appSettings.languageOptionDeDe");
+    }
+
     return locale;
   };
 

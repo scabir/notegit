@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "Notiz exportieren",
+    "exportRepoZipTitle": "Repository als ZIP exportieren",
+    "markdownFiles": "Markdown-Dateien",
+    "textFiles": "Textdateien",
+    "zipArchives": "ZIP-Archive",
+    "allFiles": "Alle Dateien"
+  },
+  "errors": {
+    "cancelled": "Export abgebrochen",
+    "failedExportNote": "Notiz konnte nicht exportiert werden",
+    "failedExportRepositoryZip": "Repository konnte nicht als ZIP exportiert werden",
+    "failedExportNoteTemplate": "Notiz konnte nicht exportiert werden: {message}",
+    "failedExportRepoTemplate": "Repository konnte nicht exportiert werden: {message}",
+    "noRepositoryConfigured": "Kein Repository konfiguriert"
+  }
+}

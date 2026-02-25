@@ -567,7 +567,9 @@ export function SettingsDialog({
       fullWidth
       data-testid="settings-dialog"
     >
-      <DialogTitle>{t(SETTINGS_KEYS.title)}</DialogTitle>
+      <DialogTitle data-testid="settings-dialog-title">
+        {t(SETTINGS_KEYS.title)}
+      </DialogTitle>
       <DialogContent>
         <Box sx={tabHeaderSx}>
           <Tabs value={tabValue} onChange={handleTabChange}>

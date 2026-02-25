@@ -1,0 +1,71 @@
+{
+  "title": "Einstellungen",
+  "close": "Schließen",
+  "copySnackbar": "In die Zwischenablage kopiert",
+  "tabs": {
+    "appSettings": "App-Einstellungen",
+    "repository": "Repository",
+    "profiles": "Profile",
+    "export": "Export",
+    "logs": "Protokolle"
+  },
+  "appSettings": {
+    "languageLabel": "Sprache",
+    "languageOptionEnGb": "English",
+    "languageOptionTrTr": "Türkçe",
+    "languageOptionEsEs": "Español",
+    "languageOptionDeDe": "German",
+    "themeLabel": "Design",
+    "themeLight": "Hell",
+    "themeDark": "Dunkel",
+    "themeSystem": "System",
+    "autoSaveEnabledLabel": "Automatisches Speichern aktivieren",
+    "autoSaveIntervalLabel": "Intervall für automatisches Speichern (Sekunden)",
+    "s3AutoSyncEnabledLabel": "Automatische S3-Synchronisierung aktivieren",
+    "s3AutoSyncIntervalLabel": "S3-Auto-Sync (in Sekunden)",
+    "editorPreferencesTitle": "Editor-Einstellungen",
+    "fontSizeLabel": "Schriftgröße",
+    "tabSizeLabel": "Tabulatorgröße",
+    "showLineNumbersLabel": "Zeilennummern anzeigen",
+    "showMarkdownPreviewLabel": "Markdown-Vorschau anzeigen",
+    "saveButton": "App-Einstellungen speichern"
+  },
+  "error": {
+    "failedLoadConfig": "Konfiguration konnte nicht geladen werden",
+    "failedSaveAppSettings": "App-Einstellungen konnten nicht gespeichert werden",
+    "failedSetLanguage": "Sprache konnte nicht geändert werden",
+    "gitFieldsRequired": "Bitte alle erforderlichen Git-Felder ausfüllen",
+    "s3FieldsRequired": "Bitte alle erforderlichen S3-Felder ausfüllen",
+    "failedSaveRepoSettings": "Repository-Einstellungen konnten nicht gespeichert werden",
+    "noOpenNote": "Derzeit ist keine Notiz geöffnet",
+    "failedExportNote": "Notiz konnte nicht exportiert werden",
+    "failedExportRepository": "Repository konnte nicht exportiert werden",
+    "failedSwitchProfile": "Profilwechsel fehlgeschlagen",
+    "profileNameRequired": "Profilname ist erforderlich",
+    "allGitFieldsRequired": "Alle Git-Repository-Felder sind erforderlich",
+    "allS3FieldsRequired": "Alle S3-Repository-Felder sind erforderlich",
+    "failedCreateProfile": "Profil konnte nicht erstellt werden",
+    "failedDeleteProfile": "Profil konnte nicht gelöscht werden",
+    "failedLoadLogsFolder": "Protokollordner konnte nicht geladen werden",
+    "failedOpenRepositoryFolder": "Repository-Ordner konnte nicht geöffnet werden",
+    "failedOpenLogsFolder": "Protokollordner konnte nicht geöffnet werden"
+  },
+  "success": {
+    "appSettingsSaved": "App-Einstellungen erfolgreich gespeichert",
+    "localRepoNoSync": "Lokale Repositories haben keine Synchronisierungseinstellungen",
+    "repoSettingsSaved": "Repository-Einstellungen erfolgreich gespeichert",
+    "noteExportedPrefix": "Notiz erfolgreich exportiert nach",
+    "repositoryExportedPrefix": "Repository erfolgreich exportiert nach",
+    "profileSwitched": "Profil erfolgreich gewechselt. Die App wird neu gestartet...",
+    "profileCreated": "Profil erfolgreich erstellt",
+    "profileDeleted": "Profil erfolgreich gelöscht"
+  },
+  "confirm": {
+    "deleteProfile": "Möchtest du dieses Profil wirklich löschen? Das Remote-Repository wird dabei nicht gelöscht.",
+    "switchProfilePrefix": "Wechseln zu",
+    "switchProfileSuffix": "Die App wird neu gestartet.",
+    "switchProfileFallbackName": "dieses Profil"
+  },
+  "localRepoSecondaryLabel": "Lokales Repository",
+  "exportCancelledMessage": "Export abgebrochen"
+}

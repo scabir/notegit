@@ -11,9 +11,10 @@
   },
   "appSettings": {
     "languageLabel": "Dil",
-    "languageOptionEnGb": "English (UK)",
+    "languageOptionEnGb": "English",
     "languageOptionTrTr": "Türkçe",
-    "languageOptionEsEs": "Español (España)",
+    "languageOptionEsEs": "Español",
+    "languageOptionDeDe": "German",
     "themeLabel": "Tema",
     "themeLight": "Açık",
     "themeDark": "Koyu",

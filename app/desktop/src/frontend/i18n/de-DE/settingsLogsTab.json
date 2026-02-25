@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "Anwendungsprotokolle",
+  "info": "Protokolle werden lokal pro Tag gespeichert und enthalten Git-/S3-Operationen, Fehler und Synchronisierungsereignisse.",
+  "logsFolderLabel": "Protokollordner",
+  "openFolderButton": "Ordner öffnen",
+  "copyLogsFolderAriaLabel": "Protokollordner kopieren"
+}

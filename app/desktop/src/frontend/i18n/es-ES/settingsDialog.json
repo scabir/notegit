@@ -11,9 +11,10 @@
   },
   "appSettings": {
     "languageLabel": "Idioma",
-    "languageOptionEnGb": "English (UK)",
+    "languageOptionEnGb": "English",
     "languageOptionTrTr": "Türkçe",
-    "languageOptionEsEs": "Español (España)",
+    "languageOptionEsEs": "Español",
+    "languageOptionDeDe": "German",
     "themeLabel": "Tema",
     "themeLight": "Claro",
     "themeDark": "Oscuro",

@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "Dateiverlauf konnte nicht abgerufen werden",
+    "failedGetFileVersion": "Dateiversion konnte nicht abgerufen werden",
+    "failedGetDiff": "Diff konnte nicht abgerufen werden",
+    "noRepositoryConfigured": "Kein Repository konfiguriert",
+    "unsupportedProvider": "Nicht unterstützter Verlaufsanbieter: {provider}",
+    "localHistoryUnavailable": "Verlauf ist für lokale Repositories nicht verfügbar",
+    "s3DiffNotSupported": "Diff wird für den S3-Verlauf nicht unterstützt"
+  }
+}

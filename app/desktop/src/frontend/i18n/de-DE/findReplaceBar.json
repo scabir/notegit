@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "Suchen",
+  "replacePlaceholder": "Ersetzen",
+  "noMatches": "Keine Treffer",
+  "findPrevious": "Vorherigen Treffer finden (Shift+Enter)",
+  "findNext": "Nächsten Treffer finden (Enter)",
+  "replaceCurrent": "Aktuellen Treffer ersetzen",
+  "replaceAll": "Alle Treffer ersetzen",
+  "close": "Schließen (Esc)"
+}

@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "Datei nicht gefunden: {path}",
+    "directoryNotFound": "Verzeichnis nicht gefunden: {path}",
+    "pathNotFound": "Pfad nicht gefunden: {path}",
+    "sourceFileNotFound": "Quelldatei nicht gefunden: {path}",
+    "permissionDenied": "Zugriff verweigert",
+    "permissionDeniedPath": "Zugriff verweigert: {path}",
+    "failedReadFile": "Datei konnte nicht gelesen werden: {path}",
+    "failedWriteFile": "Datei konnte nicht geschrieben werden: {path}",
+    "failedDeleteFile": "Datei konnte nicht gelöscht werden: {path}",
+    "failedRename": "Umbenennen von {from} nach {to} fehlgeschlagen",
+    "failedCreateDirectory": "Verzeichnis konnte nicht erstellt werden: {path}",
+    "failedDeleteDirectory": "Verzeichnis konnte nicht gelöscht werden: {path}",
+    "failedReadDirectory": "Verzeichnis konnte nicht gelesen werden: {path}",
+    "failedStat": "Status konnte nicht ermittelt werden: {path}",
+    "failedCopyFile": "Datei konnte nicht von {from} nach {to} kopiert werden"
+  }
+}

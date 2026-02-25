@@ -13,7 +13,7 @@ import {
   switchAppLanguageFromSettings,
 } from "../helpers/gitIntegration";
 
-const SWITCH_SEQUENCE = ["tr-TR", "es-ES", "en-GB"] as const;
+const SWITCH_SEQUENCE = ["tr-TR", "es-ES", "de-DE", "en-GB"] as const;
 
 const expectS3LocaleApplied = async (page: Page, expectedLocale: string) => {
   const bundle = await apiGetFrontendBundle(page);
@@ -26,7 +26,7 @@ const expectS3LocaleApplied = async (page: Page, expectedLocale: string) => {
   return bundle;
 };
 
-test("(S3) language switch localizes bucket label and settings UI", async ({
+test("(S3) language switch localizes bucket label and settings UI across supported locales", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -43,11 +43,9 @@ test("(S3) language switch localizes bucket label and settings UI", async ({
     for (const locale of SWITCH_SEQUENCE) {
       await switchAppLanguageFromSettings(page, locale);
       const bundle = await expectS3LocaleApplied(page, locale);
-      await expect(
-        page.getByRole("heading", {
-          name: getBundleString(bundle, "settingsDialog.title"),
-        }),
-      ).toBeVisible();
+      await expect(page.getByTestId("settings-dialog-title")).toHaveText(
+        getBundleString(bundle, "settingsDialog.title"),
+      );
       await closeSettingsDialog(page);
 
       const config = await apiGetFullConfig(page);
