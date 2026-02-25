@@ -16,7 +16,8 @@ import {
   ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
 import type { FileTreeNode } from "../../../shared/types";
-import { MOVE_DIALOG_ERRORS, MOVE_DIALOG_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import { buildMoveDialogErrors, buildMoveDialogText } from "./constants";
 import {
   infoBoxSx,
   errorAlertSx,
@@ -43,6 +44,9 @@ export function MoveToFolderDialog({
   itemToMove,
   tree,
 }: MoveToFolderDialogProps) {
+  const { t } = useI18n();
+  const text = React.useMemo(() => buildMoveDialogText(t), [t]);
+  const errors = React.useMemo(() => buildMoveDialogErrors(t), [t]);
   const [selectedFolderPath, setSelectedFolderPath] = useState<string>("");
   const [error, setError] = useState<string>("");
 
@@ -88,14 +92,14 @@ export function MoveToFolderDialog({
     if (!itemToMove) return;
 
     if (!selectedFolderPath && selectedFolderPath !== "") {
-      setError(MOVE_DIALOG_ERRORS.selectDestination);
+      setError(errors.selectDestination);
       return;
     }
 
     const currentParentPath = getParentPath(itemToMove.path);
 
     if (selectedFolderPath === currentParentPath) {
-      setError(MOVE_DIALOG_ERRORS.sameLocation);
+      setError(errors.sameLocation);
       return;
     }
 
@@ -107,7 +111,7 @@ export function MoveToFolderDialog({
         (child) => child.name === itemToMove.name,
       )
     ) {
-      setError(MOVE_DIALOG_ERRORS.duplicateItem(itemToMove.name));
+      setError(errors.duplicateItem(itemToMove.name));
       return;
     }
 
@@ -116,19 +120,21 @@ export function MoveToFolderDialog({
 
   if (!itemToMove) return null;
 
-  const currentLocation = getCurrentLocationLabel(itemToMove.path);
+  const currentLocation = getCurrentLocationLabel(
+    itemToMove.path,
+    text.rootFallback,
+  );
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{MOVE_DIALOG_TEXT.title}</DialogTitle>
+      <DialogTitle>{text.title}</DialogTitle>
       <DialogContent>
         <Box sx={infoBoxSx}>
           <Typography variant="body2" color="text.secondary">
-            {MOVE_DIALOG_TEXT.movingLabel}: <strong>{itemToMove.name}</strong>
+            {text.movingLabel}: <strong>{itemToMove.name}</strong>
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {MOVE_DIALOG_TEXT.currentLocationLabel}:{" "}
-            <strong>{currentLocation}</strong>
+            {text.currentLocationLabel}: <strong>{currentLocation}</strong>
           </Typography>
         </Box>
 
@@ -139,7 +145,7 @@ export function MoveToFolderDialog({
         )}
 
         <Typography variant="subtitle2" sx={sectionLabelSx}>
-          {MOVE_DIALOG_TEXT.selectDestination}
+          {text.selectDestination}
         </Typography>
 
         <Box
@@ -151,9 +157,7 @@ export function MoveToFolderDialog({
         >
           <Box sx={rootOptionInnerSx}>
             <FolderIcon fontSize="small" sx={folderIconSx} />
-            <Typography variant="body2">
-              {MOVE_DIALOG_TEXT.rootLabel}
-            </Typography>
+            <Typography variant="body2">{text.rootLabel}</Typography>
           </Box>
         </Box>
 
@@ -164,7 +168,7 @@ export function MoveToFolderDialog({
               color="text.secondary"
               sx={emptyTreeTextSx}
             >
-              {MOVE_DIALOG_TEXT.noFolders}
+              {text.noFolders}
             </Typography>
           ) : (
             <TreeView
@@ -195,13 +199,13 @@ export function MoveToFolderDialog({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{MOVE_DIALOG_TEXT.cancel}</Button>
+        <Button onClick={onClose}>{text.cancel}</Button>
         <Button
           onClick={handleConfirm}
           variant="contained"
           disabled={!selectedFolderPath && selectedFolderPath !== ""}
         >
-          {MOVE_DIALOG_TEXT.confirm}
+          {text.confirm}
         </Button>
       </DialogActions>
     </Dialog>

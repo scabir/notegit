@@ -1,6 +1,5 @@
 import type { FileTreeNode } from "../../../shared/types";
 import { getParentPath } from "../../utils/pathUtils";
-import { MOVE_DIALOG_TEXT } from "./constants";
 
 export const isDescendant = (
   ancestorPath: string,
@@ -31,7 +30,10 @@ export const collectFolders = (nodes: FileTreeNode[]): FileTreeNode[] => {
 
 export { getParentPath };
 
-export const getCurrentLocationLabel = (path: string): string => {
+export const getCurrentLocationLabel = (
+  path: string,
+  rootFallback: string,
+): string => {
   const parentPath = getParentPath(path);
-  return parentPath || MOVE_DIALOG_TEXT.rootFallback;
+  return parentPath || rootFallback;
 };

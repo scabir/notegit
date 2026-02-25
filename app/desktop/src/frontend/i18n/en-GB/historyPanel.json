@@ -1,0 +1,16 @@
+{
+  "title": "File History",
+  "closeTooltip": "Close history",
+  "selectFile": "Select a file to view its history",
+  "noCommits": "No commits found for this file",
+  "loadFailed": "Failed to load history",
+  "commitFoundSingularTemplate": "{count} commit found",
+  "commitFoundPluralTemplate": "{count} commits found",
+  "relativeTime": {
+    "justNow": "just now",
+    "minutesAgoTemplate": "{count}m ago",
+    "hoursAgoTemplate": "{count}h ago",
+    "yesterday": "yesterday",
+    "daysAgoTemplate": "{count} days ago"
+  }
+}

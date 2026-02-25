@@ -15,7 +15,8 @@ import {
   FindReplace as ReplaceIcon,
   AutoFixHigh as ReplaceAllIcon,
 } from "@mui/icons-material";
-import { FIND_REPLACE_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import { buildFindReplaceText } from "./constants";
 import {
   containerSx,
   findInputSx,
@@ -37,6 +38,8 @@ export function FindReplaceBar({
   initialQuery = "",
   matchInfo,
 }: FindReplaceBarProps) {
+  const { t } = useI18n();
+  const text = React.useMemo(() => buildFindReplaceText(t), [t]);
   const [findQuery, setFindQuery] = useState(initialQuery);
   const [replaceText, setReplaceText] = useState("");
   const findInputRef = useRef<HTMLInputElement>(null);
@@ -87,7 +90,7 @@ export function FindReplaceBar({
       <TextField
         inputRef={findInputRef}
         size="small"
-        placeholder={FIND_REPLACE_TEXT.findPlaceholder}
+        placeholder={text.findPlaceholder}
         value={findQuery}
         onChange={(e) => setFindQuery(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -106,7 +109,7 @@ export function FindReplaceBar({
       />
 
       <Box sx={buttonRowSx}>
-        <Tooltip title={FIND_REPLACE_TEXT.findPrevious}>
+        <Tooltip title={text.findPrevious}>
           <span>
             <IconButton
               size="small"
@@ -117,7 +120,7 @@ export function FindReplaceBar({
             </IconButton>
           </span>
         </Tooltip>
-        <Tooltip title={FIND_REPLACE_TEXT.findNext}>
+        <Tooltip title={text.findNext}>
           <span>
             <IconButton
               size="small"
@@ -132,7 +135,7 @@ export function FindReplaceBar({
 
       {findQuery.trim() && matchInfo && matchInfo.total === 0 && (
         <Typography variant="caption" color="warning.main" sx={noMatchesSx}>
-          {FIND_REPLACE_TEXT.noMatches}
+          {text.noMatches}
         </Typography>
       )}
 
@@ -140,7 +143,7 @@ export function FindReplaceBar({
 
       <TextField
         size="small"
-        placeholder={FIND_REPLACE_TEXT.replacePlaceholder}
+        placeholder={text.replacePlaceholder}
         value={replaceText}
         onChange={(e) => setReplaceText(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -148,7 +151,7 @@ export function FindReplaceBar({
       />
 
       <Box sx={buttonRowSx}>
-        <Tooltip title={FIND_REPLACE_TEXT.replaceCurrent}>
+        <Tooltip title={text.replaceCurrent}>
           <span>
             <IconButton
               size="small"
@@ -159,7 +162,7 @@ export function FindReplaceBar({
             </IconButton>
           </span>
         </Tooltip>
-        <Tooltip title={FIND_REPLACE_TEXT.replaceAll}>
+        <Tooltip title={text.replaceAll}>
           <span>
             <IconButton
               size="small"
@@ -174,7 +177,7 @@ export function FindReplaceBar({
 
       <Box sx={flexSpacerSx} />
 
-      <Tooltip title={FIND_REPLACE_TEXT.close}>
+      <Tooltip title={text.close}>
         <IconButton size="small" onClick={onClose}>
           <CloseIcon fontSize="small" />
         </IconButton>

@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "Bul",
+  "replacePlaceholder": "Değiştir",
+  "noMatches": "Eşleşme yok",
+  "findPrevious": "Öncekini bul (Shift+Enter)",
+  "findNext": "Sonrakini bul (Enter)",
+  "replaceCurrent": "Geçerli eşleşmeyi değiştir",
+  "replaceAll": "Tüm eşleşmeleri değiştir",
+  "close": "Kapat (Esc)"
+}

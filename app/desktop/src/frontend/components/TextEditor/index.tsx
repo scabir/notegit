@@ -19,8 +19,12 @@ import CodeMirror from "@uiw/react-codemirror";
 import { githubLight, githubDark } from "@uiw/codemirror-theme-github";
 import { EditorView } from "@codemirror/view";
 import { FindReplaceBar } from "../FindReplaceBar";
-import type { AppSettings } from "../../../shared/types";
-import { TEXT_EDITOR_TEXT } from "./constants";
+import {
+  EXPORT_CANCELLED_REASON,
+  type AppSettings,
+} from "../../../shared/types";
+import { useI18n } from "../../i18n";
+import { buildTextEditorMessages, buildTextEditorText } from "./constants";
 import {
   emptyStateSx,
   rootSx,
@@ -43,6 +47,9 @@ export function TextEditor({
   onChange,
   treePanelControls,
 }: TextEditorProps) {
+  const { t } = useI18n();
+  const text = React.useMemo(() => buildTextEditorText(t), [t]);
+  const messages = React.useMemo(() => buildTextEditorMessages(t), [t]);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [content, setContent] = useState("");
@@ -113,17 +120,28 @@ export function TextEditor({
         content,
         "txt",
       );
+      const errorDetails =
+        response.error?.details &&
+        typeof response.error.details === "object" &&
+        !Array.isArray(response.error.details)
+          ? (response.error.details as Record<string, unknown>)
+          : null;
+      const isExportCancelled =
+        errorDetails?.reason === EXPORT_CANCELLED_REASON;
+
       if (response.ok && response.data) {
         console.log("Note exported to:", response.data);
-      } else if (response.error?.message !== "Export cancelled") {
+      } else if (!isExportCancelled) {
         console.error("Failed to export note:", response.error);
         alert(
-          `Failed to export: ${response.error?.message || "Unknown error"}`,
+          messages.failedExport(
+            response.error?.message || messages.unknownError,
+          ),
         );
       }
     } catch (error) {
       console.error("Export error:", error);
-      alert("Failed to export note");
+      alert(messages.failedExportNote);
     }
   };
   useEditorGlobalShortcuts({ onOpenFind: handleOpenFind });
@@ -135,7 +153,7 @@ export function TextEditor({
   };
 
   if (!file) {
-    return <Box sx={emptyStateSx}>{TEXT_EDITOR_TEXT.emptyState}</Box>;
+    return <Box sx={emptyStateSx}>{text.emptyState}</Box>;
   }
 
   return (
@@ -143,12 +161,12 @@ export function TextEditor({
       <Toolbar variant="dense" disableGutters sx={toolbarSx}>
         {treePanelControls && (
           <Box sx={treeControlsRowSx}>
-            <Tooltip title={TEXT_EDITOR_TEXT.showTreeTooltip}>
+            <Tooltip title={text.showTreeTooltip}>
               <IconButton size="small" onClick={treePanelControls.onToggleTree}>
                 <MenuIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-            <Tooltip title={TEXT_EDITOR_TEXT.backTooltip}>
+            <Tooltip title={text.backTooltip}>
               <span>
                 <IconButton
                   size="small"
@@ -159,7 +177,7 @@ export function TextEditor({
                 </IconButton>
               </span>
             </Tooltip>
-            <Tooltip title={TEXT_EDITOR_TEXT.forwardTooltip}>
+            <Tooltip title={text.forwardTooltip}>
               <span>
                 <IconButton
                   size="small"
@@ -179,14 +197,14 @@ export function TextEditor({
 
         {hasChanges && (
           <Chip
-            label={TEXT_EDITOR_TEXT.modified}
+            label={text.modified}
             size="small"
             color="warning"
             sx={modifiedChipSx}
           />
         )}
 
-        <Tooltip title={TEXT_EDITOR_TEXT.saveTooltip}>
+        <Tooltip title={text.saveTooltip}>
           <span>
             <IconButton
               size="small"
@@ -199,7 +217,7 @@ export function TextEditor({
           </span>
         </Tooltip>
 
-        <Tooltip title={TEXT_EDITOR_TEXT.exportTooltip}>
+        <Tooltip title={text.exportTooltip}>
           <IconButton size="small" onClick={handleExport} color="default">
             <ExportIcon fontSize="small" />
           </IconButton>

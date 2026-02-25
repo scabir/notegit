@@ -1,10 +1,10 @@
 import React from "react";
 import { Box, Tooltip, Button, Typography } from "@mui/material";
 import { favoritesSectionSx, favoriteListSx, favoriteItemSx } from "./styles";
-import { FAVORITES_BAR_TEXT } from "./constants";
 import type { FileTreeFavoritesBarProps } from "./types";
 
 export function FavoritesBar({
+  title,
   favorites,
   onSelect,
   onContextMenu,
@@ -16,7 +16,7 @@ export function FavoritesBar({
   return (
     <Box sx={favoritesSectionSx} data-testid="favorites-section">
       <Typography variant="caption" color="text.secondary">
-        {FAVORITES_BAR_TEXT.title}
+        {title}
       </Typography>
       <Box sx={favoriteListSx}>
         {favorites.map((node) => (

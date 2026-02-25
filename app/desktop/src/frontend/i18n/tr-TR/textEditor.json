@@ -1,0 +1,14 @@
+{
+  "emptyState": "Düzenlemek için bir dosya seçin",
+  "modified": "Değiştirildi",
+  "showTreeTooltip": "Dosya ağacını göster",
+  "backTooltip": "Geri",
+  "forwardTooltip": "İleri",
+  "saveTooltip": "Diske kaydet",
+  "exportTooltip": "Notu dışa aktar",
+  "messages": {
+    "failedExportNote": "Not dışa aktarılamadı",
+    "failedExportTemplate": "Dışa aktarma başarısız: {message}",
+    "unknownError": "Bilinmeyen hata"
+  }
+}

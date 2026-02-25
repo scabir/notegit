@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   List,
@@ -19,7 +19,8 @@ import {
   Visibility as ViewIcon,
 } from "@mui/icons-material";
 import type { CommitEntry } from "../../../shared/types";
-import { HISTORY_PANEL_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import { HISTORY_PANEL_KEYS } from "./constants";
 import {
   panelSx,
   headerSx,
@@ -44,43 +45,57 @@ export function HistoryPanel({
   onViewVersion,
   onClose,
 }: HistoryPanelProps) {
+  const { t } = useI18n();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const relativeTimeText = React.useMemo(
+    () => ({
+      justNow: t(HISTORY_PANEL_KEYS.relativeTimeJustNow),
+      minutesAgoTemplate: t(HISTORY_PANEL_KEYS.relativeTimeMinutesAgoTemplate),
+      hoursAgoTemplate: t(HISTORY_PANEL_KEYS.relativeTimeHoursAgoTemplate),
+      yesterday: t(HISTORY_PANEL_KEYS.relativeTimeYesterday),
+      daysAgoTemplate: t(HISTORY_PANEL_KEYS.relativeTimeDaysAgoTemplate),
+    }),
+    [t],
+  );
   const [history, setHistory] = useState<CommitEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedHash, setSelectedHash] = useState<string | null>(null);
 
+  const loadHistory = useCallback(
+    async (path: string) => {
+      setLoading(true);
+      setError(null);
+      setSelectedHash(null);
+
+      try {
+        const response = await window.notegitApi.history.getForFile(path);
+
+        if (response.ok && response.data) {
+          setHistory(response.data);
+        } else {
+          setError(response.error?.message || t(HISTORY_PANEL_KEYS.loadFailed));
+          setHistory([]);
+        }
+      } catch (err: any) {
+        setError(err.message || t(HISTORY_PANEL_KEYS.loadFailed));
+        setHistory([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [t],
+  );
+
   useEffect(() => {
     if (filePath) {
-      loadHistory(filePath);
+      void loadHistory(filePath);
     } else {
       setHistory([]);
       setError(null);
     }
-  }, [filePath]);
-
-  const loadHistory = async (path: string) => {
-    setLoading(true);
-    setError(null);
-    setSelectedHash(null);
-
-    try {
-      const response = await window.notegitApi.history.getForFile(path);
-
-      if (response.ok && response.data) {
-        setHistory(response.data);
-      } else {
-        setError(response.error?.message || HISTORY_PANEL_TEXT.loadFailed);
-        setHistory([]);
-      }
-    } catch (err: any) {
-      setError(err.message || HISTORY_PANEL_TEXT.loadFailed);
-      setHistory([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [filePath, loadHistory]);
 
   const handleViewVersion = (commit: CommitEntry) => {
     setSelectedHash(commit.hash);
@@ -93,7 +108,7 @@ export function HistoryPanel({
         <HistoryIcon fontSize="small" />
         <Box sx={headerInfoSx}>
           <Typography variant="subtitle2" fontWeight={600}>
-            {HISTORY_PANEL_TEXT.title}
+            {t(HISTORY_PANEL_KEYS.title)}
           </Typography>
           {filePath && (
             <Typography variant="caption" color="text.secondary" noWrap>
@@ -101,7 +116,7 @@ export function HistoryPanel({
             </Typography>
           )}
         </Box>
-        <Tooltip title={HISTORY_PANEL_TEXT.closeTooltip}>
+        <Tooltip title={t(HISTORY_PANEL_KEYS.closeTooltip)}>
           <IconButton size="small" onClick={onClose}>
             <CloseIcon fontSize="small" />
           </IconButton>
@@ -126,7 +141,7 @@ export function HistoryPanel({
         {!loading && !error && !filePath && (
           <Box sx={centerStateSx}>
             <Typography color="text.secondary" variant="body2">
-              {HISTORY_PANEL_TEXT.selectFile}
+              {t(HISTORY_PANEL_KEYS.selectFile)}
             </Typography>
           </Box>
         )}
@@ -134,7 +149,7 @@ export function HistoryPanel({
         {!loading && !error && filePath && history.length === 0 && (
           <Box sx={centerStateSx}>
             <Typography color="text.secondary" variant="body2">
-              {HISTORY_PANEL_TEXT.noCommits}
+              {t(HISTORY_PANEL_KEYS.noCommits)}
             </Typography>
           </Box>
         )}
@@ -179,7 +194,7 @@ export function HistoryPanel({
                           color="text.secondary"
                           sx={commitDateSx}
                         >
-                          {formatRelativeDate(commit.date)}
+                          {formatRelativeDate(commit.date, relativeTimeText)}
                         </Typography>
                       }
                     />
@@ -201,8 +216,15 @@ export function HistoryPanel({
       {history.length > 0 && (
         <Box sx={footerSx(isDark)}>
           <Typography variant="caption" color="text.secondary">
-            {history.length} {HISTORY_PANEL_TEXT.commitSuffix}
-            {history.length !== 1 ? "s" : ""} found
+            {history.length === 1
+              ? t(HISTORY_PANEL_KEYS.commitFoundSingularTemplate).replace(
+                  "{count}",
+                  String(history.length),
+                )
+              : t(HISTORY_PANEL_KEYS.commitFoundPluralTemplate).replace(
+                  "{count}",
+                  String(history.length),
+                )}
           </Typography>
         </Box>
       )}

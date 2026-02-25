@@ -1,0 +1,10 @@
+{
+  "readOnly": "SADECE OKUNUR",
+  "closeTooltip": "Kapat",
+  "preview": "Önizleme",
+  "source": "Kaynak",
+  "copyContent": "İçeriği Kopyala",
+  "close": "Kapat",
+  "loadFailed": "Sürüm yüklenemedi",
+  "readOnlyNotice": "Bu geçmiş bir sürümdür. Bu içeriği kullanmak için düzenleyicinize manuel olarak kopyalayın."
+}

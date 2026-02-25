@@ -18,7 +18,8 @@ import {
   VisibilityOff as PreviewOffIcon,
   FileDownload as ExportIcon,
 } from "@mui/icons-material";
-import { MARKDOWN_EDITOR_TEXT } from "../MarkdownEditor/constants";
+import { useI18n } from "../../i18n";
+import { buildMarkdownEditorText } from "../MarkdownEditor/constants";
 import type { ViewMode } from "../MarkdownEditor/types";
 import {
   headerRowSx,
@@ -37,17 +38,20 @@ export function MarkdownEditorHeader({
   onExport,
   treePanelControls,
 }: MarkdownEditorHeaderProps) {
+  const { t } = useI18n();
+  const text = React.useMemo(() => buildMarkdownEditorText(t), [t]);
+
   return (
     <Toolbar variant="dense" disableGutters sx={headerToolbarSx}>
       <Box sx={headerRowSx}>
         {treePanelControls && (
           <Box sx={treeControlsRowSx}>
-            <Tooltip title={MARKDOWN_EDITOR_TEXT.showTreeTooltip}>
+            <Tooltip title={text.showTreeTooltip}>
               <IconButton size="small" onClick={treePanelControls.onToggleTree}>
                 <MenuIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-            <Tooltip title={MARKDOWN_EDITOR_TEXT.backTooltip}>
+            <Tooltip title={text.backTooltip}>
               <span>
                 <IconButton
                   size="small"
@@ -58,7 +62,7 @@ export function MarkdownEditorHeader({
                 </IconButton>
               </span>
             </Tooltip>
-            <Tooltip title={MARKDOWN_EDITOR_TEXT.forwardTooltip}>
+            <Tooltip title={text.forwardTooltip}>
               <span>
                 <IconButton
                   size="small"
@@ -75,7 +79,7 @@ export function MarkdownEditorHeader({
         {hasUnsavedChanges && (
           <Chip
             icon={<UnsavedIcon fontSize="small" />}
-            label={MARKDOWN_EDITOR_TEXT.unsaved}
+            label={text.unsaved}
             size="small"
             color="warning"
           />
@@ -90,27 +94,27 @@ export function MarkdownEditorHeader({
         }
         size="small"
       >
-        <ToggleButton value="editor" aria-label="editor only">
-          <Tooltip title={MARKDOWN_EDITOR_TEXT.editorOnlyTooltip}>
+        <ToggleButton value="editor" aria-label={text.viewModeAriaEditorOnly}>
+          <Tooltip title={text.editorOnlyTooltip}>
             <PreviewOffIcon fontSize="small" />
           </Tooltip>
         </ToggleButton>
-        <ToggleButton value="split" aria-label="split view">
-          <Tooltip title={MARKDOWN_EDITOR_TEXT.splitViewTooltip}>
+        <ToggleButton value="split" aria-label={text.viewModeAriaSplitView}>
+          <Tooltip title={text.splitViewTooltip}>
             <Box sx={splitIconRowSx}>
               <PreviewOffIcon fontSize="small" />
               <PreviewIcon fontSize="small" />
             </Box>
           </Tooltip>
         </ToggleButton>
-        <ToggleButton value="preview" aria-label="preview only">
-          <Tooltip title={MARKDOWN_EDITOR_TEXT.previewOnlyTooltip}>
+        <ToggleButton value="preview" aria-label={text.viewModeAriaPreviewOnly}>
+          <Tooltip title={text.previewOnlyTooltip}>
             <PreviewIcon fontSize="small" />
           </Tooltip>
         </ToggleButton>
       </ToggleButtonGroup>
 
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.saveTooltip}>
+      <Tooltip title={text.saveTooltip}>
         <IconButton
           size="small"
           onClick={onSave}
@@ -121,7 +125,7 @@ export function MarkdownEditorHeader({
         </IconButton>
       </Tooltip>
 
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.exportTooltip}>
+      <Tooltip title={text.exportTooltip}>
         <IconButton size="small" onClick={onExport} color="default">
           <ExportIcon fontSize="small" />
         </IconButton>

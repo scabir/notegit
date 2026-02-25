@@ -24,7 +24,8 @@ import {
   MoreHoriz as MoreIcon,
   MenuBook as CheatSheetIcon,
 } from "@mui/icons-material";
-import { MARKDOWN_EDITOR_TEXT } from "../MarkdownEditor/constants";
+import { useI18n } from "../../i18n";
+import { buildMarkdownEditorText } from "../MarkdownEditor/constants";
 import { MARKDOWN_FORMAT_TOOLBAR } from "./constants";
 import {
   codeBlockIconSx,
@@ -39,6 +40,8 @@ export function MarkdownFormatToolbar({
   formatters,
   onSelectCheatSheet,
 }: MarkdownFormatToolbarProps) {
+  const { t } = useI18n();
+  const text = React.useMemo(() => buildMarkdownEditorText(t), [t]);
   const [extrasAnchorEl, setExtrasAnchorEl] = useState<null | HTMLElement>(
     null,
   );
@@ -78,84 +81,84 @@ export function MarkdownFormatToolbar({
 
   return (
     <Toolbar variant="dense" sx={formatToolbarSx}>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.boldTooltip}>
+      <Tooltip title={text.boldTooltip}>
         <IconButton size="small" onClick={formatters.formatBold}>
           <BoldIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.italicTooltip}>
+      <Tooltip title={text.italicTooltip}>
         <IconButton size="small" onClick={formatters.formatItalic}>
           <ItalicIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.headingTooltip}>
+      <Tooltip title={text.headingTooltip}>
         <IconButton size="small" onClick={formatters.formatHeading}>
           <Box sx={headingIconSx}>H</Box>
         </IconButton>
       </Tooltip>
       <Divider orientation="vertical" flexItem sx={dividerSx} />
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.bulletTooltip}>
+      <Tooltip title={text.bulletTooltip}>
         <IconButton size="small" onClick={formatters.formatBulletList}>
           <ListIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.numberedTooltip}>
+      <Tooltip title={text.numberedTooltip}>
         <IconButton size="small" onClick={formatters.formatNumberedList}>
           <NumberedListIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.quoteTooltip}>
+      <Tooltip title={text.quoteTooltip}>
         <IconButton size="small" onClick={formatters.formatQuote}>
           <QuoteIcon fontSize="small" />
         </IconButton>
       </Tooltip>
       <Divider orientation="vertical" flexItem sx={dividerSx} />
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.inlineCodeTooltip}>
+      <Tooltip title={text.inlineCodeTooltip}>
         <IconButton size="small" onClick={formatters.formatCode}>
           <CodeIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.codeBlockTooltip}>
+      <Tooltip title={text.codeBlockTooltip}>
         <IconButton size="small" onClick={formatters.formatCodeBlock}>
           <Box sx={codeBlockIconSx}>{"{ }"}</Box>
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.linkTooltip}>
+      <Tooltip title={text.linkTooltip}>
         <IconButton size="small" onClick={formatters.formatLink}>
           <LinkIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.tableTooltip}>
+      <Tooltip title={text.tableTooltip}>
         <IconButton size="small" onClick={formatters.formatTable}>
           <TableIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.footnoteLabel}>
+      <Tooltip title={text.footnoteLabel}>
         <IconButton size="small" onClick={formatters.formatFootnote}>
           <FootnoteIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.taskListLabel}>
+      <Tooltip title={text.taskListLabel}>
         <IconButton size="small" onClick={formatters.formatTaskList}>
           <TaskListIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.highlightLabel}>
+      <Tooltip title={text.highlightLabel}>
         <IconButton size="small" onClick={formatters.formatHighlight}>
           <HighlightIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.definitionListLabel}>
+      <Tooltip title={text.definitionListLabel}>
         <IconButton size="small" onClick={formatters.formatDefinitionList}>
           <DefinitionListIcon fontSize="small" />
         </IconButton>
       </Tooltip>
       <Divider orientation="vertical" flexItem sx={dividerSx} />
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.extrasTooltip}>
+      <Tooltip title={text.extrasTooltip}>
         <IconButton
           size="small"
           onClick={handleOpenExtras}
-          aria-label={MARKDOWN_EDITOR_TEXT.extrasTooltip}
+          aria-label={text.extrasTooltip}
           aria-haspopup="true"
           aria-controls={
             extrasAnchorEl ? MARKDOWN_FORMAT_TOOLBAR.extrasMenuId : undefined
@@ -165,11 +168,11 @@ export function MarkdownFormatToolbar({
           <MoreIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title={MARKDOWN_EDITOR_TEXT.cheatsheetTooltip}>
+      <Tooltip title={text.cheatsheetTooltip}>
         <IconButton
           size="small"
           onClick={handleOpenCheatSheetMenu}
-          aria-label={MARKDOWN_EDITOR_TEXT.cheatsheetTooltip}
+          aria-label={text.cheatsheetTooltip}
           aria-haspopup="true"
           aria-controls={
             cheatSheetAnchorEl
@@ -190,11 +193,9 @@ export function MarkdownFormatToolbar({
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <MenuItem onClick={handleInsertMermaid}>
-          {MARKDOWN_EDITOR_TEXT.mermaidLabel}
-        </MenuItem>
+        <MenuItem onClick={handleInsertMermaid}>{text.mermaidLabel}</MenuItem>
         <MenuItem onClick={handleInsertRawMarkdown}>
-          {MARKDOWN_EDITOR_TEXT.rawMarkdownLabel}
+          {text.rawMarkdownLabel}
         </MenuItem>
       </Menu>
       <Menu
@@ -206,10 +207,10 @@ export function MarkdownFormatToolbar({
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <MenuItem onClick={() => handleSelectCheatSheet("markdown")}>
-          {MARKDOWN_EDITOR_TEXT.markdownCheatsheetLabel}
+          {text.markdownCheatsheetLabel}
         </MenuItem>
         <MenuItem onClick={() => handleSelectCheatSheet("mermaid")}>
-          {MARKDOWN_EDITOR_TEXT.mermaidCheatsheetLabel}
+          {text.mermaidCheatsheetLabel}
         </MenuItem>
       </Menu>
     </Toolbar>

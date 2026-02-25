@@ -264,6 +264,7 @@ export function FileTreeView({
 
       {!isTreeCollapsed && favoriteNodes.length > 0 && (
         <FavoritesBar
+          title={fileTreeText.favoritesTitle}
           favorites={favoriteNodes}
           onSelect={handleFavoriteClick}
           onContextMenu={handleFavoriteContextMenu}

@@ -10,7 +10,9 @@ import {
   Box,
 } from "@mui/material";
 import { dialogInfoSx, dialogErrorSx } from "./styles";
+import { useI18n } from "../../i18n";
 import {
+  DIALOG_CREATE_ITEM_KEYS,
   DIALOG_CREATE_ITEM_TEXT,
   DIALOG_CREATE_ITEM_TEST_ID,
 } from "./constants";
@@ -30,10 +32,17 @@ export function DialogCreateItem({
   onClose,
   onCreate,
   testId = DIALOG_CREATE_ITEM_TEST_ID,
-  cancelLabel = "Cancel",
-  confirmLabel = "Create",
-  loadingLabel = "Creating...",
+  cancelLabel,
+  confirmLabel,
+  loadingLabel,
 }: DialogCreateItemProps) {
+  const { t } = useI18n();
+  const resolvedCancelLabel = cancelLabel ?? t(DIALOG_CREATE_ITEM_KEYS.cancel);
+  const resolvedConfirmLabel =
+    confirmLabel ?? t(DIALOG_CREATE_ITEM_KEYS.create);
+  const resolvedLoadingLabel =
+    loadingLabel ?? t(DIALOG_CREATE_ITEM_KEYS.creating);
+
   return (
     <Dialog
       open={open}
@@ -68,13 +77,13 @@ export function DialogCreateItem({
         {errorMessage && <Box sx={dialogErrorSx}>{errorMessage}</Box>}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{cancelLabel}</Button>
+        <Button onClick={onClose}>{resolvedCancelLabel}</Button>
         <Button
           onClick={onCreate}
           disabled={creating || !value.trim()}
           variant="contained"
         >
-          {creating ? loadingLabel : confirmLabel}
+          {creating ? resolvedLoadingLabel : resolvedConfirmLabel}
         </Button>
       </DialogActions>
     </Dialog>

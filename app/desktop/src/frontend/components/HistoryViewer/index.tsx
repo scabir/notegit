@@ -26,7 +26,8 @@ import remarkGfm from "remark-gfm";
 import remarkDeflist from "remark-deflist";
 import { MermaidDiagram } from "../MermaidDiagram";
 import { remarkHighlight } from "../../utils/remarkHighlight";
-import { HISTORY_VIEWER_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import { HISTORY_VIEWER_KEYS } from "./constants";
 import {
   dialogPaperSx,
   dialogTitleSx,
@@ -56,6 +57,7 @@ export function HistoryViewer({
   repoPath,
   onClose,
 }: HistoryViewerProps) {
+  const { t } = useI18n();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [content, setContent] = useState("");
@@ -78,16 +80,16 @@ export function HistoryViewer({
       if (response.ok && response.data !== undefined) {
         setContent(response.data);
       } else {
-        setError(response.error?.message || HISTORY_VIEWER_TEXT.loadFailed);
+        setError(response.error?.message || t(HISTORY_VIEWER_KEYS.loadFailed));
         setContent("");
       }
     } catch (err: any) {
-      setError(err.message || HISTORY_VIEWER_TEXT.loadFailed);
+      setError(err.message || t(HISTORY_VIEWER_KEYS.loadFailed));
       setContent("");
     } finally {
       setLoading(false);
     }
-  }, [filePath, commitHash]);
+  }, [filePath, commitHash, t]);
 
   useEffect(() => {
     if (open && filePath && commitHash) {
@@ -120,12 +122,12 @@ export function HistoryViewer({
             </Typography>
           </Box>
           <Chip
-            label={HISTORY_VIEWER_TEXT.readOnly}
+            label={t(HISTORY_VIEWER_KEYS.readOnly)}
             size="small"
             color="warning"
             sx={readOnlyChipSx}
           />
-          <Tooltip title={HISTORY_VIEWER_TEXT.closeTooltip}>
+          <Tooltip title={t(HISTORY_VIEWER_KEYS.closeTooltip)}>
             <IconButton size="small" onClick={onClose}>
               <CloseIcon fontSize="small" />
             </IconButton>
@@ -141,14 +143,14 @@ export function HistoryViewer({
               variant={viewMode === "preview" ? "contained" : "outlined"}
               onClick={() => setViewMode("preview")}
             >
-              {HISTORY_VIEWER_TEXT.preview}
+              {t(HISTORY_VIEWER_KEYS.preview)}
             </Button>
             <Button
               size="small"
               variant={viewMode === "source" ? "contained" : "outlined"}
               onClick={() => setViewMode("source")}
             >
-              {HISTORY_VIEWER_TEXT.source}
+              {t(HISTORY_VIEWER_KEYS.source)}
             </Button>
           </Box>
         )}
@@ -252,16 +254,16 @@ export function HistoryViewer({
           color="text.secondary"
           sx={dialogActionsNoteSx}
         >
-          {HISTORY_VIEWER_TEXT.readOnlyNotice}
+          {t(HISTORY_VIEWER_KEYS.readOnlyNotice)}
         </Typography>
         <Button
           startIcon={<CopyIcon />}
           onClick={handleCopy}
           disabled={!content}
         >
-          {HISTORY_VIEWER_TEXT.copyContent}
+          {t(HISTORY_VIEWER_KEYS.copyContent)}
         </Button>
-        <Button onClick={onClose}>{HISTORY_VIEWER_TEXT.close}</Button>
+        <Button onClick={onClose}>{t(HISTORY_VIEWER_KEYS.close)}</Button>
       </DialogActions>
     </Dialog>
   );

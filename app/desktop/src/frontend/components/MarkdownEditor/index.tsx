@@ -13,7 +13,11 @@ import {
   useEditorGlobalShortcuts,
   useEditorKeymap,
 } from "../../utils/editorHooks";
-import { MARKDOWN_EDITOR_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import {
+  buildMarkdownEditorMessages,
+  buildMarkdownEditorText,
+} from "./constants";
 import { useMarkdownDocumentState } from "./hooks/useMarkdownDocumentState";
 import { useMarkdownEditorShortcuts } from "./hooks/useMarkdownEditorShortcuts";
 import { useMarkdownFormatting } from "./hooks/useMarkdownFormatting";
@@ -29,6 +33,9 @@ export function MarkdownEditor({
   treePanelControls,
   onOpenLinkedFile,
 }: MarkdownEditorProps) {
+  const { t } = useI18n();
+  const text = React.useMemo(() => buildMarkdownEditorText(t), [t]);
+  const messages = React.useMemo(() => buildMarkdownEditorMessages(t), [t]);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [viewMode, setViewMode] = useState<ViewMode>("split");
@@ -49,6 +56,7 @@ export function MarkdownEditor({
     file,
     onSave,
     onChange,
+    messages,
   });
 
   const {
@@ -86,7 +94,7 @@ export function MarkdownEditor({
   const editorKeymap = useEditorKeymap(handleSave);
 
   if (!file) {
-    return <Box sx={emptyStateSx}>{MARKDOWN_EDITOR_TEXT.emptyState}</Box>;
+    return <Box sx={emptyStateSx}>{text.emptyState}</Box>;
   }
 
   const showEditor = viewMode === "split" || viewMode === "editor";

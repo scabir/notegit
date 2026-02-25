@@ -9,7 +9,8 @@ import {
   Box,
 } from "@mui/material";
 import { dialogErrorSx } from "./styles";
-import { DIALOG_RENAME_TEST_ID } from "./constants";
+import { useI18n } from "../../i18n";
+import { DIALOG_RENAME_KEYS, DIALOG_RENAME_TEST_ID } from "./constants";
 import type { DialogRenameProps } from "./types";
 
 export function DialogRename({
@@ -24,10 +25,15 @@ export function DialogRename({
   creating,
   placeholder,
   testId = DIALOG_RENAME_TEST_ID,
-  cancelLabel = "Cancel",
-  confirmLabel = "Rename",
-  loadingLabel = "Renaming...",
+  cancelLabel,
+  confirmLabel,
+  loadingLabel,
 }: DialogRenameProps) {
+  const { t } = useI18n();
+  const resolvedCancelLabel = cancelLabel ?? t(DIALOG_RENAME_KEYS.cancel);
+  const resolvedConfirmLabel = confirmLabel ?? t(DIALOG_RENAME_KEYS.rename);
+  const resolvedLoadingLabel = loadingLabel ?? t(DIALOG_RENAME_KEYS.renaming);
+
   return (
     <Dialog
       open={open}
@@ -56,13 +62,13 @@ export function DialogRename({
         {errorMessage && <Box sx={dialogErrorSx}>{errorMessage}</Box>}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{cancelLabel}</Button>
+        <Button onClick={onClose}>{resolvedCancelLabel}</Button>
         <Button
           onClick={onSubmit}
           disabled={creating || !value.trim()}
           variant="contained"
         >
-          {creating ? loadingLabel : confirmLabel}
+          {creating ? resolvedLoadingLabel : resolvedConfirmLabel}
         </Button>
       </DialogActions>
     </Dialog>

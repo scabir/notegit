@@ -1,7 +1,11 @@
 import React from "react";
 import { Menu, MenuItem, ListItemIcon } from "@mui/material";
 import { contextMenuSx } from "./styles";
-import { FILE_TREE_CONTEXT_MENUS_IDS } from "./constants";
+import { useI18n } from "../../i18n";
+import {
+  FILE_TREE_CONTEXT_MENUS_IDS,
+  buildFileTreeContextMenusText,
+} from "./constants";
 import type { FileTreeContextMenusProps } from "./types";
 
 export function FileTreeContextMenus({
@@ -15,6 +19,8 @@ export function FileTreeContextMenus({
   emptyContextMenuItems,
   nodeContextMenuItems,
 }: FileTreeContextMenusProps) {
+  const { t } = useI18n();
+  const text = React.useMemo(() => buildFileTreeContextMenusText(t), [t]);
   const showEmptyMenu = treeContextMenuState?.mode === "empty";
   const showNodeMenu = treeContextMenuState?.mode === "node";
   const anchorPosition = treeContextMenuState?.position || undefined;
@@ -26,7 +32,7 @@ export function FileTreeContextMenus({
         anchorEl={favoriteMenuState?.anchorEl || null}
         open={Boolean(favoriteMenuState?.anchorEl)}
         onClose={onCloseFavoriteMenu}
-        MenuListProps={{ "aria-label": "Favorite actions" }}
+        MenuListProps={{ "aria-label": text.favoriteActionsAria }}
         sx={contextMenuSx}
       >
         <MenuItem
@@ -45,7 +51,7 @@ export function FileTreeContextMenus({
         anchorPosition={anchorPosition}
         open={showEmptyMenu}
         onClose={onCloseTreeContextMenu}
-        MenuListProps={{ "aria-label": "Tree background actions" }}
+        MenuListProps={{ "aria-label": text.treeBackgroundActionsAria }}
         sx={contextMenuSx}
       >
         {emptyContextMenuItems.map((item) => (
@@ -67,7 +73,7 @@ export function FileTreeContextMenus({
         anchorPosition={anchorPosition}
         open={showNodeMenu}
         onClose={onCloseTreeContextMenu}
-        MenuListProps={{ "aria-label": "Tree item actions" }}
+        MenuListProps={{ "aria-label": text.treeItemActionsAria }}
         sx={contextMenuSx}
       >
         {nodeContextMenuItems.map((item) => (

@@ -5,7 +5,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkDeflist from "remark-deflist";
 import { MermaidDiagram } from "../MermaidDiagram";
-import { MARKDOWN_EDITOR_TEXT } from "../MarkdownEditor/constants";
+import { useI18n } from "../../i18n";
+import { buildMarkdownEditorText } from "../MarkdownEditor/constants";
 import { remarkHighlight } from "../../utils/remarkHighlight";
 import {
   resolveMarkdownImageSrc,
@@ -33,6 +34,8 @@ export function MarkdownPreviewPane({
   onCloseCheatSheet,
   onOpenLinkedFile,
 }: MarkdownPreviewPaneProps) {
+  const { t } = useI18n();
+  const text = React.useMemo(() => buildMarkdownEditorText(t), [t]);
   const activeCheatSheetHtml =
     cheatSheetType === "markdown"
       ? markdownCheatsheetHtml
@@ -42,9 +45,9 @@ export function MarkdownPreviewPane({
 
   const activeCheatSheetLabel =
     cheatSheetType === "markdown"
-      ? MARKDOWN_EDITOR_TEXT.markdownCheatsheetLabel
+      ? text.markdownCheatsheetLabel
       : cheatSheetType === "mermaid"
-        ? MARKDOWN_EDITOR_TEXT.mermaidCheatsheetLabel
+        ? text.mermaidCheatsheetLabel
         : "";
 
   return (
@@ -56,7 +59,7 @@ export function MarkdownPreviewPane({
               <Typography variant="subtitle1">
                 {activeCheatSheetLabel}
               </Typography>
-              <Tooltip title={MARKDOWN_EDITOR_TEXT.closeCheatsheetLabel}>
+              <Tooltip title={text.closeCheatsheetLabel}>
                 <IconButton
                   size="small"
                   onClick={onCloseCheatSheet}

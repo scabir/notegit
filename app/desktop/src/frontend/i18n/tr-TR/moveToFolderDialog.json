@@ -1,0 +1,16 @@
+{
+  "title": "Öğeyi taşı",
+  "movingLabel": "Taşınıyor",
+  "currentLocationLabel": "Mevcut konum",
+  "selectDestination": "Hedef klasörü seçin:",
+  "rootLabel": "Kök dizin",
+  "noFolders": "Depoda klasör yok",
+  "cancel": "İptal",
+  "confirm": "Buraya taşı",
+  "rootFallback": "kök",
+  "errors": {
+    "selectDestination": "Lütfen bir hedef klasör seçin",
+    "sameLocation": "Öğe zaten bu konumda",
+    "duplicateItemTemplate": "Hedef klasörde \"{name}\" adlı bir öğe zaten var"
+  }
+}

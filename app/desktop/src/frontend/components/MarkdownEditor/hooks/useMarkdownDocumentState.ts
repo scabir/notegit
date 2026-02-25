@@ -1,16 +1,26 @@
 import { useCallback, useEffect, useState } from "react";
-import type { AppSettings, FileContent } from "../../../../shared/types";
+import {
+  EXPORT_CANCELLED_REASON,
+  type AppSettings,
+  type FileContent,
+} from "../../../../shared/types";
 
 type UseMarkdownDocumentStateParams = {
   file: FileContent | null;
   onSave: (content: string) => void;
   onChange: (content: string, hasChanges: boolean) => void;
+  messages: {
+    failedExport: (message: string) => string;
+    failedExportNote: string;
+    unknownError: string;
+  };
 };
 
 export function useMarkdownDocumentState({
   file,
   onSave,
   onChange,
+  messages,
 }: UseMarkdownDocumentStateParams) {
   const [content, setContent] = useState("");
   const [savedContent, setSavedContent] = useState("");
@@ -53,19 +63,30 @@ export function useMarkdownDocumentState({
         content,
         "md",
       );
+      const errorDetails =
+        response.error?.details &&
+        typeof response.error.details === "object" &&
+        !Array.isArray(response.error.details)
+          ? (response.error.details as Record<string, unknown>)
+          : null;
+      const isExportCancelled =
+        errorDetails?.reason === EXPORT_CANCELLED_REASON;
+
       if (response.ok && response.data) {
         console.log("Note exported to:", response.data);
-      } else if (response.error?.message !== "Export cancelled") {
+      } else if (!isExportCancelled) {
         console.error("Failed to export note:", response.error);
         alert(
-          `Failed to export: ${response.error?.message || "Unknown error"}`,
+          messages.failedExport(
+            response.error?.message || messages.unknownError,
+          ),
         );
       }
     } catch (error) {
       console.error("Export error:", error);
-      alert("Failed to export note");
+      alert(messages.failedExportNote);
     }
-  }, [content, file]);
+  }, [content, file, messages]);
 
   return {
     appSettings,

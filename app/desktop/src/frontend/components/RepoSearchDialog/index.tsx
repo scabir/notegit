@@ -31,7 +31,8 @@ import type {
   RepoWideSearchResult,
   ReplaceResult,
 } from "../../../shared/types";
-import { REPO_SEARCH_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import { REPO_SEARCH_KEYS } from "./constants";
 import {
   titleRowSx,
   titleTextSx,
@@ -53,11 +54,23 @@ import {
 } from "./styles";
 import type { RepoSearchDialogProps } from "./types";
 
+const formatTemplate = (
+  template: string,
+  values: Record<string, string | number>,
+): string => {
+  let result = template;
+  for (const [key, value] of Object.entries(values)) {
+    result = result.replace(new RegExp(`\\{${key}\\}`, "g"), String(value));
+  }
+  return result;
+};
+
 export function RepoSearchDialog({
   open,
   onClose,
   onSelectMatch,
 }: RepoSearchDialogProps) {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [replacement, setReplacement] = useState("");
   const [caseSensitive, setCaseSensitive] = useState(false);
@@ -69,7 +82,6 @@ export function RepoSearchDialog({
   const [replaceResult, setReplaceResult] = useState<ReplaceResult | null>(
     null,
   );
-  /* const [selectedFileIndex, setSelectedFileIndex] = useState(-1); */
   const queryInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -80,7 +92,7 @@ export function RepoSearchDialog({
 
   const handleSearch = async () => {
     if (!query.trim()) {
-      setError(REPO_SEARCH_TEXT.emptyQueryError);
+      setError(t(REPO_SEARCH_KEYS.emptyQueryError));
       return;
     }
 
@@ -88,7 +100,6 @@ export function RepoSearchDialog({
     setError(null);
     setReplaceResult(null);
     setResults([]);
-    /* setSelectedFileIndex(-1); */
 
     try {
       const response = await window.notegitApi.search.repoWide(query, {
@@ -99,13 +110,13 @@ export function RepoSearchDialog({
       if (response.ok && response.data) {
         setResults(response.data);
         if (response.data.length === 0) {
-          setError(REPO_SEARCH_TEXT.noMatches);
+          setError(t(REPO_SEARCH_KEYS.noMatches));
         }
       } else {
-        setError(response.error?.message || REPO_SEARCH_TEXT.searchFailed);
+        setError(response.error?.message || t(REPO_SEARCH_KEYS.searchFailed));
       }
     } catch (err: any) {
-      setError(err.message || REPO_SEARCH_TEXT.searchFailed);
+      setError(err.message || t(REPO_SEARCH_KEYS.searchFailed));
     } finally {
       setSearching(false);
     }
@@ -113,7 +124,7 @@ export function RepoSearchDialog({
 
   const handleReplaceInFile = async (filePath: string) => {
     if (!query.trim() || !replacement) {
-      setError(REPO_SEARCH_TEXT.replaceMissingError);
+      setError(t(REPO_SEARCH_KEYS.replaceMissingError));
       return;
     }
 
@@ -135,10 +146,10 @@ export function RepoSearchDialog({
         setReplaceResult(response.data);
         await handleSearch();
       } else {
-        setError(response.error?.message || REPO_SEARCH_TEXT.replaceFailed);
+        setError(response.error?.message || t(REPO_SEARCH_KEYS.replaceFailed));
       }
     } catch (err: any) {
-      setError(err.message || REPO_SEARCH_TEXT.replaceFailed);
+      setError(err.message || t(REPO_SEARCH_KEYS.replaceFailed));
     } finally {
       setReplacing(false);
     }
@@ -146,13 +157,17 @@ export function RepoSearchDialog({
 
   const handleReplaceAll = async () => {
     if (!query.trim() || !replacement) {
-      setError(REPO_SEARCH_TEXT.replaceMissingError);
+      setError(t(REPO_SEARCH_KEYS.replaceMissingError));
       return;
     }
 
     const totalMatches = results.reduce((sum, r) => sum + r.matches.length, 0);
     const confirmed = window.confirm(
-      `Replace all ${totalMatches} matches across ${results.length} files?\n\n${REPO_SEARCH_TEXT.replaceAllConfirmSuffix}`,
+      formatTemplate(t(REPO_SEARCH_KEYS.replaceAllConfirmTemplate), {
+        matches: totalMatches,
+        files: results.length,
+        suffix: t(REPO_SEARCH_KEYS.replaceAllConfirmSuffix),
+      }),
     );
 
     if (!confirmed) return;
@@ -176,10 +191,10 @@ export function RepoSearchDialog({
         setQuery("");
         setReplacement("");
       } else {
-        setError(response.error?.message || REPO_SEARCH_TEXT.replaceFailed);
+        setError(response.error?.message || t(REPO_SEARCH_KEYS.replaceFailed));
       }
     } catch (err: any) {
-      setError(err.message || REPO_SEARCH_TEXT.replaceFailed);
+      setError(err.message || t(REPO_SEARCH_KEYS.replaceFailed));
     } finally {
       setReplacing(false);
     }
@@ -205,7 +220,7 @@ export function RepoSearchDialog({
         <Box sx={titleRowSx}>
           <SearchIcon />
           <Typography variant="h6" sx={titleTextSx}>
-            {REPO_SEARCH_TEXT.title}
+            {t(REPO_SEARCH_KEYS.title)}
           </Typography>
           <IconButton size="small" onClick={onClose}>
             <CloseIcon />
@@ -218,8 +233,8 @@ export function RepoSearchDialog({
           <TextField
             inputRef={queryInputRef}
             fullWidth
-            label={REPO_SEARCH_TEXT.findLabel}
-            placeholder={REPO_SEARCH_TEXT.findPlaceholder}
+            label={t(REPO_SEARCH_KEYS.findLabel)}
+            placeholder={t(REPO_SEARCH_KEYS.findPlaceholder)}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -229,8 +244,8 @@ export function RepoSearchDialog({
 
           <TextField
             fullWidth
-            label={REPO_SEARCH_TEXT.replaceLabel}
-            placeholder={REPO_SEARCH_TEXT.replacePlaceholder}
+            label={t(REPO_SEARCH_KEYS.replaceLabel)}
+            placeholder={t(REPO_SEARCH_KEYS.replacePlaceholder)}
             value={replacement}
             onChange={(e) => setReplacement(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -247,7 +262,7 @@ export function RepoSearchDialog({
                 disabled={searching || replacing}
               />
             }
-            label={REPO_SEARCH_TEXT.caseSensitive}
+            label={t(REPO_SEARCH_KEYS.caseSensitive)}
           />
           <FormControlLabel
             control={
@@ -257,7 +272,7 @@ export function RepoSearchDialog({
                 disabled={searching || replacing}
               />
             }
-            label={REPO_SEARCH_TEXT.useRegex}
+            label={t(REPO_SEARCH_KEYS.useRegex)}
           />
         </Box>
 
@@ -272,8 +287,8 @@ export function RepoSearchDialog({
           sx={actionButtonSx}
         >
           {searching
-            ? REPO_SEARCH_TEXT.searching
-            : REPO_SEARCH_TEXT.searchButton}
+            ? t(REPO_SEARCH_KEYS.searching)
+            : t(REPO_SEARCH_KEYS.searchButton)}
         </Button>
 
         {replaceResult && (
@@ -283,13 +298,17 @@ export function RepoSearchDialog({
             onClose={() => setReplaceResult(null)}
           >
             <Typography variant="body2">
-              Replaced {replaceResult.totalReplacements} occurrences in{" "}
-              {replaceResult.filesModified} of {replaceResult.filesProcessed}{" "}
-              files
+              {formatTemplate(t(REPO_SEARCH_KEYS.replaceSummaryTemplate), {
+                replacements: replaceResult.totalReplacements,
+                modified: replaceResult.filesModified,
+                processed: replaceResult.filesProcessed,
+              })}
             </Typography>
             {replaceResult.errors.length > 0 && (
               <Typography variant="caption" color="error">
-                {replaceResult.errors.length} files had errors
+                {formatTemplate(t(REPO_SEARCH_KEYS.filesHadErrorsTemplate), {
+                  count: replaceResult.errors.length,
+                })}
               </Typography>
             )}
           </Alert>
@@ -298,7 +317,7 @@ export function RepoSearchDialog({
         {error && (
           <Alert
             severity={
-              results.length === 0 && error === REPO_SEARCH_TEXT.noMatches
+              results.length === 0 && error === t(REPO_SEARCH_KEYS.noMatches)
                 ? "info"
                 : "error"
             }
@@ -312,10 +331,13 @@ export function RepoSearchDialog({
           <>
             <Box sx={resultsHeaderSx}>
               <Typography variant="subtitle2">
-                Found {totalMatches} matches in {results.length} files
+                {formatTemplate(t(REPO_SEARCH_KEYS.foundMatchesTemplate), {
+                  matches: totalMatches,
+                  files: results.length,
+                })}
               </Typography>
               {replacement && (
-                <Tooltip title={REPO_SEARCH_TEXT.replaceAllTooltip}>
+                <Tooltip title={t(REPO_SEARCH_KEYS.replaceAllTooltip)}>
                   <Button
                     size="small"
                     variant="outlined"
@@ -330,7 +352,7 @@ export function RepoSearchDialog({
                     disabled={replacing}
                     color="warning"
                   >
-                    {REPO_SEARCH_TEXT.replaceAllButton}
+                    {t(REPO_SEARCH_KEYS.replaceAllButton)}
                   </Button>
                 </Tooltip>
               )}
@@ -353,7 +375,10 @@ export function RepoSearchDialog({
                               {fileResult.fileName}
                             </Typography>
                             <Chip
-                              label={`${fileResult.matches.length} matches`}
+                              label={formatTemplate(
+                                t(REPO_SEARCH_KEYS.fileMatchesChipTemplate),
+                                { count: fileResult.matches.length },
+                              )}
                               size="small"
                               color="primary"
                               sx={{ height: 20 }}
@@ -368,7 +393,7 @@ export function RepoSearchDialog({
                                 disabled={replacing}
                                 sx={replaceInFileButtonSx}
                               >
-                                {REPO_SEARCH_TEXT.replaceInFile}
+                                {t(REPO_SEARCH_KEYS.replaceInFile)}
                               </Button>
                             )}
                           </Box>
@@ -400,7 +425,12 @@ export function RepoSearchDialog({
                                 color="text.secondary"
                                 sx={matchLineSx}
                               >
-                                Line {match.lineNumber}:
+                                {formatTemplate(
+                                  t(REPO_SEARCH_KEYS.lineLabelTemplate),
+                                  {
+                                    lineNumber: match.lineNumber,
+                                  },
+                                )}
                               </Typography>
                               <Typography variant="body2" component="span">
                                 {match.lineContent.substring(
@@ -424,7 +454,12 @@ export function RepoSearchDialog({
                     {fileResult.matches.length > 5 && (
                       <ListItem sx={extraMatchesSx}>
                         <Typography variant="caption" color="text.secondary">
-                          ... and {fileResult.matches.length - 5} more matches
+                          {formatTemplate(
+                            t(REPO_SEARCH_KEYS.extraMatchesTemplate),
+                            {
+                              count: fileResult.matches.length - 5,
+                            },
+                          )}
                         </Typography>
                       </ListItem>
                     )}
@@ -438,9 +473,9 @@ export function RepoSearchDialog({
 
       <DialogActions>
         <Typography variant="caption" color="text.secondary" sx={actionsHintSx}>
-          {REPO_SEARCH_TEXT.repoSearchHint}
+          {t(REPO_SEARCH_KEYS.repoSearchHint)}
         </Typography>
-        <Button onClick={onClose}>{REPO_SEARCH_TEXT.close}</Button>
+        <Button onClick={onClose}>{t(REPO_SEARCH_KEYS.close)}</Button>
       </DialogActions>
     </Dialog>
   );

@@ -1,10 +1,36 @@
+import enGbFindReplaceBar from "../../i18n/en-GB/findReplaceBar.json";
+
+type TranslateFn = (key: string) => string;
+
+export const FIND_REPLACE_KEYS = {
+  findPlaceholder: "findReplaceBar.findPlaceholder",
+  replacePlaceholder: "findReplaceBar.replacePlaceholder",
+  noMatches: "findReplaceBar.noMatches",
+  findPrevious: "findReplaceBar.findPrevious",
+  findNext: "findReplaceBar.findNext",
+  replaceCurrent: "findReplaceBar.replaceCurrent",
+  replaceAll: "findReplaceBar.replaceAll",
+  close: "findReplaceBar.close",
+} as const;
+
+export const buildFindReplaceText = (t: TranslateFn) => ({
+  findPlaceholder: t(FIND_REPLACE_KEYS.findPlaceholder),
+  replacePlaceholder: t(FIND_REPLACE_KEYS.replacePlaceholder),
+  noMatches: t(FIND_REPLACE_KEYS.noMatches),
+  findPrevious: t(FIND_REPLACE_KEYS.findPrevious),
+  findNext: t(FIND_REPLACE_KEYS.findNext),
+  replaceCurrent: t(FIND_REPLACE_KEYS.replaceCurrent),
+  replaceAll: t(FIND_REPLACE_KEYS.replaceAll),
+  close: t(FIND_REPLACE_KEYS.close),
+});
+
 export const FIND_REPLACE_TEXT = {
-  findPlaceholder: "Find",
-  replacePlaceholder: "Replace",
-  noMatches: "No matches",
-  findPrevious: "Find previous (Shift+Enter)",
-  findNext: "Find next (Enter)",
-  replaceCurrent: "Replace current match",
-  replaceAll: "Replace all matches",
-  close: "Close (Esc)",
+  findPlaceholder: enGbFindReplaceBar.findPlaceholder,
+  replacePlaceholder: enGbFindReplaceBar.replacePlaceholder,
+  noMatches: enGbFindReplaceBar.noMatches,
+  findPrevious: enGbFindReplaceBar.findPrevious,
+  findNext: enGbFindReplaceBar.findNext,
+  replaceCurrent: enGbFindReplaceBar.replaceCurrent,
+  replaceAll: enGbFindReplaceBar.replaceAll,
+  close: enGbFindReplaceBar.close,
 } as const;

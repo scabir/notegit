@@ -1,53 +1,130 @@
-export const SHORTCUT_HELPER_TEXT = {
-  title: "Keyboard Shortcuts",
-  footer: "Press F1 again to close this helper",
+import enGbShortcutHelper from "../../i18n/en-GB/shortcutHelper.json";
+
+type TranslateFn = (key: string) => string;
+
+export const SHORTCUT_HELPER_KEYS = {
+  title: "shortcutHelper.title",
+  footer: "shortcutHelper.footer",
 } as const;
 
 export const SHORTCUT_HELPER_SECTIONS = [
   {
-    title: "File tree",
+    titleKey: "shortcutHelper.sections.fileTree",
     shortcuts: [
-      { label: "Add new file", keys: "Ctrl/Cmd + A" },
-      { label: "Add new folder", keys: "Ctrl/Cmd + D" },
-      { label: "Delete selection", keys: "Delete or Cmd + Delete (mac)" },
-      { label: "Import file", keys: "Ctrl/Cmd + I" },
-      { label: "Rename selection", keys: "Ctrl/Cmd + R or F2" },
-      { label: "Move selection", keys: "Ctrl/Cmd + M" },
-      { label: "Duplicate file", keys: "Ctrl/Cmd + Shift + U" },
-      { label: "Toggle favorite", keys: "Ctrl/Cmd + Shift + S" },
-      { label: "Collapse all folders", keys: "Ctrl/Cmd + Shift + E" },
+      { labelKey: "shortcutHelper.labels.addNewFile", keys: "Ctrl/Cmd + A" },
+      { labelKey: "shortcutHelper.labels.addNewFolder", keys: "Ctrl/Cmd + D" },
+      {
+        labelKey: "shortcutHelper.labels.deleteSelection",
+        keys: "Delete or Cmd + Delete (mac)",
+      },
+      { labelKey: "shortcutHelper.labels.importFile", keys: "Ctrl/Cmd + I" },
+      {
+        labelKey: "shortcutHelper.labels.renameSelection",
+        keys: "Ctrl/Cmd + R or F2",
+      },
+      { labelKey: "shortcutHelper.labels.moveSelection", keys: "Ctrl/Cmd + M" },
+      {
+        labelKey: "shortcutHelper.labels.duplicateFile",
+        keys: "Ctrl/Cmd + Shift + U",
+      },
+      {
+        labelKey: "shortcutHelper.labels.toggleFavorite",
+        keys: "Ctrl/Cmd + Shift + S",
+      },
+      {
+        labelKey: "shortcutHelper.labels.collapseAllFolders",
+        keys: "Ctrl/Cmd + Shift + E",
+      },
     ],
   },
   {
-    title: "Editor formatting",
+    titleKey: "shortcutHelper.sections.editorFormatting",
     shortcuts: [
-      { label: "Bold", keys: "Ctrl/Cmd + B" },
-      { label: "Italic", keys: "Ctrl/Cmd + T" },
-      { label: "Heading", keys: "Ctrl/Cmd + H" },
-      { label: "Inline code", keys: "Ctrl/Cmd + `" },
-      { label: "Code block", keys: "Ctrl/Cmd + Shift + { or }" },
-      { label: "Link", keys: "Ctrl/Cmd + L" },
-      { label: "Table", keys: "Ctrl/Cmd + Shift + T" },
-      { label: "Footnote", keys: "Ctrl/Cmd + Shift + F" },
-      { label: "Task list", keys: "Ctrl/Cmd + Shift + L" },
-      { label: "Highlight", keys: "Ctrl/Cmd + Shift + H" },
-      { label: "Definition list", keys: "Ctrl/Cmd + Shift + D" },
-      { label: "Mermaid diagram", keys: "Ctrl/Cmd + Shift + M" },
+      { labelKey: "shortcutHelper.labels.bold", keys: "Ctrl/Cmd + B" },
+      { labelKey: "shortcutHelper.labels.italic", keys: "Ctrl/Cmd + T" },
+      { labelKey: "shortcutHelper.labels.heading", keys: "Ctrl/Cmd + H" },
+      { labelKey: "shortcutHelper.labels.inlineCode", keys: "Ctrl/Cmd + `" },
+      {
+        labelKey: "shortcutHelper.labels.codeBlock",
+        keys: "Ctrl/Cmd + Shift + { or }",
+      },
+      { labelKey: "shortcutHelper.labels.link", keys: "Ctrl/Cmd + L" },
+      { labelKey: "shortcutHelper.labels.table", keys: "Ctrl/Cmd + Shift + T" },
+      {
+        labelKey: "shortcutHelper.labels.footnote",
+        keys: "Ctrl/Cmd + Shift + F",
+      },
+      {
+        labelKey: "shortcutHelper.labels.taskList",
+        keys: "Ctrl/Cmd + Shift + L",
+      },
+      {
+        labelKey: "shortcutHelper.labels.highlight",
+        keys: "Ctrl/Cmd + Shift + H",
+      },
+      {
+        labelKey: "shortcutHelper.labels.definitionList",
+        keys: "Ctrl/Cmd + Shift + D",
+      },
+      {
+        labelKey: "shortcutHelper.labels.mermaidDiagram",
+        keys: "Ctrl/Cmd + Shift + M",
+      },
     ],
   },
   {
-    title: "Global",
+    titleKey: "shortcutHelper.sections.global",
     shortcuts: [
-      { label: "Save current note", keys: "Ctrl/Cmd + S" },
-      { label: "Navigate back", keys: "Ctrl/Cmd + Left" },
-      { label: "Navigate forward", keys: "Ctrl/Cmd + Right" },
-      { label: "Quick file search", keys: "Ctrl/Cmd + P" },
-      { label: "Quick search alternative", keys: "Ctrl/Cmd + K" },
-      { label: "Find in file", keys: "Ctrl/Cmd + F" },
-      { label: "Find in repo", keys: "Ctrl/Cmd + Shift + F" },
-      { label: "Open settings", keys: "Ctrl/Cmd + ," },
-      { label: "Quit application", keys: "Ctrl/Cmd + Q" },
-      { label: "Toggle this helper", keys: "F1" },
+      {
+        labelKey: "shortcutHelper.labels.saveCurrentNote",
+        keys: "Ctrl/Cmd + S",
+      },
+      {
+        labelKey: "shortcutHelper.labels.navigateBack",
+        keys: "Ctrl/Cmd + Left",
+      },
+      {
+        labelKey: "shortcutHelper.labels.navigateForward",
+        keys: "Ctrl/Cmd + Right",
+      },
+      {
+        labelKey: "shortcutHelper.labels.quickFileSearch",
+        keys: "Ctrl/Cmd + P",
+      },
+      {
+        labelKey: "shortcutHelper.labels.quickSearchAlternative",
+        keys: "Ctrl/Cmd + K",
+      },
+      { labelKey: "shortcutHelper.labels.findInFile", keys: "Ctrl/Cmd + F" },
+      {
+        labelKey: "shortcutHelper.labels.findInRepo",
+        keys: "Ctrl/Cmd + Shift + F",
+      },
+      { labelKey: "shortcutHelper.labels.openSettings", keys: "Ctrl/Cmd + ," },
+      {
+        labelKey: "shortcutHelper.labels.quitApplication",
+        keys: "Ctrl/Cmd + Q",
+      },
+      { labelKey: "shortcutHelper.labels.toggleThisHelper", keys: "F1" },
     ],
   },
 ] as const;
+
+export const buildShortcutHelperText = (t: TranslateFn) => ({
+  title: t(SHORTCUT_HELPER_KEYS.title),
+  footer: t(SHORTCUT_HELPER_KEYS.footer),
+});
+
+export const buildShortcutHelperSections = (t: TranslateFn) =>
+  SHORTCUT_HELPER_SECTIONS.map((section) => ({
+    title: t(section.titleKey),
+    shortcuts: section.shortcuts.map((shortcut) => ({
+      label: t(shortcut.labelKey),
+      keys: shortcut.keys,
+    })),
+  }));
+
+export const SHORTCUT_HELPER_TEXT = {
+  title: enGbShortcutHelper.title,
+  footer: enGbShortcutHelper.footer,
+} as const;

@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Typography } from "@mui/material";
+import { useI18n } from "../../i18n";
+import { buildMarkdownEditorMessages } from "../MarkdownEditor/constants";
 
 interface MermaidDiagramProps {
   code: string;
@@ -7,6 +9,8 @@ interface MermaidDiagramProps {
 }
 
 export function MermaidDiagram({ code, isDark }: MermaidDiagramProps) {
+  const { t } = useI18n();
+  const messages = React.useMemo(() => buildMarkdownEditorMessages(t), [t]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const diagramIdRef = useRef(
     `mermaid-${Math.random().toString(36).slice(2, 9)}`,
@@ -36,9 +40,7 @@ export function MermaidDiagram({ code, isDark }: MermaidDiagramProps) {
       } catch (err) {
         if (!active) return;
         setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to render mermaid diagram",
+          err instanceof Error ? err.message : messages.failedRenderMermaid,
         );
       }
     };
@@ -50,7 +52,7 @@ export function MermaidDiagram({ code, isDark }: MermaidDiagramProps) {
     return () => {
       active = false;
     };
-  }, [code, isDark]);
+  }, [code, isDark, messages.failedRenderMermaid]);
 
   if (error) {
     return (
@@ -60,7 +62,7 @@ export function MermaidDiagram({ code, isDark }: MermaidDiagramProps) {
           color="error"
           sx={{ display: "block", mb: 1 }}
         >
-          Mermaid render error: {error}
+          {messages.mermaidRenderErrorPrefix}: {error}
         </Typography>
         <pre style={{ margin: 0 }}>{code}</pre>
       </Box>

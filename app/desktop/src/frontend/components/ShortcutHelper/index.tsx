@@ -8,7 +8,10 @@ import React, {
 import { IconButton, Tooltip, Menu, Box, Typography } from "@mui/material";
 import { QuestionMarkRounded as HelpIcon } from "@mui/icons-material";
 import { useI18n } from "../../i18n";
-import { SHORTCUT_HELPER_TEXT, SHORTCUT_HELPER_SECTIONS } from "./constants";
+import {
+  buildShortcutHelperSections,
+  buildShortcutHelperText,
+} from "./constants";
 import {
   shortcutMenuSx,
   shortcutSectionSx,
@@ -23,6 +26,8 @@ export type ShortcutHelperHandle = {
 export const ShortcutHelper = React.forwardRef<ShortcutHelperHandle>(
   (_props, ref) => {
     const { t } = useI18n();
+    const text = React.useMemo(() => buildShortcutHelperText(t), [t]);
+    const sections = React.useMemo(() => buildShortcutHelperSections(t), [t]);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const buttonRef = useRef<HTMLButtonElement | null>(null);
     const fallbackRef = useRef<HTMLElement | null>(null);
@@ -82,10 +87,8 @@ export const ShortcutHelper = React.forwardRef<ShortcutHelperHandle>(
           MenuListProps={{ sx: { p: 0 } }}
         >
           <Box sx={shortcutMenuSx}>
-            <Typography variant="subtitle1">
-              {SHORTCUT_HELPER_TEXT.title}
-            </Typography>
-            {SHORTCUT_HELPER_SECTIONS.map((section) => (
+            <Typography variant="subtitle1">{text.title}</Typography>
+            {sections.map((section) => (
               <Box key={section.title} sx={shortcutSectionSx}>
                 <Typography variant="subtitle2" color="text.secondary">
                   {section.title}
@@ -104,7 +107,7 @@ export const ShortcutHelper = React.forwardRef<ShortcutHelperHandle>(
               </Box>
             ))}
             <Typography variant="caption" color="text.secondary">
-              {SHORTCUT_HELPER_TEXT.footer}
+              {text.footer}
             </Typography>
           </Box>
         </Menu>

@@ -5,7 +5,8 @@ import {
   ArrowForward as ForwardIcon,
   Menu as MenuIcon,
 } from "@mui/icons-material";
-import { IMAGE_VIEWER_TEXT } from "./constants";
+import { useI18n } from "../../i18n";
+import { buildImageViewerText } from "./constants";
 import {
   emptyStateSx,
   filePathSx,
@@ -39,8 +40,10 @@ export function ImageViewer({
   repoPath,
   treePanelControls,
 }: ImageViewerProps) {
+  const { t } = useI18n();
+  const text = React.useMemo(() => buildImageViewerText(t), [t]);
   if (!file) {
-    return <Box sx={emptyStateSx}>{IMAGE_VIEWER_TEXT.emptyState}</Box>;
+    return <Box sx={emptyStateSx}>{text.emptyState}</Box>;
   }
 
   const src = toFileUrl(repoPath, file.path);
@@ -50,12 +53,12 @@ export function ImageViewer({
       <Toolbar variant="dense" disableGutters sx={toolbarSx}>
         {treePanelControls && (
           <Box sx={treeControlsRowSx}>
-            <Tooltip title={IMAGE_VIEWER_TEXT.showTreeTooltip}>
+            <Tooltip title={text.showTreeTooltip}>
               <IconButton size="small" onClick={treePanelControls.onToggleTree}>
                 <MenuIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-            <Tooltip title={IMAGE_VIEWER_TEXT.backTooltip}>
+            <Tooltip title={text.backTooltip}>
               <span>
                 <IconButton
                   size="small"
@@ -66,7 +69,7 @@ export function ImageViewer({
                 </IconButton>
               </span>
             </Tooltip>
-            <Tooltip title={IMAGE_VIEWER_TEXT.forwardTooltip}>
+            <Tooltip title={text.forwardTooltip}>
               <span>
                 <IconButton
                   size="small"
@@ -89,7 +92,7 @@ export function ImageViewer({
         <Box
           component="img"
           src={src}
-          alt={file.path || IMAGE_VIEWER_TEXT.imagePreviewAlt}
+          alt={file.path || text.imagePreviewAlt}
           sx={imageSx}
         />
       </Box>
