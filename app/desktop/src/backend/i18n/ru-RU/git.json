@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "Ошибка аутентификации. Проверьте учетные данные.",
+    "authenticationFailedPull": "Ошибка аутентификации при pull",
+    "authenticationFailedPush": "Ошибка аутентификации при push",
+    "mergeConflictDetected": "Обнаружен конфликт слияния. Разрешите конфликт вручную.",
+    "failedCloneRepository": "Не удалось клонировать репозиторий: {message}",
+    "failedGetStatus": "Не удалось получить статус git: {message}",
+    "failedPull": "Не удалось выполнить pull: {message}",
+    "failedPush": "Не удалось выполнить push: {message}",
+    "failedAddFile": "Не удалось добавить файл: {message}",
+    "failedCommit": "Не удалось выполнить commit: {message}",
+    "failedAddRemote": "Не удалось добавить remote: {message}",
+    "failedGetLog": "Не удалось получить git log: {message}",
+    "failedShowFile": "Не удалось показать файл: {message}",
+    "failedGetDiff": "Не удалось получить diff: {message}",
+    "notInitialized": "Git-адаптер не инициализирован"
+  }
+}

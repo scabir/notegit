@@ -1,0 +1,42 @@
+{
+  "title": "Горячие клавиши",
+  "footer": "Нажмите F1 еще раз, чтобы закрыть подсказку",
+  "sections": {
+    "fileTree": "Дерево файлов",
+    "editorFormatting": "Форматирование в редакторе",
+    "global": "Глобальные"
+  },
+  "labels": {
+    "addNewFile": "Добавить новый файл",
+    "addNewFolder": "Добавить новую папку",
+    "deleteSelection": "Удалить выделенное",
+    "importFile": "Импорт файла",
+    "renameSelection": "Переименовать выделенное",
+    "moveSelection": "Переместить выделенное",
+    "duplicateFile": "Дублировать файл",
+    "toggleFavorite": "Добавить/убрать из избранного",
+    "collapseAllFolders": "Свернуть все папки",
+    "bold": "Жирный",
+    "italic": "Курсив",
+    "heading": "Заголовок",
+    "inlineCode": "Встроенный код",
+    "codeBlock": "Блок кода",
+    "link": "Ссылка",
+    "table": "Таблица",
+    "footnote": "Сноска",
+    "taskList": "Список задач",
+    "highlight": "Выделение",
+    "definitionList": "Список определений",
+    "mermaidDiagram": "Диаграмма Mermaid",
+    "saveCurrentNote": "Сохранить текущую заметку",
+    "navigateBack": "Назад",
+    "navigateForward": "Вперед",
+    "quickFileSearch": "Быстрый поиск файла",
+    "quickSearchAlternative": "Альтернативный быстрый поиск",
+    "findInFile": "Найти в файле",
+    "findInRepo": "Найти в репозитории",
+    "openSettings": "Открыть настройки",
+    "quitApplication": "Закрыть приложение",
+    "toggleThisHelper": "Показать/скрыть эту подсказку"
+  }
+}

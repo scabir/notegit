@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "Gestão de perfis",
+  "info": "Os perfis permitem-lhe trabalhar com vários repositórios. Apenas um perfil está ativo de cada vez. Ao criar um novo perfil, a aplicação prepara o repositório. Ao mudar de perfil, a aplicação reinicia.",
+  "activeProfileTitle": "Perfil ativo",
+  "activeChipLabel": "Ativo",
+  "deleteAriaLabel": "eliminar",
+  "createNewProfileButton": "Criar novo perfil",
+  "newProfileTitle": "Novo perfil",
+  "creatingProfileMessage": "A criar perfil e a preparar repositório... Isto pode demorar alguns instantes.",
+  "repositoryTypeLabel": "Tipo de repositório",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Local"
+  },
+  "profileNameLabel": "Nome do perfil",
+  "profileNamePlaceholder": "O Meu Repositório de Notas",
+  "profileNameHelper": "Será criada automaticamente uma pasta local com base neste nome",
+  "git": {
+    "remoteUrlLabel": "URL remota",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Ramo",
+    "branchPlaceholder": "main",
+    "patLabel": "Token de acesso pessoal",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "O seu Personal Access Token é guardado de forma encriptada"
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Região",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefixo (opcional)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "ID da access key",
+    "secretAccessKeyLabel": "Secret access key",
+    "secretAccessKeyHelperText": "Guardada de forma encriptada no diretório de dados da aplicação.",
+    "sessionTokenLabel": "Session token (opcional)"
+  },
+  "local": {
+    "info": "Os repositórios locais são guardados apenas neste dispositivo e não sincronizam."
+  },
+  "createProfileButton": "Criar perfil",
+  "creatingButton": "A criar...",
+  "cancelButton": "Cancelar"
+}

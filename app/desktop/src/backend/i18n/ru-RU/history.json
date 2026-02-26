@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "Не удалось получить историю файла",
+    "failedGetFileVersion": "Не удалось получить версию файла",
+    "failedGetDiff": "Не удалось получить diff",
+    "noRepositoryConfigured": "Репозиторий не настроен",
+    "unsupportedProvider": "Неподдерживаемый провайдер истории: {provider}",
+    "localHistoryUnavailable": "История недоступна для локальных репозиториев",
+    "s3DiffNotSupported": "Diff не поддерживается для истории S3"
+  }
+}

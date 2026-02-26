@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Не удалось получить состояние версионирования bucket: {message}",
+    "failedListObjects": "Не удалось получить список объектов: {message}",
+    "failedListObjectVersions": "Не удалось получить список версий объектов: {message}",
+    "failedGetObject": "Не удалось получить объект: {message}",
+    "failedUploadObject": "Не удалось загрузить объект: {message}",
+    "failedReadObjectMetadata": "Не удалось прочитать метаданные объекта: {message}",
+    "failedDeleteObject": "Не удалось удалить объект: {message}",
+    "notConfigured": "S3-адаптер не настроен",
+    "bucketNotConfigured": "Bucket S3 не настроен"
+  }
+}

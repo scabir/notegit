@@ -1,0 +1,11 @@
+{
+  "title": "Fazer commit das alterações",
+  "messageLabel": "Mensagem de commit",
+  "messagePlaceholder": "Descreva as suas alterações...",
+  "helperText": "Cmd/Ctrl+Enter para fazer commit",
+  "cancel": "Cancelar",
+  "confirm": "Commit e Push",
+  "loading": "A fazer commit...",
+  "emptyMessageError": "Introduza uma mensagem de commit",
+  "commitFailed": "Não foi possível fazer commit"
+}

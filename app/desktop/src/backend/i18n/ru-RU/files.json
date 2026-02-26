@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "Не удалось получить список файлов",
+    "read": "Не удалось прочитать файл",
+    "save": "Не удалось сохранить файл",
+    "saveWithGitWorkflow": "Не удалось сохранить файл в Git-потоке",
+    "commitFile": "Не удалось выполнить commit файла",
+    "commitAll": "Не удалось выполнить commit всех изменений",
+    "commitAndPush": "Не удалось выполнить commit и push изменений",
+    "createFile": "Не удалось создать файл",
+    "createFolder": "Не удалось создать папку",
+    "delete": "Не удалось удалить",
+    "rename": "Не удалось переименовать",
+    "duplicateFile": "Не удалось дублировать файл",
+    "importFile": "Не удалось импортировать файл",
+    "localRepoNoSync": "Локальные репозитории не поддерживают синхронизацию",
+    "gitAdapterNotInitialized": "Git-адаптер не инициализирован",
+    "onlyFilesCanBeDuplicated": "Дублировать можно только файлы",
+    "noRepositoryConfigured": "Репозиторий не настроен",
+    "gitOnlyOperation": "Операции Git доступны только для Git-репозиториев"
+  },
+  "success": {
+    "syncedSuccessfully": "Синхронизация выполнена успешно",
+    "nothingToCommit": "Нет изменений для commit",
+    "committedAndPushedSuccessfully": "Изменения успешно закоммичены и отправлены"
+  },
+  "commit": {
+    "updatePrefix": "Обновление:",
+    "andMore": "и еще {count}",
+    "multipleFiles": "несколько файлов"
+  }
+}

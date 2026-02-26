@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "Не удалось загрузить конфигурацию",
+    "failedUpdateAppSettings": "Не удалось обновить настройки приложения",
+    "failedUpdateRepositorySettings": "Не удалось обновить настройки репозитория",
+    "failedLoadApplicationSettings": "Не удалось загрузить настройки приложения",
+    "failedLoadFavorites": "Не удалось загрузить избранное",
+    "failedSaveFavorites": "Не удалось сохранить избранное",
+    "failedLoadProfiles": "Не удалось загрузить профили",
+    "failedLoadActiveProfileId": "Не удалось загрузить ID активного профиля",
+    "failedPrepareRepositoryTemplate": "Не удалось подготовить репозиторий: {message}",
+    "failedCreateProfileTemplate": "Не удалось создать профиль: {message}",
+    "failedDeleteProfile": "Не удалось удалить профиль",
+    "failedSetActiveProfile": "Не удалось установить активный профиль",
+    "repoProviderCannotChange": "Провайдера репозитория нельзя изменить",
+    "s3RequiredFields": "Обязательны bucket S3, регион, ключ доступа и секрет"
+  }
+}

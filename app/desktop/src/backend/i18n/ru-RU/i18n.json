@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "Не удалось загрузить метаданные i18n",
+    "failedLoadFrontendTranslations": "Не удалось загрузить переводы фронтенда",
+    "languageRequired": "Язык обязателен",
+    "unsupportedLanguage": "Неподдерживаемый язык: {language}",
+    "failedSetLanguage": "Не удалось установить язык"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "Не удалось выполнить поиск",
+    "failedRepoWideSearch": "Не удалось выполнить поиск по репозиторию",
+    "failedRepoWideReplace": "Не удалось выполнить замену по репозиторию",
+    "repositoryNotInitialized": "Репозиторий не инициализирован",
+    "searchFailed": "Ошибка поиска",
+    "repoWideSearchFailedTemplate": "Ошибка поиска по репозиторию: {message}",
+    "repoWideReplaceFailedTemplate": "Ошибка замены по репозиторию: {message}"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "emptyState": "Выберите файл для редактирования",
+  "modified": "Изменено",
+  "showTreeTooltip": "Показать дерево файлов",
+  "backTooltip": "Назад",
+  "forwardTooltip": "Вперед",
+  "saveTooltip": "Сохранить на диск",
+  "exportTooltip": "Экспорт заметки",
+  "messages": {
+    "failedExportNote": "Не удалось экспортировать заметку",
+    "failedExportTemplate": "Не удалось экспортировать: {message}",
+    "unknownError": "Неизвестная ошибка"
+  }
+}

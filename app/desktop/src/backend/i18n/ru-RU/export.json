@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "Экспорт заметки",
+    "exportRepoZipTitle": "Экспорт репозитория в Zip",
+    "markdownFiles": "Файлы Markdown",
+    "textFiles": "Текстовые файлы",
+    "zipArchives": "Архивы Zip",
+    "allFiles": "Все файлы"
+  },
+  "errors": {
+    "cancelled": "Экспорт отменен",
+    "failedExportNote": "Не удалось экспортировать заметку",
+    "failedExportRepositoryZip": "Не удалось экспортировать репозиторий в zip",
+    "failedExportNoteTemplate": "Не удалось экспортировать заметку: {message}",
+    "failedExportRepoTemplate": "Не удалось экспортировать репозиторий: {message}",
+    "noRepositoryConfigured": "Репозиторий не настроен"
+  }
+}

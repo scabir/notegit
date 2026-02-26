@@ -1,0 +1,42 @@
+{
+  "title": "Atalhos de teclado",
+  "footer": "Prima F1 novamente para fechar esta ajuda",
+  "sections": {
+    "fileTree": "Árvore de ficheiros",
+    "editorFormatting": "Formatação do editor",
+    "global": "Geral"
+  },
+  "labels": {
+    "addNewFile": "Adicionar novo ficheiro",
+    "addNewFolder": "Adicionar nova pasta",
+    "deleteSelection": "Eliminar seleção",
+    "importFile": "Importar ficheiro",
+    "renameSelection": "Renomear seleção",
+    "moveSelection": "Mover seleção",
+    "duplicateFile": "Duplicar ficheiro",
+    "toggleFavorite": "Ativar/desativar favorito",
+    "collapseAllFolders": "Recolher todas as pastas",
+    "bold": "Negrito",
+    "italic": "Itálico",
+    "heading": "Título",
+    "inlineCode": "Código inline",
+    "codeBlock": "Bloco de código",
+    "link": "Ligação",
+    "table": "Tabela",
+    "footnote": "Nota de rodapé",
+    "taskList": "Lista de tarefas",
+    "highlight": "Destaque",
+    "definitionList": "Lista de definições",
+    "mermaidDiagram": "Diagrama Mermaid",
+    "saveCurrentNote": "Guardar nota atual",
+    "navigateBack": "Navegar para trás",
+    "navigateForward": "Navegar para a frente",
+    "quickFileSearch": "Pesquisa rápida de ficheiros",
+    "quickSearchAlternative": "Alternativa de pesquisa rápida",
+    "findInFile": "Encontrar no ficheiro",
+    "findInRepo": "Encontrar no repositório",
+    "openSettings": "Abrir definições",
+    "quitApplication": "Sair da aplicação",
+    "toggleThisHelper": "Mostrar/ocultar esta ajuda"
+  }
+}
