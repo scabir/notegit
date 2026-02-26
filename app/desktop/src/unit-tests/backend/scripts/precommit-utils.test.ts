@@ -42,6 +42,12 @@ describe("precommit-utils", () => {
     expect(precommitUtils.isBinaryContent(Buffer.from("hello\nworld"))).toBe(
       false,
     );
+    expect(
+      precommitUtils.isBinaryContent(Buffer.from("Привет, мир", "utf8")),
+    ).toBe(false);
+    expect(
+      precommitUtils.isBinaryContent(Buffer.from([255, 254, 253, 252])),
+    ).toBe(true);
     expect(precommitUtils.isBinaryContent(Buffer.from([0, 1, 2, 3, 4]))).toBe(
       true,
     );

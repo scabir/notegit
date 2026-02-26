@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
+const { TextDecoder } = require("util");
 
 const DEFAULT_MAX_FILE_BYTES = 1024 * 1024;
 const DEPENDENCY_FIELDS = [
@@ -34,6 +35,7 @@ const ALLOWED_BINARY_PATH_PREFIXES = [
   "src/electron/resources/",
   "docs/assets/",
 ];
+const UTF8_TEXT_DECODER = new TextDecoder("utf-8", { fatal: true });
 const SECRET_PATTERNS = [
   { name: "aws-access-key-id", regex: /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/g },
   { name: "github-token", regex: /\bgh[pousr]_[A-Za-z0-9]{20,}\b/g },
@@ -117,11 +119,25 @@ const isBinaryContent = (buffer) => {
   }
 
   const sample = buffer.subarray(0, Math.min(buffer.length, 8000));
-  let suspicious = 0;
   for (const byte of sample) {
     if (byte === 0) {
       return true;
     }
+  }
+
+  // Accept valid UTF-8 text (including non-ASCII locales such as Cyrillic).
+  // We trim up to 3 bytes to avoid false negatives when sample cuts a code point.
+  for (let trim = 0; trim <= 3 && sample.length - trim > 0; trim += 1) {
+    try {
+      UTF8_TEXT_DECODER.decode(sample.subarray(0, sample.length - trim));
+      return false;
+    } catch (_error) {
+      // Continue trying a shorter sample, then fall back to byte heuristic.
+    }
+  }
+
+  let suspicious = 0;
+  for (const byte of sample) {
     const isCommonWhitespace = byte === 9 || byte === 10 || byte === 13;
     const isPrintableAscii = byte >= 32 && byte <= 126;
     if (!isPrintableAscii && !isCommonWhitespace) {
