@@ -54,6 +54,12 @@ type FrontendBundlePayload = {
   translations: Record<string, unknown>;
 };
 
+type I18nMetaPayload = {
+  currentLocale: string;
+  fallbackLocale: string;
+  supportedLocales: string[];
+};
+
 const getModKey = () => (process.platform === "darwin" ? "Meta" : "Control");
 
 export const createIsolatedUserDataDir = async (
@@ -711,6 +717,35 @@ export const apiGetFrontendBundle = async (
     );
   }
   return response.data as FrontendBundlePayload;
+};
+
+export const apiGetI18nMeta = async (page: Page): Promise<I18nMetaPayload> => {
+  const response = await page.evaluate(async () => {
+    return await window.notegitApi.i18n.getMeta();
+  });
+  if (!response.ok || !response.data) {
+    throw new Error(response.error?.message || "Failed to load i18n metadata");
+  }
+  return response.data as I18nMetaPayload;
+};
+
+export const buildLocaleSwitchSequence = (
+  supportedLocales: string[],
+  fallbackLocale: string,
+): string[] => {
+  const uniqueLocales = Array.from(
+    new Set(
+      supportedLocales
+        .map((locale) => locale.trim())
+        .filter((locale) => locale.length > 0),
+    ),
+  );
+
+  const nonFallbackLocales = uniqueLocales
+    .filter((locale) => locale !== fallbackLocale)
+    .sort((left, right) => left.localeCompare(right));
+
+  return [...nonFallbackLocales, fallbackLocale];
 };
 
 export const getBundleString = (

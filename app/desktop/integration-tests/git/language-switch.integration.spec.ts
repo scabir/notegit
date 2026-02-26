@@ -2,7 +2,9 @@ import { expect, test } from "@playwright/test";
 import type { ElectronApplication, Page } from "@playwright/test";
 import {
   apiGetFrontendBundle,
+  apiGetI18nMeta,
   apiGetFullConfig,
+  buildLocaleSwitchSequence,
   cleanupUserDataDir,
   closeAppIfOpen,
   closeSettingsDialog,
@@ -13,9 +15,6 @@ import {
   openSettingsDialog,
   switchAppLanguageFromSettings,
 } from "../helpers/gitIntegration";
-
-const SWITCH_SEQUENCE = ["tr-TR", "es-ES", "de-DE", "en-GB"] as const;
-const PERSISTED_LOCALE = "de-DE";
 
 const expectGitLocaleApplied = async (page: Page, expectedLocale: string) => {
   const bundle = await apiGetFrontendBundle(page);
@@ -28,7 +27,7 @@ const expectGitLocaleApplied = async (page: Page, expectedLocale: string) => {
   return bundle;
 };
 
-test("(git) language switch updates UI text across English, Turkish, Spanish, and German", async ({
+test("(git) language switch updates UI text across all supported locales", async ({
   request: _request,
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
@@ -42,7 +41,13 @@ test("(git) language switch updates UI text across English, Turkish, Spanish, an
     await connectGitRepo(page);
     await expectGitLocaleApplied(page, "en-GB");
 
-    for (const locale of SWITCH_SEQUENCE) {
+    const i18nMeta = await apiGetI18nMeta(page);
+    const switchSequence = buildLocaleSwitchSequence(
+      i18nMeta.supportedLocales,
+      i18nMeta.fallbackLocale,
+    );
+
+    for (const locale of switchSequence) {
       await switchAppLanguageFromSettings(page, locale);
       const bundle = await expectGitLocaleApplied(page, locale);
       await expect(page.getByTestId("settings-dialog-title")).toHaveText(
@@ -72,7 +77,15 @@ test("(git) selected language persists across restart", async ({
     const firstPage = firstLaunch.page;
 
     await connectGitRepo(firstPage);
-    const targetLocale = PERSISTED_LOCALE;
+    const i18nMeta = await apiGetI18nMeta(firstPage);
+    const localeSwitchSequence = buildLocaleSwitchSequence(
+      i18nMeta.supportedLocales,
+      i18nMeta.fallbackLocale,
+    );
+    const targetLocale =
+      localeSwitchSequence.find(
+        (locale) => locale !== i18nMeta.fallbackLocale,
+      ) || i18nMeta.fallbackLocale;
     await switchAppLanguageFromSettings(firstPage, targetLocale);
     await closeSettingsDialog(firstPage);
 

@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "Impossible d'ouvrir ou de cloner le dépôt",
+    "failedGetRepositoryStatus": "Impossible de récupérer le statut du dépôt",
+    "failedFetchFromRemote": "Impossible de faire un fetch depuis le remote",
+    "failedPullFromRemote": "Impossible de faire un pull depuis le remote",
+    "failedPushToRemote": "Impossible de faire un push vers le remote",
+    "failedStartAutoPush": "Impossible de démarrer l'auto-push",
+    "noRepositoryConfigured": "Aucun dépôt configuré",
+    "unsupportedProvider": "Fournisseur de dépôt non pris en charge : {provider}",
+    "localRepoOperationNotSupported": "Les dépôts locaux ne prennent pas en charge l'opération {operation}"
+  }
+}

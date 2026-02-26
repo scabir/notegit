@@ -560,14 +560,29 @@ describe("S3RepoProvider", () => {
     expect(schedulePendingSync).toHaveBeenCalled();
   });
 
-  it("tracks pending sync requests when already syncing", async () => {
+  it("upgrades queued sync mode while an active cycle is running", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
     provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
-    (provider as any).syncInProgress = true;
+    const callModes: Array<"pull" | "sync"> = [];
+    let queuedSync: Promise<void> | null = null;
 
-    await (provider as any).sync("sync");
+    jest
+      .spyOn(provider as any, "performSync")
+      .mockImplementation(async (mode: unknown) => {
+        callModes.push(mode as "pull" | "sync");
+        if (callModes.length === 1) {
+          queuedSync = (provider as any).sync("sync");
+          await Promise.resolve();
+        }
+      });
 
-    expect((provider as any).pendingSyncRequested).toBe(true);
+    await (provider as any).sync("pull");
+    if (!queuedSync) {
+      throw new Error("Expected a queued sync call");
+    }
+    await queuedSync;
+
+    expect(callModes).toEqual(["pull", "sync"]);
   });
 
   it("collects remote info while ignoring folders and metadata paths", async () => {

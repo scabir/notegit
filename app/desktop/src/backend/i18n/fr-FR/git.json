@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "Échec de l'authentification. Vérifie tes identifiants.",
+    "authenticationFailedPull": "Échec de l'authentification pendant le pull",
+    "authenticationFailedPush": "Échec de l'authentification pendant le push",
+    "mergeConflictDetected": "Conflit de fusion détecté. Résous les conflits manuellement.",
+    "failedCloneRepository": "Impossible de cloner le dépôt : {message}",
+    "failedGetStatus": "Impossible de récupérer le statut Git : {message}",
+    "failedPull": "Échec du pull : {message}",
+    "failedPush": "Échec du push : {message}",
+    "failedAddFile": "Impossible d'ajouter le fichier : {message}",
+    "failedCommit": "Échec du commit : {message}",
+    "failedAddRemote": "Impossible d'ajouter le remote : {message}",
+    "failedGetLog": "Impossible de récupérer l'historique Git : {message}",
+    "failedShowFile": "Impossible d'afficher le fichier : {message}",
+    "failedGetDiff": "Impossible de récupérer le diff : {message}",
+    "notInitialized": "L'adaptateur Git n'est pas initialisé"
+  }
+}

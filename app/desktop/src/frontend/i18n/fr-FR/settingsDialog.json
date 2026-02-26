@@ -1,0 +1,72 @@
+{
+  "title": "Paramètres",
+  "close": "Fermer",
+  "copySnackbar": "Copié dans le presse-papiers",
+  "tabs": {
+    "appSettings": "Paramètres de l'application",
+    "repository": "Dépôt",
+    "profiles": "Profils",
+    "export": "Exporter",
+    "logs": "Journaux"
+  },
+  "appSettings": {
+    "languageLabel": "Langue",
+    "languageOptionEnGb": "English",
+    "languageOptionTrTr": "Türkçe",
+    "languageOptionEsEs": "Español",
+    "languageOptionDeDe": "German",
+    "languageOptionFrFr": "Français",
+    "themeLabel": "Thème",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "themeSystem": "Système",
+    "autoSaveEnabledLabel": "Activer la sauvegarde automatique",
+    "autoSaveIntervalLabel": "Intervalle de sauvegarde automatique (secondes)",
+    "s3AutoSyncEnabledLabel": "Activer la synchronisation automatique S3",
+    "s3AutoSyncIntervalLabel": "Synchronisation automatique S3 (secondes)",
+    "editorPreferencesTitle": "Préférences de l'éditeur",
+    "fontSizeLabel": "Taille de police",
+    "tabSizeLabel": "Taille de tabulation",
+    "showLineNumbersLabel": "Afficher les numéros de ligne",
+    "showMarkdownPreviewLabel": "Afficher l'aperçu Markdown",
+    "saveButton": "Enregistrer les paramètres de l'application"
+  },
+  "error": {
+    "failedLoadConfig": "Échec du chargement de la configuration",
+    "failedSaveAppSettings": "Échec de l'enregistrement des paramètres de l'application",
+    "failedSetLanguage": "Échec du changement de langue",
+    "gitFieldsRequired": "Veuillez renseigner tous les champs Git obligatoires",
+    "s3FieldsRequired": "Veuillez renseigner tous les champs S3 obligatoires",
+    "failedSaveRepoSettings": "Échec de l'enregistrement des paramètres du dépôt",
+    "noOpenNote": "Aucune note n'est actuellement ouverte",
+    "failedExportNote": "Échec de l'export de la note",
+    "failedExportRepository": "Échec de l'export du dépôt",
+    "failedSwitchProfile": "Échec du changement de profil",
+    "profileNameRequired": "Le nom du profil est obligatoire",
+    "allGitFieldsRequired": "Tous les champs du dépôt Git sont obligatoires",
+    "allS3FieldsRequired": "Tous les champs du dépôt S3 sont obligatoires",
+    "failedCreateProfile": "Échec de la création du profil",
+    "failedDeleteProfile": "Échec de la suppression du profil",
+    "failedLoadLogsFolder": "Échec du chargement du dossier des journaux",
+    "failedOpenRepositoryFolder": "Échec de l'ouverture du dossier du dépôt",
+    "failedOpenLogsFolder": "Échec de l'ouverture du dossier des journaux"
+  },
+  "success": {
+    "appSettingsSaved": "Paramètres de l'application enregistrés avec succès",
+    "localRepoNoSync": "Les dépôts locaux n'ont pas de paramètres de synchronisation",
+    "repoSettingsSaved": "Paramètres du dépôt enregistrés avec succès",
+    "noteExportedPrefix": "Note exportée avec succès vers",
+    "repositoryExportedPrefix": "Dépôt exporté avec succès vers",
+    "profileSwitched": "Profil changé avec succès. L'application va redémarrer...",
+    "profileCreated": "Profil créé avec succès",
+    "profileDeleted": "Profil supprimé avec succès"
+  },
+  "confirm": {
+    "deleteProfile": "Voulez-vous vraiment supprimer ce profil ? Cela ne supprimera pas le dépôt distant.",
+    "switchProfilePrefix": "Passer à",
+    "switchProfileSuffix": "L'application va redémarrer.",
+    "switchProfileFallbackName": "ce profil"
+  },
+  "localRepoSecondaryLabel": "Dépôt local",
+  "exportCancelledMessage": "Export annulé"
+}

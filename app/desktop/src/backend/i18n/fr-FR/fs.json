@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "Fichier introuvable : {path}",
+    "directoryNotFound": "Dossier introuvable : {path}",
+    "pathNotFound": "Chemin introuvable : {path}",
+    "sourceFileNotFound": "Fichier source introuvable : {path}",
+    "permissionDenied": "Permission refusée",
+    "permissionDeniedPath": "Permission refusée : {path}",
+    "failedReadFile": "Impossible de lire le fichier : {path}",
+    "failedWriteFile": "Impossible d'écrire le fichier : {path}",
+    "failedDeleteFile": "Impossible de supprimer le fichier : {path}",
+    "failedRename": "Impossible de renommer de {from} vers {to}",
+    "failedCreateDirectory": "Impossible de créer le dossier : {path}",
+    "failedDeleteDirectory": "Impossible de supprimer le dossier : {path}",
+    "failedReadDirectory": "Impossible de lire le dossier : {path}",
+    "failedStat": "Impossible d'obtenir les informations : {path}",
+    "failedCopyFile": "Impossible de copier le fichier de {from} vers {to}"
+  }
+}

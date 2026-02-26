@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "Journaux de l'application",
+  "info": "Les journaux sont stockés localement par jour et incluent les opérations Git/S3, les erreurs et les événements de synchronisation.",
+  "logsFolderLabel": "Dossier des journaux",
+  "openFolderButton": "Ouvrir le dossier",
+  "copyLogsFolderAriaLabel": "copier le dossier des journaux"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Historique du fichier",
+  "closeTooltip": "Fermer l'historique",
+  "selectFile": "Sélectionnez un fichier pour voir son historique",
+  "noCommits": "Aucun commit trouvé pour ce fichier",
+  "loadFailed": "Échec du chargement de l'historique",
+  "commitFoundSingularTemplate": "{count} commit trouvé",
+  "commitFoundPluralTemplate": "{count} commits trouvés",
+  "relativeTime": {
+    "justNow": "à l'instant",
+    "minutesAgoTemplate": "il y a {count} min",
+    "hoursAgoTemplate": "il y a {count} h",
+    "yesterday": "hier",
+    "daysAgoTemplate": "il y a {count} jours"
+  }
+}

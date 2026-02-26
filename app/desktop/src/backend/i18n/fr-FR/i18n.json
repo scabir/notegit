@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "Impossible de charger les métadonnées i18n",
+    "failedLoadFrontendTranslations": "Impossible de charger les traductions du frontend",
+    "languageRequired": "La langue est requise",
+    "unsupportedLanguage": "Langue non prise en charge : {language}",
+    "failedSetLanguage": "Impossible de définir la langue"
+  }
+}

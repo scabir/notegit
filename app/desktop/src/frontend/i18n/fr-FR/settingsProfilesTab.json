@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "Gestion des profils",
+  "info": "Les profils vous permettent de travailler avec plusieurs dépôts. Un seul profil est actif à la fois. Lors de la création d'un nouveau profil, l'application prépare le dépôt. Le changement de profil redémarre l'application.",
+  "activeProfileTitle": "Profil actif",
+  "activeChipLabel": "Actif",
+  "deleteAriaLabel": "supprimer",
+  "createNewProfileButton": "Créer un nouveau profil",
+  "newProfileTitle": "Nouveau profil",
+  "creatingProfileMessage": "Création du profil et préparation du dépôt... Cela peut prendre quelques instants.",
+  "repositoryTypeLabel": "Type de dépôt",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Local"
+  },
+  "profileNameLabel": "Nom du profil",
+  "profileNamePlaceholder": "Mon dépôt de notes",
+  "profileNameHelper": "Un dossier local sera automatiquement créé à partir de ce nom",
+  "git": {
+    "remoteUrlLabel": "URL distante",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Branche",
+    "branchPlaceholder": "main",
+    "patLabel": "Jeton d'accès personnel",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Votre jeton d'accès personnel est stocké de manière chiffrée"
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Région",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Préfixe (facultatif)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Stocké de manière chiffrée dans le répertoire de données de l'application.",
+    "sessionTokenLabel": "Session Token (facultatif)"
+  },
+  "local": {
+    "info": "Les dépôts locaux sont stockés uniquement sur cet appareil et ne sont pas synchronisés."
+  },
+  "createProfileButton": "Créer le profil",
+  "creatingButton": "Création...",
+  "cancelButton": "Annuler"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Déplacer l'élément",
+  "movingLabel": "Déplacement",
+  "currentLocationLabel": "Emplacement actuel",
+  "selectDestination": "Sélectionnez le dossier de destination :",
+  "rootLabel": "Répertoire racine",
+  "noFolders": "Aucun dossier dans le dépôt",
+  "cancel": "Annuler",
+  "confirm": "Déplacer ici",
+  "rootFallback": "racine",
+  "errors": {
+    "selectDestination": "Veuillez sélectionner un dossier de destination",
+    "sameLocation": "L'élément se trouve déjà à cet emplacement",
+    "duplicateItemTemplate": "Un élément nommé \"{name}\" existe déjà dans le dossier de destination"
+  }
+}

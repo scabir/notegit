@@ -60,6 +60,10 @@ export class S3RepoProvider implements RepoProvider {
   private syncInProgress = false;
   private pendingSyncTimer: NodeJS.Timeout | null = null;
   private pendingSyncRequested = false;
+  private pendingSyncMode: SyncMode | null = null;
+  private syncCompletionPromise: Promise<void> | null = null;
+  private resolveSyncCompletion: (() => void) | null = null;
+  private rejectSyncCompletion: ((error: unknown) => void) | null = null;
 
   constructor(private s3Adapter: S3Adapter) {}
 
@@ -200,47 +204,104 @@ export class S3RepoProvider implements RepoProvider {
 
   private async sync(mode: SyncMode = "sync"): Promise<void> {
     if (this.syncInProgress) {
-      this.pendingSyncRequested = true;
+      this.queuePendingSync(mode);
+      await this.waitForSyncCycleCompletion();
       return;
     }
 
     this.syncInProgress = true;
+    this.beginSyncCycle();
+    let currentMode: SyncMode = mode;
+    let syncError: unknown = null;
 
     try {
-      await this.ensureRepoReady();
+      let continueSync = true;
+      while (continueSync) {
+        await this.performSync(currentMode);
 
-      const manifest = await this.loadManifest();
-      const localInfo = await this.collectLocalInfo(manifest);
-      const remoteInfo = await this.collectRemoteInfo();
-      const allPaths = new Set<string>([
-        ...Object.keys(manifest.files),
-        ...localInfo.keys(),
-        ...remoteInfo.keys(),
-      ]);
+        if (!this.pendingSyncRequested) {
+          continueSync = false;
+          continue;
+        }
 
-      for (const relativePath of allPaths) {
-        await this.reconcilePath(
-          relativePath,
-          localInfo,
-          remoteInfo,
-          manifest,
-          mode,
-        );
+        currentMode = this.pendingSyncMode || currentMode;
+        this.pendingSyncRequested = false;
+        this.pendingSyncMode = null;
       }
-
-      manifest.updatedAt = new Date().toISOString();
-      await this.saveManifest(manifest);
-
-      this.lastSyncTime = new Date();
-      logger.info(`S3 ${mode} completed`, { updatedAt: this.lastSyncTime });
+    } catch (error) {
+      syncError = error;
+      throw error;
     } finally {
+      this.pendingSyncRequested = false;
+      this.pendingSyncMode = null;
       this.syncInProgress = false;
+      this.endSyncCycle(syncError);
+    }
+  }
+
+  private async performSync(mode: SyncMode): Promise<void> {
+    await this.ensureRepoReady();
+
+    const manifest = await this.loadManifest();
+    const localInfo = await this.collectLocalInfo(manifest);
+    const remoteInfo = await this.collectRemoteInfo();
+    const allPaths = new Set<string>([
+      ...Object.keys(manifest.files),
+      ...localInfo.keys(),
+      ...remoteInfo.keys(),
+    ]);
+
+    for (const relativePath of allPaths) {
+      await this.reconcilePath(
+        relativePath,
+        localInfo,
+        remoteInfo,
+        manifest,
+        mode,
+      );
     }
 
-    if (this.pendingSyncRequested) {
-      this.pendingSyncRequested = false;
-      await this.sync(mode);
+    manifest.updatedAt = new Date().toISOString();
+    await this.saveManifest(manifest);
+
+    this.lastSyncTime = new Date();
+    logger.info(`S3 ${mode} completed`, { updatedAt: this.lastSyncTime });
+  }
+
+  private queuePendingSync(mode: SyncMode): void {
+    this.pendingSyncRequested = true;
+    this.pendingSyncMode =
+      this.pendingSyncMode === "sync" || mode === "sync" ? "sync" : "pull";
+  }
+
+  private beginSyncCycle(): void {
+    this.syncCompletionPromise = new Promise<void>((resolve, reject) => {
+      this.resolveSyncCompletion = resolve;
+      this.rejectSyncCompletion = reject;
+    });
+  }
+
+  private endSyncCycle(error: unknown): void {
+    const resolve = this.resolveSyncCompletion;
+    const reject = this.rejectSyncCompletion;
+
+    this.syncCompletionPromise = null;
+    this.resolveSyncCompletion = null;
+    this.rejectSyncCompletion = null;
+
+    if (error) {
+      reject?.(error);
+      return;
     }
+
+    resolve?.();
+  }
+
+  private async waitForSyncCycleCompletion(): Promise<void> {
+    if (!this.syncCompletionPromise) {
+      return;
+    }
+    await this.syncCompletionPromise;
   }
 
   private async requestSync(): Promise<void> {

@@ -1,0 +1,11 @@
+{
+  "title": "Valider les modifications",
+  "messageLabel": "Message de commit",
+  "messagePlaceholder": "Décrivez vos modifications...",
+  "helperText": "Cmd/Ctrl+Entrée pour valider",
+  "cancel": "Annuler",
+  "confirm": "Commit et Push",
+  "loading": "Validation...",
+  "emptyMessageError": "Veuillez saisir un message de commit",
+  "commitFailed": "Échec du commit"
+}

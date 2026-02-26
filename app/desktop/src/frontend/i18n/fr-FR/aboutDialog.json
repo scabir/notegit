@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "À propos",
+  "versionPrefix": "Version",
+  "description": "Une application de prise de notes Markdown de bureau, basée sur Git ou S3, construite avec Electron",
+  "sections": {
+    "features": "Fonctionnalités",
+    "author": "Auteur",
+    "links": "Liens",
+    "techStack": "Pile technologique"
+  },
+  "links": {
+    "githubRepository": "Dépôt GitHub",
+    "website": "Site web"
+  },
+  "close": "Fermer",
+  "license": "Licence MIT",
+  "features": {
+    "markdownLivePreview": "Édition Markdown avec aperçu en direct",
+    "gitOrS3History": "Historique des versions Git ou S3",
+    "fileAndFolderManagement": "Gestion des fichiers et des dossiers",
+    "fullTextSearch": "Recherche en texte intégral dans les notes",
+    "darkModeSupport": "Prise en charge du mode sombre",
+    "autoSaveAndSync": "Sauvegarde automatique et synchronisation",
+    "fileHistoryAndVersionViewing": "Historique des fichiers et consultation des versions"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

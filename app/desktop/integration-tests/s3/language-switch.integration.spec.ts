@@ -2,7 +2,9 @@ import { expect, test } from "@playwright/test";
 import type { ElectronApplication, Page } from "@playwright/test";
 import {
   apiGetFrontendBundle,
+  apiGetI18nMeta,
   apiGetFullConfig,
+  buildLocaleSwitchSequence,
   cleanupUserDataDir,
   closeAppIfOpen,
   closeSettingsDialog,
@@ -12,8 +14,6 @@ import {
   launchS3IntegrationApp,
   switchAppLanguageFromSettings,
 } from "../helpers/gitIntegration";
-
-const SWITCH_SEQUENCE = ["tr-TR", "es-ES", "de-DE", "en-GB"] as const;
 
 const expectS3LocaleApplied = async (page: Page, expectedLocale: string) => {
   const bundle = await apiGetFrontendBundle(page);
@@ -40,7 +40,13 @@ test("(S3) language switch localizes bucket label and settings UI across support
     await connectS3Repo(page);
     await expectS3LocaleApplied(page, "en-GB");
 
-    for (const locale of SWITCH_SEQUENCE) {
+    const i18nMeta = await apiGetI18nMeta(page);
+    const switchSequence = buildLocaleSwitchSequence(
+      i18nMeta.supportedLocales,
+      i18nMeta.fallbackLocale,
+    );
+
+    for (const locale of switchSequence) {
       await switchAppLanguageFromSettings(page, locale);
       const bundle = await expectS3LocaleApplied(page, locale);
       await expect(page.getByTestId("settings-dialog-title")).toHaveText(

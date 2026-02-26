@@ -31,24 +31,22 @@ export function SettingsAppSettingsTab({
 
   const selectedLanguage = appSettings.language || DEFAULT_APP_LANGUAGE;
 
+  const toLanguageOptionKeySuffix = (locale: string): string =>
+    locale
+      .split("-")
+      .map((segment) => {
+        const normalized = segment.trim().toLowerCase();
+        if (!normalized) {
+          return "";
+        }
+        return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+      })
+      .join("");
+
   const getLocaleLabel = (locale: string): string => {
-    if (locale === "en-GB") {
-      return t("settingsDialog.appSettings.languageOptionEnGb");
-    }
-
-    if (locale === "tr-TR") {
-      return t("settingsDialog.appSettings.languageOptionTrTr");
-    }
-
-    if (locale === "es-ES") {
-      return t("settingsDialog.appSettings.languageOptionEsEs");
-    }
-
-    if (locale === "de-DE") {
-      return t("settingsDialog.appSettings.languageOptionDeDe");
-    }
-
-    return locale;
+    const keySuffix = toLanguageOptionKeySuffix(locale);
+    const translationKey = `settingsDialog.appSettings.languageOption${keySuffix}`;
+    return t(translationKey, locale);
   };
 
   return (
