@@ -95,6 +95,31 @@ describe("S3Adapter", () => {
     expect(results[0].versionId).toBe("v1");
   });
 
+  it("paginates object versions and skips incomplete entries", async () => {
+    sendMock
+      .mockResolvedValueOnce({
+        Versions: [
+          { Key: "notes/a.md", VersionId: "v1", IsLatest: true },
+          { Key: "notes/a.md", IsLatest: false },
+        ],
+        IsTruncated: true,
+        NextKeyMarker: "marker-1",
+        NextVersionIdMarker: "version-1",
+      })
+      .mockResolvedValueOnce({
+        Versions: [{ Key: "notes/a.md", VersionId: "v2", IsLatest: false }],
+        IsTruncated: false,
+      });
+
+    const results = await adapter.listObjectVersions("notes/a.md");
+
+    expect(results.map((item) => item.versionId)).toEqual(["v1", "v2"]);
+    expect(sendMock.mock.calls[1][0].input).toMatchObject({
+      KeyMarker: "marker-1",
+      VersionIdMarker: "version-1",
+    });
+  });
+
   it("returns buffer when getObject body is a Buffer", async () => {
     sendMock.mockResolvedValue({
       Body: Buffer.from("hello"),
@@ -113,6 +138,14 @@ describe("S3Adapter", () => {
     const result = await adapter.getObject("notes/a.md");
 
     expect(result.toString("utf-8")).toBe("AB");
+  });
+
+  it("returns an empty buffer when getObject has no body", async () => {
+    sendMock.mockResolvedValue({});
+
+    const result = await adapter.getObject("notes/a.md");
+
+    expect(result).toEqual(Buffer.from(""));
   });
 
   it("uploads and deletes objects", async () => {
@@ -181,6 +214,16 @@ describe("S3Adapter", () => {
     });
   });
 
+  it("treats http 403 responses as auth errors", async () => {
+    sendMock.mockRejectedValue({ $metadata: { httpStatusCode: 403 } });
+
+    await expect(
+      adapter.putObject("notes/a.md", Buffer.from("x")),
+    ).rejects.toMatchObject({
+      code: ApiErrorCode.S3_AUTH_FAILED,
+    });
+  });
+
   it("reads stream bodies into a buffer", async () => {
     const stream = Readable.from(["hello", " ", "world"]);
     sendMock.mockResolvedValue({
@@ -190,5 +233,23 @@ describe("S3Adapter", () => {
     const result = await adapter.getObject("notes/stream.md");
 
     expect(result.toString("utf-8")).toBe("hello world");
+  });
+
+  it("throws when the bucket is missing even if the adapter was configured", async () => {
+    const broken = new S3Adapter();
+    broken.configure({
+      provider: REPO_PROVIDERS.s3,
+      bucket: "",
+      region: "us-east-1",
+      prefix: "",
+      localPath: "/tmp/notegit-s3",
+      accessKeyId: "access-key",
+      secretAccessKey: "secret-key",
+      sessionToken: "",
+    });
+
+    await expect(broken.listObjects("notes/")).rejects.toMatchObject({
+      code: ApiErrorCode.S3_SYNC_FAILED,
+    });
   });
 });

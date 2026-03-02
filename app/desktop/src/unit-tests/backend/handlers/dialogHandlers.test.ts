@@ -1,4 +1,5 @@
 import { registerDialogHandlers } from "../../../backend/handlers/dialogHandlers";
+import { ApiErrorCode } from "../../../shared/types";
 import { dialog, shell } from "electron";
 
 jest.mock("electron", () => ({
@@ -107,5 +108,39 @@ describe("dialogHandlers", () => {
 
     expect(result.ok).toBe(false);
     expect(result.error?.message).toBe("cannot open");
+  });
+
+  it("localizes coded open-folder errors", async () => {
+    (shell.openPath as jest.Mock).mockRejectedValue({
+      code: ApiErrorCode.FS_NOT_FOUND,
+      message: "File not found: /tmp/notegit",
+      details: {
+        messageKey: "dialog.errors.failedOpenFolder",
+      },
+    });
+    const translate = jest.fn(async () => "Localized open folder error");
+    const { ipcMain, handlers } = createIpcMain();
+
+    registerDialogHandlers(ipcMain, translate);
+
+    const result = await handlers["dialog:openFolder"](null, "/tmp/notegit");
+
+    expect(result.ok).toBe(false);
+    expect(result.error?.code).toBe(ApiErrorCode.FS_NOT_FOUND);
+    expect(result.error?.message).toBe("Localized open folder error");
+  });
+
+  it("uses translated fallback when uncoded open-folder errors have no message", async () => {
+    (shell.openPath as jest.Mock).mockRejectedValue({});
+    const translate = jest.fn(async () => "Failed to open folder");
+    const { ipcMain, handlers } = createIpcMain();
+
+    registerDialogHandlers(ipcMain, translate);
+
+    const result = await handlers["dialog:openFolder"](null, "/tmp/notegit");
+
+    expect(result.ok).toBe(false);
+    expect(result.error?.code).toBe(ApiErrorCode.UNKNOWN_ERROR);
+    expect(result.error?.message).toBe("Failed to open folder");
   });
 });

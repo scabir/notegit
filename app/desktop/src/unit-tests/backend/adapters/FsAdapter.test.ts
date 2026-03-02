@@ -96,6 +96,17 @@ describe("FsAdapter", () => {
         code: ApiErrorCode.FS_PERMISSION_DENIED,
       });
     });
+
+    it("should throw UNKNOWN_ERROR on unexpected write failure", async () => {
+      mockFs.mkdir.mockResolvedValue(undefined);
+      mockFs.writeFile.mockRejectedValue(new Error("disk full"));
+
+      await expect(
+        fsAdapter.writeFile("/test/file.txt", "content"),
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
+    });
   });
 
   describe("deleteFile", () => {
@@ -128,6 +139,16 @@ describe("FsAdapter", () => {
         fsAdapter.deleteFile("/forbidden/file.txt"),
       ).rejects.toMatchObject({
         code: ApiErrorCode.FS_PERMISSION_DENIED,
+      });
+    });
+
+    it("should throw UNKNOWN_ERROR on unexpected delete failure", async () => {
+      mockFs.unlink.mockRejectedValue(new Error("io failure"));
+
+      await expect(
+        fsAdapter.deleteFile("/test/file.txt"),
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
       });
     });
   });
@@ -167,6 +188,16 @@ describe("FsAdapter", () => {
         code: ApiErrorCode.FS_PERMISSION_DENIED,
       });
     });
+
+    it("should throw UNKNOWN_ERROR on unexpected rename failure", async () => {
+      mockFs.rename.mockRejectedValue(new Error("rename failed"));
+
+      await expect(
+        fsAdapter.rename("/old/path.txt", "/new/path.txt"),
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
+    });
   });
 
   describe("mkdir", () => {
@@ -197,6 +228,14 @@ describe("FsAdapter", () => {
         code: ApiErrorCode.FS_PERMISSION_DENIED,
       });
     });
+
+    it("should throw UNKNOWN_ERROR on unexpected mkdir failure", async () => {
+      mockFs.mkdir.mockRejectedValue(new Error("mkdir failed"));
+
+      await expect(fsAdapter.mkdir("/test/dir")).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
+    });
   });
 
   describe("rmdir", () => {
@@ -218,6 +257,24 @@ describe("FsAdapter", () => {
 
       await expect(fsAdapter.rmdir("/missing/dir")).rejects.toMatchObject({
         code: ApiErrorCode.FS_NOT_FOUND,
+      });
+    });
+
+    it("should throw FS_PERMISSION_DENIED for protected directory", async () => {
+      const error: any = new Error("EACCES");
+      error.code = "EACCES";
+      mockFs.rm.mockRejectedValue(error);
+
+      await expect(fsAdapter.rmdir("/forbidden/dir")).rejects.toMatchObject({
+        code: ApiErrorCode.FS_PERMISSION_DENIED,
+      });
+    });
+
+    it("should throw UNKNOWN_ERROR on unexpected rmdir failure", async () => {
+      mockFs.rm.mockRejectedValue(new Error("rm failed"));
+
+      await expect(fsAdapter.rmdir("/test/dir")).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
       });
     });
   });
@@ -252,6 +309,14 @@ describe("FsAdapter", () => {
         code: ApiErrorCode.FS_PERMISSION_DENIED,
       });
     });
+
+    it("should throw UNKNOWN_ERROR on unexpected readdir failure", async () => {
+      mockFs.readdir.mockRejectedValue(new Error("readdir failed"));
+
+      await expect(fsAdapter.readdir("/test/dir")).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
+    });
   });
 
   describe("stat", () => {
@@ -271,6 +336,14 @@ describe("FsAdapter", () => {
 
       await expect(fsAdapter.stat("/missing/file.txt")).rejects.toMatchObject({
         code: ApiErrorCode.FS_NOT_FOUND,
+      });
+    });
+
+    it("should throw UNKNOWN_ERROR on unexpected stat failure", async () => {
+      mockFs.stat.mockRejectedValue(new Error("stat failed"));
+
+      await expect(fsAdapter.stat("/test/file.txt")).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
       });
     });
   });
@@ -340,6 +413,17 @@ describe("FsAdapter", () => {
         fsAdapter.copyFile("/src/file.txt", "/dest/file.txt"),
       ).rejects.toMatchObject({
         code: ApiErrorCode.FS_PERMISSION_DENIED,
+      });
+    });
+
+    it("should throw UNKNOWN_ERROR on unexpected copy failure", async () => {
+      mockFs.mkdir.mockResolvedValue(undefined);
+      mockFs.copyFile.mockRejectedValue(new Error("copy failed"));
+
+      await expect(
+        fsAdapter.copyFile("/src/file.txt", "/dest/file.txt"),
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
       });
     });
   });

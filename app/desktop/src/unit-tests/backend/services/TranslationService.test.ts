@@ -222,4 +222,81 @@ describe("TranslationService", () => {
 
     expect(locales).toEqual(["de-DE", "en-GB"]);
   });
+
+  it("returns only the fallback locale when the domain i18n directory is missing", async () => {
+    const locales = await translationService.listSupportedLocales("backend");
+
+    expect(locales).toEqual(["en-GB"]);
+  });
+
+  it("normalizes requested locales by trimming whitespace", async () => {
+    await writeTranslationFile(
+      tmpRootDir,
+      "frontend",
+      "en-GB",
+      "common.json",
+      JSON.stringify({ title: "Settings" }),
+    );
+
+    const bundle = await translationService.getBundle("frontend", " en-GB ");
+
+    expect(bundle.requestedLocale).toBe("en-GB");
+    expect(bundle.locale).toBe("en-GB");
+  });
+
+  it("throws when locale is blank after trimming", async () => {
+    await writeTranslationFile(
+      tmpRootDir,
+      "frontend",
+      "en-GB",
+      "common.json",
+      JSON.stringify({ title: "Settings" }),
+    );
+
+    await expect(
+      translationService.getBundle("frontend", "   "),
+    ).rejects.toThrow("Locale is required");
+  });
+
+  it("throws when a translation file root is not an object", async () => {
+    await writeTranslationFile(
+      tmpRootDir,
+      "frontend",
+      "en-GB",
+      "common.json",
+      JSON.stringify({ title: "Settings" }),
+    );
+    await writeTranslationFile(
+      tmpRootDir,
+      "frontend",
+      "de-DE",
+      "common.json",
+      JSON.stringify(["invalid"]),
+    );
+
+    await expect(
+      translationService.getBundle("frontend", "de-DE"),
+    ).rejects.toThrow("must contain an object at root");
+  });
+
+  it("throws when duplicate namespaces exist for the same locale", async () => {
+    await writeTranslationFile(
+      tmpRootDir,
+      "backend",
+      "en-GB",
+      "common.json",
+      JSON.stringify({ title: "Settings" }),
+    );
+    await writeTranslationFile(
+      tmpRootDir,
+      "backend",
+      "en-GB",
+      "common.yaml",
+      "title: Duplicate\n",
+    );
+
+    await expect(
+      translationService.getBundle("backend", "en-GB"),
+    ).rejects.toThrow('Duplicate translation namespace "common"');
+  });
 });

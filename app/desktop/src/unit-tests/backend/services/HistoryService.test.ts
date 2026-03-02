@@ -313,4 +313,48 @@ index abc123..def456 100644
       );
     });
   });
+
+  describe("provider validation", () => {
+    it("throws when no repository is configured", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue(null);
+
+      await expect(
+        historyService.getForFile("notes/file.md"),
+      ).rejects.toMatchObject({
+        code: "VALIDATION_ERROR",
+      });
+    });
+
+    it("throws when the provider is unsupported", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: "unsupported",
+      } as any);
+
+      await expect(
+        historyService.getForFile("notes/file.md"),
+      ).rejects.toMatchObject({
+        code: "VALIDATION_ERROR",
+      });
+    });
+
+    it("reuses the active provider when the type does not change", async () => {
+      const repoSettings = {
+        provider: REPO_PROVIDERS.local,
+        localPath: "/repo",
+      };
+
+      mockConfigService.getRepoSettings.mockResolvedValue(repoSettings as any);
+      mockLocalHistoryProvider.getForFile.mockResolvedValue([]);
+      mockLocalHistoryProvider.getVersion.mockResolvedValue("content");
+
+      await historyService.getForFile("notes/file.md");
+      await historyService.getVersion("version-1", "notes/file.md");
+
+      expect(mockLocalHistoryProvider.configure).toHaveBeenCalledTimes(2);
+      expect(mockLocalHistoryProvider.getVersion).toHaveBeenCalledWith(
+        "version-1",
+        "notes/file.md",
+      );
+    });
+  });
 });

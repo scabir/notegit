@@ -113,6 +113,34 @@ describe("SearchService", () => {
       expect(results).toHaveLength(1);
       expect(results[0].matches[0].lineContent).toContain("[");
     });
+
+    it("continues when individual files cannot be read", async () => {
+      const dirs: Record<string, string[]> = {
+        "/test/repo": ["notes"],
+        "/test/repo/notes": ["a.md", "b.md"],
+      };
+
+      mockFsAdapter.readdir.mockImplementation(
+        async (dir: string) => dirs[dir] || [],
+      );
+      mockFsAdapter.stat.mockImplementation(
+        async (fullPath: string) =>
+          ({
+            isDirectory: () => Boolean(dirs[fullPath]),
+          }) as any,
+      );
+      mockFsAdapter.readFile.mockImplementation(async (filePath: string) => {
+        if (filePath.endsWith("a.md")) {
+          return "hello world";
+        }
+        throw new Error("cannot read");
+      });
+
+      const results = await searchService.searchRepoWide("hello");
+
+      expect(results).toHaveLength(1);
+      expect(results[0].fileName).toBe("a.md");
+    });
   });
 
   describe("replaceInRepo", () => {
@@ -175,6 +203,59 @@ describe("SearchService", () => {
       expect(result.filesModified).toBe(1);
       expect(result.totalReplacements).toBe(1);
       expect(mockFsAdapter.writeFile).toHaveBeenCalled();
+    });
+
+    it("uses all markdown files when explicit file paths are not provided", async () => {
+      const dirs: Record<string, string[]> = {
+        "/test/repo": ["notes", "skip.txt"],
+        "/test/repo/notes": ["a.md", ".hidden.md", "sub"],
+        "/test/repo/notes/sub": ["b.markdown"],
+      };
+
+      mockFsAdapter.readdir.mockImplementation(
+        async (dir: string) => dirs[dir] || [],
+      );
+      mockFsAdapter.stat.mockImplementation(
+        async (fullPath: string) =>
+          ({
+            isDirectory: () => Boolean(dirs[fullPath]),
+          }) as any,
+      );
+      mockFsAdapter.readFile.mockResolvedValue("hello world");
+      mockFsAdapter.writeFile.mockResolvedValue();
+
+      const result = await searchService.replaceInRepo("hello", "hi", {});
+
+      expect(result.filesProcessed).toBe(2);
+      expect(mockFsAdapter.writeFile).toHaveBeenCalledTimes(2);
+    });
+
+    it("falls back to plain text replacement when the regex is invalid", async () => {
+      mockFsAdapter.readFile.mockResolvedValue("a[b a[b");
+      mockFsAdapter.writeFile.mockResolvedValue();
+
+      const result = await searchService.replaceInRepo("[b", "X", {
+        useRegex: true,
+        filePaths: ["test.md"],
+      });
+
+      expect(result.totalReplacements).toBe(2);
+      expect(mockFsAdapter.writeFile).toHaveBeenCalledWith(
+        "/test/repo/test.md",
+        "aX aX",
+      );
+    });
+
+    it("throws when markdown file discovery fails before replacement starts", async () => {
+      jest
+        .spyOn(searchService as any, "getAllMarkdownFiles")
+        .mockRejectedValue(new Error("scan failed"));
+
+      await expect(
+        searchService.replaceInRepo("hello", "hi", {}),
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
     });
   });
 

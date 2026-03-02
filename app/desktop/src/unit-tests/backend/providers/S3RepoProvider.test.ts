@@ -435,6 +435,14 @@ describe("S3RepoProvider", () => {
     expect(relative).toBe("folder/note.md");
   });
 
+  it("returns the raw key when no prefix is configured", () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, prefix: "" });
+
+    expect((provider as any).fromS3Key("note.md")).toBe("note.md");
+    expect((provider as any).normalizedPrefix()).toBe("");
+  });
+
   it("ignores special entries when listing local files", async () => {
     const tempDir = await createTempDir();
     const settings = { ...baseSettings, localPath: tempDir };
@@ -478,6 +486,201 @@ describe("S3RepoProvider", () => {
       "20240101-000000",
     );
     expect(resolved).toBeNull();
+  });
+
+  it("clears an existing conflict when both sides now match", async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+
+    const localInfo = new Map([
+      [
+        "note.md",
+        { relativePath: "note.md", hash: "same-local", mtimeMs: 100 },
+      ],
+    ]);
+    const remoteInfo = new Map([
+      [
+        "note.md",
+        { key: "notes/note.md", eTag: "same-remote", lastModifiedMs: 100 },
+      ],
+    ]);
+    const manifest = {
+      version: 1,
+      updatedAt: "",
+      files: {
+        "note.md": {
+          localHash: "same-local",
+          remoteETag: "same-remote",
+          deleted: false,
+          conflict: true,
+          conflictLocalHash: "same-local",
+          conflictRemoteETag: "same-remote",
+          conflictRemoteDeleted: false,
+          conflictDetectedAt: "2024-01-01T00:00:00.000Z",
+        },
+      },
+    };
+
+    await (provider as any).reconcilePath(
+      "note.md",
+      localInfo,
+      remoteInfo,
+      manifest,
+      "sync",
+    );
+
+    expect(manifest.files["note.md"].conflict).toBe(true);
+  });
+
+  it("clears conflict metadata when the remote matches and the local copy changed", async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+
+    const localInfo = new Map([
+      ["note.md", { relativePath: "note.md", hash: "new-local", mtimeMs: 100 }],
+    ]);
+    const remoteInfo = new Map([
+      [
+        "note.md",
+        { key: "notes/note.md", eTag: "same-remote", lastModifiedMs: 100 },
+      ],
+    ]);
+    const manifest = {
+      version: 1,
+      updatedAt: "",
+      files: {
+        "note.md": {
+          localHash: "base-local",
+          remoteETag: "same-remote",
+          deleted: false,
+          conflict: true,
+          conflictLocalHash: "old-local",
+          conflictRemoteETag: "same-remote",
+          conflictRemoteDeleted: false,
+          conflictDetectedAt: "2024-01-01T00:00:00.000Z",
+        },
+      },
+    };
+
+    const clearConflict = jest.spyOn(provider as any, "clearConflict");
+    jest.spyOn(provider as any, "uploadLocalFile").mockResolvedValue({
+      key: "notes/note.md",
+      eTag: "uploaded-remote",
+      lastModifiedMs: 101,
+    });
+    jest.spyOn(provider as any, "updateManifestEntry");
+
+    await (provider as any).reconcilePath(
+      "note.md",
+      localInfo,
+      remoteInfo,
+      manifest,
+      "sync",
+    );
+
+    expect(clearConflict).toHaveBeenCalled();
+    expect(manifest.files["note.md"].conflict).toBeUndefined();
+  });
+
+  it("marks deleted manifest entries when neither side has the file anymore", async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    const manifest = {
+      version: 1,
+      updatedAt: "",
+      files: {
+        "note.md": {
+          localHash: "base-local",
+          remoteETag: "base-remote",
+          deleted: false,
+        },
+      },
+    };
+
+    await (provider as any).reconcilePath(
+      "note.md",
+      new Map(),
+      new Map(),
+      manifest,
+      "sync",
+    );
+
+    expect(manifest.files["note.md"]).toEqual({ deleted: true });
+  });
+
+  it("creates a conflict copy placeholder when the generated path already exists", async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    const manifest: any = { version: 1, updatedAt: "", files: {} };
+    jest.spyOn(provider as any, "resolveConflictPath").mockResolvedValue(null);
+
+    await (provider as any).createConflictCopy(
+      "note.md",
+      { relativePath: "note.md", hash: "local", mtimeMs: 1 },
+      { key: "notes/note.md", eTag: "remote", lastModifiedMs: 2 },
+      manifest,
+    );
+
+    expect(manifest.files["note.md"].conflict).toBe(true);
+    expect(manifest.files["note.md"].conflictRemoteETag).toBe("remote");
+  });
+
+  it("loads a default manifest when the saved version is invalid", async () => {
+    const tempDir = await createTempDir();
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: tempDir });
+
+    await fs.mkdir(path.join(tempDir, ".notegit"), { recursive: true });
+    await fs.writeFile(
+      manifestPath(tempDir),
+      JSON.stringify({ version: 99, files: {} }),
+      "utf-8",
+    );
+
+    const manifest = await (provider as any).loadManifest();
+
+    expect(manifest.version).toBe(1);
+    expect(manifest.files).toEqual({});
+  });
+
+  it("saves manifests under the notegit metadata folder", async () => {
+    const tempDir = await createTempDir();
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: tempDir });
+
+    await (provider as any).saveManifest({
+      version: 1,
+      updatedAt: "2024-01-01T00:00:00.000Z",
+      files: {
+        "note.md": { deleted: true },
+      },
+    });
+
+    const saved = JSON.parse(await fs.readFile(manifestPath(tempDir), "utf-8"));
+    expect(saved.files["note.md"].deleted).toBe(true);
+  });
+
+  it("uses the bucket name as a fallback display name when settings are missing", () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    expect((provider as any).getDisplayName()).toBe(REPO_PROVIDERS.s3);
+  });
+
+  it("hydrates repoPath from settings in ensureRepoReady", async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    (provider as any).repoPath = null;
+
+    await (provider as any).ensureRepoReady();
+
+    expect((provider as any).repoPath).toBe("/tmp/notegit-s3");
+  });
+
+  it("throws when ensureRepoReady has no configured local path", async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+
+    await expect((provider as any).ensureRepoReady()).rejects.toMatchObject({
+      code: ApiErrorCode.VALIDATION_ERROR,
+    });
   });
 
   it("rejects non-s3 configuration", () => {

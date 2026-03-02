@@ -124,6 +124,68 @@ describe("FilesService", () => {
       expect(content.type).toBe(FileType.MARKDOWN);
       expect(content.size).toBe(100);
     });
+
+    it("rethrows read failures", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockFsAdapter.readFile.mockRejectedValue(new Error("read failed"));
+
+      await expect(filesService.readFile("notes/test.md")).rejects.toThrow(
+        "read failed",
+      );
+    });
+  });
+
+  describe("getGitStatus", () => {
+    it("returns normalized git status arrays", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockGitAdapter.init.mockResolvedValue(undefined);
+      mockGitAdapter.status.mockResolvedValue({
+        modified: ["a.md"],
+        created: ["b.md"],
+        deleted: ["c.md"],
+      } as any);
+
+      const result = await filesService.getGitStatus();
+
+      expect(result).toEqual({
+        modified: ["a.md"],
+        added: ["b.md"],
+        deleted: ["c.md"],
+      });
+    });
+
+    it("rejects git status for non-git repositories", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.s3,
+        localPath: "/repo",
+        bucket: "notes-bucket",
+        region: "us-east-1",
+        prefix: "",
+        accessKeyId: "access-key",
+        secretAccessKey: "secret-key",
+        sessionToken: "",
+      });
+
+      await expect(filesService.getGitStatus()).rejects.toMatchObject({
+        code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
+      });
+    });
   });
 
   describe("saveFile", () => {
@@ -142,6 +204,23 @@ describe("FilesService", () => {
       await filesService.saveFile("notes/test.md", "# Updated Content");
 
       expect(mockFsAdapter.writeFile).toHaveBeenCalled();
+    });
+
+    it("rethrows save failures", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockFsAdapter.writeFile.mockRejectedValue(new Error("write failed"));
+
+      await expect(
+        filesService.saveFile("notes/test.md", "content"),
+      ).rejects.toThrow("write failed");
     });
   });
 
@@ -234,6 +313,14 @@ describe("FilesService", () => {
       expect(mockGitAdapter.push).toHaveBeenCalled();
       expect(result).toEqual({});
     });
+
+    it("rethrows when saving the file fails before git workflow starts", async () => {
+      mockFsAdapter.writeFile.mockRejectedValue(new Error("disk full"));
+
+      await expect(
+        filesService.saveWithGitWorkflow("notes/test.md", "content"),
+      ).rejects.toThrow("disk full");
+    });
   });
 
   describe("createFile", () => {
@@ -296,6 +383,23 @@ describe("FilesService", () => {
         expect.any(String),
       );
     });
+
+    it("rethrows create file failures", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockFsAdapter.writeFile.mockRejectedValue(new Error("create failed"));
+
+      await expect(filesService.createFile("", "note.md")).rejects.toThrow(
+        "create failed",
+      );
+    });
   });
 
   describe("createFolder", () => {
@@ -335,6 +439,23 @@ describe("FilesService", () => {
       expect(mockFsAdapter.mkdir).toHaveBeenCalledWith(
         "/repo/notes/my-folder",
         { recursive: false },
+      );
+    });
+
+    it("rethrows folder creation failures", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockFsAdapter.mkdir.mockRejectedValue(new Error("mkdir failed"));
+
+      await expect(filesService.createFolder("", "folder")).rejects.toThrow(
+        "mkdir failed",
       );
     });
   });
@@ -384,6 +505,23 @@ describe("FilesService", () => {
       expect(mockFsAdapter.rmdir).toHaveBeenCalledWith("/repo/old-folder", {
         recursive: true,
       });
+    });
+
+    it("rethrows delete failures", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockFsAdapter.stat.mockRejectedValue(new Error("stat failed"));
+
+      await expect(filesService.deletePath("notes/old.md")).rejects.toThrow(
+        "stat failed",
+      );
     });
   });
 
@@ -449,6 +587,25 @@ describe("FilesService", () => {
       expect(mockGitAdapter.add).toHaveBeenCalledWith("notes/test.md");
       expect(mockGitAdapter.commit).toHaveBeenCalledWith("Update test note");
     });
+
+    it("rethrows commitFile git failures", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockGitAdapter.init.mockResolvedValue(undefined);
+      mockGitAdapter.add.mockResolvedValue(undefined);
+      mockGitAdapter.commit.mockRejectedValue(new Error("commit failed"));
+
+      await expect(
+        filesService.commitFile("notes/test.md", "Update test note"),
+      ).rejects.toThrow("commit failed");
+    });
   });
 
   describe("commitAll", () => {
@@ -490,6 +647,25 @@ describe("FilesService", () => {
       ).rejects.toMatchObject({
         code: ApiErrorCode.REPO_PROVIDER_MISMATCH,
       });
+    });
+
+    it("rethrows commitAll git failures", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockGitAdapter.init.mockResolvedValue(undefined);
+      mockGitAdapter.add.mockResolvedValue(undefined);
+      mockGitAdapter.commit.mockRejectedValue(new Error("commit failed"));
+
+      await expect(filesService.commitAll("Update notes")).rejects.toThrow(
+        "commit failed",
+      );
     });
   });
 
@@ -600,6 +776,30 @@ describe("FilesService", () => {
       expect(tree[0].type).toBe("folder");
       expect(tree[1].type).toBe("file");
       expect(tree[2].type).toBe("file");
+    });
+
+    it("skips entries whose stat calls fail", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockFsAdapter.readdir.mockResolvedValue(["good.md", "bad.md"]);
+      mockFsAdapter.stat
+        .mockResolvedValueOnce({
+          isDirectory: () => false,
+          isFile: () => true,
+        } as Stats)
+        .mockRejectedValueOnce(new Error("Permission denied"));
+
+      const tree = await filesService.listTree();
+
+      expect(tree).toHaveLength(1);
+      expect(tree[0].name).toBe("good.md");
     });
   });
 
@@ -722,6 +922,45 @@ describe("FilesService", () => {
     });
   });
 
+  describe("saveFileAs", () => {
+    it("copies the repo file to the destination path", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockFsAdapter.copyFile.mockResolvedValue(undefined);
+
+      await filesService.saveFileAs("notes/test.md", "/tmp/exported.md");
+
+      expect(mockFsAdapter.copyFile).toHaveBeenCalledWith(
+        "/repo/notes/test.md",
+        "/tmp/exported.md",
+      );
+    });
+
+    it("rethrows export copy failures", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      mockFsAdapter.copyFile.mockRejectedValue(new Error("copy failed"));
+
+      await expect(
+        filesService.saveFileAs("notes/test.md", "/tmp/exported.md"),
+      ).rejects.toThrow("copy failed");
+    });
+  });
+
   describe("duplicateFile", () => {
     beforeEach(async () => {
       mockConfigService.getRepoSettings.mockResolvedValue({
@@ -754,6 +993,58 @@ describe("FilesService", () => {
     it("throws when source is not a file", async () => {
       mockFsAdapter.stat.mockResolvedValue({ isFile: () => false } as any);
       await expect(filesService.duplicateFile("folder")).rejects.toBeTruthy();
+    });
+  });
+
+  describe("repo validation", () => {
+    it("throws when no repository is configured", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue(null);
+
+      await expect(filesService.listTree()).rejects.toMatchObject({
+        code: ApiErrorCode.VALIDATION_ERROR,
+      });
+    });
+
+    it("throws when the git adapter is not set for commit operations", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      const serviceWithoutGit = new FilesService(
+        mockFsAdapter,
+        mockConfigService,
+      );
+
+      await expect(
+        serviceWithoutGit.commitFile("notes/test.md", "message"),
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
+    });
+
+    it("throws when git status is requested without a git adapter", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.PAT,
+      });
+
+      const serviceWithoutGit = new FilesService(
+        mockFsAdapter,
+        mockConfigService,
+      );
+
+      await expect(serviceWithoutGit.getGitStatus()).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+      });
     });
   });
 

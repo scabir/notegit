@@ -1,4 +1,5 @@
 import { registerSearchHandlers } from "../../../backend/handlers/searchHandlers";
+import { ApiErrorCode } from "../../../shared/types";
 
 describe("searchHandlers", () => {
   const createIpcMain = () => {
@@ -87,5 +88,102 @@ describe("searchHandlers", () => {
 
     expect(response.ok).toBe(false);
     expect(response.error?.message).toBe("fail");
+  });
+
+  it("returns error when repo-wide search fails", async () => {
+    const searchService = {
+      search: jest.fn(),
+      searchRepoWide: jest.fn().mockRejectedValue(new Error("repo fail")),
+      replaceInRepo: jest.fn(),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerSearchHandlers(ipcMain, searchService);
+
+    const response = await handlers["search:repoWide"](null, "test");
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.message).toBe("repo fail");
+  });
+
+  it("returns error when replace fails", async () => {
+    const searchService = {
+      search: jest.fn(),
+      searchRepoWide: jest.fn(),
+      replaceInRepo: jest.fn().mockRejectedValue(new Error("replace fail")),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerSearchHandlers(ipcMain, searchService);
+
+    const response = await handlers["search:replaceInRepo"](null, "a", "b", {});
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.message).toBe("replace fail");
+  });
+
+  it("localizes coded errors across search operations", async () => {
+    const codedError = {
+      code: ApiErrorCode.REPO_NOT_INITIALIZED,
+      message: "Repository not initialized",
+      details: {
+        messageKey: "search.errors.repositoryNotInitialized",
+      },
+    };
+    const searchService = {
+      search: jest.fn().mockRejectedValueOnce(codedError),
+      searchRepoWide: jest.fn().mockRejectedValueOnce(codedError),
+      replaceInRepo: jest.fn().mockRejectedValueOnce(codedError),
+    } as any;
+    const translate = jest.fn(async () => "Localized search error");
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerSearchHandlers(ipcMain, searchService, translate);
+
+    const queryResponse = await handlers["search:query"](null, "test");
+    const repoWideResponse = await handlers["search:repoWide"](null, "test");
+    const replaceResponse = await handlers["search:replaceInRepo"](
+      null,
+      "a",
+      "b",
+      {},
+    );
+
+    expect(queryResponse.error?.message).toBe("Localized search error");
+    expect(repoWideResponse.error?.message).toBe("Localized search error");
+    expect(replaceResponse.error?.message).toBe("Localized search error");
+  });
+
+  it("uses translated fallback when uncoded errors have no message", async () => {
+    const searchService = {
+      search: jest.fn().mockRejectedValueOnce({}),
+      searchRepoWide: jest.fn().mockRejectedValueOnce({}),
+      replaceInRepo: jest.fn().mockRejectedValueOnce({}),
+    } as any;
+    const translate = jest
+      .fn()
+      .mockResolvedValueOnce("Failed to search")
+      .mockResolvedValueOnce("Failed to perform repo-wide search")
+      .mockResolvedValueOnce("Failed to perform repo-wide replace");
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerSearchHandlers(ipcMain, searchService, translate);
+
+    const queryResponse = await handlers["search:query"](null, "test");
+    const repoWideResponse = await handlers["search:repoWide"](null, "test");
+    const replaceResponse = await handlers["search:replaceInRepo"](
+      null,
+      "a",
+      "b",
+      {},
+    );
+
+    expect(queryResponse.error?.message).toBe("Failed to search");
+    expect(repoWideResponse.error?.message).toBe(
+      "Failed to perform repo-wide search",
+    );
+    expect(replaceResponse.error?.message).toBe(
+      "Failed to perform repo-wide replace",
+    );
   });
 });

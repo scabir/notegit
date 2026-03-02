@@ -51,6 +51,14 @@ describe("GitRepoProvider", () => {
     });
   });
 
+  it("rejects configure calls with non-git settings", () => {
+    const { provider } = createProvider();
+
+    expect(() =>
+      provider.configure({ provider: REPO_PROVIDERS.s3 } as any),
+    ).toThrow();
+  });
+
   it("rejects when local path is missing", async () => {
     const { provider } = createProvider();
     const settings = { ...baseSettings, localPath: "" };
@@ -230,6 +238,41 @@ describe("GitRepoProvider", () => {
     (provider as any).repoPath = "/repo";
 
     await expect(provider.pull()).rejects.toMatchObject({
+      code: ApiErrorCode.VALIDATION_ERROR,
+    });
+  });
+
+  it("pulls successfully when settings are available", async () => {
+    const { provider, gitAdapter } = createProvider();
+    provider.configure(baseSettings);
+
+    gitAdapter.init.mockResolvedValue(undefined);
+    gitAdapter.pull.mockResolvedValue(undefined);
+
+    await provider.pull();
+
+    expect(gitAdapter.pull).toHaveBeenCalledWith(baseSettings.pat);
+  });
+
+  it("hydrates repoPath from settings during ensureRepoReady", async () => {
+    const { provider, gitAdapter } = createProvider();
+    provider.configure(baseSettings);
+    (provider as any).repoPath = null;
+
+    gitAdapter.init.mockResolvedValue(undefined);
+    gitAdapter.status.mockResolvedValue({ files: [] });
+    gitAdapter.getCurrentBranch.mockResolvedValue("main");
+    gitAdapter.getAheadBehind.mockResolvedValue({ ahead: 0, behind: 0 });
+
+    await provider.getStatus();
+
+    expect(gitAdapter.init).toHaveBeenCalledWith("/repo");
+  });
+
+  it("throws when no repository is configured", async () => {
+    const { provider } = createProvider();
+
+    await expect(provider.getStatus()).rejects.toMatchObject({
       code: ApiErrorCode.VALIDATION_ERROR,
     });
   });

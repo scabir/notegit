@@ -23,6 +23,7 @@ describe("profileHelpers", () => {
       "repo",
     );
     expect(extractRepoNameFromUrl("git@github.com:user/repo.git")).toBe("repo");
+    expect(extractRepoNameFromUrl("git@github.com:repo.git")).toBe("repo");
     expect(extractRepoNameFromUrl("https://example.com/group/project")).toBe(
       "project",
     );

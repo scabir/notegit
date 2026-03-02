@@ -96,6 +96,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    show: !isIntegrationTestMode,
     title: buildWindowTitle(),
     webPreferences: {
       contextIsolation: true,
@@ -132,6 +133,10 @@ function createWindow() {
 
   mainWindow.webContents.on("did-finish-load", () => {
     mainWindow?.setTitle(buildWindowTitle());
+    if (isIntegrationTestMode) {
+      return;
+    }
+    mainWindow?.show();
   });
 
   mainWindow.on("page-title-updated", (event) => {

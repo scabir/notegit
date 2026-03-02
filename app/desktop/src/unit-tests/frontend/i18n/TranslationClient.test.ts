@@ -20,6 +20,10 @@ const createBundle = (locale = "tr-TR"): I18nBundle => ({
 });
 
 describe("FrontendTranslationClient", () => {
+  afterEach(() => {
+    delete (global as any).window.notegitApi;
+  });
+
   it("uses a loaded bundle and resolves nested keys", async () => {
     const bundle = createBundle();
     const loadBundle = jest.fn<Promise<ApiResponse<I18nBundle>>, []>(
@@ -104,5 +108,42 @@ describe("FrontendTranslationClient", () => {
     expect(client.t("common.app.name", "Fallback value")).toBe(
       "Fallback value",
     );
+  });
+
+  it("uses window loader when no loader is provided explicitly", async () => {
+    const bundle = createBundle("fr-FR");
+    const getFrontendBundle = jest.fn(async () => ({
+      ok: true,
+      data: bundle,
+    }));
+    (global as any).window.notegitApi = {
+      i18n: {
+        getFrontendBundle,
+      },
+    };
+
+    const client = new FrontendTranslationClient();
+    const loadedBundle = await client.initialize();
+
+    expect(getFrontendBundle).toHaveBeenCalledTimes(1);
+    expect(loadedBundle.locale).toBe("fr-FR");
+  });
+
+  it("returns default bundle when window loader is unavailable", async () => {
+    delete (global as any).window.notegitApi;
+
+    const client = new FrontendTranslationClient();
+    const loadedBundle = await client.initialize();
+
+    expect(loadedBundle.locale).toBe("en-GB");
+  });
+
+  it("treats blank keys and dot-only keys as missing", () => {
+    const client = new FrontendTranslationClient(null);
+
+    expect(client.has("   ")).toBe(false);
+    expect(client.t("   ", "Blank")).toBe("Blank");
+    expect(client.has(" . . ")).toBe(false);
+    expect(client.t(" . . ", "Dots")).toBe("Dots");
   });
 });

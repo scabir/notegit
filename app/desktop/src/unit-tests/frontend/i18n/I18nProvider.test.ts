@@ -58,6 +58,20 @@ const ReloadConsumer = () => {
   );
 };
 
+const DefaultContextConsumer = () => {
+  const { ready, locale, has, reload, t } = useI18n();
+  return React.createElement(
+    "button",
+    {
+      type: "button",
+      onClick: () => {
+        void reload();
+      },
+    },
+    `${ready ? "ready" : "loading"}|${locale}|${has("common.app.name") ? "has" : "missing"}|${t("common.app.name")}`,
+  );
+};
+
 describe("I18nProvider", () => {
   it("loads bundle and exposes translations through context", async () => {
     const bundle = createBundle();
@@ -152,5 +166,66 @@ describe("I18nProvider", () => {
 
     expect(loader).toHaveBeenCalledTimes(2);
     expect(flattenText(renderer!.toJSON())).toContain("ready|en-GB|Uygulama");
+  });
+
+  it("exposes default context values when used without provider", () => {
+    const renderer = TestRenderer.create(
+      React.createElement(DefaultContextConsumer),
+    );
+
+    const button = renderer.root.findByType("button");
+    act(() => {
+      button.props.onClick();
+    });
+
+    expect(flattenText(renderer.toJSON())).toContain("ready|en-GB|has|notegit");
+  });
+
+  it("renders null when no children are provided", async () => {
+    const client = new FrontendTranslationClient(null);
+    let renderer: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(
+        React.createElement(I18nProvider, { client }),
+      );
+      await flushPromises();
+    });
+
+    expect(renderer!.toJSON()).toBeNull();
+  });
+
+  it("does not update state after unmount when bundle loading resolves late", async () => {
+    let resolveLoader: ((value: ApiResponse<I18nBundle>) => void) | null = null;
+    const loader = jest.fn(
+      () =>
+        new Promise<ApiResponse<I18nBundle>>((resolve) => {
+          resolveLoader = resolve;
+        }),
+    );
+    const client = new FrontendTranslationClient(loader);
+    let renderer: TestRenderer.ReactTestRenderer;
+
+    await act(async () => {
+      renderer = TestRenderer.create(
+        React.createElement(
+          I18nProvider,
+          { client },
+          React.createElement(Consumer),
+        ),
+      );
+    });
+
+    renderer!.unmount();
+
+    await act(async () => {
+      resolveLoader?.({
+        ok: true,
+        data: createBundle("tr-TR"),
+      });
+      await flushPromises();
+    });
+
+    expect(loader).toHaveBeenCalledTimes(1);
   });
 });

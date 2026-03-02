@@ -101,4 +101,41 @@ describe("MermaidDiagram", () => {
     const pre = renderer.root.findByType("pre");
     expect(pre.children.join("")).toContain(code);
   });
+
+  it("does not attempt to render when code is blank", async () => {
+    await renderDiagram("   ", false);
+
+    expect(mockedMermaid.initialize).not.toHaveBeenCalled();
+    expect(mockedMermaid.render).not.toHaveBeenCalled();
+  });
+
+  it("uses localized fallback when render rejects with a non-Error value", async () => {
+    mockedMermaid.render.mockRejectedValueOnce("boom");
+
+    const renderer = await renderDiagram("graph TD; A-->B", false);
+
+    expect(flattenText(renderer.toJSON())).toContain(
+      "Failed to render mermaid diagram",
+    );
+  });
+
+  it("writes svg into the container and binds functions when refs are available", async () => {
+    const bindFunctions = jest.fn();
+    const useRefSpy = jest
+      .spyOn(React, "useRef")
+      .mockReturnValueOnce({ current: { innerHTML: "" } } as any)
+      .mockReturnValueOnce({ current: "mermaid-fixed" } as any);
+    mockedMermaid.render.mockResolvedValueOnce({
+      svg: "<svg><g /></svg>",
+      bindFunctions,
+    });
+
+    await renderDiagram("graph TD; A-->B", false);
+
+    expect(bindFunctions).toHaveBeenCalledWith(
+      expect.objectContaining({ innerHTML: "<svg><g /></svg>" }),
+    );
+
+    useRefSpy.mockRestore();
+  });
 });

@@ -63,13 +63,24 @@ describe("ExportService", () => {
   let exportService: ExportService;
   let mockFsAdapter: jest.Mocked<FsAdapter>;
   let mockConfigService: jest.Mocked<ConfigService>;
+  let translate: jest.Mock;
 
   beforeEach(() => {
     mockFsAdapter = new FsAdapter() as jest.Mocked<FsAdapter>;
     mockConfigService = {
       getRepoSettings: jest.fn(),
     } as any;
-    exportService = new ExportService(mockFsAdapter, mockConfigService);
+    translate = jest.fn(async (_key: string, options?: any) => {
+      if (options?.params?.message) {
+        return String(options.params.message);
+      }
+      return options?.fallback || _key;
+    });
+    exportService = new ExportService(
+      mockFsAdapter,
+      mockConfigService,
+      translate,
+    );
 
     mockConfigService.getRepoSettings.mockResolvedValue({
       provider: REPO_PROVIDERS.git,
@@ -122,6 +133,22 @@ describe("ExportService", () => {
         code: ApiErrorCode.VALIDATION_ERROR,
       });
     });
+
+    it("wraps unexpected export failures", async () => {
+      (dialog.showSaveDialog as jest.Mock).mockResolvedValue({
+        canceled: false,
+        filePath: "/tmp/note.md",
+      });
+      const writeFile = fs.writeFile as jest.Mock;
+      writeFile.mockRejectedValue(new Error("disk full"));
+
+      await expect(
+        exportService.exportNote("note.md", "# Hello", "md"),
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+        message: "disk full",
+      });
+    });
   });
 
   describe("exportRepoAsZip", () => {
@@ -169,6 +196,53 @@ describe("ExportService", () => {
 
       await expect(exportService.exportRepoAsZip()).rejects.toMatchObject({
         code: ApiErrorCode.VALIDATION_ERROR,
+      });
+    });
+
+    it("throws when no repository is configured", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue(null);
+      const serviceWithoutRepo = new ExportService(
+        mockFsAdapter,
+        mockConfigService,
+        translate,
+      );
+
+      await expect(serviceWithoutRepo.exportRepoAsZip()).rejects.toMatchObject({
+        code: ApiErrorCode.VALIDATION_ERROR,
+      });
+    });
+
+    it("wraps zip archive failures", async () => {
+      (dialog.showSaveDialog as jest.Mock).mockResolvedValue({
+        canceled: false,
+        filePath: "/tmp/repo-export.zip",
+      });
+
+      const archiverMock = require("archiver");
+      const createWriteStream = require("fs").createWriteStream as jest.Mock;
+      let errorHandler: ((error: Error) => void) | null = null;
+
+      createWriteStream.mockImplementation(() => ({
+        on: jest.fn(),
+      }));
+
+      archiverMock.mockImplementation(() => ({
+        on: jest.fn((event: string, handler: (error: Error) => void) => {
+          if (event === "error") {
+            errorHandler = handler;
+          }
+        }),
+        pipe: jest.fn(),
+        glob: jest.fn(),
+        pointer: jest.fn(() => 10),
+        finalize: jest.fn(() => {
+          errorHandler?.(new Error("zip failed"));
+        }),
+      }));
+
+      await expect(exportService.exportRepoAsZip()).rejects.toMatchObject({
+        code: ApiErrorCode.UNKNOWN_ERROR,
+        message: "zip failed",
       });
     });
   });
