@@ -99,8 +99,9 @@ describe("App", () => {
       },
     });
 
+    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      TestRenderer.create(React.createElement(App));
+      renderer = TestRenderer.create(React.createElement(App));
     });
 
     await act(async () => {
@@ -122,8 +123,9 @@ describe("App", () => {
       data: { repoSettings: null, appSettings: { theme: "system" } },
     });
 
+    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      TestRenderer.create(React.createElement(App));
+      renderer = TestRenderer.create(React.createElement(App));
     });
 
     await act(async () => {
@@ -145,8 +147,9 @@ describe("App", () => {
       data: { repoSettings: null, appSettings: { theme: "system" } },
     });
 
+    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      TestRenderer.create(React.createElement(App));
+      renderer = TestRenderer.create(React.createElement(App));
     });
 
     await act(async () => {
@@ -185,8 +188,9 @@ describe("App", () => {
       },
     });
 
+    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      TestRenderer.create(React.createElement(App));
+      renderer = TestRenderer.create(React.createElement(App));
     });
 
     await act(async () => {
@@ -221,8 +225,9 @@ describe("App", () => {
       },
     });
 
+    let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      TestRenderer.create(React.createElement(App));
+      renderer = TestRenderer.create(React.createElement(App));
     });
 
     await act(async () => {
