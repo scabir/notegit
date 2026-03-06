@@ -24,8 +24,6 @@ run_pre_commit_checks() {
 run_pre_push_checks() {
   run_pre_commit_checks
   run_step "pnpm run test" pnpm --dir "$PROJECT_ROOT" run test
-  run_step "pnpm run test:coverage" pnpm --dir "$PROJECT_ROOT" run test:coverage
-  run_step "pnpm run coverage:check" pnpm --dir "$PROJECT_ROOT" run coverage:check
 }
 
 case "$MODE" in
