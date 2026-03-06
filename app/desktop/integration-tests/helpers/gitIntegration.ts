@@ -210,8 +210,8 @@ export const createMarkdownFile = async (
   await createDialog.getByLabel("File Name").fill(fileName);
   await createDialog.getByRole("button", { name: "Create" }).click();
 
-  await expect(createDialog).toHaveCount(0);
   await expect(getTreeFileLocator(page, fileName)).toBeVisible();
+  await expect(createDialog).toBeHidden();
 };
 
 export const appendToCurrentEditor = async (

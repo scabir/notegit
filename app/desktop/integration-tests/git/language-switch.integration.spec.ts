@@ -30,6 +30,8 @@ const expectGitLocaleApplied = async (page: Page, expectedLocale: string) => {
 test("(git) language switch updates UI text across all supported locales", async ({
   request: _request,
 }, testInfo) => {
+  test.slow();
+
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
 

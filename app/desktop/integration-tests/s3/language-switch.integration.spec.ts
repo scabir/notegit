@@ -29,6 +29,8 @@ const expectS3LocaleApplied = async (page: Page, expectedLocale: string) => {
 test("(S3) language switch localizes bucket label and settings UI across supported locales", async ({
   request: _request,
 }, testInfo) => {
+  test.slow();
+
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   let app: ElectronApplication | null = null;
 
