@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "notegit",
+    "tagline": "基于 Git 的 Markdown 笔记应用",
+    "welcome": "欢迎使用 notegit！开始之前，请先连接一个 Git 仓库。",
+    "connectToRepository": "连接仓库"
+  },
+  "gitMissing": {
+    "message": "你的系统尚未安装 Git。请先安装 Git 后再使用 notegit。",
+    "downloadPrompt": "下载 Git。"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "title": "Klavye Kısayolları",
+  "footer": "Bu yardımcının kapanması için F1'e tekrar basın",
+  "sections": {
+    "fileTree": "Dosya ağacı",
+    "editorFormatting": "Düzenleyici biçimlendirme",
+    "global": "Genel"
+  },
+  "labels": {
+    "addNewFile": "Yeni dosya ekle",
+    "addNewFolder": "Yeni klasör ekle",
+    "deleteSelection": "Seçimi sil",
+    "importFile": "Dosya içe aktar",
+    "renameSelection": "Seçimi yeniden adlandır",
+    "moveSelection": "Seçimi taşı",
+    "duplicateFile": "Dosyayı çoğalt",
+    "toggleFavorite": "Favoriyi aç/kapat",
+    "collapseAllFolders": "Tüm klasörleri daralt",
+    "bold": "Kalın",
+    "italic": "İtalik",
+    "heading": "Başlık",
+    "inlineCode": "Satır içi kod",
+    "codeBlock": "Kod bloğu",
+    "link": "Bağlantı",
+    "table": "Tablo",
+    "footnote": "Dipnot",
+    "taskList": "Görev listesi",
+    "highlight": "Vurgula",
+    "definitionList": "Tanım listesi",
+    "mermaidDiagram": "Mermaid diyagramı",
+    "saveCurrentNote": "Geçerli notu kaydet",
+    "navigateBack": "Geri git",
+    "navigateForward": "İleri git",
+    "quickFileSearch": "Hızlı dosya araması",
+    "quickSearchAlternative": "Alternatif hızlı arama",
+    "findInFile": "Dosyada bul",
+    "findInRepo": "Depoda bul",
+    "openSettings": "Ayarları aç",
+    "quitApplication": "Uygulamadan çık",
+    "toggleThisHelper": "Bu yardımcıyı aç/kapat"
+  }
+}

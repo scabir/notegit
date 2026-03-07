@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "Registos da aplicação",
+  "info": "Os registos são guardados localmente por dia e incluem operações Git/S3, erros e eventos de sincronização.",
+  "logsFolderLabel": "Pasta de registos",
+  "openFolderButton": "Abrir pasta",
+  "copyLogsFolderAriaLabel": "copiar pasta de registos"
+}

@@ -1,0 +1,11 @@
+{
+  "bucketLabel": "存储桶",
+  "branchLabel": "分支",
+  "synced": "已同步",
+  "saved": "已保存",
+  "uncommitted": "未提交更改",
+  "unsynced": "未同步更改",
+  "fetchTooltip": "从远端抓取",
+  "pullTooltip": "从远端拉取",
+  "pushTooltip": "推送到远端"
+}

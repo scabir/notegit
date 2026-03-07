@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "Apploggar",
+  "info": "Loggar lagras lokalt per dag och innehåller Git/S3-operationer, fel och synkroniseringshändelser.",
+  "logsFolderLabel": "Loggmapp",
+  "openFolderButton": "Öppna mapp",
+  "copyLogsFolderAriaLabel": "kopiera loggmapp"
+}

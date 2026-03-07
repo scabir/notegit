@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "Znajdź",
+  "replacePlaceholder": "Zastąp",
+  "noMatches": "Brak dopasowań",
+  "findPrevious": "Znajdź poprzednie (Shift+Enter)",
+  "findNext": "Znajdź następne (Enter)",
+  "replaceCurrent": "Zastąp bieżące dopasowanie",
+  "replaceAll": "Zastąp wszystkie dopasowania",
+  "close": "Zamknij (Esc)"
+}

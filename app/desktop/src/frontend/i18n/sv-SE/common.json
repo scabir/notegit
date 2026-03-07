@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "notegit",
+    "tagline": "Git-baserad Markdown-app för anteckningar",
+    "welcome": "Välkommen till notegit! För att komma igång, anslut till ett Git-repository.",
+    "connectToRepository": "Anslut till repository"
+  },
+  "gitMissing": {
+    "message": "Git är inte installerat på ditt system. Installera Git för att använda notegit.",
+    "downloadPrompt": "för att ladda ner Git."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "Ainda não existem registos de {logType}.",
+    "logFileEmpty": "O ficheiro de registo está vazio."
+  },
+  "errors": {
+    "failedGetContent": "Não foi possível obter o conteúdo do registo",
+    "failedExport": "Não foi possível exportar os registos",
+    "failedGetFolder": "Não foi possível obter a pasta dos registos",
+    "failedReadLogTemplate": "Não foi possível ler o registo {logType}: {message}",
+    "logFileNotFound": "Ficheiro de registo não encontrado: {logType}",
+    "failedExportLogTemplate": "Não foi possível exportar o registo {logType}: {message}"
+  }
+}

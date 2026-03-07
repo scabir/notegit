@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "Nessun log {logType} disponibile.",
+    "logFileEmpty": "Il file di log è vuoto."
+  },
+  "errors": {
+    "failedGetContent": "Impossibile ottenere il contenuto del log",
+    "failedExport": "Impossibile esportare i log",
+    "failedGetFolder": "Impossibile ottenere la cartella log",
+    "failedReadLogTemplate": "Impossibile leggere il log {logType}: {message}",
+    "logFileNotFound": "File di log non trovato: {logType}",
+    "failedExportLogTemplate": "Impossibile esportare il log {logType}: {message}"
+  }
+}

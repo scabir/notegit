@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "Log applicazione",
+  "info": "I log sono salvati localmente per giorno e includono operazioni Git/S3, errori ed eventi di sincronizzazione.",
+  "logsFolderLabel": "Cartella log",
+  "openFolderButton": "Apri cartella",
+  "copyLogsFolderAriaLabel": "copia cartella log"
+}

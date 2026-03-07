@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "プロファイル管理",
+  "info": "プロファイルを使うと複数のリポジトリを切り替えて作業できます。アクティブにできるのは常に 1 つだけです。新規プロファイル作成時にはリポジトリ準備を行い、切り替え時にはアプリが再起動します。",
+  "activeProfileTitle": "アクティブなプロファイル",
+  "activeChipLabel": "使用中",
+  "deleteAriaLabel": "削除",
+  "createNewProfileButton": "新しいプロファイルを作成",
+  "newProfileTitle": "新規プロファイル",
+  "creatingProfileMessage": "プロファイルを作成してリポジトリを準備しています... しばらくお待ちください。",
+  "repositoryTypeLabel": "リポジトリタイプ",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Local"
+  },
+  "profileNameLabel": "プロファイル名",
+  "profileNamePlaceholder": "My Notes Repo",
+  "profileNameHelper": "この名前を元にローカルフォルダが自動作成されます",
+  "git": {
+    "remoteUrlLabel": "リモート URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "ブランチ",
+    "branchPlaceholder": "main",
+    "patLabel": "Personal Access Token",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Personal Access Token は暗号化して保存されます"
+  },
+  "s3": {
+    "bucketLabel": "バケット",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "リージョン",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "プレフィックス（任意）",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "アプリのデータディレクトリに暗号化して保存されます。",
+    "sessionTokenLabel": "Session Token（任意）"
+  },
+  "local": {
+    "info": "ローカルリポジトリはこの端末内のみに保存され、同期されません。"
+  },
+  "createProfileButton": "プロファイルを作成",
+  "creatingButton": "作成中...",
+  "cancelButton": "キャンセル"
+}

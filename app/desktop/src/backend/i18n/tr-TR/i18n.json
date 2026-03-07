@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "i18n meta verisi yüklenemedi",
+    "failedLoadFrontendTranslations": "Ön yüz çevirileri yüklenemedi",
+    "languageRequired": "Dil zorunludur",
+    "unsupportedLanguage": "Desteklenmeyen dil: {language}",
+    "failedSetLanguage": "Dil ayarlanamadı"
+  }
+}

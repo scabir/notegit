@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "Det gick inte att lista filer",
+    "read": "Det gick inte att läsa filen",
+    "save": "Det gick inte att spara filen",
+    "saveWithGitWorkflow": "Det gick inte att spara med Git-flödet",
+    "commitFile": "Det gick inte att committa filen",
+    "commitAll": "Det gick inte att committa alla ändringar",
+    "commitAndPush": "Det gick inte att committa och pusha ändringar",
+    "createFile": "Det gick inte att skapa filen",
+    "createFolder": "Det gick inte att skapa mappen",
+    "delete": "Det gick inte att ta bort",
+    "rename": "Det gick inte att byta namn",
+    "duplicateFile": "Det gick inte att duplicera filen",
+    "importFile": "Det gick inte att importera filen",
+    "localRepoNoSync": "Lokala repositories stöder inte synkronisering",
+    "gitAdapterNotInitialized": "Git-adapter är inte initialiserad",
+    "onlyFilesCanBeDuplicated": "Endast filer kan dupliceras",
+    "noRepositoryConfigured": "Inget repository är konfigurerat",
+    "gitOnlyOperation": "Git-operationer är endast tillgängliga för Git-repositories"
+  },
+  "success": {
+    "syncedSuccessfully": "Synkronisering slutförd",
+    "nothingToCommit": "Inget att committa",
+    "committedAndPushedSuccessfully": "Ändringar committade och pushade"
+  },
+  "commit": {
+    "updatePrefix": "Uppdatera:",
+    "andMore": "och {count} till",
+    "multipleFiles": "flera filer"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "Про програму",
+  "versionPrefix": "Версія",
+  "description": "Настільний застосунок для нотаток у Markdown на базі Git або S3, створений на Electron",
+  "sections": {
+    "features": "Можливості",
+    "author": "Автор",
+    "links": "Посилання",
+    "techStack": "Технологічний стек"
+  },
+  "links": {
+    "githubRepository": "Репозиторій GitHub",
+    "website": "Вебсайт"
+  },
+  "close": "Закрити",
+  "license": "Ліцензія MIT",
+  "features": {
+    "markdownLivePreview": "Редагування Markdown з живим попереднім переглядом",
+    "gitOrS3History": "Історія версій через Git або S3",
+    "fileAndFolderManagement": "Керування файлами та папками",
+    "fullTextSearch": "Повнотекстовий пошук у нотатках",
+    "darkModeSupport": "Підтримка темної теми",
+    "autoSaveAndSync": "Автозбереження та синхронізація",
+    "fileHistoryAndVersionViewing": "Перегляд історії файлу та його версій"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

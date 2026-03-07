@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "ファイル履歴の取得に失敗しました",
+    "failedGetFileVersion": "ファイルバージョンの取得に失敗しました",
+    "failedGetDiff": "差分の取得に失敗しました",
+    "noRepositoryConfigured": "リポジトリが設定されていません",
+    "unsupportedProvider": "未対応の履歴プロバイダです: {provider}",
+    "localHistoryUnavailable": "ローカルリポジトリでは履歴を利用できません",
+    "s3DiffNotSupported": "S3 履歴では差分表示をサポートしていません"
+  }
+}

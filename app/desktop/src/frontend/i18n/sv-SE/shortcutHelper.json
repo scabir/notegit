@@ -1,0 +1,42 @@
+{
+  "title": "Kortkommandon",
+  "footer": "Tryck på F1 igen för att stänga hjälpen",
+  "sections": {
+    "fileTree": "Filträd",
+    "editorFormatting": "Editorformattering",
+    "global": "Globalt"
+  },
+  "labels": {
+    "addNewFile": "Lägg till ny fil",
+    "addNewFolder": "Lägg till ny mapp",
+    "deleteSelection": "Ta bort markering",
+    "importFile": "Importera fil",
+    "renameSelection": "Byt namn på markering",
+    "moveSelection": "Flytta markering",
+    "duplicateFile": "Duplicera fil",
+    "toggleFavorite": "Växla favorit",
+    "collapseAllFolders": "Fäll ihop alla mappar",
+    "bold": "Fetstil",
+    "italic": "Kursiv",
+    "heading": "Rubrik",
+    "inlineCode": "Inline-kod",
+    "codeBlock": "Kodblock",
+    "link": "Länk",
+    "table": "Tabell",
+    "footnote": "Fotnot",
+    "taskList": "Att-göra-lista",
+    "highlight": "Markera",
+    "definitionList": "Definitionslista",
+    "mermaidDiagram": "Mermaid-diagram",
+    "saveCurrentNote": "Spara aktuell anteckning",
+    "navigateBack": "Navigera bakåt",
+    "navigateForward": "Navigera framåt",
+    "quickFileSearch": "Snabbsök fil",
+    "quickSearchAlternative": "Alternativ snabbsökning",
+    "findInFile": "Sök i fil",
+    "findInRepo": "Sök i repository",
+    "openSettings": "Öppna inställningar",
+    "quitApplication": "Avsluta programmet",
+    "toggleThisHelper": "Visa/dölj den här hjälpen"
+  }
+}

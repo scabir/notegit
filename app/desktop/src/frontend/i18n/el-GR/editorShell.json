@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "Αναζήτηση (Cmd/Ctrl+P)",
+    "history": "Ιστορικό αρχείου",
+    "saveAll": "Αποθήκευση όλων των ανοιχτών αρχείων",
+    "sync": "Συγχρονισμός",
+    "commitPush": "Commit και Push",
+    "settings": "Ρυθμίσεις",
+    "shortcuts": "Συντομεύσεις πληκτρολογίου"
+  },
+  "labels": {
+    "saving": "Αποθήκευση...",
+    "saved": "Αποθηκεύτηκε",
+    "error": "Σφάλμα"
+  },
+  "messages": {
+    "failedLoadWorkspace": "Αποτυχία φόρτωσης χώρου εργασίας",
+    "savedLocally": "Αποθηκεύτηκε τοπικά",
+    "failedSaveFile": "Αποτυχία αποθήκευσης αρχείου",
+    "failedReadFile": "Αποτυχία ανάγνωσης αρχείου",
+    "pullSuccessful": "Το pull ολοκληρώθηκε",
+    "failedPull": "Αποτυχία pull",
+    "fetchSuccessful": "Το fetch ολοκληρώθηκε",
+    "failedFetch": "Αποτυχία fetch",
+    "pushSuccessful": "Το push ολοκληρώθηκε",
+    "failedPush": "Αποτυχία push",
+    "failedCreateFile": "Αποτυχία δημιουργίας αρχείου",
+    "failedCreateFolder": "Αποτυχία δημιουργίας φακέλου",
+    "failedDelete": "Αποτυχία διαγραφής",
+    "failedRename": "Αποτυχία μετονομασίας",
+    "failedImportFile": "Αποτυχία εισαγωγής αρχείου",
+    "moveCommitMessagePrefix": "Μετακίνηση:",
+    "failedAutoCommitMove": "Αποτυχία αυτόματου commit μετακίνησης",
+    "failedDuplicateFile": "Αποτυχία αντιγραφής αρχείου",
+    "syncing": "Γίνεται συγχρονισμός...",
+    "committingAndPushing": "Γίνεται commit και push...",
+    "syncedSuccessfully": "Ο συγχρονισμός ολοκληρώθηκε",
+    "failedSync": "Αποτυχία συγχρονισμού",
+    "nothingToCommit": "Δεν υπάρχουν αλλαγές για commit",
+    "committedAndPushedSuccessfully": "Το commit και push ολοκληρώθηκαν",
+    "failedCommitAndPush": "Αποτυχία commit και push"
+  }
+}

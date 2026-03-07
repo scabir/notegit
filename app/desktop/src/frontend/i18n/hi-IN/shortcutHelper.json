@@ -1,0 +1,42 @@
+{
+  "title": "कीबोर्ड शॉर्टकट",
+  "footer": "इस सहायता को बंद करने के लिए F1 फिर दबाएँ",
+  "sections": {
+    "fileTree": "फ़ाइल ट्री",
+    "editorFormatting": "एडिटर फ़ॉर्मैटिंग",
+    "global": "वैश्विक"
+  },
+  "labels": {
+    "addNewFile": "नई फ़ाइल जोड़ें",
+    "addNewFolder": "नया फ़ोल्डर जोड़ें",
+    "deleteSelection": "चयन हटाएँ",
+    "importFile": "फ़ाइल आयात करें",
+    "renameSelection": "चयन का नाम बदलें",
+    "moveSelection": "चयन स्थानांतरित करें",
+    "duplicateFile": "फ़ाइल की प्रतिलिपि बनाएँ",
+    "toggleFavorite": "पसंदीदा टॉगल करें",
+    "collapseAllFolders": "सभी फ़ोल्डर समेटें",
+    "bold": "बोल्ड",
+    "italic": "इटैलिक",
+    "heading": "शीर्षक",
+    "inlineCode": "इनलाइन कोड",
+    "codeBlock": "कोड ब्लॉक",
+    "link": "लिंक",
+    "table": "तालिका",
+    "footnote": "फुटनोट",
+    "taskList": "टास्क सूची",
+    "highlight": "हाइलाइट",
+    "definitionList": "परिभाषा सूची",
+    "mermaidDiagram": "Mermaid डायग्राम",
+    "saveCurrentNote": "वर्तमान नोट सहेजें",
+    "navigateBack": "पीछे जाएँ",
+    "navigateForward": "आगे जाएँ",
+    "quickFileSearch": "त्वरित फ़ाइल खोज",
+    "quickSearchAlternative": "वैकल्पिक त्वरित खोज",
+    "findInFile": "फ़ाइल में खोजें",
+    "findInRepo": "रिपॉज़िटरी में खोजें",
+    "openSettings": "सेटिंग्स खोलें",
+    "quitApplication": "ऐप बंद करें",
+    "toggleThisHelper": "यह सहायता दिखाएँ/छिपाएँ"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "Pel nehate dîtin: {path}",
+    "directoryNotFound": "Peldank nehate dîtin: {path}",
+    "pathNotFound": "Rêç nehate dîtin: {path}",
+    "sourceFileNotFound": "Pelê çavkanî nehate dîtin: {path}",
+    "permissionDenied": "Destûr nehate dayîn",
+    "permissionDeniedPath": "Destûr nehate dayîn: {path}",
+    "failedReadFile": "Xwendina pelê serneket: {path}",
+    "failedWriteFile": "Nivîsîna pelê serneket: {path}",
+    "failedDeleteFile": "Jêbirina pelê serneket: {path}",
+    "failedRename": "Guherandina navê ji {from} bo {to} serneket",
+    "failedCreateDirectory": "Çêkirina peldankê serneket: {path}",
+    "failedDeleteDirectory": "Jêbirina peldankê serneket: {path}",
+    "failedReadDirectory": "Xwendina peldankê serneket: {path}",
+    "failedStat": "Statkirin serneket: {path}",
+    "failedCopyFile": "Kopîkirina pelê ji {from} bo {to} serneket"
+  }
+}

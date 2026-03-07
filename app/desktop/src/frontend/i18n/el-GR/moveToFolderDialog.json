@@ -1,0 +1,16 @@
+{
+  "title": "Μετακίνηση στοιχείου",
+  "movingLabel": "Μετακίνηση",
+  "currentLocationLabel": "Τρέχουσα τοποθεσία",
+  "selectDestination": "Επιλέξτε φάκελο προορισμού:",
+  "rootLabel": "Ριζικός κατάλογος",
+  "noFolders": "Δεν υπάρχουν φάκελοι στο αποθετήριο",
+  "cancel": "Ακύρωση",
+  "confirm": "Μετακίνηση εδώ",
+  "rootFallback": "root",
+  "errors": {
+    "selectDestination": "Επιλέξτε φάκελο προορισμού",
+    "sameLocation": "Το στοιχείο βρίσκεται ήδη σε αυτή την τοποθεσία",
+    "duplicateItemTemplate": "Στον φάκελο προορισμού υπάρχει ήδη στοιχείο με όνομα \"{name}\""
+  }
+}

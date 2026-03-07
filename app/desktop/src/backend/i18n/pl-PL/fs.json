@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "Nie znaleziono pliku: {path}",
+    "directoryNotFound": "Nie znaleziono katalogu: {path}",
+    "pathNotFound": "Nie znaleziono ścieżki: {path}",
+    "sourceFileNotFound": "Nie znaleziono pliku źródłowego: {path}",
+    "permissionDenied": "Brak uprawnień",
+    "permissionDeniedPath": "Brak uprawnień: {path}",
+    "failedReadFile": "Nie udało się odczytać pliku: {path}",
+    "failedWriteFile": "Nie udało się zapisać pliku: {path}",
+    "failedDeleteFile": "Nie udało się usunąć pliku: {path}",
+    "failedRename": "Nie udało się zmienić nazwy z {from} na {to}",
+    "failedCreateDirectory": "Nie udało się utworzyć katalogu: {path}",
+    "failedDeleteDirectory": "Nie udało się usunąć katalogu: {path}",
+    "failedReadDirectory": "Nie udało się odczytać katalogu: {path}",
+    "failedStat": "Nie udało się pobrać statystyk: {path}",
+    "failedCopyFile": "Nie udało się skopiować pliku z {from} do {to}"
+  }
+}

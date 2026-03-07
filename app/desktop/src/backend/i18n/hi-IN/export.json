@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "नोट निर्यात करें",
+    "exportRepoZipTitle": "रिपॉज़िटरी को Zip के रूप में निर्यात करें",
+    "markdownFiles": "Markdown फ़ाइलें",
+    "textFiles": "टेक्स्ट फ़ाइलें",
+    "zipArchives": "Zip आर्काइव",
+    "allFiles": "सभी फ़ाइलें"
+  },
+  "errors": {
+    "cancelled": "निर्यात रद्द किया गया",
+    "failedExportNote": "नोट निर्यात करना असफल रहा",
+    "failedExportRepositoryZip": "रिपॉज़िटरी को zip में निर्यात करना असफल रहा",
+    "failedExportNoteTemplate": "नोट निर्यात असफल रहा: {message}",
+    "failedExportRepoTemplate": "रिपॉज़िटरी निर्यात असफल रहा: {message}",
+    "noRepositoryConfigured": "कोई रिपॉज़िटरी कॉन्फ़िगर नहीं है"
+  }
+}

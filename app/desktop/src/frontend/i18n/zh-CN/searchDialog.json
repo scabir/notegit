@@ -1,0 +1,10 @@
+{
+  "title": "搜索笔记",
+  "placeholder": "按文件名或内容搜索...",
+  "helperText": "使用 ↑↓ 导航，Enter 打开，Esc 关闭",
+  "noResults": "没有搜索结果",
+  "startTyping": "开始输入以搜索所有笔记",
+  "searchFailed": "搜索失败",
+  "lineLabel": "行",
+  "moreSuffix": "更多"
+}

@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "バケットのバージョニング取得に失敗しました: {message}",
+    "failedListObjects": "オブジェクト一覧の取得に失敗しました: {message}",
+    "failedListObjectVersions": "オブジェクトバージョン一覧の取得に失敗しました: {message}",
+    "failedGetObject": "オブジェクトの取得に失敗しました: {message}",
+    "failedUploadObject": "オブジェクトのアップロードに失敗しました: {message}",
+    "failedReadObjectMetadata": "オブジェクトメタデータの読み込みに失敗しました: {message}",
+    "failedDeleteObject": "オブジェクトの削除に失敗しました: {message}",
+    "notConfigured": "S3 アダプタが設定されていません",
+    "bucketNotConfigured": "S3 バケットが設定されていません"
+  }
+}

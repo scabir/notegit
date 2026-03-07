@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "配置档管理",
+  "info": "配置档可用于管理多个仓库。同一时间仅有一个配置档处于激活状态。创建新配置档时，应用会准备对应仓库；切换配置档会重启应用。",
+  "activeProfileTitle": "当前配置档",
+  "activeChipLabel": "当前使用",
+  "deleteAriaLabel": "删除",
+  "createNewProfileButton": "新建配置档",
+  "newProfileTitle": "新配置档",
+  "creatingProfileMessage": "正在创建配置档并准备仓库... 这可能需要一点时间。",
+  "repositoryTypeLabel": "仓库类型",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "本地"
+  },
+  "profileNameLabel": "配置档名称",
+  "profileNamePlaceholder": "我的笔记仓库",
+  "profileNameHelper": "将基于该名称自动创建本地文件夹",
+  "git": {
+    "remoteUrlLabel": "远程 URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "分支",
+    "branchPlaceholder": "main",
+    "patLabel": "个人访问令牌",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "你的个人访问令牌会被加密保存"
+  },
+  "s3": {
+    "bucketLabel": "存储桶",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "区域",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "前缀（可选）",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "访问密钥 ID",
+    "secretAccessKeyLabel": "秘密访问密钥",
+    "secretAccessKeyHelperText": "在应用数据目录中加密保存。",
+    "sessionTokenLabel": "会话令牌（可选）"
+  },
+  "local": {
+    "info": "本地仓库仅保存在当前设备，不会同步。"
+  },
+  "createProfileButton": "创建配置档",
+  "creatingButton": "创建中...",
+  "cancelButton": "取消"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Dateiverlauf",
+  "closeTooltip": "Verlauf schließen",
+  "selectFile": "Wähle eine Datei aus, um ihren Verlauf anzuzeigen",
+  "noCommits": "Keine Commits für diese Datei gefunden",
+  "loadFailed": "Verlauf konnte nicht geladen werden",
+  "commitFoundSingularTemplate": "{count} Commit gefunden",
+  "commitFoundPluralTemplate": "{count} Commits gefunden",
+  "relativeTime": {
+    "justNow": "gerade eben",
+    "minutesAgoTemplate": "vor {count} Min",
+    "hoursAgoTemplate": "vor {count} Std",
+    "yesterday": "gestern",
+    "daysAgoTemplate": "vor {count} Tagen"
+  }
+}

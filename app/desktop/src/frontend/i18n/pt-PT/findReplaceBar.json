@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "Encontrar",
+  "replacePlaceholder": "Substituir",
+  "noMatches": "Sem correspondências",
+  "findPrevious": "Encontrar anterior (Shift+Enter)",
+  "findNext": "Encontrar seguinte (Enter)",
+  "replaceCurrent": "Substituir correspondência atual",
+  "replaceAll": "Substituir todas as correspondências",
+  "close": "Fechar (Esc)"
+}

@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "搜索失败",
+    "failedRepoWideSearch": "全仓搜索失败",
+    "failedRepoWideReplace": "全仓替换失败",
+    "repositoryNotInitialized": "仓库未初始化",
+    "searchFailed": "搜索失败",
+    "repoWideSearchFailedTemplate": "全仓搜索失败：{message}",
+    "repoWideReplaceFailedTemplate": "全仓替换失败：{message}"
+  }
+}

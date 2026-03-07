@@ -1,0 +1,16 @@
+{
+  "title": "項目を移動",
+  "movingLabel": "移動中",
+  "currentLocationLabel": "現在の場所",
+  "selectDestination": "移動先フォルダを選択:",
+  "rootLabel": "ルートディレクトリ",
+  "noFolders": "リポジトリ内にフォルダがありません",
+  "cancel": "キャンセル",
+  "confirm": "ここに移動",
+  "rootFallback": "ルート",
+  "errors": {
+    "selectDestination": "移動先フォルダを選択してください",
+    "sameLocation": "項目はすでにこの場所にあります",
+    "duplicateItemTemplate": "移動先フォルダに \"{name}\" という名前の項目がすでに存在します"
+  }
+}

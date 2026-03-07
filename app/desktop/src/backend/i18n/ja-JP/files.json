@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "ファイル一覧の取得に失敗しました",
+    "read": "ファイルの読み込みに失敗しました",
+    "save": "ファイルの保存に失敗しました",
+    "saveWithGitWorkflow": "Git ワークフローでの保存に失敗しました",
+    "commitFile": "ファイルのコミットに失敗しました",
+    "commitAll": "すべての変更のコミットに失敗しました",
+    "commitAndPush": "コミットとプッシュに失敗しました",
+    "createFile": "ファイルの作成に失敗しました",
+    "createFolder": "フォルダの作成に失敗しました",
+    "delete": "削除に失敗しました",
+    "rename": "名前変更に失敗しました",
+    "duplicateFile": "ファイルの複製に失敗しました",
+    "importFile": "ファイルのインポートに失敗しました",
+    "localRepoNoSync": "ローカルリポジトリは同期に対応していません",
+    "gitAdapterNotInitialized": "Git アダプタが初期化されていません",
+    "onlyFilesCanBeDuplicated": "複製できるのはファイルのみです",
+    "noRepositoryConfigured": "リポジトリが設定されていません",
+    "gitOnlyOperation": "Git 操作は Git リポジトリでのみ利用できます"
+  },
+  "success": {
+    "syncedSuccessfully": "同期しました",
+    "nothingToCommit": "コミットする変更はありません",
+    "committedAndPushedSuccessfully": "変更をコミットしてプッシュしました"
+  },
+  "commit": {
+    "updatePrefix": "更新:",
+    "andMore": "ほか {count} 件",
+    "multipleFiles": "複数ファイル"
+  }
+}

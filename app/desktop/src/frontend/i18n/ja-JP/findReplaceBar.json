@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "検索",
+  "replacePlaceholder": "置換",
+  "noMatches": "一致なし",
+  "findPrevious": "前を検索 (Shift+Enter)",
+  "findNext": "次を検索 (Enter)",
+  "replaceCurrent": "現在の一致を置換",
+  "replaceAll": "すべて置換",
+  "close": "閉じる (Esc)"
+}

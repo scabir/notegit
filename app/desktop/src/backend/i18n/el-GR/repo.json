@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "Αποτυχία ανοίγματος ή clone αποθετηρίου",
+    "failedGetRepositoryStatus": "Αποτυχία λήψης κατάστασης αποθετηρίου",
+    "failedFetchFromRemote": "Αποτυχία fetch από remote",
+    "failedPullFromRemote": "Αποτυχία pull από remote",
+    "failedPushToRemote": "Αποτυχία push προς remote",
+    "failedStartAutoPush": "Αποτυχία εκκίνησης auto-push",
+    "noRepositoryConfigured": "Δεν έχει ρυθμιστεί αποθετήριο",
+    "unsupportedProvider": "Μη υποστηριζόμενος πάροχος αποθετηρίου: {provider}",
+    "localRepoOperationNotSupported": "Τα τοπικά αποθετήρια δεν υποστηρίζουν την ενέργεια {operation}"
+  }
+}

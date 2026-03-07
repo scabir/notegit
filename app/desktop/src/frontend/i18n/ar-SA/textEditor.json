@@ -1,0 +1,14 @@
+{
+  "emptyState": "اختر ملفًا للتحرير",
+  "modified": "معدّل",
+  "showTreeTooltip": "إظهار شجرة الملفات",
+  "backTooltip": "رجوع",
+  "forwardTooltip": "تقدم",
+  "saveTooltip": "حفظ على القرص",
+  "exportTooltip": "تصدير الملاحظة",
+  "messages": {
+    "failedExportNote": "تعذر تصدير الملاحظة",
+    "failedExportTemplate": "فشل التصدير: {message}",
+    "unknownError": "خطأ غير معروف"
+  }
+}

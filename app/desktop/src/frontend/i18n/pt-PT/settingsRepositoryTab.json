@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Tipo de repositório",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Local"
+  },
+  "git": {
+    "remoteUrlLabel": "URL remota",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Ramo",
+    "branchPlaceholder": "main",
+    "patLabel": "Token de acesso pessoal",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "O seu Personal Access Token é guardado de forma encriptada no diretório de dados da aplicação, e não no porta-chaves do sistema operativo.",
+    "patGuide": {
+      "title": "Como criar um GitHub Personal Access Token:",
+      "line1": "1. Vá a GitHub Settings -> Developer settings",
+      "line2": "2. Clique em Personal access tokens -> Fine-grained tokens",
+      "line3": "3. Clique em Generate new token",
+      "line4": "4. Dê um nome ao token",
+      "line5": "5. Defina a validade",
+      "line6": "6. Selecione a opção \"Only select repositories\"",
+      "line7": "7. Selecione o repositório a utilizar",
+      "line8": "8. Clique em \"Add permission\"",
+      "line9": "9. Selecione \"Contents\" e garanta permissões \"Read and write\"",
+      "line10": "10. Clique em Generate token",
+      "line11": "11. Copie e cole o token acima"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Região",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefixo (opcional)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "ID da access key",
+    "secretAccessKeyLabel": "Secret access key",
+    "secretAccessKeyHelperText": "Guardada de forma encriptada no diretório de dados da aplicação.",
+    "sessionTokenLabel": "Session token (opcional)",
+    "info": "O bucket S3 tem de ter versioning ativo para suportar histórico."
+  },
+  "local": {
+    "info": "Os repositórios locais são guardados apenas neste dispositivo e não sincronizam."
+  },
+  "saveButton": "Guardar definições do repositório",
+  "localPath": {
+    "title": "Caminho do repositório local",
+    "description": "Este é o local onde o seu repositório fica guardado localmente no computador.",
+    "label": "Caminho local",
+    "copyPathButton": "Copiar caminho",
+    "openFolderButton": "Abrir pasta"
+  }
+}

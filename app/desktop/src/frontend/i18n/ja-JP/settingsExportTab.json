@@ -1,0 +1,12 @@
+{
+  "exportCurrentNoteTitle": "現在のノートをエクスポート",
+  "exportCurrentNoteDescription": "現在開いているノート（未保存の変更を含む）を単体ファイルとしてエクスポートします。",
+  "exportMarkdownButton": "Markdown としてエクスポート (.md)",
+  "exportTextButton": "テキストとしてエクスポート (.txt)",
+  "openNoteHint": "エクスポートするには、エディタでノートを開いてください。",
+  "exportRepositoryTitle": "リポジトリをエクスポート",
+  "exportRepositoryDescription": "バックアップや共有のために、リポジトリ全体を ZIP 形式でエクスポートします（.git を除くすべてのファイルとフォルダを含みます）。",
+  "exportRepositoryButton": "リポジトリを ZIP でエクスポート",
+  "exportingButton": "エクスポート中...",
+  "safetyInfo": "エクスポート処理でリポジトリの内容が変更されたり、Git コマンドが実行されたりすることはありません。"
+}

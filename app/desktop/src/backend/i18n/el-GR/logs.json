@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "Δεν υπάρχουν ακόμη καταγραφές {logType}.",
+    "logFileEmpty": "Το αρχείο καταγραφής είναι κενό."
+  },
+  "errors": {
+    "failedGetContent": "Αποτυχία λήψης περιεχομένου καταγραφής",
+    "failedExport": "Αποτυχία εξαγωγής καταγραφών",
+    "failedGetFolder": "Αποτυχία λήψης φακέλου καταγραφών",
+    "failedReadLogTemplate": "Αποτυχία ανάγνωσης καταγραφής {logType}: {message}",
+    "logFileNotFound": "Το αρχείο καταγραφής δεν βρέθηκε: {logType}",
+    "failedExportLogTemplate": "Αποτυχία εξαγωγής καταγραφής {logType}: {message}"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Move item",
+  "movingLabel": "Moving",
+  "currentLocationLabel": "Current location",
+  "selectDestination": "Select destination folder:",
+  "rootLabel": "Root directory",
+  "noFolders": "No folders in repository",
+  "cancel": "Cancel",
+  "confirm": "Move here",
+  "rootFallback": "root",
+  "errors": {
+    "selectDestination": "Please select a destination folder",
+    "sameLocation": "Item is already in this location",
+    "duplicateItemTemplate": "An item named \"{name}\" already exists in the destination folder"
+  }
+}

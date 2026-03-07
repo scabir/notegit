@@ -1,0 +1,16 @@
+{
+  "title": "आइटम स्थानांतरित करें",
+  "movingLabel": "स्थानांतरण",
+  "currentLocationLabel": "वर्तमान स्थान",
+  "selectDestination": "गंतव्य फ़ोल्डर चुनें:",
+  "rootLabel": "रूट डायरेक्टरी",
+  "noFolders": "रिपॉज़िटरी में कोई फ़ोल्डर नहीं",
+  "cancel": "रद्द करें",
+  "confirm": "यहाँ ले जाएँ",
+  "rootFallback": "रूट",
+  "errors": {
+    "selectDestination": "कृपया गंतव्य फ़ोल्डर चुनें",
+    "sameLocation": "आइटम पहले से इसी स्थान पर है",
+    "duplicateItemTemplate": "गंतव्य फ़ोल्डर में \"{name}\" नाम का आइटम पहले से मौजूद है"
+  }
+}

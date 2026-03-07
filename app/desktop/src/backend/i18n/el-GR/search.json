@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "Η αναζήτηση απέτυχε",
+    "failedRepoWideSearch": "Η αναζήτηση σε όλο το αποθετήριο απέτυχε",
+    "failedRepoWideReplace": "Η αντικατάσταση σε όλο το αποθετήριο απέτυχε",
+    "repositoryNotInitialized": "Το αποθετήριο δεν έχει αρχικοποιηθεί",
+    "searchFailed": "Η αναζήτηση απέτυχε",
+    "repoWideSearchFailedTemplate": "Η αναζήτηση σε όλο το αποθετήριο απέτυχε: {message}",
+    "repoWideReplaceFailedTemplate": "Η αντικατάσταση σε όλο το αποθετήριο απέτυχε: {message}"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "फ़ाइल नहीं मिली: {path}",
+    "directoryNotFound": "डायरेक्टरी नहीं मिली: {path}",
+    "pathNotFound": "पथ नहीं मिला: {path}",
+    "sourceFileNotFound": "स्रोत फ़ाइल नहीं मिली: {path}",
+    "permissionDenied": "अनुमति अस्वीकृत",
+    "permissionDeniedPath": "अनुमति अस्वीकृत: {path}",
+    "failedReadFile": "फ़ाइल पढ़ना असफल रहा: {path}",
+    "failedWriteFile": "फ़ाइल लिखना असफल रहा: {path}",
+    "failedDeleteFile": "फ़ाइल हटाना असफल रहा: {path}",
+    "failedRename": "{from} से {to} नाम बदलना असफल रहा",
+    "failedCreateDirectory": "डायरेक्टरी बनाना असफल रहा: {path}",
+    "failedDeleteDirectory": "डायरेक्टरी हटाना असफल रहा: {path}",
+    "failedReadDirectory": "डायरेक्टरी पढ़ना असफल रहा: {path}",
+    "failedStat": "स्थिति (stat) प्राप्त करना असफल रहा: {path}",
+    "failedCopyFile": "फ़ाइल {from} से {to} कॉपी करना असफल रहा"
+  }
+}

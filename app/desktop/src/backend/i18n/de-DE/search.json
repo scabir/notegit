@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "Suche fehlgeschlagen",
+    "failedRepoWideSearch": "Repository-weite Suche fehlgeschlagen",
+    "failedRepoWideReplace": "Repository-weites Ersetzen fehlgeschlagen",
+    "repositoryNotInitialized": "Repository ist nicht initialisiert",
+    "searchFailed": "Suche fehlgeschlagen",
+    "repoWideSearchFailedTemplate": "Repository-weite Suche fehlgeschlagen: {message}",
+    "repoWideReplaceFailedTemplate": "Repository-weites Ersetzen fehlgeschlagen: {message}"
+  }
+}

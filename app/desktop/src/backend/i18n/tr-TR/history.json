@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "Dosya geçmişi alınamadı",
+    "failedGetFileVersion": "Dosya sürümü alınamadı",
+    "failedGetDiff": "Diff alınamadı",
+    "noRepositoryConfigured": "Yapılandırılmış depo yok",
+    "unsupportedProvider": "Desteklenmeyen geçmiş sağlayıcısı: {provider}",
+    "localHistoryUnavailable": "Yerel depolarda geçmiş kullanılamaz",
+    "s3DiffNotSupported": "S3 geçmişi için diff desteklenmiyor"
+  }
+}

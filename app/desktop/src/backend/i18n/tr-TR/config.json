@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "Yapılandırma yüklenemedi",
+    "failedUpdateAppSettings": "Uygulama ayarları güncellenemedi",
+    "failedUpdateRepositorySettings": "Depo ayarları güncellenemedi",
+    "failedLoadApplicationSettings": "Uygulama ayarları yüklenemedi",
+    "failedLoadFavorites": "Favoriler yüklenemedi",
+    "failedSaveFavorites": "Favoriler kaydedilemedi",
+    "failedLoadProfiles": "Profiller yüklenemedi",
+    "failedLoadActiveProfileId": "Aktif profil kimliği yüklenemedi",
+    "failedPrepareRepositoryTemplate": "Depo hazırlanamadı: {message}",
+    "failedCreateProfileTemplate": "Profil oluşturulamadı: {message}",
+    "failedDeleteProfile": "Profil silinemedi",
+    "failedSetActiveProfile": "Aktif profil ayarlanamadı",
+    "repoProviderCannotChange": "Depo sağlayıcısı değiştirilemez",
+    "s3RequiredFields": "S3 bucket, region, access key ve secret zorunludur"
+  }
+}

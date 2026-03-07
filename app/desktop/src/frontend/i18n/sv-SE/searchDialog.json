@@ -1,0 +1,10 @@
+{
+  "title": "Sök anteckningar",
+  "placeholder": "Sök efter filnamn eller innehåll...",
+  "helperText": "Använd ↑↓ för att navigera, Enter för att öppna, Esc för att stänga",
+  "noResults": "Inga resultat",
+  "startTyping": "Börja skriva för att söka i alla anteckningar",
+  "searchFailed": "Sökning misslyckades",
+  "lineLabel": "Rad",
+  "moreSuffix": "mer"
+}

@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "关于",
+  "versionPrefix": "版本",
+  "description": "基于 Git 或 S3 的 Markdown 桌面笔记应用，使用 Electron 构建",
+  "sections": {
+    "features": "功能",
+    "author": "作者",
+    "links": "链接",
+    "techStack": "技术栈"
+  },
+  "links": {
+    "githubRepository": "GitHub 仓库",
+    "website": "网站"
+  },
+  "close": "关闭",
+  "license": "MIT 许可证",
+  "features": {
+    "markdownLivePreview": "Markdown 编辑与实时预览",
+    "gitOrS3History": "Git 或 S3 版本历史",
+    "fileAndFolderManagement": "文件与文件夹管理",
+    "fullTextSearch": "跨笔记全文搜索",
+    "darkModeSupport": "支持深色模式",
+    "autoSaveAndSync": "自动保存与同步",
+    "fileHistoryAndVersionViewing": "文件历史与版本查看"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

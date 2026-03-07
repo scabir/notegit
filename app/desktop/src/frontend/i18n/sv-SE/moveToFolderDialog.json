@@ -1,0 +1,16 @@
+{
+  "title": "Flytta objekt",
+  "movingLabel": "Flyttar",
+  "currentLocationLabel": "Nuvarande plats",
+  "selectDestination": "Välj målmapp:",
+  "rootLabel": "Rotkatalog",
+  "noFolders": "Inga mappar i repositoryt",
+  "cancel": "Avbryt",
+  "confirm": "Flytta hit",
+  "rootFallback": "rot",
+  "errors": {
+    "selectDestination": "Välj en målmapp",
+    "sameLocation": "Objektet finns redan på den här platsen",
+    "duplicateItemTemplate": "Ett objekt med namnet \"{name}\" finns redan i målmappen"
+  }
+}

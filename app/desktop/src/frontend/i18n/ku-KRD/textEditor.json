@@ -1,0 +1,14 @@
+{
+  "emptyState": "Pelê ji bo edîtkirinê hilbijêre",
+  "modified": "Hat guherandin",
+  "showTreeTooltip": "Dara pelan nîşan bide",
+  "backTooltip": "Paşve",
+  "forwardTooltip": "Pêşve",
+  "saveTooltip": "Li dîskê tomar bike",
+  "exportTooltip": "Notê derxe",
+  "messages": {
+    "failedExportNote": "Derxistina notê serneket",
+    "failedExportTemplate": "Derxistin serneket: {message}",
+    "unknownError": "Çewtiya nenas"
+  }
+}

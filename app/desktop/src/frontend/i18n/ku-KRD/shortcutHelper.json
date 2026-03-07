@@ -1,0 +1,42 @@
+{
+  "title": "Kurterêyên klavyeyê",
+  "footer": "Ji bo girtina vê alîkariyê, dîsa F1 bitikîne",
+  "sections": {
+    "fileTree": "Dara pelan",
+    "editorFormatting": "Formatkirina editorê",
+    "global": "Giştî"
+  },
+  "labels": {
+    "addNewFile": "Pelê nû zêde bike",
+    "addNewFolder": "Peldanka nû zêde bike",
+    "deleteSelection": "Hilbijartinê jê bibe",
+    "importFile": "Pelê bîne nav",
+    "renameSelection": "Navê hilbijartinê biguherîne",
+    "moveSelection": "Hilbijartinê veguhezîne",
+    "duplicateFile": "Pelê dubare bike",
+    "toggleFavorite": "Bijare vekirî/veşartî bike",
+    "collapseAllFolders": "Hemû peldankan bişkîne",
+    "bold": "Qalind",
+    "italic": "Îtalîk",
+    "heading": "Sernav",
+    "inlineCode": "Kodê nav rêzê",
+    "codeBlock": "Bloka kodê",
+    "link": "Girêdan",
+    "table": "Tablo",
+    "footnote": "Noteya binper",
+    "taskList": "Lîsteya karan",
+    "highlight": "Belavkirin",
+    "definitionList": "Lîsteya pênaseyan",
+    "mermaidDiagram": "Diagrama Mermaid",
+    "saveCurrentNote": "Nota heyî tomar bike",
+    "navigateBack": "Paşve bigere",
+    "navigateForward": "Pêşve bigere",
+    "quickFileSearch": "Lêgerîna lezgîn a pelê",
+    "quickSearchAlternative": "Alternatîfa lêgerîna lezgîn",
+    "findInFile": "Di pelê de bibîne",
+    "findInRepo": "Di depoyê de bibîne",
+    "openSettings": "Mîhengan veke",
+    "quitApplication": "Ji appê derkeve",
+    "toggleThisHelper": "Vê alîkariyê nîşan bide/veşêre"
+  }
+}

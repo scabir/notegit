@@ -18,6 +18,9 @@ jobs:
     name: Integration Suite
     runs-on: ubuntu-22.04
     timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: app/desktop
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,6 +36,7 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+          cache-dependency-path: app/desktop/pnpm-lock.yaml
 
       - name: Install dependencies
         shell: bash
@@ -85,8 +89,8 @@ jobs:
           const message = `${passed}/${total} passing`;
           const badge = { schemaVersion: 1, label: "integration", message, color };
 
-          fs.mkdirSync("badges", { recursive: true });
-          fs.writeFileSync("badges/integration.json", JSON.stringify(badge));
+          fs.mkdirSync("../../badges", { recursive: true });
+          fs.writeFileSync("../../badges/integration.json", JSON.stringify(badge));
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `integration_passed=${passed}\n`);
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `integration_total=${total}\n`);
           NODE
@@ -97,14 +101,15 @@ jobs:
         with:
           name: integration-results
           path: |
-            integration-results.json
-            test-results/**
+            app/desktop/integration-results.json
+            app/desktop/test-results/**
           if-no-files-found: warn
           retention-days: 14
 
       - name: Update integration badge file on main
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         shell: bash
+        working-directory: .
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"

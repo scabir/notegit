@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "Εξαγωγή σημείωσης",
+    "exportRepoZipTitle": "Εξαγωγή αποθετηρίου ως Zip",
+    "markdownFiles": "Αρχεία Markdown",
+    "textFiles": "Αρχεία κειμένου",
+    "zipArchives": "Αρχεία Zip",
+    "allFiles": "Όλα τα αρχεία"
+  },
+  "errors": {
+    "cancelled": "Η εξαγωγή ακυρώθηκε",
+    "failedExportNote": "Αποτυχία εξαγωγής σημείωσης",
+    "failedExportRepositoryZip": "Αποτυχία εξαγωγής αποθετηρίου ως zip",
+    "failedExportNoteTemplate": "Αποτυχία εξαγωγής σημείωσης: {message}",
+    "failedExportRepoTemplate": "Αποτυχία εξαγωγής αποθετηρίου: {message}",
+    "noRepositoryConfigured": "Δεν έχει ρυθμιστεί αποθετήριο"
+  }
+}

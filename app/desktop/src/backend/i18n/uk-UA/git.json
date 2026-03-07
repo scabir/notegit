@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "Помилка автентифікації. Перевірте облікові дані.",
+    "authenticationFailedPull": "Помилка автентифікації під час pull",
+    "authenticationFailedPush": "Помилка автентифікації під час push",
+    "mergeConflictDetected": "Виявлено merge-конфлікт. Розв'яжіть конфлікти вручну.",
+    "failedCloneRepository": "Не вдалося клонувати репозиторій: {message}",
+    "failedGetStatus": "Не вдалося отримати git status: {message}",
+    "failedPull": "Pull не вдався: {message}",
+    "failedPush": "Push не вдався: {message}",
+    "failedAddFile": "Не вдалося додати файл: {message}",
+    "failedCommit": "Commit не вдався: {message}",
+    "failedAddRemote": "Не вдалося додати remote: {message}",
+    "failedGetLog": "Не вдалося отримати git log: {message}",
+    "failedShowFile": "Не вдалося показати файл: {message}",
+    "failedGetDiff": "Не вдалося отримати diff: {message}",
+    "notInitialized": "Git adapter не ініціалізований"
+  }
+}

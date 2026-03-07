@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "फ़ाइल सूची लोड नहीं हो सकी",
+    "read": "फ़ाइल पढ़ना असफल रहा",
+    "save": "फ़ाइल सहेजना असफल रहा",
+    "saveWithGitWorkflow": "Git workflow के साथ सहेजना असफल रहा",
+    "commitFile": "फ़ाइल commit करना असफल रहा",
+    "commitAll": "सभी परिवर्तन commit करना असफल रहा",
+    "commitAndPush": "Commit और push असफल रहे",
+    "createFile": "फ़ाइल बनाना असफल रहा",
+    "createFolder": "फ़ोल्डर बनाना असफल रहा",
+    "delete": "हटाना असफल रहा",
+    "rename": "नाम बदलना असफल रहा",
+    "duplicateFile": "फ़ाइल की प्रतिलिपि बनाना असफल रहा",
+    "importFile": "फ़ाइल आयात करना असफल रहा",
+    "localRepoNoSync": "लोकल रिपॉज़िटरी सिंक का समर्थन नहीं करती",
+    "gitAdapterNotInitialized": "Git adapter इनिशियलाइज़ नहीं है",
+    "onlyFilesCanBeDuplicated": "केवल फ़ाइलों की प्रतिलिपि बनाई जा सकती है",
+    "noRepositoryConfigured": "कोई रिपॉज़िटरी कॉन्फ़िगर नहीं है",
+    "gitOnlyOperation": "Git क्रियाएँ केवल Git रिपॉज़िटरी के लिए उपलब्ध हैं"
+  },
+  "success": {
+    "syncedSuccessfully": "सिंक सफल रहा",
+    "nothingToCommit": "Commit करने के लिए कुछ नहीं है",
+    "committedAndPushedSuccessfully": "परिवर्तन सफलतापूर्वक commit और push किए गए"
+  },
+  "commit": {
+    "updatePrefix": "अपडेट:",
+    "andMore": "और {count}",
+    "multipleFiles": "एकाधिक फ़ाइलें"
+  }
+}

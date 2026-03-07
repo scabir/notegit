@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "导出笔记",
+    "exportRepoZipTitle": "将仓库导出为 Zip",
+    "markdownFiles": "Markdown 文件",
+    "textFiles": "文本文件",
+    "zipArchives": "Zip 压缩包",
+    "allFiles": "所有文件"
+  },
+  "errors": {
+    "cancelled": "已取消导出",
+    "failedExportNote": "导出笔记失败",
+    "failedExportRepositoryZip": "将仓库导出为 zip 失败",
+    "failedExportNoteTemplate": "导出笔记失败：{message}",
+    "failedExportRepoTemplate": "导出仓库失败：{message}",
+    "noRepositoryConfigured": "未配置仓库"
+  }
+}

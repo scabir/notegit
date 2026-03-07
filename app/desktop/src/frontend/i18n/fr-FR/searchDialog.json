@@ -1,0 +1,10 @@
+{
+  "title": "Rechercher dans les notes",
+  "placeholder": "Rechercher par nom de fichier ou contenu...",
+  "helperText": "Utilisez ↑↓ pour naviguer, Entrée pour ouvrir, Échap pour fermer",
+  "noResults": "Aucun résultat trouvé",
+  "startTyping": "Commencez à taper pour rechercher dans toutes les notes",
+  "searchFailed": "Échec de la recherche",
+  "lineLabel": "Ligne",
+  "moreSuffix": "de plus"
+}

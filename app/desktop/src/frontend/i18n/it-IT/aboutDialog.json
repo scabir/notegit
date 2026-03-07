@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "Informazioni",
+  "versionPrefix": "Versione",
+  "description": "Applicazione desktop per prendere appunti in Markdown basata su Git o S3, realizzata con Electron",
+  "sections": {
+    "features": "Funzionalità",
+    "author": "Autore",
+    "links": "Link",
+    "techStack": "Stack tecnologico"
+  },
+  "links": {
+    "githubRepository": "Repository GitHub",
+    "website": "Sito web"
+  },
+  "close": "Chiudi",
+  "license": "Licenza MIT",
+  "features": {
+    "markdownLivePreview": "Modifica Markdown con anteprima in tempo reale",
+    "gitOrS3History": "Cronologia versioni Git o S3",
+    "fileAndFolderManagement": "Gestione file e cartelle",
+    "fullTextSearch": "Ricerca full-text nelle note",
+    "darkModeSupport": "Supporto modalità scura",
+    "autoSaveAndSync": "Salvataggio e sincronizzazione automatici",
+    "fileHistoryAndVersionViewing": "Cronologia file e visualizzazione versioni"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

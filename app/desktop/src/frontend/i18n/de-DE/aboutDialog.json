@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "Über",
+  "versionPrefix": "Version",
+  "description": "Eine mit Git oder S3 unterstützte Markdown-Notizanwendung für den Desktop, erstellt mit Electron",
+  "sections": {
+    "features": "Funktionen",
+    "author": "Autor",
+    "links": "Links",
+    "techStack": "Technologie-Stack"
+  },
+  "links": {
+    "githubRepository": "GitHub-Repository",
+    "website": "Website"
+  },
+  "close": "Schließen",
+  "license": "MIT-Lizenz",
+  "features": {
+    "markdownLivePreview": "Markdown-Bearbeitung mit Live-Vorschau",
+    "gitOrS3History": "Git- oder S3-Versionsverlauf",
+    "fileAndFolderManagement": "Datei- und Ordnerverwaltung",
+    "fullTextSearch": "Volltextsuche über Notizen",
+    "darkModeSupport": "Unterstützung für Dark Mode",
+    "autoSaveAndSync": "Automatisches Speichern und Synchronisieren",
+    "fileHistoryAndVersionViewing": "Dateiverlauf und Versionsanzeige"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

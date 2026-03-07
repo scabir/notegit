@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "Échec de la recherche",
+    "failedRepoWideSearch": "Impossible d'effectuer la recherche sur l'ensemble du dépôt",
+    "failedRepoWideReplace": "Impossible d'effectuer le remplacement sur l'ensemble du dépôt",
+    "repositoryNotInitialized": "Le dépôt n'est pas initialisé",
+    "searchFailed": "La recherche a échoué",
+    "repoWideSearchFailedTemplate": "La recherche globale a échoué : {message}",
+    "repoWideReplaceFailedTemplate": "Le remplacement global a échoué : {message}"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "exportCurrentNoteTitle": "Exportera aktuell anteckning",
+  "exportCurrentNoteDescription": "Exportera den öppna anteckningen (inklusive osparade ändringar) som en fristående fil.",
+  "exportMarkdownButton": "Exportera som Markdown (.md)",
+  "exportTextButton": "Exportera som text (.txt)",
+  "openNoteHint": "Öppna en anteckning i editorn för att exportera den.",
+  "exportRepositoryTitle": "Exportera repository",
+  "exportRepositoryDescription": "Exportera hela repositoryt som ett ZIP-arkiv för backup eller delning. Detta inkluderar alla filer och mappar (utom .git).",
+  "exportRepositoryButton": "Exportera repository som ZIP",
+  "exportingButton": "Exporterar...",
+  "safetyInfo": "Exportåtgärder ändrar inte repositoryt och kör inga Git-kommandon. Ditt arbete ligger säkert kvar i repositoryt."
+}

@@ -1,0 +1,42 @@
+{
+  "title": "Skróty klawiszowe",
+  "footer": "Naciśnij ponownie F1, aby zamknąć pomoc",
+  "sections": {
+    "fileTree": "Drzewo plików",
+    "editorFormatting": "Formatowanie edytora",
+    "global": "Globalne"
+  },
+  "labels": {
+    "addNewFile": "Dodaj nowy plik",
+    "addNewFolder": "Dodaj nowy folder",
+    "deleteSelection": "Usuń zaznaczenie",
+    "importFile": "Importuj plik",
+    "renameSelection": "Zmień nazwę zaznaczenia",
+    "moveSelection": "Przenieś zaznaczenie",
+    "duplicateFile": "Duplikuj plik",
+    "toggleFavorite": "Przełącz ulubione",
+    "collapseAllFolders": "Zwiń wszystkie foldery",
+    "bold": "Pogrubienie",
+    "italic": "Kursywa",
+    "heading": "Nagłówek",
+    "inlineCode": "Kod w linii",
+    "codeBlock": "Blok kodu",
+    "link": "Link",
+    "table": "Tabela",
+    "footnote": "Przypis dolny",
+    "taskList": "Lista zadań",
+    "highlight": "Wyróżnienie",
+    "definitionList": "Lista definicji",
+    "mermaidDiagram": "Diagram Mermaid",
+    "saveCurrentNote": "Zapisz bieżącą notatkę",
+    "navigateBack": "Nawiguj wstecz",
+    "navigateForward": "Nawiguj dalej",
+    "quickFileSearch": "Szybkie wyszukiwanie plików",
+    "quickSearchAlternative": "Alternatywne szybkie wyszukiwanie",
+    "findInFile": "Szukaj w pliku",
+    "findInRepo": "Szukaj w repozytorium",
+    "openSettings": "Otwórz ustawienia",
+    "quitApplication": "Zamknij aplikację",
+    "toggleThisHelper": "Pokaż/ukryj tę pomoc"
+  }
+}

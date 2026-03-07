@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "Αποτυχία φόρτωσης ρυθμίσεων",
+    "failedUpdateAppSettings": "Αποτυχία ενημέρωσης ρυθμίσεων εφαρμογής",
+    "failedUpdateRepositorySettings": "Αποτυχία ενημέρωσης ρυθμίσεων αποθετηρίου",
+    "failedLoadApplicationSettings": "Αποτυχία φόρτωσης ρυθμίσεων εφαρμογής",
+    "failedLoadFavorites": "Αποτυχία φόρτωσης αγαπημένων",
+    "failedSaveFavorites": "Αποτυχία αποθήκευσης αγαπημένων",
+    "failedLoadProfiles": "Αποτυχία φόρτωσης προφίλ",
+    "failedLoadActiveProfileId": "Αποτυχία φόρτωσης ID ενεργού προφίλ",
+    "failedPrepareRepositoryTemplate": "Αποτυχία προετοιμασίας αποθετηρίου: {message}",
+    "failedCreateProfileTemplate": "Αποτυχία δημιουργίας προφίλ: {message}",
+    "failedDeleteProfile": "Αποτυχία διαγραφής προφίλ",
+    "failedSetActiveProfile": "Αποτυχία ορισμού ενεργού προφίλ",
+    "repoProviderCannotChange": "Δεν επιτρέπεται αλλαγή provider αποθετηρίου",
+    "s3RequiredFields": "Για το S3 απαιτούνται bucket, region, access key και secret"
+  }
+}

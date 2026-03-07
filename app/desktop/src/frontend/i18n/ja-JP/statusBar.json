@@ -1,0 +1,11 @@
+{
+  "bucketLabel": "バケット",
+  "branchLabel": "ブランチ",
+  "synced": "同期済み",
+  "saved": "保存済み",
+  "uncommitted": "未コミットの変更",
+  "unsynced": "未同期の変更",
+  "fetchTooltip": "リモートから Fetch",
+  "pullTooltip": "リモートから Pull",
+  "pushTooltip": "リモートへ Push"
+}

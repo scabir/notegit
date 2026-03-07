@@ -1,0 +1,11 @@
+{
+  "bucketLabel": "الحاوية",
+  "branchLabel": "الفرع",
+  "synced": "تمت المزامنة",
+  "saved": "تم الحفظ",
+  "uncommitted": "تغييرات غير منفذة",
+  "unsynced": "تغييرات غير متزامنة",
+  "fetchTooltip": "جلب من البعيد",
+  "pullTooltip": "سحب من البعيد",
+  "pushTooltip": "دفع إلى البعيد"
+}

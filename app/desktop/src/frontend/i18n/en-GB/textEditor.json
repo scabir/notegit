@@ -1,0 +1,14 @@
+{
+  "emptyState": "Select a file to edit",
+  "modified": "Modified",
+  "showTreeTooltip": "Show file tree",
+  "backTooltip": "Back",
+  "forwardTooltip": "Forward",
+  "saveTooltip": "Save to disk",
+  "exportTooltip": "Export note",
+  "messages": {
+    "failedExportNote": "Failed to export note",
+    "failedExportTemplate": "Failed to export: {message}",
+    "unknownError": "Unknown error"
+  }
+}

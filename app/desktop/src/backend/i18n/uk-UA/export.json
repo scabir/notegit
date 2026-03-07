@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "Експорт нотатки",
+    "exportRepoZipTitle": "Експорт репозиторію як Zip",
+    "markdownFiles": "Файли Markdown",
+    "textFiles": "Текстові файли",
+    "zipArchives": "Zip-архіви",
+    "allFiles": "Усі файли"
+  },
+  "errors": {
+    "cancelled": "Експорт скасовано",
+    "failedExportNote": "Не вдалося експортувати нотатку",
+    "failedExportRepositoryZip": "Не вдалося експортувати репозиторій у zip",
+    "failedExportNoteTemplate": "Не вдалося експортувати нотатку: {message}",
+    "failedExportRepoTemplate": "Не вдалося експортувати репозиторій: {message}",
+    "noRepositoryConfigured": "Репозиторій не налаштовано"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "暂无 {logType} 日志。",
+    "logFileEmpty": "日志文件为空。"
+  },
+  "errors": {
+    "failedGetContent": "获取日志内容失败",
+    "failedExport": "导出日志失败",
+    "failedGetFolder": "获取日志目录失败",
+    "failedReadLogTemplate": "读取 {logType} 日志失败：{message}",
+    "logFileNotFound": "日志文件未找到：{logType}",
+    "failedExportLogTemplate": "导出 {logType} 日志失败：{message}"
+  }
+}

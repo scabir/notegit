@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "Файл не найден: {path}",
+    "directoryNotFound": "Папка не найдена: {path}",
+    "pathNotFound": "Путь не найден: {path}",
+    "sourceFileNotFound": "Исходный файл не найден: {path}",
+    "permissionDenied": "Доступ запрещен",
+    "permissionDeniedPath": "Доступ запрещен: {path}",
+    "failedReadFile": "Не удалось прочитать файл: {path}",
+    "failedWriteFile": "Не удалось записать файл: {path}",
+    "failedDeleteFile": "Не удалось удалить файл: {path}",
+    "failedRename": "Не удалось переименовать из {from} в {to}",
+    "failedCreateDirectory": "Не удалось создать папку: {path}",
+    "failedDeleteDirectory": "Не удалось удалить папку: {path}",
+    "failedReadDirectory": "Не удалось прочитать папку: {path}",
+    "failedStat": "Не удалось получить информацию: {path}",
+    "failedCopyFile": "Не удалось скопировать файл из {from} в {to}"
+  }
+}

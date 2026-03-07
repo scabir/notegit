@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "Nie udało się wylistować plików",
+    "read": "Nie udało się odczytać pliku",
+    "save": "Nie udało się zapisać pliku",
+    "saveWithGitWorkflow": "Nie udało się zapisać w przepływie Git",
+    "commitFile": "Nie udało się wykonać commita pliku",
+    "commitAll": "Nie udało się wykonać commita wszystkich zmian",
+    "commitAndPush": "Nie udało się wykonać commita i pusha zmian",
+    "createFile": "Nie udało się utworzyć pliku",
+    "createFolder": "Nie udało się utworzyć folderu",
+    "delete": "Nie udało się usunąć",
+    "rename": "Nie udało się zmienić nazwy",
+    "duplicateFile": "Nie udało się zduplikować pliku",
+    "importFile": "Nie udało się zaimportować pliku",
+    "localRepoNoSync": "Lokalne repozytoria nie obsługują synchronizacji",
+    "gitAdapterNotInitialized": "Adapter Git nie został zainicjalizowany",
+    "onlyFilesCanBeDuplicated": "Duplikować można tylko pliki",
+    "noRepositoryConfigured": "Brak skonfigurowanego repozytorium",
+    "gitOnlyOperation": "Operacje Git są dostępne tylko dla repozytoriów Git"
+  },
+  "success": {
+    "syncedSuccessfully": "Synchronizacja zakończona",
+    "nothingToCommit": "Brak zmian do zatwierdzenia",
+    "committedAndPushedSuccessfully": "Zmiany zostały zatwierdzone i wypchnięte"
+  },
+  "commit": {
+    "updatePrefix": "Aktualizacja:",
+    "andMore": "i jeszcze {count}",
+    "multipleFiles": "wiele plików"
+  }
+}

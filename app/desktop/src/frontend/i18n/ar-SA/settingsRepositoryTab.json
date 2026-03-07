@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "نوع المستودع",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "محلي"
+  },
+  "git": {
+    "remoteUrlLabel": "الرابط البعيد",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "الفرع",
+    "branchPlaceholder": "main",
+    "patLabel": "رمز الوصول الشخصي",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "يُخزَّن Personal Access Token مشفرًا داخل دليل بيانات التطبيق وليس ضمن keychain نظام التشغيل.",
+    "patGuide": {
+      "title": "كيفية إنشاء GitHub Personal Access Token:",
+      "line1": "1. اذهب إلى GitHub Settings ثم Developer settings",
+      "line2": "2. اختر Personal access tokens ثم Fine-grained Tokens",
+      "line3": "3. انقر Generate new token",
+      "line4": "4. أدخل اسمًا للتوكن",
+      "line5": "5. حدّد تاريخ الانتهاء",
+      "line6": "6. اختر خيار \"Only select repositories\"",
+      "line7": "7. اختر المستودع الذي تريد استخدامه",
+      "line8": "8. انقر \"Add Permission\"",
+      "line9": "9. اختر \"Contents\" وتأكد من منح صلاحية \"Read and Write\"",
+      "line10": "10. اضغط Generate Token",
+      "line11": "11. انسخ التوكن والصقه بالأعلى"
+    }
+  },
+  "s3": {
+    "bucketLabel": "اسم الحاوية (Bucket)",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "المنطقة (Region)",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefix (اختياري)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "معرّف مفتاح الوصول",
+    "secretAccessKeyLabel": "المفتاح السري",
+    "secretAccessKeyHelperText": "يُحفظ مشفرًا داخل دليل بيانات التطبيق.",
+    "sessionTokenLabel": "رمز الجلسة (اختياري)",
+    "info": "يجب تفعيل versioning في حاوية S3 لدعم السجل."
+  },
+  "local": {
+    "info": "المستودعات المحلية محفوظة على هذا الجهاز فقط ولا تتم مزامنتها."
+  },
+  "saveButton": "حفظ إعدادات المستودع",
+  "localPath": {
+    "title": "مسار المستودع المحلي",
+    "description": "هذا هو المسار الذي يُخزّن فيه المستودع محليًا على جهازك.",
+    "label": "المسار المحلي",
+    "copyPathButton": "نسخ المسار",
+    "openFolderButton": "فتح المجلد"
+  }
+}

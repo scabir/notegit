@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "Ara (Cmd/Ctrl+P)",
+    "history": "Dosya Geçmişi",
+    "saveAll": "Açık tüm dosyaları kaydet",
+    "sync": "Senkronize Et",
+    "commitPush": "Commit ve Push",
+    "settings": "Ayarlar",
+    "shortcuts": "Klavye Kısayolları"
+  },
+  "labels": {
+    "saving": "Kaydediliyor...",
+    "saved": "Kaydedildi",
+    "error": "Hata"
+  },
+  "messages": {
+    "failedLoadWorkspace": "Çalışma alanı yüklenemedi",
+    "savedLocally": "Yerel olarak kaydedildi",
+    "failedSaveFile": "Dosya kaydedilemedi",
+    "failedReadFile": "Dosya okunamadı",
+    "pullSuccessful": "Pull başarılı",
+    "failedPull": "Pull başarısız",
+    "fetchSuccessful": "Fetch başarılı",
+    "failedFetch": "Fetch başarısız",
+    "pushSuccessful": "Push başarılı",
+    "failedPush": "Push başarısız",
+    "failedCreateFile": "Dosya oluşturulamadı",
+    "failedCreateFolder": "Klasör oluşturulamadı",
+    "failedDelete": "Silinemedi",
+    "failedRename": "Yeniden adlandırılamadı",
+    "failedImportFile": "Dosya içe aktarılamadı",
+    "moveCommitMessagePrefix": "Taşı:",
+    "failedAutoCommitMove": "Taşıma otomatik commit işlemi başarısız",
+    "failedDuplicateFile": "Dosya çoğaltılamadı",
+    "syncing": "Senkronize ediliyor...",
+    "committingAndPushing": "Commit ve push yapılıyor...",
+    "syncedSuccessfully": "Başarıyla senkronize edildi",
+    "failedSync": "Senkronizasyon başarısız",
+    "nothingToCommit": "Commit edilecek değişiklik yok",
+    "committedAndPushedSuccessfully": "Başarıyla commit edildi ve pushlandı",
+    "failedCommitAndPush": "Commit ve push başarısız"
+  }
+}

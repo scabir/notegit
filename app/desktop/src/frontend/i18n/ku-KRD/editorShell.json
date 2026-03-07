@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "Lêgerîn (Cmd/Ctrl+P)",
+    "history": "Dîroka Pelê",
+    "saveAll": "Hemû pelên vekirî tomar bike",
+    "sync": "Hevgirtin",
+    "commitPush": "Commit û Push",
+    "settings": "Mîheng",
+    "shortcuts": "Kurterêyên Klavyeyê"
+  },
+  "labels": {
+    "saving": "Tê tomarkirin...",
+    "saved": "Hat tomarkirin",
+    "error": "Çewtî"
+  },
+  "messages": {
+    "failedLoadWorkspace": "Barkirina cîhê xebatê serneket",
+    "savedLocally": "Bi herêmî hate tomarkirin",
+    "failedSaveFile": "Tomarkirina pelê serneket",
+    "failedReadFile": "Xwendina pelê serneket",
+    "pullSuccessful": "Pull bi serkeftin qedîya",
+    "failedPull": "Pull serneket",
+    "fetchSuccessful": "Fetch bi serkeftin qedîya",
+    "failedFetch": "Fetch serneket",
+    "pushSuccessful": "Push bi serkeftin qedîya",
+    "failedPush": "Push serneket",
+    "failedCreateFile": "Çêkirina pelê serneket",
+    "failedCreateFolder": "Çêkirina peldankê serneket",
+    "failedDelete": "Jêbirin serneket",
+    "failedRename": "Guherandina navê serneket",
+    "failedImportFile": "Anîna pelê nav serneket",
+    "moveCommitMessagePrefix": "Veguhestin:",
+    "failedAutoCommitMove": "Auto-commit a veguhestinê serneket",
+    "failedDuplicateFile": "Dubarekirina pelê serneket",
+    "syncing": "Tê hevgirtin...",
+    "committingAndPushing": "Tê commitkirin û pushkirin...",
+    "syncedSuccessfully": "Bi serkeftin hate hevgirtin",
+    "failedSync": "Hevgirtin serneket",
+    "nothingToCommit": "Ji bo commitkirinê tiştek tune",
+    "committedAndPushedSuccessfully": "Commit û push bi serkeftin qediya",
+    "failedCommitAndPush": "Commit û push serneket"
+  }
+}

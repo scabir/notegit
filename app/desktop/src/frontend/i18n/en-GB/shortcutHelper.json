@@ -1,0 +1,42 @@
+{
+  "title": "Keyboard Shortcuts",
+  "footer": "Press F1 again to close this helper",
+  "sections": {
+    "fileTree": "File tree",
+    "editorFormatting": "Editor formatting",
+    "global": "Global"
+  },
+  "labels": {
+    "addNewFile": "Add new file",
+    "addNewFolder": "Add new folder",
+    "deleteSelection": "Delete selection",
+    "importFile": "Import file",
+    "renameSelection": "Rename selection",
+    "moveSelection": "Move selection",
+    "duplicateFile": "Duplicate file",
+    "toggleFavorite": "Toggle favorite",
+    "collapseAllFolders": "Collapse all folders",
+    "bold": "Bold",
+    "italic": "Italic",
+    "heading": "Heading",
+    "inlineCode": "Inline code",
+    "codeBlock": "Code block",
+    "link": "Link",
+    "table": "Table",
+    "footnote": "Footnote",
+    "taskList": "Task list",
+    "highlight": "Highlight",
+    "definitionList": "Definition list",
+    "mermaidDiagram": "Mermaid diagram",
+    "saveCurrentNote": "Save current note",
+    "navigateBack": "Navigate back",
+    "navigateForward": "Navigate forward",
+    "quickFileSearch": "Quick file search",
+    "quickSearchAlternative": "Quick search alternative",
+    "findInFile": "Find in file",
+    "findInRepo": "Find in repo",
+    "openSettings": "Open settings",
+    "quitApplication": "Quit application",
+    "toggleThisHelper": "Toggle this helper"
+  }
+}

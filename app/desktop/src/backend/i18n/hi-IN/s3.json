@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Bucket versioning प्राप्त करना असफल रहा: {message}",
+    "failedListObjects": "ऑब्जेक्ट सूची प्राप्त करना असफल रहा: {message}",
+    "failedListObjectVersions": "ऑब्जेक्ट संस्करण सूची प्राप्त करना असफल रहा: {message}",
+    "failedGetObject": "ऑब्जेक्ट प्राप्त करना असफल रहा: {message}",
+    "failedUploadObject": "ऑब्जेक्ट अपलोड करना असफल रहा: {message}",
+    "failedReadObjectMetadata": "ऑब्जेक्ट metadata पढ़ना असफल रहा: {message}",
+    "failedDeleteObject": "ऑब्जेक्ट हटाना असफल रहा: {message}",
+    "notConfigured": "S3 adapter कॉन्फ़िगर नहीं है",
+    "bucketNotConfigured": "S3 bucket कॉन्फ़िगर नहीं है"
+  }
+}

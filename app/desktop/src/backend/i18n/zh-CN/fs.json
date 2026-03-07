@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "文件未找到：{path}",
+    "directoryNotFound": "目录未找到：{path}",
+    "pathNotFound": "路径未找到：{path}",
+    "sourceFileNotFound": "源文件未找到：{path}",
+    "permissionDenied": "权限不足",
+    "permissionDeniedPath": "权限不足：{path}",
+    "failedReadFile": "读取文件失败：{path}",
+    "failedWriteFile": "写入文件失败：{path}",
+    "failedDeleteFile": "删除文件失败：{path}",
+    "failedRename": "重命名失败：{from} -> {to}",
+    "failedCreateDirectory": "创建目录失败：{path}",
+    "failedDeleteDirectory": "删除目录失败：{path}",
+    "failedReadDirectory": "读取目录失败：{path}",
+    "failedStat": "获取文件信息失败：{path}",
+    "failedCopyFile": "复制文件失败：{from} -> {to}"
+  }
+}

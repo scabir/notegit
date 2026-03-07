@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "Σχετικά",
+  "versionPrefix": "Έκδοση",
+  "description": "Εφαρμογή επιφάνειας εργασίας για σημειώσεις Markdown με βάση Git ή S3, χτισμένη με Electron",
+  "sections": {
+    "features": "Δυνατότητες",
+    "author": "Δημιουργός",
+    "links": "Σύνδεσμοι",
+    "techStack": "Τεχνολογικό Stack"
+  },
+  "links": {
+    "githubRepository": "Αποθετήριο GitHub",
+    "website": "Ιστότοπος"
+  },
+  "close": "Κλείσιμο",
+  "license": "Άδεια MIT",
+  "features": {
+    "markdownLivePreview": "Επεξεργασία Markdown με ζωντανή προεπισκόπηση",
+    "gitOrS3History": "Ιστορικό εκδόσεων με Git ή S3",
+    "fileAndFolderManagement": "Διαχείριση αρχείων και φακέλων",
+    "fullTextSearch": "Αναζήτηση πλήρους κειμένου στις σημειώσεις",
+    "darkModeSupport": "Υποστήριξη σκοτεινής λειτουργίας",
+    "autoSaveAndSync": "Αυτόματη αποθήκευση και συγχρονισμός",
+    "fileHistoryAndVersionViewing": "Προβολή ιστορικού αρχείου και εκδόσεων"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

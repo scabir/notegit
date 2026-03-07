@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "Filen hittades inte: {path}",
+    "directoryNotFound": "Katalogen hittades inte: {path}",
+    "pathNotFound": "Sökvägen hittades inte: {path}",
+    "sourceFileNotFound": "Källfilen hittades inte: {path}",
+    "permissionDenied": "Behörighet nekad",
+    "permissionDeniedPath": "Behörighet nekad: {path}",
+    "failedReadFile": "Det gick inte att läsa filen: {path}",
+    "failedWriteFile": "Det gick inte att skriva filen: {path}",
+    "failedDeleteFile": "Det gick inte att ta bort filen: {path}",
+    "failedRename": "Det gick inte att byta namn från {from} till {to}",
+    "failedCreateDirectory": "Det gick inte att skapa katalogen: {path}",
+    "failedDeleteDirectory": "Det gick inte att ta bort katalogen: {path}",
+    "failedReadDirectory": "Det gick inte att läsa katalogen: {path}",
+    "failedStat": "Det gick inte att hämta status: {path}",
+    "failedCopyFile": "Det gick inte att kopiera fil från {from} till {to}"
+  }
+}

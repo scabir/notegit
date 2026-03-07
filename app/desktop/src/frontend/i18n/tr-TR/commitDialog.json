@@ -1,0 +1,11 @@
+{
+  "title": "Değişiklikleri Commit Et",
+  "messageLabel": "Commit Mesajı",
+  "messagePlaceholder": "Yaptığınız değişiklikleri açıklayın...",
+  "helperText": "Commit için Cmd/Ctrl+Enter",
+  "cancel": "İptal",
+  "confirm": "Commit ve Push",
+  "loading": "Commit ediliyor...",
+  "emptyMessageError": "Lütfen bir commit mesajı girin",
+  "commitFailed": "Commit işlemi başarısız"
+}

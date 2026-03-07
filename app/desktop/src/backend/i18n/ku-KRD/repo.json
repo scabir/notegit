@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "Vekirin an clonekirina depoyê serneket",
+    "failedGetRepositoryStatus": "Girtina statusa depoyê serneket",
+    "failedFetchFromRemote": "Fetch ji remote serneket",
+    "failedPullFromRemote": "Pull ji remote serneket",
+    "failedPushToRemote": "Push bo remote serneket",
+    "failedStartAutoPush": "Destpêkirina auto-push serneket",
+    "noRepositoryConfigured": "Depoyek nehatiye mîhengkirin",
+    "unsupportedProvider": "Pêşkêşkerê depoyê nayê destekirin: {provider}",
+    "localRepoOperationNotSupported": "Depoyên herêmî operasyona {operation} destek nakin"
+  }
+}

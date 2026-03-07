@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "Найти",
+  "replacePlaceholder": "Заменить",
+  "noMatches": "Совпадений нет",
+  "findPrevious": "Найти предыдущее (Shift+Enter)",
+  "findNext": "Найти следующее (Enter)",
+  "replaceCurrent": "Заменить текущее совпадение",
+  "replaceAll": "Заменить все совпадения",
+  "close": "Закрыть (Esc)"
+}

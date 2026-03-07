@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "कॉन्फ़िगरेशन लोड नहीं हो पाया",
+    "failedUpdateAppSettings": "ऐप सेटिंग्स अपडेट नहीं हो सकीं",
+    "failedUpdateRepositorySettings": "रिपॉज़िटरी सेटिंग्स अपडेट नहीं हो सकीं",
+    "failedLoadApplicationSettings": "एप्लिकेशन सेटिंग्स लोड नहीं हो सकीं",
+    "failedLoadFavorites": "पसंदीदा लोड नहीं हो सके",
+    "failedSaveFavorites": "पसंदीदा सहेजना असफल रहा",
+    "failedLoadProfiles": "प्रोफ़ाइल लोड नहीं हो सकीं",
+    "failedLoadActiveProfileId": "सक्रिय प्रोफ़ाइल ID लोड नहीं हो सकी",
+    "failedPrepareRepositoryTemplate": "रिपॉज़िटरी तैयार करना असफल रहा: {message}",
+    "failedCreateProfileTemplate": "प्रोफ़ाइल बनाना असफल रहा: {message}",
+    "failedDeleteProfile": "प्रोफ़ाइल हटाना असफल रहा",
+    "failedSetActiveProfile": "सक्रिय प्रोफ़ाइल सेट करना असफल रहा",
+    "repoProviderCannotChange": "रिपॉज़िटरी प्रदाता बदला नहीं जा सकता",
+    "s3RequiredFields": "S3 bucket, region, access key और secret आवश्यक हैं"
+  }
+}

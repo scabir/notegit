@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "Suchen (Cmd/Ctrl+P)",
+    "history": "Dateiverlauf",
+    "saveAll": "Alle geöffneten Dateien speichern",
+    "sync": "Synchronisieren",
+    "commitPush": "Commit und Push",
+    "settings": "Einstellungen",
+    "shortcuts": "Tastenkürzel"
+  },
+  "labels": {
+    "saving": "Speichern...",
+    "saved": "Gespeichert",
+    "error": "Fehler"
+  },
+  "messages": {
+    "failedLoadWorkspace": "Arbeitsbereich konnte nicht geladen werden",
+    "savedLocally": "Lokal gespeichert",
+    "failedSaveFile": "Datei konnte nicht gespeichert werden",
+    "failedReadFile": "Datei konnte nicht gelesen werden",
+    "pullSuccessful": "Pull erfolgreich",
+    "failedPull": "Pull fehlgeschlagen",
+    "fetchSuccessful": "Fetch erfolgreich",
+    "failedFetch": "Fetch fehlgeschlagen",
+    "pushSuccessful": "Push erfolgreich",
+    "failedPush": "Push fehlgeschlagen",
+    "failedCreateFile": "Datei konnte nicht erstellt werden",
+    "failedCreateFolder": "Ordner konnte nicht erstellt werden",
+    "failedDelete": "Löschen fehlgeschlagen",
+    "failedRename": "Umbenennen fehlgeschlagen",
+    "failedImportFile": "Datei konnte nicht importiert werden",
+    "moveCommitMessagePrefix": "Verschieben:",
+    "failedAutoCommitMove": "Automatischer Commit für Verschiebung fehlgeschlagen",
+    "failedDuplicateFile": "Datei konnte nicht dupliziert werden",
+    "syncing": "Wird synchronisiert...",
+    "committingAndPushing": "Commit und Push laufen...",
+    "syncedSuccessfully": "Erfolgreich synchronisiert",
+    "failedSync": "Synchronisierung fehlgeschlagen",
+    "nothingToCommit": "Nichts zum Committen",
+    "committedAndPushedSuccessfully": "Erfolgreich committed und gepusht",
+    "failedCommitAndPush": "Commit und Push fehlgeschlagen"
+  }
+}

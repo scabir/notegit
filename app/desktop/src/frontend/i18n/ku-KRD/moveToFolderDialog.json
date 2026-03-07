@@ -1,0 +1,16 @@
+{
+  "title": "Hêmanê veguhezîne",
+  "movingLabel": "Veguheztin",
+  "currentLocationLabel": "Cihê niha",
+  "selectDestination": "Peldanka mebestê hilbijêre:",
+  "rootLabel": "Root directory",
+  "noFolders": "Di depoyê de peldank tune",
+  "cancel": "Betal",
+  "confirm": "Li vir veguhezîne",
+  "rootFallback": "root",
+  "errors": {
+    "selectDestination": "Ji kerema xwe peldanka mebestê hilbijêre",
+    "sameLocation": "Hêman jixwe li vî cihî ye",
+    "duplicateItemTemplate": "Di peldanka mebestê de hêmanek bi navê \"{name}\" jixwe heye"
+  }
+}

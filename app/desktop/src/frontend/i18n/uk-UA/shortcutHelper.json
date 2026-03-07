@@ -1,0 +1,42 @@
+{
+  "title": "Гарячі клавіші",
+  "footer": "Натисніть F1 ще раз, щоб закрити підказку",
+  "sections": {
+    "fileTree": "Дерево файлів",
+    "editorFormatting": "Форматування редактора",
+    "global": "Глобальні"
+  },
+  "labels": {
+    "addNewFile": "Додати новий файл",
+    "addNewFolder": "Додати нову папку",
+    "deleteSelection": "Видалити вибране",
+    "importFile": "Імпортувати файл",
+    "renameSelection": "Перейменувати вибране",
+    "moveSelection": "Перемістити вибране",
+    "duplicateFile": "Дублювати файл",
+    "toggleFavorite": "Перемкнути вибране",
+    "collapseAllFolders": "Згорнути всі папки",
+    "bold": "Жирний",
+    "italic": "Курсив",
+    "heading": "Заголовок",
+    "inlineCode": "Вбудований код",
+    "codeBlock": "Блок коду",
+    "link": "Посилання",
+    "table": "Таблиця",
+    "footnote": "Виноска",
+    "taskList": "Список завдань",
+    "highlight": "Виділити",
+    "definitionList": "Список визначень",
+    "mermaidDiagram": "Діаграма Mermaid",
+    "saveCurrentNote": "Зберегти поточну нотатку",
+    "navigateBack": "Назад",
+    "navigateForward": "Вперед",
+    "quickFileSearch": "Швидкий пошук файлу",
+    "quickSearchAlternative": "Альтернативний швидкий пошук",
+    "findInFile": "Пошук у файлі",
+    "findInRepo": "Пошук у репозиторії",
+    "openSettings": "Відкрити налаштування",
+    "quitApplication": "Вийти із застосунку",
+    "toggleThisHelper": "Показати/сховати цю підказку"
+  }
+}

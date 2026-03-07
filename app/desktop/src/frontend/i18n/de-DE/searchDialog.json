@@ -1,0 +1,10 @@
+{
+  "title": "Notizen durchsuchen",
+  "placeholder": "Nach Dateiname oder Inhalt suchen...",
+  "helperText": "Mit ↑↓ navigieren, Enter zum Öffnen, Esc zum Schließen",
+  "noResults": "Keine Ergebnisse gefunden",
+  "startTyping": "Beginne zu tippen, um in allen Notizen zu suchen",
+  "searchFailed": "Suche fehlgeschlagen",
+  "lineLabel": "Zeile",
+  "moreSuffix": "mehr"
+}

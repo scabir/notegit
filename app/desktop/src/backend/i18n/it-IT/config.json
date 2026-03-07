@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "Impossibile caricare la configurazione",
+    "failedUpdateAppSettings": "Impossibile aggiornare le impostazioni app",
+    "failedUpdateRepositorySettings": "Impossibile aggiornare le impostazioni repository",
+    "failedLoadApplicationSettings": "Impossibile caricare le impostazioni applicazione",
+    "failedLoadFavorites": "Impossibile caricare i preferiti",
+    "failedSaveFavorites": "Impossibile salvare i preferiti",
+    "failedLoadProfiles": "Impossibile caricare i profili",
+    "failedLoadActiveProfileId": "Impossibile caricare l'ID profilo attivo",
+    "failedPrepareRepositoryTemplate": "Impossibile preparare il repository: {message}",
+    "failedCreateProfileTemplate": "Impossibile creare il profilo: {message}",
+    "failedDeleteProfile": "Impossibile eliminare il profilo",
+    "failedSetActiveProfile": "Impossibile impostare il profilo attivo",
+    "repoProviderCannotChange": "Il provider del repository non può essere modificato",
+    "s3RequiredFields": "Bucket S3, regione, access key e secret sono obbligatori"
+  }
+}

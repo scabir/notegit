@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "リポジトリのオープンまたはクローンに失敗しました",
+    "failedGetRepositoryStatus": "リポジトリ状態の取得に失敗しました",
+    "failedFetchFromRemote": "リモートからの Fetch に失敗しました",
+    "failedPullFromRemote": "リモートからの Pull に失敗しました",
+    "failedPushToRemote": "リモートへの Push に失敗しました",
+    "failedStartAutoPush": "自動 Push の開始に失敗しました",
+    "noRepositoryConfigured": "リポジトリが設定されていません",
+    "unsupportedProvider": "未対応のリポジトリプロバイダです: {provider}",
+    "localRepoOperationNotSupported": "ローカルリポジトリでは {operation} をサポートしていません"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "فشلت المصادقة. يرجى التحقق من بيانات الاعتماد.",
+    "authenticationFailedPull": "فشلت المصادقة أثناء السحب",
+    "authenticationFailedPush": "فشلت المصادقة أثناء الدفع",
+    "mergeConflictDetected": "تم اكتشاف تعارض دمج. يرجى حل التعارضات يدويًا.",
+    "failedCloneRepository": "تعذر استنساخ المستودع: {message}",
+    "failedGetStatus": "تعذر جلب حالة git: {message}",
+    "failedPull": "فشل السحب: {message}",
+    "failedPush": "فشل الدفع: {message}",
+    "failedAddFile": "تعذر إضافة الملف: {message}",
+    "failedCommit": "تعذر التنفيذ: {message}",
+    "failedAddRemote": "تعذر إضافة remote: {message}",
+    "failedGetLog": "تعذر جلب سجل git: {message}",
+    "failedShowFile": "تعذر عرض الملف: {message}",
+    "failedGetDiff": "تعذر جلب الفروقات: {message}",
+    "notInitialized": "لم تتم تهيئة Git adapter"
+  }
+}

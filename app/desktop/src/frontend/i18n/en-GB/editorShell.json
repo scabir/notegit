@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "Search (Cmd/Ctrl+P)",
+    "history": "File History",
+    "saveAll": "Save all open files",
+    "sync": "Sync",
+    "commitPush": "Commit and Push",
+    "settings": "Settings",
+    "shortcuts": "Keyboard Shortcuts"
+  },
+  "labels": {
+    "saving": "Saving...",
+    "saved": "Saved",
+    "error": "Error"
+  },
+  "messages": {
+    "failedLoadWorkspace": "Failed to load workspace",
+    "savedLocally": "Saved locally",
+    "failedSaveFile": "Failed to save file",
+    "failedReadFile": "Failed to read file",
+    "pullSuccessful": "Pull successful",
+    "failedPull": "Failed to pull",
+    "fetchSuccessful": "Fetch successful",
+    "failedFetch": "Failed to fetch",
+    "pushSuccessful": "Push successful",
+    "failedPush": "Failed to push",
+    "failedCreateFile": "Failed to create file",
+    "failedCreateFolder": "Failed to create folder",
+    "failedDelete": "Failed to delete",
+    "failedRename": "Failed to rename",
+    "failedImportFile": "Failed to import file",
+    "moveCommitMessagePrefix": "Move:",
+    "failedAutoCommitMove": "Failed to auto-commit move",
+    "failedDuplicateFile": "Failed to duplicate file",
+    "syncing": "Syncing...",
+    "committingAndPushing": "Committing and pushing...",
+    "syncedSuccessfully": "Synced successfully",
+    "failedSync": "Failed to sync",
+    "nothingToCommit": "Nothing to commit",
+    "committedAndPushedSuccessfully": "Committed and pushed successfully",
+    "failedCommitAndPush": "Failed to commit and push"
+  }
+}

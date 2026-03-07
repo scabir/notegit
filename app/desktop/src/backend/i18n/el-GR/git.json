@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "Η αυθεντικοποίηση απέτυχε. Ελέγξτε τα διαπιστευτήριά σας.",
+    "authenticationFailedPull": "Η αυθεντικοποίηση απέτυχε κατά το pull",
+    "authenticationFailedPush": "Η αυθεντικοποίηση απέτυχε κατά το push",
+    "mergeConflictDetected": "Εντοπίστηκε σύγκρουση merge. Επιλύστε τις συγκρούσεις χειροκίνητα.",
+    "failedCloneRepository": "Αποτυχία clone αποθετηρίου: {message}",
+    "failedGetStatus": "Αποτυχία λήψης git status: {message}",
+    "failedPull": "Το pull απέτυχε: {message}",
+    "failedPush": "Το push απέτυχε: {message}",
+    "failedAddFile": "Αποτυχία προσθήκης αρχείου: {message}",
+    "failedCommit": "Το commit απέτυχε: {message}",
+    "failedAddRemote": "Αποτυχία προσθήκης remote: {message}",
+    "failedGetLog": "Αποτυχία λήψης git log: {message}",
+    "failedShowFile": "Αποτυχία εμφάνισης αρχείου: {message}",
+    "failedGetDiff": "Αποτυχία λήψης diff: {message}",
+    "notInitialized": "Το Git adapter δεν έχει αρχικοποιηθεί"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "Failed to load configuration",
+    "failedUpdateAppSettings": "Failed to update app settings",
+    "failedUpdateRepositorySettings": "Failed to update repository settings",
+    "failedLoadApplicationSettings": "Failed to load application settings",
+    "failedLoadFavorites": "Failed to load favorites",
+    "failedSaveFavorites": "Failed to save favorites",
+    "failedLoadProfiles": "Failed to load profiles",
+    "failedLoadActiveProfileId": "Failed to load active profile ID",
+    "failedPrepareRepositoryTemplate": "Failed to prepare repository: {message}",
+    "failedCreateProfileTemplate": "Failed to create profile: {message}",
+    "failedDeleteProfile": "Failed to delete profile",
+    "failedSetActiveProfile": "Failed to set active profile",
+    "repoProviderCannotChange": "Repository provider cannot be changed",
+    "s3RequiredFields": "S3 bucket, region, access key, and secret are required"
+  }
+}

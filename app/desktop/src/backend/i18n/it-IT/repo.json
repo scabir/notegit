@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "Impossibile aprire o clonare il repository",
+    "failedGetRepositoryStatus": "Impossibile ottenere lo stato del repository",
+    "failedFetchFromRemote": "Impossibile eseguire fetch dal remoto",
+    "failedPullFromRemote": "Impossibile eseguire pull dal remoto",
+    "failedPushToRemote": "Impossibile eseguire push al remoto",
+    "failedStartAutoPush": "Impossibile avviare l'auto-push",
+    "noRepositoryConfigured": "Nessun repository configurato",
+    "unsupportedProvider": "Provider repository non supportato: {provider}",
+    "localRepoOperationNotSupported": "I repository locali non supportano l'operazione {operation}"
+  }
+}

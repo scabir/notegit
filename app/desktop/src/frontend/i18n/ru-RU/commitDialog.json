@@ -1,0 +1,11 @@
+{
+  "title": "Зафиксировать изменения",
+  "messageLabel": "Сообщение commit",
+  "messagePlaceholder": "Опишите изменения...",
+  "helperText": "Cmd/Ctrl+Enter для commit",
+  "cancel": "Отмена",
+  "confirm": "Commit и Push",
+  "loading": "Выполняется commit...",
+  "emptyMessageError": "Введите сообщение commit",
+  "commitFailed": "Не удалось выполнить commit"
+}

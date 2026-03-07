@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Αποτυχία λήψης versioning bucket: {message}",
+    "failedListObjects": "Αποτυχία λήψης λίστας αντικειμένων: {message}",
+    "failedListObjectVersions": "Αποτυχία λήψης λίστας εκδόσεων αντικειμένων: {message}",
+    "failedGetObject": "Αποτυχία λήψης αντικειμένου: {message}",
+    "failedUploadObject": "Αποτυχία μεταφόρτωσης αντικειμένου: {message}",
+    "failedReadObjectMetadata": "Αποτυχία ανάγνωσης μεταδεδομένων αντικειμένου: {message}",
+    "failedDeleteObject": "Αποτυχία διαγραφής αντικειμένου: {message}",
+    "notConfigured": "Το S3 adapter δεν είναι ρυθμισμένο",
+    "bucketNotConfigured": "Το S3 bucket δεν είναι ρυθμισμένο"
+  }
+}

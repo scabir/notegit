@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "Εύρεση",
+  "replacePlaceholder": "Αντικατάσταση",
+  "noMatches": "Δεν βρέθηκαν αποτελέσματα",
+  "findPrevious": "Εύρεση προηγούμενου (Shift+Enter)",
+  "findNext": "Εύρεση επόμενου (Enter)",
+  "replaceCurrent": "Αντικατάσταση τρέχοντος αποτελέσματος",
+  "replaceAll": "Αντικατάσταση όλων",
+  "close": "Κλείσιμο (Esc)"
+}

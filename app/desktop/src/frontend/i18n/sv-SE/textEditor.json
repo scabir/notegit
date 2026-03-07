@@ -1,0 +1,14 @@
+{
+  "emptyState": "Välj en fil att redigera",
+  "modified": "Ändrad",
+  "showTreeTooltip": "Visa filträd",
+  "backTooltip": "Tillbaka",
+  "forwardTooltip": "Framåt",
+  "saveTooltip": "Spara till disk",
+  "exportTooltip": "Exportera anteckning",
+  "messages": {
+    "failedExportNote": "Det gick inte att exportera anteckningen",
+    "failedExportTemplate": "Export misslyckades: {message}",
+    "unknownError": "Okänt fel"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "Αποτυχία φόρτωσης μεταδεδομένων i18n",
+    "failedLoadFrontendTranslations": "Αποτυχία φόρτωσης μεταφράσεων frontend",
+    "languageRequired": "Η γλώσσα είναι υποχρεωτική",
+    "unsupportedLanguage": "Μη υποστηριζόμενη γλώσσα: {language}",
+    "failedSetLanguage": "Αποτυχία ορισμού γλώσσας"
+  }
+}

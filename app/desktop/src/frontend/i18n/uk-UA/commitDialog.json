@@ -1,0 +1,11 @@
+{
+  "title": "Закомітити зміни",
+  "messageLabel": "Повідомлення коміту",
+  "messagePlaceholder": "Опишіть внесені зміни...",
+  "helperText": "Cmd/Ctrl+Enter для commit",
+  "cancel": "Скасувати",
+  "confirm": "Commit і Push",
+  "loading": "Виконується commit...",
+  "emptyMessageError": "Введіть повідомлення коміту",
+  "commitFailed": "Не вдалося виконати commit"
+}

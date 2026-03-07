@@ -1,0 +1,10 @@
+{
+  "readOnly": "SKRIVSKYDDAD",
+  "closeTooltip": "Stäng",
+  "preview": "Förhandsvisning",
+  "source": "Källa",
+  "copyContent": "Kopiera innehåll",
+  "close": "Stäng",
+  "loadFailed": "Det gick inte att läsa in versionen",
+  "readOnlyNotice": "Det här är en historisk version. Om du vill använda innehållet, kopiera det manuellt till redigeraren."
+}

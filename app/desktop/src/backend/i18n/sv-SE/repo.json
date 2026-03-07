@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "Det gick inte att öppna eller klona repository",
+    "failedGetRepositoryStatus": "Det gick inte att hämta repositorystatus",
+    "failedFetchFromRemote": "Det gick inte att köra fetch från remote",
+    "failedPullFromRemote": "Det gick inte att köra pull från remote",
+    "failedPushToRemote": "Det gick inte att köra push till remote",
+    "failedStartAutoPush": "Det gick inte att starta automatisk push",
+    "noRepositoryConfigured": "Inget repository är konfigurerat",
+    "unsupportedProvider": "Repositoryprovider stöds inte: {provider}",
+    "localRepoOperationNotSupported": "Lokala repositories stöder inte {operation}"
+  }
+}

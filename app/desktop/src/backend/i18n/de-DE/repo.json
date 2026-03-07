@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "Repository konnte nicht geöffnet oder geklont werden",
+    "failedGetRepositoryStatus": "Repository-Status konnte nicht abgerufen werden",
+    "failedFetchFromRemote": "Fetch vom Remote fehlgeschlagen",
+    "failedPullFromRemote": "Pull vom Remote fehlgeschlagen",
+    "failedPushToRemote": "Push zum Remote fehlgeschlagen",
+    "failedStartAutoPush": "Auto-Push konnte nicht gestartet werden",
+    "noRepositoryConfigured": "Kein Repository konfiguriert",
+    "unsupportedProvider": "Nicht unterstützter Repository-Anbieter: {provider}",
+    "localRepoOperationNotSupported": "Lokale Repositories unterstützen {operation} nicht"
+  }
+}

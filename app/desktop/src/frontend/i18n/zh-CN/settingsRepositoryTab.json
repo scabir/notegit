@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "仓库类型",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "本地"
+  },
+  "git": {
+    "remoteUrlLabel": "远程 URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "分支",
+    "branchPlaceholder": "main",
+    "patLabel": "个人访问令牌",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "你的个人访问令牌会以加密形式保存在应用数据目录，不会存入系统钥匙串。",
+    "patGuide": {
+      "title": "如何创建 GitHub Personal Access Token：",
+      "line1": "1. 打开 GitHub Settings -> Developer settings",
+      "line2": "2. 点击 Personal access tokens -> Fine Grained Tokens",
+      "line3": "3. 点击 Generate new token",
+      "line4": "4. 设置 Token 名称",
+      "line5": "5. 设置过期时间",
+      "line6": "6. 选择 \"Only select repositories\"",
+      "line7": "7. 选择要使用的仓库",
+      "line8": "8. 点击 \"Add Permission\"",
+      "line9": "9. 选择 \"Contents\" 并确保赋予 \"Read and write\" 权限",
+      "line10": "10. 点击 Generate Token",
+      "line11": "11. 复制并粘贴上方 token"
+    }
+  },
+  "s3": {
+    "bucketLabel": "存储桶",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "区域",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "前缀（可选）",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "访问密钥 ID",
+    "secretAccessKeyLabel": "秘密访问密钥",
+    "secretAccessKeyHelperText": "在应用数据目录中加密保存。",
+    "sessionTokenLabel": "会话令牌（可选）",
+    "info": "S3 bucket 必须启用版本控制（versioning）才能支持历史记录。"
+  },
+  "local": {
+    "info": "本地仓库仅保存在当前设备，不会同步。"
+  },
+  "saveButton": "保存仓库设置",
+  "localPath": {
+    "title": "本地仓库路径",
+    "description": "这是你的仓库在本机上的存储路径。",
+    "label": "本地路径",
+    "copyPathButton": "复制路径",
+    "openFolderButton": "打开目录"
+  }
+}

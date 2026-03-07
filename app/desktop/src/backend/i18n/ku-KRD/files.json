@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "Nîşandana pelan serneket",
+    "read": "Xwendina pelê serneket",
+    "save": "Tomarkirina pelê serneket",
+    "saveWithGitWorkflow": "Tomarkirina bi flow-a Git serneket",
+    "commitFile": "Commitkirina pelê serneket",
+    "commitAll": "Commitkirina hemû guhertinan serneket",
+    "commitAndPush": "Commit û pushkirina guhertinan serneket",
+    "createFile": "Çêkirina pelê serneket",
+    "createFolder": "Çêkirina peldankê serneket",
+    "delete": "Jêbirin serneket",
+    "rename": "Guherandina navê serneket",
+    "duplicateFile": "Dubarekirina pelê serneket",
+    "importFile": "Anîna pelê nav serneket",
+    "localRepoNoSync": "Depoyên herêmî hevgirtinê destek nakin",
+    "gitAdapterNotInitialized": "Adapter-a Git nehatîye destpêkirin",
+    "onlyFilesCanBeDuplicated": "Tenê pel dikarin werin dubarekirin",
+    "noRepositoryConfigured": "Depoyek nehatiye mîhengkirin",
+    "gitOnlyOperation": "Operasyonên Git tenê ji bo depoyên Git in"
+  },
+  "success": {
+    "syncedSuccessfully": "Hevgirtin bi serkeftin qediya",
+    "nothingToCommit": "Ji bo commitkirinê tiştek tune",
+    "committedAndPushedSuccessfully": "Guhertin bi serkeftin commit û push hatin kirin"
+  },
+  "commit": {
+    "updatePrefix": "Nûvekirin:",
+    "andMore": "û {count} zêdetir",
+    "multipleFiles": "çend pel"
+  }
+}

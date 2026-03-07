@@ -1,0 +1,11 @@
+{
+  "title": "Commit αλλαγών",
+  "messageLabel": "Μήνυμα Commit",
+  "messagePlaceholder": "Περιγράψτε τις αλλαγές σας...",
+  "helperText": "Cmd/Ctrl+Enter για commit",
+  "cancel": "Ακύρωση",
+  "confirm": "Commit & Push",
+  "loading": "Γίνεται commit...",
+  "emptyMessageError": "Παρακαλώ εισάγετε μήνυμα commit",
+  "commitFailed": "Αποτυχία commit"
+}

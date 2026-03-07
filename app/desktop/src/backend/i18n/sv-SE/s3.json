@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Det gick inte att hämta bucket-versionering: {message}",
+    "failedListObjects": "Det gick inte att lista objekt: {message}",
+    "failedListObjectVersions": "Det gick inte att lista objektversioner: {message}",
+    "failedGetObject": "Det gick inte att hämta objekt: {message}",
+    "failedUploadObject": "Det gick inte att ladda upp objekt: {message}",
+    "failedReadObjectMetadata": "Det gick inte att läsa objektmetadata: {message}",
+    "failedDeleteObject": "Det gick inte att ta bort objekt: {message}",
+    "notConfigured": "S3-adapter är inte konfigurerad",
+    "bucketNotConfigured": "S3-bucket är inte konfigurerad"
+  }
+}

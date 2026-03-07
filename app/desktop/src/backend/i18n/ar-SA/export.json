@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "تصدير الملاحظة",
+    "exportRepoZipTitle": "تصدير المستودع كملف Zip",
+    "markdownFiles": "ملفات Markdown",
+    "textFiles": "ملفات نصية",
+    "zipArchives": "أرشيفات Zip",
+    "allFiles": "كل الملفات"
+  },
+  "errors": {
+    "cancelled": "تم إلغاء التصدير",
+    "failedExportNote": "تعذر تصدير الملاحظة",
+    "failedExportRepositoryZip": "تعذر تصدير المستودع كملف zip",
+    "failedExportNoteTemplate": "تعذر تصدير الملاحظة: {message}",
+    "failedExportRepoTemplate": "تعذر تصدير المستودع: {message}",
+    "noRepositoryConfigured": "لم يتم إعداد مستودع"
+  }
+}

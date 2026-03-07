@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "Authentifizierung fehlgeschlagen. Bitte überprüfe deine Zugangsdaten.",
+    "authenticationFailedPull": "Authentifizierung beim Pull fehlgeschlagen",
+    "authenticationFailedPush": "Authentifizierung beim Push fehlgeschlagen",
+    "mergeConflictDetected": "Merge-Konflikt erkannt. Bitte löse Konflikte manuell.",
+    "failedCloneRepository": "Repository konnte nicht geklont werden: {message}",
+    "failedGetStatus": "Git-Status konnte nicht abgerufen werden: {message}",
+    "failedPull": "Pull fehlgeschlagen: {message}",
+    "failedPush": "Push fehlgeschlagen: {message}",
+    "failedAddFile": "Datei konnte nicht hinzugefügt werden: {message}",
+    "failedCommit": "Commit fehlgeschlagen: {message}",
+    "failedAddRemote": "Remote konnte nicht hinzugefügt werden: {message}",
+    "failedGetLog": "Git-Log konnte nicht abgerufen werden: {message}",
+    "failedShowFile": "Datei konnte nicht angezeigt werden: {message}",
+    "failedGetDiff": "Diff konnte nicht abgerufen werden: {message}",
+    "notInitialized": "Git-Adapter ist nicht initialisiert"
+  }
+}

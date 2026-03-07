@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "Exporter la note",
+    "exportRepoZipTitle": "Exporter le dépôt en ZIP",
+    "markdownFiles": "Fichiers Markdown",
+    "textFiles": "Fichiers texte",
+    "zipArchives": "Archives ZIP",
+    "allFiles": "Tous les fichiers"
+  },
+  "errors": {
+    "cancelled": "Export annulé",
+    "failedExportNote": "Impossible d'exporter la note",
+    "failedExportRepositoryZip": "Impossible d'exporter le dépôt en ZIP",
+    "failedExportNoteTemplate": "Impossible d'exporter la note : {message}",
+    "failedExportRepoTemplate": "Impossible d'exporter le dépôt : {message}",
+    "noRepositoryConfigured": "Aucun dépôt configuré"
+  }
+}

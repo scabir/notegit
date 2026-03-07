@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "تعذر جلب سجل الملف",
+    "failedGetFileVersion": "تعذر جلب إصدار الملف",
+    "failedGetDiff": "تعذر جلب الفروقات",
+    "noRepositoryConfigured": "لم يتم إعداد مستودع",
+    "unsupportedProvider": "مزود سجل غير مدعوم: {provider}",
+    "localHistoryUnavailable": "السجل غير متاح للمستودعات المحلية",
+    "s3DiffNotSupported": "عرض الفروقات غير مدعوم لسجل S3"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "Не вдалося отримати список файлів",
+    "read": "Не вдалося прочитати файл",
+    "save": "Не вдалося зберегти файл",
+    "saveWithGitWorkflow": "Не вдалося зберегти у Git-потоці",
+    "commitFile": "Не вдалося виконати commit файлу",
+    "commitAll": "Не вдалося виконати commit усіх змін",
+    "commitAndPush": "Не вдалося виконати commit і push змін",
+    "createFile": "Не вдалося створити файл",
+    "createFolder": "Не вдалося створити папку",
+    "delete": "Не вдалося видалити",
+    "rename": "Не вдалося перейменувати",
+    "duplicateFile": "Не вдалося дублювати файл",
+    "importFile": "Не вдалося імпортувати файл",
+    "localRepoNoSync": "Локальні репозиторії не підтримують синхронізацію",
+    "gitAdapterNotInitialized": "Git adapter не ініціалізований",
+    "onlyFilesCanBeDuplicated": "Дублювати можна лише файли",
+    "noRepositoryConfigured": "Репозиторій не налаштовано",
+    "gitOnlyOperation": "Git-операції доступні лише для Git-репозиторіїв"
+  },
+  "success": {
+    "syncedSuccessfully": "Синхронізацію завершено",
+    "nothingToCommit": "Немає змін для commit",
+    "committedAndPushedSuccessfully": "Зміни успішно закомічено й відправлено"
+  },
+  "commit": {
+    "updatePrefix": "Оновлення:",
+    "andMore": "і ще {count}",
+    "multipleFiles": "декілька файлів"
+  }
+}

@@ -9,6 +9,9 @@ jobs:
   build-assets:
     name: Build ${{ matrix.id }}
     runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        working-directory: app/desktop
     strategy:
       fail-fast: false
       matrix:
@@ -93,8 +96,12 @@ jobs:
         if: steps.node_version.outputs.use_nvmrc == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          node-version-file: app/desktop/.nvmrc
           cache: ${{ steps.detect_pm.outputs.pm }}
+          cache-dependency-path: |
+            app/desktop/pnpm-lock.yaml
+            app/desktop/package-lock.json
+            app/desktop/yarn.lock
 
       - name: Setup Node (fallback)
         if: steps.node_version.outputs.use_nvmrc != 'true'
@@ -102,6 +109,10 @@ jobs:
         with:
           node-version: 20
           cache: ${{ steps.detect_pm.outputs.pm }}
+          cache-dependency-path: |
+            app/desktop/pnpm-lock.yaml
+            app/desktop/package-lock.json
+            app/desktop/yarn.lock
 
       - name: Install dependencies
         shell: bash
@@ -217,7 +228,7 @@ jobs:
 
           mkdir -p release-assets
           cp "$selected" "release-assets/${{ matrix.asset_name }}"
-          echo "asset_path=release-assets/${{ matrix.asset_name }}" >> "$GITHUB_OUTPUT"
+          echo "asset_path=app/desktop/release-assets/${{ matrix.asset_name }}" >> "$GITHUB_OUTPUT"
 
       - name: Upload packaged artifact
         uses: actions/upload-artifact@v4

@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "Barkirina mîhengan serneket",
+    "failedUpdateAppSettings": "Nûvekirina mîhengên appê serneket",
+    "failedUpdateRepositorySettings": "Nûvekirina mîhengên depoyê serneket",
+    "failedLoadApplicationSettings": "Barkirina mîhengên appê serneket",
+    "failedLoadFavorites": "Barkirina bijareyan serneket",
+    "failedSaveFavorites": "Tomarkirina bijareyan serneket",
+    "failedLoadProfiles": "Barkirina profîlan serneket",
+    "failedLoadActiveProfileId": "Barkirina ID-ya profîla çalak serneket",
+    "failedPrepareRepositoryTemplate": "Amadekirina depoyê serneket: {message}",
+    "failedCreateProfileTemplate": "Çêkirina profîlê serneket: {message}",
+    "failedDeleteProfile": "Jêbirina profîlê serneket",
+    "failedSetActiveProfile": "Mîhengkirina profîla çalak serneket",
+    "repoProviderCannotChange": "Pêşkêşkerê depoyê nayê guherandin",
+    "s3RequiredFields": "Ji bo S3, bucket, region, access key û secret pêwîstin"
+  }
+}

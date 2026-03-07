@@ -1,0 +1,16 @@
+{
+  "title": "Przenieś element",
+  "movingLabel": "Przenoszenie",
+  "currentLocationLabel": "Bieżąca lokalizacja",
+  "selectDestination": "Wybierz folder docelowy:",
+  "rootLabel": "Katalog główny",
+  "noFolders": "Brak folderów w repozytorium",
+  "cancel": "Anuluj",
+  "confirm": "Przenieś tutaj",
+  "rootFallback": "główny",
+  "errors": {
+    "selectDestination": "Wybierz folder docelowy",
+    "sameLocation": "Element jest już w tej lokalizacji",
+    "duplicateItemTemplate": "W folderze docelowym istnieje już element o nazwie \"{name}\""
+  }
+}

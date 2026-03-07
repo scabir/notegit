@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "Hîn loga {logType} tune.",
+    "logFileEmpty": "Pelê logê vala ye."
+  },
+  "errors": {
+    "failedGetContent": "Girtina naveroka logê serneket",
+    "failedExport": "Derxistina logan serneket",
+    "failedGetFolder": "Girtina peldanka logan serneket",
+    "failedReadLogTemplate": "Xwendina loga {logType} serneket: {message}",
+    "logFileNotFound": "Pelê logê nehate dîtin: {logType}",
+    "failedExportLogTemplate": "Derxistina loga {logType} serneket: {message}"
+  }
+}

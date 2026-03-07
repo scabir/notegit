@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "Autentisering misslyckades. Kontrollera dina uppgifter.",
+    "authenticationFailedPull": "Autentisering misslyckades under pull",
+    "authenticationFailedPush": "Autentisering misslyckades under push",
+    "mergeConflictDetected": "Merge-konflikt upptäckt. Lös konflikterna manuellt.",
+    "failedCloneRepository": "Det gick inte att klona repository: {message}",
+    "failedGetStatus": "Det gick inte att hämta git-status: {message}",
+    "failedPull": "Pull misslyckades: {message}",
+    "failedPush": "Push misslyckades: {message}",
+    "failedAddFile": "Det gick inte att lägga till fil: {message}",
+    "failedCommit": "Commit misslyckades: {message}",
+    "failedAddRemote": "Det gick inte att lägga till remote: {message}",
+    "failedGetLog": "Det gick inte att hämta git-logg: {message}",
+    "failedShowFile": "Det gick inte att visa fil: {message}",
+    "failedGetDiff": "Det gick inte att hämta diff: {message}",
+    "notInitialized": "Git-adapter är inte initialiserad"
+  }
+}

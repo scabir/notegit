@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "Profile Management",
+  "info": "Profiles allow you to work with multiple repositories. Only one profile is active at a time. When creating a new profile, the app will prepare the repository. Switching profiles will restart the app.",
+  "activeProfileTitle": "Active Profile",
+  "activeChipLabel": "Active",
+  "deleteAriaLabel": "delete",
+  "createNewProfileButton": "Create New Profile",
+  "newProfileTitle": "New Profile",
+  "creatingProfileMessage": "Creating profile and preparing repository... This may take a few moments.",
+  "repositoryTypeLabel": "Repository type",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Local"
+  },
+  "profileNameLabel": "Profile Name",
+  "profileNamePlaceholder": "My Notes Repo",
+  "profileNameHelper": "A local folder will be automatically created based on this name",
+  "git": {
+    "remoteUrlLabel": "Remote URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Branch",
+    "branchPlaceholder": "main",
+    "patLabel": "Personal Access Token",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Your Personal Access Token is stored encrypted"
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Region",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefix (optional)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Stored encrypted in the app's data directory.",
+    "sessionTokenLabel": "Session Token (optional)"
+  },
+  "local": {
+    "info": "Local repositories are stored on this device only and do not sync."
+  },
+  "createProfileButton": "Create Profile",
+  "creatingButton": "Creating...",
+  "cancelButton": "Cancel"
+}

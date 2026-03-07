@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "Αποτυχία λήψης λίστας αρχείων",
+    "read": "Αποτυχία ανάγνωσης αρχείου",
+    "save": "Αποτυχία αποθήκευσης αρχείου",
+    "saveWithGitWorkflow": "Αποτυχία αποθήκευσης με ροή Git",
+    "commitFile": "Αποτυχία commit αρχείου",
+    "commitAll": "Αποτυχία commit όλων των αλλαγών",
+    "commitAndPush": "Αποτυχία commit και push αλλαγών",
+    "createFile": "Αποτυχία δημιουργίας αρχείου",
+    "createFolder": "Αποτυχία δημιουργίας φακέλου",
+    "delete": "Αποτυχία διαγραφής",
+    "rename": "Αποτυχία μετονομασίας",
+    "duplicateFile": "Αποτυχία αντιγραφής αρχείου",
+    "importFile": "Αποτυχία εισαγωγής αρχείου",
+    "localRepoNoSync": "Τα τοπικά αποθετήρια δεν υποστηρίζουν συγχρονισμό",
+    "gitAdapterNotInitialized": "Το Git adapter δεν έχει αρχικοποιηθεί",
+    "onlyFilesCanBeDuplicated": "Μόνο αρχεία μπορούν να αντιγραφούν",
+    "noRepositoryConfigured": "Δεν έχει ρυθμιστεί αποθετήριο",
+    "gitOnlyOperation": "Οι λειτουργίες Git είναι διαθέσιμες μόνο για Git αποθετήρια"
+  },
+  "success": {
+    "syncedSuccessfully": "Ο συγχρονισμός ολοκληρώθηκε",
+    "nothingToCommit": "Δεν υπάρχουν αλλαγές για commit",
+    "committedAndPushedSuccessfully": "Οι αλλαγές έγιναν commit και push επιτυχώς"
+  },
+  "commit": {
+    "updatePrefix": "Ενημέρωση:",
+    "andMore": "και ακόμη {count}",
+    "multipleFiles": "πολλαπλά αρχεία"
+  }
+}

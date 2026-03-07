@@ -1,0 +1,16 @@
+{
+  "title": "Element verschieben",
+  "movingLabel": "Verschieben",
+  "currentLocationLabel": "Aktueller Speicherort",
+  "selectDestination": "Zielordner auswählen:",
+  "rootLabel": "Stammverzeichnis",
+  "noFolders": "Keine Ordner im Repository",
+  "cancel": "Abbrechen",
+  "confirm": "Hierhin verschieben",
+  "rootFallback": "Stamm",
+  "errors": {
+    "selectDestination": "Bitte einen Zielordner auswählen",
+    "sameLocation": "Element befindet sich bereits an diesem Ort",
+    "duplicateItemTemplate": "Ein Element namens \"{name}\" existiert bereits im Zielordner"
+  }
+}

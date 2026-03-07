@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "notegit",
+    "tagline": "Git バックエンドの Markdown ノートアプリ",
+    "welcome": "notegit へようこそ。まずはリポジトリに接続してください。",
+    "connectToRepository": "リポジトリに接続"
+  },
+  "gitMissing": {
+    "message": "このシステムに Git がインストールされていません。notegit を使用するには Git をインストールしてください。",
+    "downloadPrompt": "Git をダウンロードする"
+  }
+}

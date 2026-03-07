@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "Det gick inte att hämta filhistorik",
+    "failedGetFileVersion": "Det gick inte att hämta filversion",
+    "failedGetDiff": "Det gick inte att hämta diff",
+    "noRepositoryConfigured": "Inget repository är konfigurerat",
+    "unsupportedProvider": "Historikprovider stöds inte: {provider}",
+    "localHistoryUnavailable": "Historik är inte tillgänglig för lokala repositories",
+    "s3DiffNotSupported": "Diff stöds inte för S3-historik"
+  }
+}

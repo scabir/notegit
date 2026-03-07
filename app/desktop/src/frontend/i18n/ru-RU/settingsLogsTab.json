@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "Логи приложения",
+  "info": "Логи хранятся локально по дням и включают операции Git/S3, ошибки и события синхронизации.",
+  "logsFolderLabel": "Папка логов",
+  "openFolderButton": "Открыть папку",
+  "copyLogsFolderAriaLabel": "копировать путь к папке логов"
+}

@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "Inga {logType}-loggar ännu.",
+    "logFileEmpty": "Loggfilen är tom."
+  },
+  "errors": {
+    "failedGetContent": "Det gick inte att hämta logginnehåll",
+    "failedExport": "Det gick inte att exportera loggar",
+    "failedGetFolder": "Det gick inte att hämta loggmapp",
+    "failedReadLogTemplate": "Det gick inte att läsa {logType}-logg: {message}",
+    "logFileNotFound": "Loggfil hittades inte: {logType}",
+    "failedExportLogTemplate": "Det gick inte att exportera {logType}-logg: {message}"
+  }
+}

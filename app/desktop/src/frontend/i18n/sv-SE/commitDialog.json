@@ -1,0 +1,11 @@
+{
+  "title": "Committa ändringar",
+  "messageLabel": "Commit-meddelande",
+  "messagePlaceholder": "Beskriv dina ändringar...",
+  "helperText": "Cmd/Ctrl+Enter för att committa",
+  "cancel": "Avbryt",
+  "confirm": "Commit & Push",
+  "loading": "Committar...",
+  "emptyMessageError": "Ange ett commit-meddelande",
+  "commitFailed": "Commit misslyckades"
+}

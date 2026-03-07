@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "このアプリについて",
+  "versionPrefix": "バージョン",
+  "description": "Git または S3 をバックエンドにした、Electron 製の Markdown ノート作成デスクトップアプリです",
+  "sections": {
+    "features": "主な機能",
+    "author": "作者",
+    "links": "リンク",
+    "techStack": "技術スタック"
+  },
+  "links": {
+    "githubRepository": "GitHub リポジトリ",
+    "website": "ウェブサイト"
+  },
+  "close": "閉じる",
+  "license": "MIT ライセンス",
+  "features": {
+    "markdownLivePreview": "Markdown のライブプレビュー編集",
+    "gitOrS3History": "Git / S3 の履歴管理",
+    "fileAndFolderManagement": "ファイルとフォルダの管理",
+    "fullTextSearch": "ノート全体の全文検索",
+    "darkModeSupport": "ダークモード対応",
+    "autoSaveAndSync": "自動保存と同期",
+    "fileHistoryAndVersionViewing": "ファイル履歴と過去バージョンの表示"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

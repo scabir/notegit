@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "Girtina dîroka pelê serneket",
+    "failedGetFileVersion": "Girtina guhertoya pelê serneket",
+    "failedGetDiff": "Girtina diff serneket",
+    "noRepositoryConfigured": "Depoyek nehatiye mîhengkirin",
+    "unsupportedProvider": "Pêşkêşkerê dîrokê nayê destekirin: {provider}",
+    "localHistoryUnavailable": "Dîrok ji bo depoyên herêmî ne amade ye",
+    "s3DiffNotSupported": "Diff ji bo dîroka S3 nayê destekirin"
+  }
+}

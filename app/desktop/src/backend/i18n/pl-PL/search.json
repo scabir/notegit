@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "Wyszukiwanie nie powiodło się",
+    "failedRepoWideSearch": "Wyszukiwanie w całym repozytorium nie powiodło się",
+    "failedRepoWideReplace": "Zamiana w całym repozytorium nie powiodła się",
+    "repositoryNotInitialized": "Repozytorium nie jest zainicjalizowane",
+    "searchFailed": "Wyszukiwanie nie powiodło się",
+    "repoWideSearchFailedTemplate": "Wyszukiwanie w całym repozytorium nie powiodło się: {message}",
+    "repoWideReplaceFailedTemplate": "Zamiana w całym repozytorium nie powiodła się: {message}"
+  }
+}

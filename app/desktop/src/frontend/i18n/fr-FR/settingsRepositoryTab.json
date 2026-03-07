@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Type de dépôt",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Local"
+  },
+  "git": {
+    "remoteUrlLabel": "URL distante",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Branche",
+    "branchPlaceholder": "main",
+    "patLabel": "Jeton d'accès personnel",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Votre jeton d'accès personnel est stocké de manière chiffrée dans le répertoire de données de l'application, et non dans le trousseau de votre système.",
+    "patGuide": {
+      "title": "Comment créer un jeton d'accès personnel GitHub :",
+      "line1": "1. Allez dans GitHub Settings -> Developer settings",
+      "line2": "2. Cliquez sur Personal access tokens -> Fine-grained tokens",
+      "line3": "3. Cliquez sur Generate new token",
+      "line4": "4. Donnez un nom au jeton",
+      "line5": "5. Définissez la date d'expiration",
+      "line6": "6. Sélectionnez l'option \"Only select repositories\"",
+      "line7": "7. Sélectionnez le dépôt à utiliser",
+      "line8": "8. Cliquez sur \"Add permission\"",
+      "line9": "9. Sélectionnez \"Contents\" et accordez les permissions \"Read and write\"",
+      "line10": "10. Cliquez sur Generate token",
+      "line11": "11. Copiez-collez le jeton ci-dessus"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Région",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Préfixe (facultatif)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Stocké de manière chiffrée dans le répertoire de données de l'application.",
+    "sessionTokenLabel": "Session Token (facultatif)",
+    "info": "Le bucket S3 doit avoir le versioning activé pour prendre en charge l'historique."
+  },
+  "local": {
+    "info": "Les dépôts locaux sont stockés uniquement sur cet appareil et ne sont pas synchronisés."
+  },
+  "saveButton": "Enregistrer les paramètres du dépôt",
+  "localPath": {
+    "title": "Chemin du dépôt local",
+    "description": "C'est l'emplacement où votre dépôt est stocké localement sur votre ordinateur.",
+    "label": "Chemin local",
+    "copyPathButton": "Copier le chemin",
+    "openFolderButton": "Ouvrir le dossier"
+  }
+}

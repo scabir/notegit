@@ -1,0 +1,42 @@
+{
+  "title": "キーボードショートカット",
+  "footer": "このヘルプを閉じるには F1 をもう一度押してください",
+  "sections": {
+    "fileTree": "ファイルツリー",
+    "editorFormatting": "エディタ書式",
+    "global": "全体"
+  },
+  "labels": {
+    "addNewFile": "新しいファイルを追加",
+    "addNewFolder": "新しいフォルダを追加",
+    "deleteSelection": "選択項目を削除",
+    "importFile": "ファイルをインポート",
+    "renameSelection": "選択項目の名前変更",
+    "moveSelection": "選択項目を移動",
+    "duplicateFile": "ファイルを複製",
+    "toggleFavorite": "お気に入り切替",
+    "collapseAllFolders": "すべてのフォルダを折りたたむ",
+    "bold": "太字",
+    "italic": "斜体",
+    "heading": "見出し",
+    "inlineCode": "インラインコード",
+    "codeBlock": "コードブロック",
+    "link": "リンク",
+    "table": "表",
+    "footnote": "脚注",
+    "taskList": "タスクリスト",
+    "highlight": "ハイライト",
+    "definitionList": "定義リスト",
+    "mermaidDiagram": "Mermaid 図",
+    "saveCurrentNote": "現在のノートを保存",
+    "navigateBack": "戻る",
+    "navigateForward": "進む",
+    "quickFileSearch": "クイックファイル検索",
+    "quickSearchAlternative": "クイック検索（代替）",
+    "findInFile": "ファイル内検索",
+    "findInRepo": "リポジトリ内検索",
+    "openSettings": "設定を開く",
+    "quitApplication": "アプリを終了",
+    "toggleThisHelper": "このヘルプを表示/非表示"
+  }
+}

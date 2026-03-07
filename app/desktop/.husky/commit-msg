@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+node "$PROJECT_ROOT/scripts/check-conventional-commit.js" "$1"

@@ -1,0 +1,16 @@
+{
+  "title": "Mover item",
+  "movingLabel": "A mover",
+  "currentLocationLabel": "Localização atual",
+  "selectDestination": "Selecione a pasta de destino:",
+  "rootLabel": "Diretório raiz",
+  "noFolders": "Sem pastas no repositório",
+  "cancel": "Cancelar",
+  "confirm": "Mover para aqui",
+  "rootFallback": "raiz",
+  "errors": {
+    "selectDestination": "Selecione uma pasta de destino",
+    "sameLocation": "O item já está nesta localização",
+    "duplicateItemTemplate": "Já existe um item com o nome \"{name}\" na pasta de destino"
+  }
+}

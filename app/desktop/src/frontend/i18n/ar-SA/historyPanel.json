@@ -1,0 +1,16 @@
+{
+  "title": "سجل الملف",
+  "closeTooltip": "إغلاق السجل",
+  "selectFile": "اختر ملفًا لعرض سجله",
+  "noCommits": "لا توجد عمليات تنفيذ لهذا الملف",
+  "loadFailed": "تعذر تحميل السجل",
+  "commitFoundSingularTemplate": "تم العثور على تنفيذ واحد",
+  "commitFoundPluralTemplate": "تم العثور على {count} عمليات تنفيذ",
+  "relativeTime": {
+    "justNow": "الآن",
+    "minutesAgoTemplate": "قبل {count} د",
+    "hoursAgoTemplate": "قبل {count} س",
+    "yesterday": "أمس",
+    "daysAgoTemplate": "قبل {count} يوم"
+  }
+}

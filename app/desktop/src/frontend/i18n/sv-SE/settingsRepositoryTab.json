@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Repositorytyp",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Lokal"
+  },
+  "git": {
+    "remoteUrlLabel": "Remote-URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Branch",
+    "branchPlaceholder": "main",
+    "patLabel": "Personal Access Token",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Din Personal Access Token lagras krypterat i appens datakatalog, inte i operativsystemets nyckelring.",
+    "patGuide": {
+      "title": "Så skapar du en GitHub Personal Access Token:",
+      "line1": "1. Gå till GitHub Settings -> Developer settings",
+      "line2": "2. Klicka på Personal access tokens -> Fine Grained Tokens",
+      "line3": "3. Klicka på Generate new token",
+      "line4": "4. Ange namn på token",
+      "line5": "5. Sätt utgångsdatum",
+      "line6": "6. Välj alternativet \"Only select repositories\"",
+      "line7": "7. Välj repositoryt du vill använda",
+      "line8": "8. Klicka på \"Add Permission\"",
+      "line9": "9. Välj \"Contents\" och ge behörighet \"Read and Write\"",
+      "line10": "10. Klicka på Generate Token",
+      "line11": "11. Kopiera och klistra in token ovan"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Region",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefix (valfritt)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Lagrad krypterat i appens datakatalog.",
+    "sessionTokenLabel": "Session Token (valfritt)",
+    "info": "S3-bucketen måste ha versionering aktiverad för att historik ska fungera."
+  },
+  "local": {
+    "info": "Lokala repositories lagras bara på den här enheten och synkroniseras inte."
+  },
+  "saveButton": "Spara repositoryinställningar",
+  "localPath": {
+    "title": "Lokal repositorysökväg",
+    "description": "Det här är sökvägen där ditt repository lagras lokalt på datorn.",
+    "label": "Lokal sökväg",
+    "copyPathButton": "Kopiera sökväg",
+    "openFolderButton": "Öppna mapp"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "Поиск (Cmd/Ctrl+P)",
+    "history": "История файла",
+    "saveAll": "Сохранить все открытые файлы",
+    "sync": "Синхронизация",
+    "commitPush": "Commit и Push",
+    "settings": "Настройки",
+    "shortcuts": "Горячие клавиши"
+  },
+  "labels": {
+    "saving": "Сохранение...",
+    "saved": "Сохранено",
+    "error": "Ошибка"
+  },
+  "messages": {
+    "failedLoadWorkspace": "Не удалось загрузить рабочую область",
+    "savedLocally": "Сохранено локально",
+    "failedSaveFile": "Не удалось сохранить файл",
+    "failedReadFile": "Не удалось прочитать файл",
+    "pullSuccessful": "Pull выполнен успешно",
+    "failedPull": "Не удалось выполнить pull",
+    "fetchSuccessful": "Fetch выполнен успешно",
+    "failedFetch": "Не удалось выполнить fetch",
+    "pushSuccessful": "Push выполнен успешно",
+    "failedPush": "Не удалось выполнить push",
+    "failedCreateFile": "Не удалось создать файл",
+    "failedCreateFolder": "Не удалось создать папку",
+    "failedDelete": "Не удалось удалить",
+    "failedRename": "Не удалось переименовать",
+    "failedImportFile": "Не удалось импортировать файл",
+    "moveCommitMessagePrefix": "Перемещение:",
+    "failedAutoCommitMove": "Не удалось выполнить авто-commit перемещения",
+    "failedDuplicateFile": "Не удалось дублировать файл",
+    "syncing": "Синхронизация...",
+    "committingAndPushing": "Выполняются commit и push...",
+    "syncedSuccessfully": "Синхронизация выполнена успешно",
+    "failedSync": "Не удалось синхронизировать",
+    "nothingToCommit": "Нет изменений для commit",
+    "committedAndPushedSuccessfully": "Commit и push выполнены успешно",
+    "failedCommitAndPush": "Не удалось выполнить commit и push"
+  }
+}

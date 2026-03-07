@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "Profilhantering",
+  "info": "Profiler gör att du kan arbeta med flera repositories. Endast en profil kan vara aktiv åt gången. När du skapar en ny profil förbereder appen repositoryt. När du byter profil startas appen om.",
+  "activeProfileTitle": "Aktiv profil",
+  "activeChipLabel": "Aktiv",
+  "deleteAriaLabel": "ta bort",
+  "createNewProfileButton": "Skapa ny profil",
+  "newProfileTitle": "Ny profil",
+  "creatingProfileMessage": "Skapar profil och förbereder repository... Det kan ta en stund.",
+  "repositoryTypeLabel": "Repositorytyp",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Lokal"
+  },
+  "profileNameLabel": "Profilnamn",
+  "profileNamePlaceholder": "Mina anteckningar",
+  "profileNameHelper": "En lokal mapp skapas automatiskt baserat på namnet",
+  "git": {
+    "remoteUrlLabel": "Remote-URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Branch",
+    "branchPlaceholder": "main",
+    "patLabel": "Personal Access Token",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Din Personal Access Token lagras krypterat"
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Region",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefix (valfritt)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Lagrad krypterat i appens datakatalog.",
+    "sessionTokenLabel": "Session Token (valfritt)"
+  },
+  "local": {
+    "info": "Lokala repositories lagras bara på den här enheten och synkroniseras inte."
+  },
+  "createProfileButton": "Skapa profil",
+  "creatingButton": "Skapar...",
+  "cancelButton": "Avbryt"
+}

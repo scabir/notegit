@@ -1,0 +1,10 @@
+{
+  "readOnly": "TYLKO DO ODCZYTU",
+  "closeTooltip": "Zamknij",
+  "preview": "Podgląd",
+  "source": "Źródło",
+  "copyContent": "Kopiuj zawartość",
+  "close": "Zamknij",
+  "loadFailed": "Nie udało się wczytać wersji",
+  "readOnlyNotice": "To jest wersja historyczna. Aby użyć tej treści, skopiuj ją ręcznie do edytora."
+}

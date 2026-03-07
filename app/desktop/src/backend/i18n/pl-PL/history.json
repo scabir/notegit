@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "Nie udało się pobrać historii pliku",
+    "failedGetFileVersion": "Nie udało się pobrać wersji pliku",
+    "failedGetDiff": "Nie udało się pobrać diffa",
+    "noRepositoryConfigured": "Brak skonfigurowanego repozytorium",
+    "unsupportedProvider": "Nieobsługiwany dostawca historii: {provider}",
+    "localHistoryUnavailable": "Historia nie jest dostępna dla lokalnych repozytoriów",
+    "s3DiffNotSupported": "Diff nie jest obsługiwany w historii S3"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "Derbarê",
+  "versionPrefix": "Guherto",
+  "description": "Aplikasyona desktopê ya nivîsandina notan bi Markdown, ku li ser Git an S3 ava bûye û bi Electron hatiye çêkirin",
+  "sections": {
+    "features": "Taybetmendî",
+    "author": "Nivîskar",
+    "links": "Girêdan",
+    "techStack": "Stacka Teknolojiyê"
+  },
+  "links": {
+    "githubRepository": "Depoya GitHub",
+    "website": "Malpera webê"
+  },
+  "close": "Bigire",
+  "license": "Lîsansa MIT",
+  "features": {
+    "markdownLivePreview": "Edîtkirina Markdown bi pêşdîtina zindî",
+    "gitOrS3History": "Dîroka guhertinan bi Git an S3",
+    "fileAndFolderManagement": "Rêveberiya pel û peldankan",
+    "fullTextSearch": "Lêgerîna tevahî-nivîsê di notan de",
+    "darkModeSupport": "Desteka moda tarî",
+    "autoSaveAndSync": "Tomarkirina xweber û hevgirtin",
+    "fileHistoryAndVersionViewing": "Dîtina dîroka pel û guhertoyan"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

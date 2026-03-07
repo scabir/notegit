@@ -1,0 +1,14 @@
+{
+  "emptyState": "Επιλέξτε αρχείο για επεξεργασία",
+  "modified": "Τροποποιημένο",
+  "showTreeTooltip": "Εμφάνιση δέντρου αρχείων",
+  "backTooltip": "Πίσω",
+  "forwardTooltip": "Μπροστά",
+  "saveTooltip": "Αποθήκευση στον δίσκο",
+  "exportTooltip": "Εξαγωγή σημείωσης",
+  "messages": {
+    "failedExportNote": "Αποτυχία εξαγωγής σημείωσης",
+    "failedExportTemplate": "Αποτυχία εξαγωγής: {message}",
+    "unknownError": "Άγνωστο σφάλμα"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "Пошук (Cmd/Ctrl+P)",
+    "history": "Історія файлу",
+    "saveAll": "Зберегти всі відкриті файли",
+    "sync": "Синхронізувати",
+    "commitPush": "Commit і Push",
+    "settings": "Налаштування",
+    "shortcuts": "Гарячі клавіші"
+  },
+  "labels": {
+    "saving": "Збереження...",
+    "saved": "Збережено",
+    "error": "Помилка"
+  },
+  "messages": {
+    "failedLoadWorkspace": "Не вдалося завантажити робочу область",
+    "savedLocally": "Збережено локально",
+    "failedSaveFile": "Не вдалося зберегти файл",
+    "failedReadFile": "Не вдалося прочитати файл",
+    "pullSuccessful": "Pull виконано успішно",
+    "failedPull": "Pull завершився помилкою",
+    "fetchSuccessful": "Fetch виконано успішно",
+    "failedFetch": "Fetch завершився помилкою",
+    "pushSuccessful": "Push виконано успішно",
+    "failedPush": "Push завершився помилкою",
+    "failedCreateFile": "Не вдалося створити файл",
+    "failedCreateFolder": "Не вдалося створити папку",
+    "failedDelete": "Не вдалося видалити",
+    "failedRename": "Не вдалося перейменувати",
+    "failedImportFile": "Не вдалося імпортувати файл",
+    "moveCommitMessagePrefix": "Переміщення:",
+    "failedAutoCommitMove": "Автокоміт переміщення не вдався",
+    "failedDuplicateFile": "Не вдалося дублювати файл",
+    "syncing": "Синхронізація...",
+    "committingAndPushing": "Виконується commit і push...",
+    "syncedSuccessfully": "Синхронізацію завершено",
+    "failedSync": "Синхронізація не вдалася",
+    "nothingToCommit": "Немає змін для commit",
+    "committedAndPushedSuccessfully": "Commit і push виконано успішно",
+    "failedCommitAndPush": "Commit і push не вдалися"
+  }
+}

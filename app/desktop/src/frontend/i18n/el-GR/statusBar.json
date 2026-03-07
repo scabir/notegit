@@ -1,0 +1,11 @@
+{
+  "bucketLabel": "Κάδος",
+  "branchLabel": "Κλάδος",
+  "synced": "Συγχρονισμένο",
+  "saved": "Αποθηκευμένο",
+  "uncommitted": "Μη δεσμευμένες αλλαγές",
+  "unsynced": "Μη συγχρονισμένες αλλαγές",
+  "fetchTooltip": "Fetch από remote",
+  "pullTooltip": "Pull από remote",
+  "pushTooltip": "Push σε remote"
+}

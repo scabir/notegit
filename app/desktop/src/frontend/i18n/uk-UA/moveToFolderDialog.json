@@ -1,0 +1,16 @@
+{
+  "title": "Перемістити елемент",
+  "movingLabel": "Переміщення",
+  "currentLocationLabel": "Поточне розташування",
+  "selectDestination": "Виберіть папку призначення:",
+  "rootLabel": "Кореневий каталог",
+  "noFolders": "У репозиторії немає папок",
+  "cancel": "Скасувати",
+  "confirm": "Перемістити сюди",
+  "rootFallback": "корінь",
+  "errors": {
+    "selectDestination": "Виберіть папку призначення",
+    "sameLocation": "Елемент вже в цій локації",
+    "duplicateItemTemplate": "У папці призначення вже є елемент з назвою \"{name}\""
+  }
+}

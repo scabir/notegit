@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "रिपॉज़िटरी खोलना या clone करना असफल रहा",
+    "failedGetRepositoryStatus": "रिपॉज़िटरी स्थिति प्राप्त करना असफल रहा",
+    "failedFetchFromRemote": "रिमोट से fetch असफल रहा",
+    "failedPullFromRemote": "रिमोट से pull असफल रहा",
+    "failedPushToRemote": "रिमोट पर push असफल रहा",
+    "failedStartAutoPush": "auto‑push शुरू करना असफल रहा",
+    "noRepositoryConfigured": "कोई रिपॉज़िटरी कॉन्फ़िगर नहीं है",
+    "unsupportedProvider": "असमर्थित repository provider: {provider}",
+    "localRepoOperationNotSupported": "लोकल रिपॉज़िटरी {operation} का समर्थन नहीं करती"
+  }
+}

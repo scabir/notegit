@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "تعذر فتح المستودع أو استنساخه",
+    "failedGetRepositoryStatus": "تعذر جلب حالة المستودع",
+    "failedFetchFromRemote": "تعذر الجلب من remote",
+    "failedPullFromRemote": "تعذر السحب من remote",
+    "failedPushToRemote": "تعذر الدفع إلى remote",
+    "failedStartAutoPush": "تعذر بدء الدفع التلقائي",
+    "noRepositoryConfigured": "لم يتم إعداد مستودع",
+    "unsupportedProvider": "مزود مستودع غير مدعوم: {provider}",
+    "localRepoOperationNotSupported": "المستودعات المحلية لا تدعم {operation}"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "title": "文件历史",
+  "closeTooltip": "关闭历史",
+  "selectFile": "请选择一个文件查看历史",
+  "noCommits": "该文件暂无提交记录",
+  "loadFailed": "加载历史失败",
+  "commitFoundSingularTemplate": "找到 {count} 条提交",
+  "commitFoundPluralTemplate": "找到 {count} 条提交",
+  "relativeTime": {
+    "justNow": "刚刚",
+    "minutesAgoTemplate": "{count} 分钟前",
+    "hoursAgoTemplate": "{count} 小时前",
+    "yesterday": "昨天",
+    "daysAgoTemplate": "{count} 天前"
+  }
+}

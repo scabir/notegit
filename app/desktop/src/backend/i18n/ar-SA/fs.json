@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "الملف غير موجود: {path}",
+    "directoryNotFound": "المجلد غير موجود: {path}",
+    "pathNotFound": "المسار غير موجود: {path}",
+    "sourceFileNotFound": "الملف المصدر غير موجود: {path}",
+    "permissionDenied": "تم رفض الإذن",
+    "permissionDeniedPath": "تم رفض الإذن: {path}",
+    "failedReadFile": "تعذر قراءة الملف: {path}",
+    "failedWriteFile": "تعذر كتابة الملف: {path}",
+    "failedDeleteFile": "تعذر حذف الملف: {path}",
+    "failedRename": "تعذر إعادة التسمية من {from} إلى {to}",
+    "failedCreateDirectory": "تعذر إنشاء المجلد: {path}",
+    "failedDeleteDirectory": "تعذر حذف المجلد: {path}",
+    "failedReadDirectory": "تعذر قراءة المجلد: {path}",
+    "failedStat": "تعذر جلب معلومات المسار: {path}",
+    "failedCopyFile": "تعذر نسخ الملف من {from} إلى {to}"
+  }
+}

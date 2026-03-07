@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "Nie udało się otworzyć ani sklonować repozytorium",
+    "failedGetRepositoryStatus": "Nie udało się pobrać statusu repozytorium",
+    "failedFetchFromRemote": "Nie udało się wykonać fetch ze zdalnego",
+    "failedPullFromRemote": "Nie udało się wykonać pull ze zdalnego",
+    "failedPushToRemote": "Nie udało się wykonać push do zdalnego",
+    "failedStartAutoPush": "Nie udało się uruchomić automatycznego push",
+    "noRepositoryConfigured": "Brak skonfigurowanego repozytorium",
+    "unsupportedProvider": "Nieobsługiwany dostawca repozytorium: {provider}",
+    "localRepoOperationNotSupported": "Lokalne repozytoria nie obsługują operacji {operation}"
+  }
+}

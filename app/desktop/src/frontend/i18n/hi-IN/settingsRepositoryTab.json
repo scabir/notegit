@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "रिपॉज़िटरी प्रकार",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "लोकल"
+  },
+  "git": {
+    "remoteUrlLabel": "रिमोट URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "ब्रांच",
+    "branchPlaceholder": "main",
+    "patLabel": "पर्सनल एक्सेस टोकन",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "आपका पर्सनल एक्सेस टोकन ऑपरेटिंग सिस्टम keychain में नहीं, बल्कि ऐप डेटा डायरेक्टरी में एन्क्रिप्ट होकर संग्रहीत होता है।",
+    "patGuide": {
+      "title": "GitHub Personal Access Token बनाने के चरण:",
+      "line1": "1. GitHub Settings -> Developer settings पर जाएँ",
+      "line2": "2. Personal access tokens -> Fine Grained Tokens चुनें",
+      "line3": "3. Generate new token पर क्लिक करें",
+      "line4": "4. Token का नाम दें",
+      "line5": "5. समाप्ति (expiry) सेट करें",
+      "line6": "6. \"Only select repositories\" विकल्प चुनें",
+      "line7": "7. उपयोग करने वाली रिपॉज़िटरी चुनें",
+      "line8": "8. \"Add Permission\" पर क्लिक करें",
+      "line9": "9. \"Contents\" चुनें और \"Read and Write\" अनुमति दें",
+      "line10": "10. Generate Token पर क्लिक करें",
+      "line11": "11. बने हुए टोकन को ऊपर कॉपी‑पेस्ट करें"
+    }
+  },
+  "s3": {
+    "bucketLabel": "बकेट",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "रीजन",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "प्रीफिक्स (वैकल्पिक)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "ऐप डेटा डायरेक्टरी में एन्क्रिप्ट होकर संग्रहीत।",
+    "sessionTokenLabel": "Session Token (वैकल्पिक)",
+    "info": "इतिहास सुविधा के लिए S3 बकेट में versioning सक्षम होना चाहिए।"
+  },
+  "local": {
+    "info": "लोकल रिपॉज़िटरी सिर्फ इसी डिवाइस पर रहती है, सिंक नहीं होती।"
+  },
+  "saveButton": "रिपॉज़िटरी सेटिंग्स सहेजें",
+  "localPath": {
+    "title": "लोकल रिपॉज़िटरी पथ",
+    "description": "यही वह पथ है जहाँ आपकी रिपॉज़िटरी आपके कंप्यूटर पर लोकल रूप से संग्रहीत रहती है।",
+    "label": "लोकल पथ",
+    "copyPathButton": "पथ कॉपी करें",
+    "openFolderButton": "फ़ोल्डर खोलें"
+  }
+}

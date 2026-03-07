@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "Szukaj (Cmd/Ctrl+P)",
+    "history": "Historia pliku",
+    "saveAll": "Zapisz wszystkie otwarte pliki",
+    "sync": "Synchronizuj",
+    "commitPush": "Commit i Push",
+    "settings": "Ustawienia",
+    "shortcuts": "Skróty klawiszowe"
+  },
+  "labels": {
+    "saving": "Zapisywanie...",
+    "saved": "Zapisano",
+    "error": "Błąd"
+  },
+  "messages": {
+    "failedLoadWorkspace": "Nie udało się wczytać przestrzeni roboczej",
+    "savedLocally": "Zapisano lokalnie",
+    "failedSaveFile": "Nie udało się zapisać pliku",
+    "failedReadFile": "Nie udało się odczytać pliku",
+    "pullSuccessful": "Pull zakończony powodzeniem",
+    "failedPull": "Pull nie powiódł się",
+    "fetchSuccessful": "Fetch zakończony powodzeniem",
+    "failedFetch": "Fetch nie powiódł się",
+    "pushSuccessful": "Push zakończony powodzeniem",
+    "failedPush": "Push nie powiódł się",
+    "failedCreateFile": "Nie udało się utworzyć pliku",
+    "failedCreateFolder": "Nie udało się utworzyć folderu",
+    "failedDelete": "Nie udało się usunąć",
+    "failedRename": "Nie udało się zmienić nazwy",
+    "failedImportFile": "Nie udało się zaimportować pliku",
+    "moveCommitMessagePrefix": "Przeniesienie:",
+    "failedAutoCommitMove": "Automatyczny commit przeniesienia nie powiódł się",
+    "failedDuplicateFile": "Nie udało się zduplikować pliku",
+    "syncing": "Synchronizowanie...",
+    "committingAndPushing": "Wykonywanie commita i pusha...",
+    "syncedSuccessfully": "Synchronizacja zakończona",
+    "failedSync": "Synchronizacja nie powiodła się",
+    "nothingToCommit": "Brak zmian do zatwierdzenia",
+    "committedAndPushedSuccessfully": "Commit i push zakończone powodzeniem",
+    "failedCommitAndPush": "Commit i push nie powiodły się"
+  }
+}

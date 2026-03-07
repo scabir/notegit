@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "notegit",
+    "tagline": "Aplikasyona notan ya Markdown ku li ser Git e",
+    "welcome": "Bi xêr hatî notegit! Ji bo destpêkê, bi depoyekê re têkildar bibe.",
+    "connectToRepository": "Bi Depoyê re Girêde"
+  },
+  "gitMissing": {
+    "message": "Git li ser pergala te nehatîye sazkirin. Ji bo bikaranîna notegit, Git saz bike.",
+    "downloadPrompt": "ji bo daxistina Git."
+  }
+}

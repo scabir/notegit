@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "प्रोफ़ाइल प्रबंधन",
+  "info": "प्रोफ़ाइल की मदद से आप कई रिपॉज़िटरी पर काम कर सकते हैं। एक समय में केवल एक प्रोफ़ाइल सक्रिय रहती है। नई प्रोफ़ाइल बनाते समय ऐप रिपॉज़िटरी तैयार करेगी। प्रोफ़ाइल बदलने पर ऐप पुनः शुरू होगी।",
+  "activeProfileTitle": "सक्रिय प्रोफ़ाइल",
+  "activeChipLabel": "सक्रिय",
+  "deleteAriaLabel": "हटाएँ",
+  "createNewProfileButton": "नई प्रोफ़ाइल बनाएँ",
+  "newProfileTitle": "नई प्रोफ़ाइल",
+  "creatingProfileMessage": "प्रोफ़ाइल बनाई जा रही है और रिपॉज़िटरी तैयार की जा रही है... इसमें कुछ समय लग सकता है।",
+  "repositoryTypeLabel": "रिपॉज़िटरी प्रकार",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "लोकल"
+  },
+  "profileNameLabel": "प्रोफ़ाइल नाम",
+  "profileNamePlaceholder": "मेरे नोट्स",
+  "profileNameHelper": "इस नाम के आधार पर लोकल फ़ोल्डर स्वतः बनाया जाएगा",
+  "git": {
+    "remoteUrlLabel": "रिमोट URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "ब्रांच",
+    "branchPlaceholder": "main",
+    "patLabel": "पर्सनल एक्सेस टोकन",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "आपका पर्सनल एक्सेस टोकन एन्क्रिप्ट होकर संग्रहीत होता है"
+  },
+  "s3": {
+    "bucketLabel": "बकेट",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "रीजन",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "प्रीफिक्स (वैकल्पिक)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "ऐप डेटा डायरेक्टरी में एन्क्रिप्ट होकर संग्रहीत।",
+    "sessionTokenLabel": "Session Token (वैकल्पिक)"
+  },
+  "local": {
+    "info": "लोकल रिपॉज़िटरी सिर्फ इसी डिवाइस पर रहती है, सिंक नहीं होती।"
+  },
+  "createProfileButton": "प्रोफ़ाइल बनाएँ",
+  "creatingButton": "बनाया जा रहा है...",
+  "cancelButton": "रद्द करें"
+}

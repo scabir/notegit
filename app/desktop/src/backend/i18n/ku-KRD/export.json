@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "Notê derxe",
+    "exportRepoZipTitle": "Depoyê wek Zip derxe",
+    "markdownFiles": "Pelên Markdown",
+    "textFiles": "Pelên nivîsê",
+    "zipArchives": "Arşîvên Zip",
+    "allFiles": "Hemû pel"
+  },
+  "errors": {
+    "cancelled": "Derxistin hat betalkirin",
+    "failedExportNote": "Derxistina notê serneket",
+    "failedExportRepositoryZip": "Derxistina depoyê wek zip serneket",
+    "failedExportNoteTemplate": "Derxistina notê serneket: {message}",
+    "failedExportRepoTemplate": "Derxistina depoyê serneket: {message}",
+    "noRepositoryConfigured": "Depoyek nehatiye mîhengkirin"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "title": "फ़ाइल इतिहास",
+  "closeTooltip": "इतिहास बंद करें",
+  "selectFile": "इतिहास देखने के लिए फ़ाइल चुनें",
+  "noCommits": "इस फ़ाइल के लिए कोई commit नहीं मिला",
+  "loadFailed": "इतिहास लोड नहीं हो पाया",
+  "commitFoundSingularTemplate": "{count} commit मिला",
+  "commitFoundPluralTemplate": "{count} commits मिले",
+  "relativeTime": {
+    "justNow": "अभी",
+    "minutesAgoTemplate": "{count}मि पहले",
+    "hoursAgoTemplate": "{count}घं पहले",
+    "yesterday": "कल",
+    "daysAgoTemplate": "{count} दिन पहले"
+  }
+}

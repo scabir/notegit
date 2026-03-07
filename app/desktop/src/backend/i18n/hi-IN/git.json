@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "प्रमाणीकरण असफल रहा। कृपया अपनी credentials जाँचें।",
+    "authenticationFailedPull": "Pull के दौरान प्रमाणीकरण असफल रहा",
+    "authenticationFailedPush": "Push के दौरान प्रमाणीकरण असफल रहा",
+    "mergeConflictDetected": "Merge conflict मिला। कृपया conflict को मैनुअली हल करें।",
+    "failedCloneRepository": "रिपॉज़िटरी clone करना असफल रहा: {message}",
+    "failedGetStatus": "Git स्थिति प्राप्त करना असफल रहा: {message}",
+    "failedPull": "Pull असफल रहा: {message}",
+    "failedPush": "Push असफल रहा: {message}",
+    "failedAddFile": "फ़ाइल add करना असफल रहा: {message}",
+    "failedCommit": "Commit असफल रहा: {message}",
+    "failedAddRemote": "Remote जोड़ना असफल रहा: {message}",
+    "failedGetLog": "Git लॉग प्राप्त करना असफल रहा: {message}",
+    "failedShowFile": "फ़ाइल दिखाना असफल रहा: {message}",
+    "failedGetDiff": "Diff प्राप्त करना असफल रहा: {message}",
+    "notInitialized": "Git adapter इनिशियलाइज़ नहीं है"
+  }
+}

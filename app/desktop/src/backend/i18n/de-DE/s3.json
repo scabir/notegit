@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Bucket-Versionierung konnte nicht abgerufen werden: {message}",
+    "failedListObjects": "Objekte konnten nicht aufgelistet werden: {message}",
+    "failedListObjectVersions": "Objektversionen konnten nicht aufgelistet werden: {message}",
+    "failedGetObject": "Objekt konnte nicht abgerufen werden: {message}",
+    "failedUploadObject": "Objekt konnte nicht hochgeladen werden: {message}",
+    "failedReadObjectMetadata": "Objektmetadaten konnten nicht gelesen werden: {message}",
+    "failedDeleteObject": "Objekt konnte nicht gelöscht werden: {message}",
+    "notConfigured": "S3-Adapter ist nicht konfiguriert",
+    "bucketNotConfigured": "S3-Bucket ist nicht konfiguriert"
+  }
+}

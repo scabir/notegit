@@ -1,0 +1,12 @@
+{
+  "exportCurrentNoteTitle": "Εξαγωγή τρέχουσας σημείωσης",
+  "exportCurrentNoteDescription": "Εξαγάγετε την ανοιχτή σημείωση (μαζί με μη αποθηκευμένες αλλαγές) ως ανεξάρτητο αρχείο.",
+  "exportMarkdownButton": "Εξαγωγή ως Markdown (.md)",
+  "exportTextButton": "Εξαγωγή ως Κείμενο (.txt)",
+  "openNoteHint": "Ανοίξτε μια σημείωση στον editor για να την εξαγάγετε.",
+  "exportRepositoryTitle": "Εξαγωγή αποθετηρίου",
+  "exportRepositoryDescription": "Εξαγάγετε ολόκληρο το αποθετήριο ως ZIP για backup ή διαμοιρασμό. Περιλαμβάνει όλα τα αρχεία και φακέλους (εκτός του .git).",
+  "exportRepositoryButton": "Εξαγωγή αποθετηρίου ως ZIP",
+  "exportingButton": "Γίνεται εξαγωγή...",
+  "safetyInfo": "Οι ενέργειες εξαγωγής δεν τροποποιούν το αποθετήριο και δεν εκτελούν εντολές Git. Η εργασία σας παραμένει ασφαλής."
+}

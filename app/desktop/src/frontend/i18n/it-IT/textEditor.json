@@ -1,0 +1,14 @@
+{
+  "emptyState": "Seleziona un file da modificare",
+  "modified": "Modificato",
+  "showTreeTooltip": "Mostra albero file",
+  "backTooltip": "Indietro",
+  "forwardTooltip": "Avanti",
+  "saveTooltip": "Salva su disco",
+  "exportTooltip": "Esporta nota",
+  "messages": {
+    "failedExportNote": "Impossibile esportare la nota",
+    "failedExportTemplate": "Esportazione non riuscita: {message}",
+    "unknownError": "Errore sconosciuto"
+  }
+}

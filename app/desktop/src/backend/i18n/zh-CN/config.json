@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "加载配置失败",
+    "failedUpdateAppSettings": "更新应用设置失败",
+    "failedUpdateRepositorySettings": "更新仓库设置失败",
+    "failedLoadApplicationSettings": "加载应用设置失败",
+    "failedLoadFavorites": "加载收藏失败",
+    "failedSaveFavorites": "保存收藏失败",
+    "failedLoadProfiles": "加载配置档失败",
+    "failedLoadActiveProfileId": "加载当前配置档 ID 失败",
+    "failedPrepareRepositoryTemplate": "准备仓库失败：{message}",
+    "failedCreateProfileTemplate": "创建配置档失败：{message}",
+    "failedDeleteProfile": "删除配置档失败",
+    "failedSetActiveProfile": "设置当前配置档失败",
+    "repoProviderCannotChange": "仓库提供方不能更改",
+    "s3RequiredFields": "S3 bucket、region、access key 和 secret 为必填项"
+  }
+}

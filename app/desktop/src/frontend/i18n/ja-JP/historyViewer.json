@@ -1,0 +1,10 @@
+{
+  "readOnly": "読み取り専用",
+  "closeTooltip": "閉じる",
+  "preview": "プレビュー",
+  "source": "ソース",
+  "copyContent": "内容をコピー",
+  "close": "閉じる",
+  "loadFailed": "バージョンの読み込みに失敗しました",
+  "readOnlyNotice": "これは過去バージョンです。この内容を使う場合は、手動でエディタにコピーしてください。"
+}

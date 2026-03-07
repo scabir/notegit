@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "अभी तक {logType} लॉग उपलब्ध नहीं हैं।",
+    "logFileEmpty": "लॉग फ़ाइल खाली है।"
+  },
+  "errors": {
+    "failedGetContent": "लॉग सामग्री प्राप्त करना असफल रहा",
+    "failedExport": "लॉग निर्यात करना असफल रहा",
+    "failedGetFolder": "लॉग फ़ोल्डर प्राप्त करना असफल रहा",
+    "failedReadLogTemplate": "{logType} लॉग पढ़ना असफल रहा: {message}",
+    "logFileNotFound": "लॉग फ़ाइल नहीं मिली: {logType}",
+    "failedExportLogTemplate": "{logType} लॉग निर्यात करना असफल रहा: {message}"
+  }
+}

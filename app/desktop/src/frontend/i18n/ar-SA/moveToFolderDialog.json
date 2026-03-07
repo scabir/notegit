@@ -1,0 +1,16 @@
+{
+  "title": "نقل العنصر",
+  "movingLabel": "جارٍ النقل",
+  "currentLocationLabel": "الموقع الحالي",
+  "selectDestination": "اختر مجلد الوجهة:",
+  "rootLabel": "المجلد الجذر",
+  "noFolders": "لا توجد مجلدات في المستودع",
+  "cancel": "إلغاء",
+  "confirm": "انقل إلى هنا",
+  "rootFallback": "الجذر",
+  "errors": {
+    "selectDestination": "يرجى اختيار مجلد الوجهة",
+    "sameLocation": "العنصر موجود بالفعل في هذا الموقع",
+    "duplicateItemTemplate": "يوجد عنصر باسم \"{name}\" بالفعل في مجلد الوجهة"
+  }
+}

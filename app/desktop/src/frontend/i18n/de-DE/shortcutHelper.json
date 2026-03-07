@@ -1,0 +1,42 @@
+{
+  "title": "Tastenkürzel",
+  "footer": "Drücke F1 erneut, um diese Hilfe zu schließen",
+  "sections": {
+    "fileTree": "Dateibaum",
+    "editorFormatting": "Editor-Formatierung",
+    "global": "Global"
+  },
+  "labels": {
+    "addNewFile": "Neue Datei hinzufügen",
+    "addNewFolder": "Neuen Ordner hinzufügen",
+    "deleteSelection": "Auswahl löschen",
+    "importFile": "Datei importieren",
+    "renameSelection": "Auswahl umbenennen",
+    "moveSelection": "Auswahl verschieben",
+    "duplicateFile": "Datei duplizieren",
+    "toggleFavorite": "Favorit umschalten",
+    "collapseAllFolders": "Alle Ordner einklappen",
+    "bold": "Fett",
+    "italic": "Kursiv",
+    "heading": "Überschrift",
+    "inlineCode": "Inline-Code",
+    "codeBlock": "Codeblock",
+    "link": "Link",
+    "table": "Tabelle",
+    "footnote": "Fußnote",
+    "taskList": "Aufgabenliste",
+    "highlight": "Hervorheben",
+    "definitionList": "Definitionsliste",
+    "mermaidDiagram": "Mermaid-Diagramm",
+    "saveCurrentNote": "Aktuelle Notiz speichern",
+    "navigateBack": "Zurück navigieren",
+    "navigateForward": "Vorwärts navigieren",
+    "quickFileSearch": "Schnelle Dateisuche",
+    "quickSearchAlternative": "Alternative Schnellsuche",
+    "findInFile": "In Datei suchen",
+    "findInRepo": "Im Repository suchen",
+    "openSettings": "Einstellungen öffnen",
+    "quitApplication": "Anwendung beenden",
+    "toggleThisHelper": "Diese Hilfe umschalten"
+  }
+}

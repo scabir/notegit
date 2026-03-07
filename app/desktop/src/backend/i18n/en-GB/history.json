@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "Failed to get file history",
+    "failedGetFileVersion": "Failed to get file version",
+    "failedGetDiff": "Failed to get diff",
+    "noRepositoryConfigured": "No repository configured",
+    "unsupportedProvider": "Unsupported history provider: {provider}",
+    "localHistoryUnavailable": "History is not available for local repositories",
+    "s3DiffNotSupported": "Diff is not supported for S3 history"
+  }
+}

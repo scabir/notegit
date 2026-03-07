@@ -1,0 +1,42 @@
+{
+  "title": "快捷键",
+  "footer": "再次按下 F1 可关闭此帮助",
+  "sections": {
+    "fileTree": "文件树",
+    "editorFormatting": "编辑器格式化",
+    "global": "全局"
+  },
+  "labels": {
+    "addNewFile": "新增文件",
+    "addNewFolder": "新增文件夹",
+    "deleteSelection": "删除选中项",
+    "importFile": "导入文件",
+    "renameSelection": "重命名选中项",
+    "moveSelection": "移动选中项",
+    "duplicateFile": "复制文件",
+    "toggleFavorite": "切换收藏状态",
+    "collapseAllFolders": "折叠所有文件夹",
+    "bold": "加粗",
+    "italic": "斜体",
+    "heading": "标题",
+    "inlineCode": "行内代码",
+    "codeBlock": "代码块",
+    "link": "链接",
+    "table": "表格",
+    "footnote": "脚注",
+    "taskList": "任务列表",
+    "highlight": "高亮",
+    "definitionList": "定义列表",
+    "mermaidDiagram": "Mermaid 图表",
+    "saveCurrentNote": "保存当前笔记",
+    "navigateBack": "后退",
+    "navigateForward": "前进",
+    "quickFileSearch": "快速文件搜索",
+    "quickSearchAlternative": "快速搜索替代方式",
+    "findInFile": "在文件中查找",
+    "findInRepo": "在仓库中查找",
+    "openSettings": "打开设置",
+    "quitApplication": "退出应用",
+    "toggleThisHelper": "显示/隐藏此帮助"
+  }
+}

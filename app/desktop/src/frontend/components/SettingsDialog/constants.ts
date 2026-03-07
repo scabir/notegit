@@ -1,0 +1,57 @@
+import { getDefaultTranslation } from "../../i18n/defaultTranslations";
+
+export const SETTINGS_KEYS = {
+  title: "settingsDialog.title",
+  close: "settingsDialog.close",
+  copySnackbar: "settingsDialog.copySnackbar",
+  tabAppSettings: "settingsDialog.tabs.appSettings",
+  tabRepository: "settingsDialog.tabs.repository",
+  tabProfiles: "settingsDialog.tabs.profiles",
+  tabExport: "settingsDialog.tabs.export",
+  tabLogs: "settingsDialog.tabs.logs",
+  failedLoadConfig: "settingsDialog.error.failedLoadConfig",
+  appSettingsSaved: "settingsDialog.success.appSettingsSaved",
+  failedSaveAppSettings: "settingsDialog.error.failedSaveAppSettings",
+  failedSetLanguage: "settingsDialog.error.failedSetLanguage",
+  localRepoNoSync: "settingsDialog.success.localRepoNoSync",
+  gitFieldsRequired: "settingsDialog.error.gitFieldsRequired",
+  s3FieldsRequired: "settingsDialog.error.s3FieldsRequired",
+  repoSettingsSaved: "settingsDialog.success.repoSettingsSaved",
+  failedSaveRepoSettings: "settingsDialog.error.failedSaveRepoSettings",
+  noOpenNote: "settingsDialog.error.noOpenNote",
+  exportCancelledMessage: "settingsDialog.exportCancelledMessage",
+  failedExportNote: "settingsDialog.error.failedExportNote",
+  failedExportRepository: "settingsDialog.error.failedExportRepository",
+  noteExportedPrefix: "settingsDialog.success.noteExportedPrefix",
+  repositoryExportedPrefix: "settingsDialog.success.repositoryExportedPrefix",
+  profileSwitched: "settingsDialog.success.profileSwitched",
+  failedSwitchProfile: "settingsDialog.error.failedSwitchProfile",
+  profileNameRequired: "settingsDialog.error.profileNameRequired",
+  allGitFieldsRequired: "settingsDialog.error.allGitFieldsRequired",
+  allS3FieldsRequired: "settingsDialog.error.allS3FieldsRequired",
+  profileCreated: "settingsDialog.success.profileCreated",
+  failedCreateProfile: "settingsDialog.error.failedCreateProfile",
+  deleteProfileConfirm: "settingsDialog.confirm.deleteProfile",
+  switchProfilePrefix: "settingsDialog.confirm.switchProfilePrefix",
+  switchProfileSuffix: "settingsDialog.confirm.switchProfileSuffix",
+  switchProfileFallbackName: "settingsDialog.confirm.switchProfileFallbackName",
+  profileDeleted: "settingsDialog.success.profileDeleted",
+  failedDeleteProfile: "settingsDialog.error.failedDeleteProfile",
+  failedLoadLogsFolder: "settingsDialog.error.failedLoadLogsFolder",
+  failedOpenRepositoryFolder: "settingsDialog.error.failedOpenRepositoryFolder",
+  failedOpenLogsFolder: "settingsDialog.error.failedOpenLogsFolder",
+  localRepoSecondaryLabel: "settingsDialog.localRepoSecondaryLabel",
+} as const;
+
+const defaultText = (key: string): string => getDefaultTranslation(key);
+
+export const SETTINGS_TEXT = {
+  title: defaultText(SETTINGS_KEYS.title),
+  tabs: [
+    defaultText(SETTINGS_KEYS.tabAppSettings),
+    defaultText(SETTINGS_KEYS.tabRepository),
+    defaultText(SETTINGS_KEYS.tabProfiles),
+    defaultText(SETTINGS_KEYS.tabExport),
+    defaultText(SETTINGS_KEYS.tabLogs),
+  ],
+} as const;

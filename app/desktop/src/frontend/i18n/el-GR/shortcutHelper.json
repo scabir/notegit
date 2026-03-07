@@ -1,0 +1,42 @@
+{
+  "title": "Συντομεύσεις πληκτρολογίου",
+  "footer": "Πατήστε ξανά F1 για να κλείσετε αυτή τη βοήθεια",
+  "sections": {
+    "fileTree": "Δέντρο αρχείων",
+    "editorFormatting": "Μορφοποίηση editor",
+    "global": "Καθολικά"
+  },
+  "labels": {
+    "addNewFile": "Προσθήκη νέου αρχείου",
+    "addNewFolder": "Προσθήκη νέου φακέλου",
+    "deleteSelection": "Διαγραφή επιλογής",
+    "importFile": "Εισαγωγή αρχείου",
+    "renameSelection": "Μετονομασία επιλογής",
+    "moveSelection": "Μετακίνηση επιλογής",
+    "duplicateFile": "Αντιγραφή αρχείου",
+    "toggleFavorite": "Εναλλαγή αγαπημένου",
+    "collapseAllFolders": "Σύμπτυξη όλων των φακέλων",
+    "bold": "Έντονα",
+    "italic": "Πλάγια",
+    "heading": "Επικεφαλίδα",
+    "inlineCode": "Inline κώδικας",
+    "codeBlock": "Μπλοκ κώδικα",
+    "link": "Σύνδεσμος",
+    "table": "Πίνακας",
+    "footnote": "Υποσημείωση",
+    "taskList": "Λίστα εργασιών",
+    "highlight": "Επισήμανση",
+    "definitionList": "Λίστα ορισμών",
+    "mermaidDiagram": "Διάγραμμα Mermaid",
+    "saveCurrentNote": "Αποθήκευση τρέχουσας σημείωσης",
+    "navigateBack": "Πλοήγηση πίσω",
+    "navigateForward": "Πλοήγηση μπροστά",
+    "quickFileSearch": "Γρήγορη αναζήτηση αρχείων",
+    "quickSearchAlternative": "Εναλλακτική γρήγορη αναζήτηση",
+    "findInFile": "Εύρεση στο αρχείο",
+    "findInRepo": "Εύρεση στο αποθετήριο",
+    "openSettings": "Άνοιγμα ρυθμίσεων",
+    "quitApplication": "Έξοδος εφαρμογής",
+    "toggleThisHelper": "Εμφάνιση/απόκρυψη αυτής της βοήθειας"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "ファイルが見つかりません: {path}",
+    "directoryNotFound": "ディレクトリが見つかりません: {path}",
+    "pathNotFound": "パスが見つかりません: {path}",
+    "sourceFileNotFound": "元ファイルが見つかりません: {path}",
+    "permissionDenied": "権限がありません",
+    "permissionDeniedPath": "権限がありません: {path}",
+    "failedReadFile": "ファイルの読み込みに失敗しました: {path}",
+    "failedWriteFile": "ファイルの書き込みに失敗しました: {path}",
+    "failedDeleteFile": "ファイルの削除に失敗しました: {path}",
+    "failedRename": "{from} から {to} への名前変更に失敗しました",
+    "failedCreateDirectory": "ディレクトリの作成に失敗しました: {path}",
+    "failedDeleteDirectory": "ディレクトリの削除に失敗しました: {path}",
+    "failedReadDirectory": "ディレクトリの読み込みに失敗しました: {path}",
+    "failedStat": "ステータス取得に失敗しました: {path}",
+    "failedCopyFile": "{from} から {to} へのファイルコピーに失敗しました"
+  }
+}

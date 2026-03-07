@@ -1,0 +1,11 @@
+{
+  "bucketLabel": "Бакет",
+  "branchLabel": "Гілка",
+  "synced": "Синхронізовано",
+  "saved": "Збережено",
+  "uncommitted": "Незакомічені зміни",
+  "unsynced": "Несинхронізовані зміни",
+  "fetchTooltip": "Fetch із remote",
+  "pullTooltip": "Pull із remote",
+  "pushTooltip": "Push у remote"
+}

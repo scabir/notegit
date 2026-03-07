@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "Керування профілями",
+  "info": "Профілі дають змогу працювати з кількома репозиторіями. Одночасно активним може бути лише один профіль. Під час створення нового профілю застосунок підготує репозиторій. Перемикання профілю перезапустить застосунок.",
+  "activeProfileTitle": "Активний профіль",
+  "activeChipLabel": "Активний",
+  "deleteAriaLabel": "видалити",
+  "createNewProfileButton": "Створити новий профіль",
+  "newProfileTitle": "Новий профіль",
+  "creatingProfileMessage": "Створюємо профіль і готуємо репозиторій... Це може зайняти кілька секунд.",
+  "repositoryTypeLabel": "Тип репозиторію",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Локальний"
+  },
+  "profileNameLabel": "Назва профілю",
+  "profileNamePlaceholder": "Мої нотатки",
+  "profileNameHelper": "Локальну папку буде автоматично створено на основі цієї назви",
+  "git": {
+    "remoteUrlLabel": "Віддалений URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Гілка",
+    "branchPlaceholder": "main",
+    "patLabel": "Персональний токен доступу",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Ваш Personal Access Token зберігається у зашифрованому вигляді"
+  },
+  "s3": {
+    "bucketLabel": "Бакет",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Регіон",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Префікс (необов'язково)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "ID ключа доступу",
+    "secretAccessKeyLabel": "Секретний ключ доступу",
+    "secretAccessKeyHelperText": "Зберігається в зашифрованому вигляді в каталозі даних застосунку.",
+    "sessionTokenLabel": "Токен сесії (необов'язково)"
+  },
+  "local": {
+    "info": "Локальні репозиторії зберігаються лише на цьому пристрої та не синхронізуються."
+  },
+  "createProfileButton": "Створити профіль",
+  "creatingButton": "Створення...",
+  "cancelButton": "Скасувати"
+}

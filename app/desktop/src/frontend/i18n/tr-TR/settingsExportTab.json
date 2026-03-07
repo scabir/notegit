@@ -1,0 +1,12 @@
+{
+  "exportCurrentNoteTitle": "Mevcut Notu Dışa Aktar",
+  "exportCurrentNoteDescription": "Şu anda açık notu (kaydedilmemiş değişiklikler dahil) bağımsız bir dosya olarak dışa aktarın.",
+  "exportMarkdownButton": "Markdown olarak dışa aktar (.md)",
+  "exportTextButton": "Metin olarak dışa aktar (.txt)",
+  "openNoteHint": "Dışa aktarmak için düzenleyicide bir not açın.",
+  "exportRepositoryTitle": "Depoyu Dışa Aktar",
+  "exportRepositoryDescription": "Tüm depoyu yedekleme veya paylaşım için bir ZIP arşivi olarak dışa aktarın. Buna tüm dosya ve klasörler dahildir (.git hariç).",
+  "exportRepositoryButton": "Depoyu ZIP olarak dışa aktar",
+  "exportingButton": "Dışa aktarılıyor...",
+  "safetyInfo": "Dışa aktarma işlemleri deponuzu değiştirmez ve hiçbir Git komutu çalıştırmaz. Çalışmanız depoda güvenle kalır."
+}

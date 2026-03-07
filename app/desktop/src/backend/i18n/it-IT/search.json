@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "Ricerca non riuscita",
+    "failedRepoWideSearch": "Ricerca nel repository non riuscita",
+    "failedRepoWideReplace": "Sostituzione nel repository non riuscita",
+    "repositoryNotInitialized": "Repository non inizializzato",
+    "searchFailed": "Ricerca non riuscita",
+    "repoWideSearchFailedTemplate": "Ricerca nel repository non riuscita: {message}",
+    "repoWideReplaceFailedTemplate": "Sostituzione nel repository non riuscita: {message}"
+  }
+}

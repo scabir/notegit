@@ -1,0 +1,42 @@
+{
+  "title": "Raccourcis clavier",
+  "footer": "Appuyez de nouveau sur F1 pour fermer cette aide",
+  "sections": {
+    "fileTree": "Arborescence",
+    "editorFormatting": "Mise en forme de l'éditeur",
+    "global": "Global"
+  },
+  "labels": {
+    "addNewFile": "Ajouter un nouveau fichier",
+    "addNewFolder": "Ajouter un nouveau dossier",
+    "deleteSelection": "Supprimer la sélection",
+    "importFile": "Importer un fichier",
+    "renameSelection": "Renommer la sélection",
+    "moveSelection": "Déplacer la sélection",
+    "duplicateFile": "Dupliquer le fichier",
+    "toggleFavorite": "Basculer le favori",
+    "collapseAllFolders": "Réduire tous les dossiers",
+    "bold": "Gras",
+    "italic": "Italique",
+    "heading": "Titre",
+    "inlineCode": "Code en ligne",
+    "codeBlock": "Bloc de code",
+    "link": "Lien",
+    "table": "Tableau",
+    "footnote": "Note de bas de page",
+    "taskList": "Liste de tâches",
+    "highlight": "Surlignage",
+    "definitionList": "Liste de définitions",
+    "mermaidDiagram": "Diagramme Mermaid",
+    "saveCurrentNote": "Enregistrer la note actuelle",
+    "navigateBack": "Aller en arrière",
+    "navigateForward": "Aller en avant",
+    "quickFileSearch": "Recherche rapide de fichier",
+    "quickSearchAlternative": "Alternative de recherche rapide",
+    "findInFile": "Rechercher dans le fichier",
+    "findInRepo": "Rechercher dans le dépôt",
+    "openSettings": "Ouvrir les paramètres",
+    "quitApplication": "Quitter l'application",
+    "toggleThisHelper": "Afficher/Masquer cette aide"
+  }
+}

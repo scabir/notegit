@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Failed to get bucket versioning: {message}",
+    "failedListObjects": "Failed to list objects: {message}",
+    "failedListObjectVersions": "Failed to list object versions: {message}",
+    "failedGetObject": "Failed to get object: {message}",
+    "failedUploadObject": "Failed to upload object: {message}",
+    "failedReadObjectMetadata": "Failed to read object metadata: {message}",
+    "failedDeleteObject": "Failed to delete object: {message}",
+    "notConfigured": "S3 adapter is not configured",
+    "bucketNotConfigured": "S3 bucket is not configured"
+  }
+}

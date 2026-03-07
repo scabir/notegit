@@ -1,0 +1,10 @@
+{
+  "title": "ノートを検索",
+  "placeholder": "ファイル名または内容で検索...",
+  "helperText": "↑↓で移動、Enterで開く、Escで閉じる",
+  "noResults": "結果が見つかりません",
+  "startTyping": "入力を開始してすべてのノートを検索",
+  "searchFailed": "検索に失敗しました",
+  "lineLabel": "行",
+  "moreSuffix": "件"
+}

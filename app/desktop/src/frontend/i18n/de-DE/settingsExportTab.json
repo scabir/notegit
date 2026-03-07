@@ -1,0 +1,12 @@
+{
+  "exportCurrentNoteTitle": "Aktuelle Notiz exportieren",
+  "exportCurrentNoteDescription": "Exportiere die aktuell geöffnete Notiz (einschließlich ungespeicherter Änderungen) als eigenständige Datei.",
+  "exportMarkdownButton": "Als Markdown exportieren (.md)",
+  "exportTextButton": "Als Text exportieren (.txt)",
+  "openNoteHint": "Öffne eine Notiz im Editor, um sie zu exportieren.",
+  "exportRepositoryTitle": "Repository exportieren",
+  "exportRepositoryDescription": "Exportiere das gesamte Repository als ZIP-Archiv für Backup oder Weitergabe. Dies beinhaltet alle Dateien und Ordner (außer .git).",
+  "exportRepositoryButton": "Repository als ZIP exportieren",
+  "exportingButton": "Wird exportiert...",
+  "safetyInfo": "Exportvorgänge verändern dein Repository nicht und führen keine Git-Befehle aus. Deine Arbeit bleibt sicher im Repository."
+}

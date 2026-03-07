@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "notegit",
+    "tagline": "Aplicação de notas em Markdown com backend Git",
+    "welcome": "Bem-vindo ao notegit! Para começar, ligue-se a um repositório Git.",
+    "connectToRepository": "Ligar ao repositório"
+  },
+  "gitMissing": {
+    "message": "O Git não está instalado no seu sistema. Instale o Git para utilizar o notegit.",
+    "downloadPrompt": "para transferir o Git."
+  }
+}

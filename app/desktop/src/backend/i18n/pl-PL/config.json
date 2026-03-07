@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "Nie udało się wczytać konfiguracji",
+    "failedUpdateAppSettings": "Nie udało się zaktualizować ustawień aplikacji",
+    "failedUpdateRepositorySettings": "Nie udało się zaktualizować ustawień repozytorium",
+    "failedLoadApplicationSettings": "Nie udało się wczytać ustawień aplikacji",
+    "failedLoadFavorites": "Nie udało się wczytać ulubionych",
+    "failedSaveFavorites": "Nie udało się zapisać ulubionych",
+    "failedLoadProfiles": "Nie udało się wczytać profili",
+    "failedLoadActiveProfileId": "Nie udało się wczytać ID aktywnego profilu",
+    "failedPrepareRepositoryTemplate": "Nie udało się przygotować repozytorium: {message}",
+    "failedCreateProfileTemplate": "Nie udało się utworzyć profilu: {message}",
+    "failedDeleteProfile": "Nie udało się usunąć profilu",
+    "failedSetActiveProfile": "Nie udało się ustawić aktywnego profilu",
+    "repoProviderCannotChange": "Nie można zmienić dostawcy repozytorium",
+    "s3RequiredFields": "Wymagane są bucket, region, access key i secret dla S3"
+  }
+}

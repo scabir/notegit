@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "فشل البحث",
+    "failedRepoWideSearch": "فشل البحث على مستوى المستودع",
+    "failedRepoWideReplace": "فشل الاستبدال على مستوى المستودع",
+    "repositoryNotInitialized": "المستودع غير مهيأ",
+    "searchFailed": "فشل البحث",
+    "repoWideSearchFailedTemplate": "فشل البحث على مستوى المستودع: {message}",
+    "repoWideReplaceFailedTemplate": "فشل الاستبدال على مستوى المستودع: {message}"
+  }
+}

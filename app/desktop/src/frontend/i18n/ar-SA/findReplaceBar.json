@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "بحث",
+  "replacePlaceholder": "استبدال",
+  "noMatches": "لا توجد نتائج",
+  "findPrevious": "البحث السابق (Shift+Enter)",
+  "findNext": "البحث التالي (Enter)",
+  "replaceCurrent": "استبدال النتيجة الحالية",
+  "replaceAll": "استبدال الكل",
+  "close": "إغلاق (Esc)"
+}

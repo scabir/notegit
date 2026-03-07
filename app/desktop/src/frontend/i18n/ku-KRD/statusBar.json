@@ -1,0 +1,11 @@
+{
+  "bucketLabel": "Bucket",
+  "branchLabel": "Branch",
+  "synced": "Hat hevgirtin",
+  "saved": "Hat tomarkirin",
+  "uncommitted": "Guhertinên nehatine commitkirin",
+  "unsynced": "Guhertinên nehatine hevgirtin",
+  "fetchTooltip": "Ji remote fetch bike",
+  "pullTooltip": "Ji remote pull bike",
+  "pushTooltip": "Bo remote push bike"
+}

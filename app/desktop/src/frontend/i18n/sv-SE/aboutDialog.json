@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "Om",
+  "versionPrefix": "Version",
+  "description": "En desktopapplikation för Markdown-anteckningar med Git- eller S3-backend, byggd med Electron",
+  "sections": {
+    "features": "Funktioner",
+    "author": "Författare",
+    "links": "Länkar",
+    "techStack": "Teknikstack"
+  },
+  "links": {
+    "githubRepository": "GitHub-repository",
+    "website": "Webbplats"
+  },
+  "close": "Stäng",
+  "license": "MIT-licens",
+  "features": {
+    "markdownLivePreview": "Redigering av Markdown med liveförhandsvisning",
+    "gitOrS3History": "Versionshistorik via Git eller S3",
+    "fileAndFolderManagement": "Hantering av filer och mappar",
+    "fullTextSearch": "Fulltextsökning i anteckningar",
+    "darkModeSupport": "Stöd för mörkt läge",
+    "autoSaveAndSync": "Autospara och synkronisering",
+    "fileHistoryAndVersionViewing": "Filhistorik och visning av versioner"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

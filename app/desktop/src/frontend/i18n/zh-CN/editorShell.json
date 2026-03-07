@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "搜索 (Cmd/Ctrl+P)",
+    "history": "文件历史",
+    "saveAll": "保存所有已打开文件",
+    "sync": "同步",
+    "commitPush": "提交并推送",
+    "settings": "设置",
+    "shortcuts": "快捷键"
+  },
+  "labels": {
+    "saving": "保存中...",
+    "saved": "已保存",
+    "error": "错误"
+  },
+  "messages": {
+    "failedLoadWorkspace": "加载工作区失败",
+    "savedLocally": "已保存到本地",
+    "failedSaveFile": "保存文件失败",
+    "failedReadFile": "读取文件失败",
+    "pullSuccessful": "拉取成功",
+    "failedPull": "拉取失败",
+    "fetchSuccessful": "抓取成功",
+    "failedFetch": "抓取失败",
+    "pushSuccessful": "推送成功",
+    "failedPush": "推送失败",
+    "failedCreateFile": "创建文件失败",
+    "failedCreateFolder": "创建文件夹失败",
+    "failedDelete": "删除失败",
+    "failedRename": "重命名失败",
+    "failedImportFile": "导入文件失败",
+    "moveCommitMessagePrefix": "移动：",
+    "failedAutoCommitMove": "自动提交移动失败",
+    "failedDuplicateFile": "复制文件失败",
+    "syncing": "同步中...",
+    "committingAndPushing": "提交并推送中...",
+    "syncedSuccessfully": "同步成功",
+    "failedSync": "同步失败",
+    "nothingToCommit": "没有可提交的更改",
+    "committedAndPushedSuccessfully": "提交并推送成功",
+    "failedCommitAndPush": "提交并推送失败"
+  }
+}

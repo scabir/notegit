@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "Не вдалося завантажити i18n-метадані",
+    "failedLoadFrontendTranslations": "Не вдалося завантажити переклади фронтенду",
+    "languageRequired": "Мова обов'язкова",
+    "unsupportedLanguage": "Непідтримувана мова: {language}",
+    "failedSetLanguage": "Не вдалося встановити мову"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Girtina bucket versioning serneket: {message}",
+    "failedListObjects": "Nîşandana objectan serneket: {message}",
+    "failedListObjectVersions": "Nîşandana guhertoyên objectan serneket: {message}",
+    "failedGetObject": "Girtina objectê serneket: {message}",
+    "failedUploadObject": "Barkirina objectê serneket: {message}",
+    "failedReadObjectMetadata": "Xwendina metadata ya objectê serneket: {message}",
+    "failedDeleteObject": "Jêbirina objectê serneket: {message}",
+    "notConfigured": "Adapter-a S3 nehatiye mîhengkirin",
+    "bucketNotConfigured": "Bucket-a S3 nehatiye mîhengkirin"
+  }
+}

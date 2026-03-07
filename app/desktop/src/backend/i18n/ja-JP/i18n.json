@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "i18n メタデータの読み込みに失敗しました",
+    "failedLoadFrontendTranslations": "フロントエンド翻訳の読み込みに失敗しました",
+    "languageRequired": "言語は必須です",
+    "unsupportedLanguage": "未対応の言語です: {language}",
+    "failedSetLanguage": "言語の設定に失敗しました"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Не вдалося отримати versioning bucket: {message}",
+    "failedListObjects": "Не вдалося отримати список об'єктів: {message}",
+    "failedListObjectVersions": "Не вдалося отримати список версій об'єктів: {message}",
+    "failedGetObject": "Не вдалося отримати об'єкт: {message}",
+    "failedUploadObject": "Не вдалося завантажити об'єкт: {message}",
+    "failedReadObjectMetadata": "Не вдалося прочитати метадані об'єкта: {message}",
+    "failedDeleteObject": "Не вдалося видалити об'єкт: {message}",
+    "notConfigured": "S3 adapter не налаштований",
+    "bucketNotConfigured": "S3 bucket не налаштований"
+  }
+}

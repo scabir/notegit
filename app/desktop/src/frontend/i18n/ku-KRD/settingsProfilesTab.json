@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "Rêveberiya profîlan",
+  "info": "Profîl dihêlin ku tu bi çend depoyan re bixebitî. Di her demê de tenê profîlek çalak dibe. Dema ku profîlek nû çêdike, app depoyê amade dike. Guherandina profîlê appê ji nû ve dest pê dike.",
+  "activeProfileTitle": "Profîla çalak",
+  "activeChipLabel": "Çalak",
+  "deleteAriaLabel": "jê bibe",
+  "createNewProfileButton": "Profîla nû çêke",
+  "newProfileTitle": "Profîla nû",
+  "creatingProfileMessage": "Profîl tê çêkirin û depo tê amadekirin... Ev dikare çend kêlîk bidome.",
+  "repositoryTypeLabel": "Cureya depoyê",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Herêmî"
+  },
+  "profileNameLabel": "Navê profîlê",
+  "profileNamePlaceholder": "Nivîsên min",
+  "profileNameHelper": "Li gor vê navê, peldankek herêmî dê bi xweber were çêkirin",
+  "git": {
+    "remoteUrlLabel": "Remote URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Branch",
+    "branchPlaceholder": "main",
+    "patLabel": "Personal Access Token",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Personal Access Token-a te bi şîfrekirinê tê tomarkirin"
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Region",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefix (opsiyonel)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Di data directory ya appê de bi şîfrekirinê tê tomarkirin.",
+    "sessionTokenLabel": "Session Token (opsiyonel)"
+  },
+  "local": {
+    "info": "Depoyên herêmî tenê li ser vê cîhazê ne û nayên hevgirtin."
+  },
+  "createProfileButton": "Profîlê çêke",
+  "creatingButton": "Tê çêkirin...",
+  "cancelButton": "Betal"
+}

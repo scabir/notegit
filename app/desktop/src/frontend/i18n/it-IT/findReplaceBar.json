@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "Trova",
+  "replacePlaceholder": "Sostituisci",
+  "noMatches": "Nessuna corrispondenza",
+  "findPrevious": "Trova precedente (Shift+Invio)",
+  "findNext": "Trova successivo (Invio)",
+  "replaceCurrent": "Sostituisci corrispondenza corrente",
+  "replaceAll": "Sostituisci tutte le corrispondenze",
+  "close": "Chiudi (Esc)"
+}

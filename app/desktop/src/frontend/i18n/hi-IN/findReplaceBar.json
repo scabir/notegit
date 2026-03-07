@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "खोजें",
+  "replacePlaceholder": "बदलें",
+  "noMatches": "कोई मिलान नहीं",
+  "findPrevious": "पिछला ढूँढें (Shift+Enter)",
+  "findNext": "अगला ढूँढें (Enter)",
+  "replaceCurrent": "मौजूदा मिलान बदलें",
+  "replaceAll": "सभी मिलान बदलें",
+  "close": "बंद करें (Esc)"
+}

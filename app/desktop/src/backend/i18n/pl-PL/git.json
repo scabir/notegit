@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "Uwierzytelnianie nie powiodło się. Sprawdź dane dostępu.",
+    "authenticationFailedPull": "Uwierzytelnianie nie powiodło się podczas pull",
+    "authenticationFailedPush": "Uwierzytelnianie nie powiodło się podczas push",
+    "mergeConflictDetected": "Wykryto konflikt merge. Rozwiąż konflikty ręcznie.",
+    "failedCloneRepository": "Nie udało się sklonować repozytorium: {message}",
+    "failedGetStatus": "Nie udało się pobrać statusu git: {message}",
+    "failedPull": "Pull nie powiódł się: {message}",
+    "failedPush": "Push nie powiódł się: {message}",
+    "failedAddFile": "Nie udało się dodać pliku: {message}",
+    "failedCommit": "Commit nie powiódł się: {message}",
+    "failedAddRemote": "Nie udało się dodać remote: {message}",
+    "failedGetLog": "Nie udało się pobrać loga git: {message}",
+    "failedShowFile": "Nie udało się wyświetlić pliku: {message}",
+    "failedGetDiff": "Nie udało się pobrać diffa: {message}",
+    "notInitialized": "Adapter Git nie został zainicjalizowany"
+  }
+}

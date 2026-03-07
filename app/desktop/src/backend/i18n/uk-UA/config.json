@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "Не вдалося завантажити конфігурацію",
+    "failedUpdateAppSettings": "Не вдалося оновити налаштування застосунку",
+    "failedUpdateRepositorySettings": "Не вдалося оновити налаштування репозиторію",
+    "failedLoadApplicationSettings": "Не вдалося завантажити налаштування застосунку",
+    "failedLoadFavorites": "Не вдалося завантажити вибране",
+    "failedSaveFavorites": "Не вдалося зберегти вибране",
+    "failedLoadProfiles": "Не вдалося завантажити профілі",
+    "failedLoadActiveProfileId": "Не вдалося завантажити ID активного профілю",
+    "failedPrepareRepositoryTemplate": "Не вдалося підготувати репозиторій: {message}",
+    "failedCreateProfileTemplate": "Не вдалося створити профіль: {message}",
+    "failedDeleteProfile": "Не вдалося видалити профіль",
+    "failedSetActiveProfile": "Не вдалося встановити активний профіль",
+    "repoProviderCannotChange": "Постачальника репозиторію не можна змінити",
+    "s3RequiredFields": "Для S3 обов'язкові bucket, region, access key і secret"
+  }
+}

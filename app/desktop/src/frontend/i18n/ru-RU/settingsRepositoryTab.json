@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Тип репозитория",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Локальный"
+  },
+  "git": {
+    "remoteUrlLabel": "URL удаленного репозитория",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Ветка",
+    "branchPlaceholder": "main",
+    "patLabel": "Персональный токен доступа",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Ваш персональный токен доступа хранится в зашифрованном виде в каталоге данных приложения, а не в системном хранилище ключей.",
+    "patGuide": {
+      "title": "Как создать GitHub Personal Access Token:",
+      "line1": "1. Перейдите в GitHub Settings -> Developer settings",
+      "line2": "2. Нажмите Personal access tokens -> Fine-grained tokens",
+      "line3": "3. Нажмите Generate new token",
+      "line4": "4. Укажите имя токена",
+      "line5": "5. Установите срок действия",
+      "line6": "6. Выберите опцию \"Only select repositories\"",
+      "line7": "7. Выберите репозиторий, с которым будете работать",
+      "line8": "8. Нажмите \"Add permission\"",
+      "line9": "9. Выберите \"Contents\" и выдайте права \"Read and write\"",
+      "line10": "10. Нажмите Generate token",
+      "line11": "11. Скопируйте и вставьте токен выше"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Бакет",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Регион",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Префикс (необязательно)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Идентификатор ключа доступа",
+    "secretAccessKeyLabel": "Секретный ключ доступа",
+    "secretAccessKeyHelperText": "Хранится в зашифрованном виде в каталоге данных приложения.",
+    "sessionTokenLabel": "Session Token (необязательно)",
+    "info": "Для поддержки истории в bucket S3 должно быть включено versioning."
+  },
+  "local": {
+    "info": "Локальные репозитории хранятся только на этом устройстве и не синхронизируются."
+  },
+  "saveButton": "Сохранить настройки репозитория",
+  "localPath": {
+    "title": "Путь локального репозитория",
+    "description": "Здесь локально на компьютере хранится ваш репозиторий.",
+    "label": "Локальный путь",
+    "copyPathButton": "Копировать путь",
+    "openFolderButton": "Открыть папку"
+  }
+}

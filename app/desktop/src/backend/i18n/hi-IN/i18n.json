@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "i18n metadata लोड करना असफल रहा",
+    "failedLoadFrontendTranslations": "फ्रंटएंड अनुवाद लोड करना असफल रहा",
+    "languageRequired": "भाषा आवश्यक है",
+    "unsupportedLanguage": "असमर्थित भाषा: {language}",
+    "failedSetLanguage": "भाषा सेट करना असफल रहा"
+  }
+}

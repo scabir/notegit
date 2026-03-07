@@ -10,6 +10,9 @@ jobs:
   build-linux-package:
     name: Linux ${{ matrix.target }}
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: app/desktop
     strategy:
       fail-fast: false
       matrix:
@@ -65,8 +68,12 @@ jobs:
         if: steps.node_version.outputs.use_nvmrc == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          node-version-file: app/desktop/.nvmrc
           cache: ${{ steps.detect_pm.outputs.pm }}
+          cache-dependency-path: |
+            app/desktop/pnpm-lock.yaml
+            app/desktop/package-lock.json
+            app/desktop/yarn.lock
 
       - name: Setup Node (fallback)
         if: steps.node_version.outputs.use_nvmrc != 'true'
@@ -74,6 +81,10 @@ jobs:
         with:
           node-version: 20
           cache: ${{ steps.detect_pm.outputs.pm }}
+          cache-dependency-path: |
+            app/desktop/pnpm-lock.yaml
+            app/desktop/package-lock.json
+            app/desktop/yarn.lock
 
       - name: Install dependencies
         shell: bash
@@ -176,7 +187,7 @@ jobs:
           fi
 
           echo "Selected package: $selected"
-          echo "package_path=$selected" >> "$GITHUB_OUTPUT"
+          echo "package_path=app/desktop/$selected" >> "$GITHUB_OUTPUT"
 
       - name: Upload Linux ${{ matrix.target }} artifact
         uses: actions/upload-artifact@v4

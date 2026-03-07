@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "Bibîne",
+  "replacePlaceholder": "Biguherîne",
+  "noMatches": "Ti encam tune",
+  "findPrevious": "Yê berê bibîne (Shift+Enter)",
+  "findNext": "Yê paşîn bibîne (Enter)",
+  "replaceCurrent": "Encama heyî biguherîne",
+  "replaceAll": "Hemû encaman biguherîne",
+  "close": "Bigire (Esc)"
+}

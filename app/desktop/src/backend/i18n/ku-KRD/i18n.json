@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "Barkirina metadata ya i18n serneket",
+    "failedLoadFrontendTranslations": "Barkirina wergerên frontend serneket",
+    "languageRequired": "Ziman pêwîst e",
+    "unsupportedLanguage": "Ziman nayê destekirin: {language}",
+    "failedSetLanguage": "Mîhengkirina ziman serneket"
+  }
+}

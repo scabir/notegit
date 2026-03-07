@@ -1,0 +1,11 @@
+{
+  "bucketLabel": "बकेट",
+  "branchLabel": "ब्रांच",
+  "synced": "सिंक्ड",
+  "saved": "सहेजा गया",
+  "uncommitted": "अनकमीटेड परिवर्तन",
+  "unsynced": "अनसिंक्ड परिवर्तन",
+  "fetchTooltip": "रिमोट से Fetch",
+  "pullTooltip": "रिमोट से Pull",
+  "pushTooltip": "रिमोट पर Push"
+}

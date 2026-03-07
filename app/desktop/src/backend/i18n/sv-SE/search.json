@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "Sökning misslyckades",
+    "failedRepoWideSearch": "Sökning i hela repositoryt misslyckades",
+    "failedRepoWideReplace": "Ersättning i hela repositoryt misslyckades",
+    "repositoryNotInitialized": "Repository är inte initialiserat",
+    "searchFailed": "Sökning misslyckades",
+    "repoWideSearchFailedTemplate": "Sökning i hela repositoryt misslyckades: {message}",
+    "repoWideReplaceFailedTemplate": "Ersättning i hela repositoryt misslyckades: {message}"
+  }
+}

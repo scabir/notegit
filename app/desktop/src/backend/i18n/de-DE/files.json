@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "Dateien konnten nicht aufgelistet werden",
+    "read": "Datei konnte nicht gelesen werden",
+    "save": "Datei konnte nicht gespeichert werden",
+    "saveWithGitWorkflow": "Speichern mit Git-Workflow fehlgeschlagen",
+    "commitFile": "Commit für Datei fehlgeschlagen",
+    "commitAll": "Commit für alle Änderungen fehlgeschlagen",
+    "commitAndPush": "Commit und Push der Änderungen fehlgeschlagen",
+    "createFile": "Datei konnte nicht erstellt werden",
+    "createFolder": "Ordner konnte nicht erstellt werden",
+    "delete": "Löschen fehlgeschlagen",
+    "rename": "Umbenennen fehlgeschlagen",
+    "duplicateFile": "Datei konnte nicht dupliziert werden",
+    "importFile": "Datei konnte nicht importiert werden",
+    "localRepoNoSync": "Lokale Repositories unterstützen keine Synchronisierung",
+    "gitAdapterNotInitialized": "Git-Adapter ist nicht initialisiert",
+    "onlyFilesCanBeDuplicated": "Nur Dateien können dupliziert werden",
+    "noRepositoryConfigured": "Kein Repository konfiguriert",
+    "gitOnlyOperation": "Git-Operationen sind nur für Git-Repositories verfügbar"
+  },
+  "success": {
+    "syncedSuccessfully": "Erfolgreich synchronisiert",
+    "nothingToCommit": "Nichts zum Committen",
+    "committedAndPushedSuccessfully": "Änderungen erfolgreich committed und gepusht"
+  },
+  "commit": {
+    "updatePrefix": "Aktualisieren:",
+    "andMore": "und {count} weitere",
+    "multipleFiles": "mehrere Dateien"
+  }
+}

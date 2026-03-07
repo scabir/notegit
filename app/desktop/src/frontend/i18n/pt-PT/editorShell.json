@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "Pesquisar (Cmd/Ctrl+P)",
+    "history": "Histórico do ficheiro",
+    "saveAll": "Guardar todos os ficheiros abertos",
+    "sync": "Sincronizar",
+    "commitPush": "Commit e Push",
+    "settings": "Definições",
+    "shortcuts": "Atalhos de teclado"
+  },
+  "labels": {
+    "saving": "A guardar...",
+    "saved": "Guardado",
+    "error": "Erro"
+  },
+  "messages": {
+    "failedLoadWorkspace": "Não foi possível carregar a área de trabalho",
+    "savedLocally": "Guardado localmente",
+    "failedSaveFile": "Não foi possível guardar o ficheiro",
+    "failedReadFile": "Não foi possível ler o ficheiro",
+    "pullSuccessful": "Pull concluído com sucesso",
+    "failedPull": "Não foi possível fazer pull",
+    "fetchSuccessful": "Fetch concluído com sucesso",
+    "failedFetch": "Não foi possível fazer fetch",
+    "pushSuccessful": "Push concluído com sucesso",
+    "failedPush": "Não foi possível fazer push",
+    "failedCreateFile": "Não foi possível criar o ficheiro",
+    "failedCreateFolder": "Não foi possível criar a pasta",
+    "failedDelete": "Não foi possível eliminar",
+    "failedRename": "Não foi possível renomear",
+    "failedImportFile": "Não foi possível importar o ficheiro",
+    "moveCommitMessagePrefix": "Mover:",
+    "failedAutoCommitMove": "Não foi possível fazer auto-commit da movimentação",
+    "failedDuplicateFile": "Não foi possível duplicar o ficheiro",
+    "syncing": "A sincronizar...",
+    "committingAndPushing": "A fazer commit e push...",
+    "syncedSuccessfully": "Sincronizado com sucesso",
+    "failedSync": "Não foi possível sincronizar",
+    "nothingToCommit": "Sem alterações para commit",
+    "committedAndPushedSuccessfully": "Commit e push concluídos com sucesso",
+    "failedCommitAndPush": "Não foi possível fazer commit e push"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "应用日志",
+  "info": "日志按天保存在本地，包含 Git/S3 操作、错误和同步事件。",
+  "logsFolderLabel": "日志目录",
+  "openFolderButton": "打开目录",
+  "copyLogsFolderAriaLabel": "复制日志目录"
+}

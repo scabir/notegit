@@ -1,0 +1,12 @@
+{
+  "exportCurrentNoteTitle": "تصدير الملاحظة الحالية",
+  "exportCurrentNoteDescription": "صدّر الملاحظة المفتوحة حاليًا (بما في ذلك التغييرات غير المحفوظة) كملف مستقل.",
+  "exportMarkdownButton": "تصدير بصيغة Markdown (.md)",
+  "exportTextButton": "تصدير كنص (.txt)",
+  "openNoteHint": "افتح ملاحظة في المحرر لتصديرها.",
+  "exportRepositoryTitle": "تصدير المستودع",
+  "exportRepositoryDescription": "صدّر المستودع بالكامل كأرشيف ZIP للنسخ الاحتياطي أو المشاركة. يشمل جميع الملفات والمجلدات (باستثناء .git).",
+  "exportRepositoryButton": "تصدير المستودع كملف ZIP",
+  "exportingButton": "جارٍ التصدير...",
+  "safetyInfo": "عمليات التصدير لا تعدّل المستودع ولا تشغّل أي أوامر Git. ستبقى أعمالك محفوظة بأمان داخل المستودع."
+}

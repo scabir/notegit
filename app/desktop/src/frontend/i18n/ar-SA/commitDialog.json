@@ -1,0 +1,11 @@
+{
+  "title": "تنفيذ التغييرات",
+  "messageLabel": "رسالة التنفيذ",
+  "messagePlaceholder": "اكتب وصفًا للتغييرات...",
+  "helperText": "Cmd/Ctrl+Enter للتنفيذ",
+  "cancel": "إلغاء",
+  "confirm": "تنفيذ ودفع",
+  "loading": "جارٍ التنفيذ...",
+  "emptyMessageError": "يرجى إدخال رسالة تنفيذ",
+  "commitFailed": "فشل التنفيذ"
+}

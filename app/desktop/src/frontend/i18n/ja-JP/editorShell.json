@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "検索 (Cmd/Ctrl+P)",
+    "history": "ファイル履歴",
+    "saveAll": "開いているファイルをすべて保存",
+    "sync": "同期",
+    "commitPush": "コミットしてプッシュ",
+    "settings": "設定",
+    "shortcuts": "キーボードショートカット"
+  },
+  "labels": {
+    "saving": "保存中...",
+    "saved": "保存済み",
+    "error": "エラー"
+  },
+  "messages": {
+    "failedLoadWorkspace": "ワークスペースの読み込みに失敗しました",
+    "savedLocally": "ローカルに保存しました",
+    "failedSaveFile": "ファイルの保存に失敗しました",
+    "failedReadFile": "ファイルの読み込みに失敗しました",
+    "pullSuccessful": "Pull が完了しました",
+    "failedPull": "Pull に失敗しました",
+    "fetchSuccessful": "Fetch が完了しました",
+    "failedFetch": "Fetch に失敗しました",
+    "pushSuccessful": "Push が完了しました",
+    "failedPush": "Push に失敗しました",
+    "failedCreateFile": "ファイルの作成に失敗しました",
+    "failedCreateFolder": "フォルダの作成に失敗しました",
+    "failedDelete": "削除に失敗しました",
+    "failedRename": "名前変更に失敗しました",
+    "failedImportFile": "ファイルのインポートに失敗しました",
+    "moveCommitMessagePrefix": "移動:",
+    "failedAutoCommitMove": "移動の自動コミットに失敗しました",
+    "failedDuplicateFile": "ファイルの複製に失敗しました",
+    "syncing": "同期中...",
+    "committingAndPushing": "コミットしてプッシュ中...",
+    "syncedSuccessfully": "同期しました",
+    "failedSync": "同期に失敗しました",
+    "nothingToCommit": "コミットする変更はありません",
+    "committedAndPushedSuccessfully": "コミットとプッシュが完了しました",
+    "failedCommitAndPush": "コミットとプッシュに失敗しました"
+  }
+}

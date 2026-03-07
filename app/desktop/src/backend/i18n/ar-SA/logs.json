@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "لا توجد سجلات {logType} حتى الآن.",
+    "logFileEmpty": "ملف السجل فارغ."
+  },
+  "errors": {
+    "failedGetContent": "تعذر جلب محتوى السجل",
+    "failedExport": "تعذر تصدير السجلات",
+    "failedGetFolder": "تعذر جلب مجلد السجلات",
+    "failedReadLogTemplate": "تعذر قراءة سجل {logType}: {message}",
+    "logFileNotFound": "ملف السجل غير موجود: {logType}",
+    "failedExportLogTemplate": "تعذر تصدير سجل {logType}: {message}"
+  }
+}

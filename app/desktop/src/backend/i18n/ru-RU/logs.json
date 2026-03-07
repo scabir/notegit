@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "Логи типа {logType} пока отсутствуют.",
+    "logFileEmpty": "Файл логов пуст."
+  },
+  "errors": {
+    "failedGetContent": "Не удалось получить содержимое лога",
+    "failedExport": "Не удалось экспортировать логи",
+    "failedGetFolder": "Не удалось получить папку логов",
+    "failedReadLogTemplate": "Не удалось прочитать лог {logType}: {message}",
+    "logFileNotFound": "Файл лога не найден: {logType}",
+    "failedExportLogTemplate": "Не удалось экспортировать лог {logType}: {message}"
+  }
+}

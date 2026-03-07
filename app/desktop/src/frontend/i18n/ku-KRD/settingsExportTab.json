@@ -1,0 +1,12 @@
+{
+  "exportCurrentNoteTitle": "Derxistina nota heyî",
+  "exportCurrentNoteDescription": "Notê ku niha vekirî ye (tevî guhertinên nehatine tomarkirin) wek pelê serbixwe derxe.",
+  "exportMarkdownButton": "Wek Markdown derxe (.md)",
+  "exportTextButton": "Wek nivîs derxe (.txt)",
+  "openNoteHint": "Ji bo derxistinê, notek di editorê de veke.",
+  "exportRepositoryTitle": "Derxistina depoyê",
+  "exportRepositoryDescription": "Ji bo backup an parvekirinê, hemû depoyê wek arşîva ZIP derxe. Ev hemû pel û peldankan dihewîne (.git ji derve).",
+  "exportRepositoryButton": "Depoyê wek ZIP derxe",
+  "exportingButton": "Tê derxistin...",
+  "safetyInfo": "Çalakiyên derxistinê depoyê naguherînin û fermanên Git naxebitînin. Xebata te di depoyê de ewle dimîne."
+}

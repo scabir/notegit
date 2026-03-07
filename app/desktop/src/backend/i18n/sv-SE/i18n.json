@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "Det gick inte att läsa in i18n-metadata",
+    "failedLoadFrontendTranslations": "Det gick inte att läsa in frontend-översättningar",
+    "languageRequired": "Språk krävs",
+    "unsupportedLanguage": "Språket stöds inte: {language}",
+    "failedSetLanguage": "Det gick inte att ställa in språk"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "設定の読み込みに失敗しました",
+    "failedUpdateAppSettings": "アプリ設定の更新に失敗しました",
+    "failedUpdateRepositorySettings": "リポジトリ設定の更新に失敗しました",
+    "failedLoadApplicationSettings": "アプリ設定の読み込みに失敗しました",
+    "failedLoadFavorites": "お気に入りの読み込みに失敗しました",
+    "failedSaveFavorites": "お気に入りの保存に失敗しました",
+    "failedLoadProfiles": "プロファイルの読み込みに失敗しました",
+    "failedLoadActiveProfileId": "アクティブプロファイル ID の読み込みに失敗しました",
+    "failedPrepareRepositoryTemplate": "リポジトリの準備に失敗しました: {message}",
+    "failedCreateProfileTemplate": "プロファイルの作成に失敗しました: {message}",
+    "failedDeleteProfile": "プロファイルの削除に失敗しました",
+    "failedSetActiveProfile": "アクティブプロファイルの設定に失敗しました",
+    "repoProviderCannotChange": "リポジトリプロバイダは変更できません",
+    "s3RequiredFields": "S3 のバケット、リージョン、アクセスキー、シークレットは必須です"
+  }
+}

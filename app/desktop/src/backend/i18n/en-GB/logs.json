@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "No {logType} logs yet.",
+    "logFileEmpty": "Log file is empty."
+  },
+  "errors": {
+    "failedGetContent": "Failed to get log content",
+    "failedExport": "Failed to export logs",
+    "failedGetFolder": "Failed to get logs folder",
+    "failedReadLogTemplate": "Failed to read {logType} log: {message}",
+    "logFileNotFound": "Log file not found: {logType}",
+    "failedExportLogTemplate": "Failed to export {logType} log: {message}"
+  }
+}

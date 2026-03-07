@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "Dosya bulunamadı: {path}",
+    "directoryNotFound": "Dizin bulunamadı: {path}",
+    "pathNotFound": "Yol bulunamadı: {path}",
+    "sourceFileNotFound": "Kaynak dosya bulunamadı: {path}",
+    "permissionDenied": "Erişim reddedildi",
+    "permissionDeniedPath": "Erişim reddedildi: {path}",
+    "failedReadFile": "Dosya okunamadı: {path}",
+    "failedWriteFile": "Dosya yazılamadı: {path}",
+    "failedDeleteFile": "Dosya silinemedi: {path}",
+    "failedRename": "{from} konumundan {to} konumuna yeniden adlandırılamadı",
+    "failedCreateDirectory": "Dizin oluşturulamadı: {path}",
+    "failedDeleteDirectory": "Dizin silinemedi: {path}",
+    "failedReadDirectory": "Dizin okunamadı: {path}",
+    "failedStat": "Dosya durumu alınamadı: {path}",
+    "failedCopyFile": "Dosya {from} konumundan {to} konumuna kopyalanamadı"
+  }
+}

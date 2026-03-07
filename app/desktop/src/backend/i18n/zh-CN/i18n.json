@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "加载 i18n 元数据失败",
+    "failedLoadFrontendTranslations": "加载前端翻译失败",
+    "languageRequired": "必须指定语言",
+    "unsupportedLanguage": "不支持的语言：{language}",
+    "failedSetLanguage": "设置语言失败"
+  }
+}

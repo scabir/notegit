@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Impossible de récupérer le versionnement du bucket : {message}",
+    "failedListObjects": "Impossible de lister les objets : {message}",
+    "failedListObjectVersions": "Impossible de lister les versions d'objet : {message}",
+    "failedGetObject": "Impossible de récupérer l'objet : {message}",
+    "failedUploadObject": "Impossible de téléverser l'objet : {message}",
+    "failedReadObjectMetadata": "Impossible de lire les métadonnées de l'objet : {message}",
+    "failedDeleteObject": "Impossible de supprimer l'objet : {message}",
+    "notConfigured": "L'adaptateur S3 n'est pas configuré",
+    "bucketNotConfigured": "Le bucket S3 n'est pas configuré"
+  }
+}

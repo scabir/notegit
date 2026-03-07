@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "إدارة الملفات التعريفية",
+  "info": "تتيح لك الملفات التعريفية العمل مع عدة مستودعات. يمكن تفعيل ملف تعريفي واحد فقط في كل مرة. عند إنشاء ملف تعريفي جديد سيقوم التطبيق بإعداد المستودع، وعند التبديل سيتم إعادة تشغيل التطبيق.",
+  "activeProfileTitle": "الملف التعريفي النشط",
+  "activeChipLabel": "نشط",
+  "deleteAriaLabel": "حذف",
+  "createNewProfileButton": "إنشاء ملف تعريفي جديد",
+  "newProfileTitle": "ملف تعريفي جديد",
+  "creatingProfileMessage": "جارٍ إنشاء الملف التعريفي وإعداد المستودع... قد يستغرق ذلك بضع لحظات.",
+  "repositoryTypeLabel": "نوع المستودع",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "محلي"
+  },
+  "profileNameLabel": "اسم الملف التعريفي",
+  "profileNamePlaceholder": "My Notes Repo",
+  "profileNameHelper": "سيتم إنشاء مجلد محلي تلقائيًا بناءً على هذا الاسم",
+  "git": {
+    "remoteUrlLabel": "الرابط البعيد",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "الفرع",
+    "branchPlaceholder": "main",
+    "patLabel": "رمز الوصول الشخصي",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "يتم حفظ Personal Access Token مشفرًا"
+  },
+  "s3": {
+    "bucketLabel": "اسم الحاوية (Bucket)",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "المنطقة (Region)",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefix (اختياري)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "معرّف مفتاح الوصول",
+    "secretAccessKeyLabel": "المفتاح السري",
+    "secretAccessKeyHelperText": "يُحفظ مشفرًا داخل دليل بيانات التطبيق.",
+    "sessionTokenLabel": "رمز الجلسة (اختياري)"
+  },
+  "local": {
+    "info": "المستودعات المحلية محفوظة على هذا الجهاز فقط ولا تتم مزامنتها."
+  },
+  "createProfileButton": "إنشاء الملف التعريفي",
+  "creatingButton": "جارٍ الإنشاء...",
+  "cancelButton": "إلغاء"
+}

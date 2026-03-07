@@ -1,0 +1,42 @@
+{
+  "title": "اختصارات لوحة المفاتيح",
+  "footer": "اضغط F1 مرة أخرى لإغلاق هذه النافذة",
+  "sections": {
+    "fileTree": "شجرة الملفات",
+    "editorFormatting": "تنسيق المحرر",
+    "global": "عام"
+  },
+  "labels": {
+    "addNewFile": "إضافة ملف جديد",
+    "addNewFolder": "إضافة مجلد جديد",
+    "deleteSelection": "حذف التحديد",
+    "importFile": "استيراد ملف",
+    "renameSelection": "إعادة تسمية التحديد",
+    "moveSelection": "نقل التحديد",
+    "duplicateFile": "نسخ الملف",
+    "toggleFavorite": "تبديل المفضلة",
+    "collapseAllFolders": "طي جميع المجلدات",
+    "bold": "غامق",
+    "italic": "مائل",
+    "heading": "عنوان",
+    "inlineCode": "شفرة ضمن السطر",
+    "codeBlock": "كتلة شفرة",
+    "link": "رابط",
+    "table": "جدول",
+    "footnote": "حاشية سفلية",
+    "taskList": "قائمة مهام",
+    "highlight": "تمييز",
+    "definitionList": "قائمة تعريفات",
+    "mermaidDiagram": "مخطط Mermaid",
+    "saveCurrentNote": "حفظ الملاحظة الحالية",
+    "navigateBack": "الرجوع للخلف",
+    "navigateForward": "التقدم للأمام",
+    "quickFileSearch": "بحث سريع عن ملف",
+    "quickSearchAlternative": "بحث سريع بديل",
+    "findInFile": "بحث داخل الملف",
+    "findInRepo": "بحث داخل المستودع",
+    "openSettings": "فتح الإعدادات",
+    "quitApplication": "إنهاء التطبيق",
+    "toggleThisHelper": "إظهار/إخفاء هذه النافذة"
+  }
+}

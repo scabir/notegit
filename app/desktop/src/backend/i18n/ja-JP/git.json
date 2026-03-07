@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "認証に失敗しました。認証情報を確認してください。",
+    "authenticationFailedPull": "Pull 中に認証に失敗しました",
+    "authenticationFailedPush": "Push 中に認証に失敗しました",
+    "mergeConflictDetected": "マージ競合が発生しました。手動で解消してください。",
+    "failedCloneRepository": "リポジトリのクローンに失敗しました: {message}",
+    "failedGetStatus": "Git ステータスの取得に失敗しました: {message}",
+    "failedPull": "Pull に失敗しました: {message}",
+    "failedPush": "Push に失敗しました: {message}",
+    "failedAddFile": "ファイルの追加に失敗しました: {message}",
+    "failedCommit": "コミットに失敗しました: {message}",
+    "failedAddRemote": "リモートの追加に失敗しました: {message}",
+    "failedGetLog": "Git ログの取得に失敗しました: {message}",
+    "failedShowFile": "ファイル内容の取得に失敗しました: {message}",
+    "failedGetDiff": "差分の取得に失敗しました: {message}",
+    "notInitialized": "Git アダプタが初期化されていません"
+  }
+}

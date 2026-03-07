@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "بحث (Cmd/Ctrl+P)",
+    "history": "سجل الملف",
+    "saveAll": "حفظ جميع الملفات المفتوحة",
+    "sync": "مزامنة",
+    "commitPush": "تنفيذ ودفع",
+    "settings": "الإعدادات",
+    "shortcuts": "اختصارات لوحة المفاتيح"
+  },
+  "labels": {
+    "saving": "جارٍ الحفظ...",
+    "saved": "تم الحفظ",
+    "error": "خطأ"
+  },
+  "messages": {
+    "failedLoadWorkspace": "تعذر تحميل مساحة العمل",
+    "savedLocally": "تم الحفظ محليًا",
+    "failedSaveFile": "تعذر حفظ الملف",
+    "failedReadFile": "تعذر قراءة الملف",
+    "pullSuccessful": "تم السحب بنجاح",
+    "failedPull": "فشل السحب",
+    "fetchSuccessful": "تم الجلب بنجاح",
+    "failedFetch": "فشل الجلب",
+    "pushSuccessful": "تم الدفع بنجاح",
+    "failedPush": "فشل الدفع",
+    "failedCreateFile": "تعذر إنشاء الملف",
+    "failedCreateFolder": "تعذر إنشاء المجلد",
+    "failedDelete": "تعذر الحذف",
+    "failedRename": "تعذر إعادة التسمية",
+    "failedImportFile": "تعذر استيراد الملف",
+    "moveCommitMessagePrefix": "نقل:",
+    "failedAutoCommitMove": "تعذر التنفيذ التلقائي بعد النقل",
+    "failedDuplicateFile": "تعذر نسخ الملف",
+    "syncing": "جارٍ المزامنة...",
+    "committingAndPushing": "جارٍ التنفيذ والدفع...",
+    "syncedSuccessfully": "تمت المزامنة بنجاح",
+    "failedSync": "فشلت المزامنة",
+    "nothingToCommit": "لا توجد تغييرات للتنفيذ",
+    "committedAndPushedSuccessfully": "تم التنفيذ والدفع بنجاح",
+    "failedCommitAndPush": "فشل التنفيذ والدفع"
+  }
+}

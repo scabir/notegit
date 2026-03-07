@@ -1,0 +1,10 @@
+{
+  "title": "Cerca note",
+  "placeholder": "Cerca per nome file o contenuto...",
+  "helperText": "Usa ↑↓ per navigare, Invio per aprire, Esc per chiudere",
+  "noResults": "Nessun risultato",
+  "startTyping": "Inizia a digitare per cercare in tutte le note",
+  "searchFailed": "Ricerca non riuscita",
+  "lineLabel": "Riga",
+  "moreSuffix": "altro"
+}

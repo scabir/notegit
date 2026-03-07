@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "Sök",
+  "replacePlaceholder": "Ersätt",
+  "noMatches": "Inga träffar",
+  "findPrevious": "Sök föregående (Shift+Enter)",
+  "findNext": "Sök nästa (Enter)",
+  "replaceCurrent": "Ersätt aktuell träff",
+  "replaceAll": "Ersätt alla träffar",
+  "close": "Stäng (Esc)"
+}

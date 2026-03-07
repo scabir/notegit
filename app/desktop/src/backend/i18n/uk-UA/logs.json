@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "Поки немає журналів типу {logType}.",
+    "logFileEmpty": "Файл журналу порожній."
+  },
+  "errors": {
+    "failedGetContent": "Не вдалося отримати вміст журналу",
+    "failedExport": "Не вдалося експортувати журнали",
+    "failedGetFolder": "Не вдалося отримати папку журналів",
+    "failedReadLogTemplate": "Не вдалося прочитати журнал {logType}: {message}",
+    "logFileNotFound": "Файл журналу не знайдено: {logType}",
+    "failedExportLogTemplate": "Не вдалося експортувати журнал {logType}: {message}"
+  }
+}

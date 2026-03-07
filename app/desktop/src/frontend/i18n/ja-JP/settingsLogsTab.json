@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "アプリケーションログ",
+  "info": "ログは日次でローカル保存され、Git/S3 操作・エラー・同期イベントを含みます。",
+  "logsFolderLabel": "ログフォルダ",
+  "openFolderButton": "フォルダを開く",
+  "copyLogsFolderAriaLabel": "ログフォルダをコピー"
+}

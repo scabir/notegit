@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "Dosyalar listelenemedi",
+    "read": "Dosya okunamadı",
+    "save": "Dosya kaydedilemedi",
+    "saveWithGitWorkflow": "Git iş akışıyla kaydedilemedi",
+    "commitFile": "Dosya commit edilemedi",
+    "commitAll": "Tüm değişiklikler commit edilemedi",
+    "commitAndPush": "Commit ve push işlemi başarısız",
+    "createFile": "Dosya oluşturulamadı",
+    "createFolder": "Klasör oluşturulamadı",
+    "delete": "Silinemedi",
+    "rename": "Yeniden adlandırılamadı",
+    "duplicateFile": "Dosya çoğaltılamadı",
+    "importFile": "Dosya içe aktarılamadı",
+    "localRepoNoSync": "Yerel depolar senkronizasyonu desteklemez",
+    "gitAdapterNotInitialized": "Git adaptörü başlatılmamış",
+    "onlyFilesCanBeDuplicated": "Yalnızca dosyalar çoğaltılabilir",
+    "noRepositoryConfigured": "Yapılandırılmış depo yok",
+    "gitOnlyOperation": "Git işlemleri yalnızca Git depolarında kullanılabilir"
+  },
+  "success": {
+    "syncedSuccessfully": "Başarıyla senkronize edildi",
+    "nothingToCommit": "Commit edilecek değişiklik yok",
+    "committedAndPushedSuccessfully": "Değişiklikler başarıyla commit edildi ve pushlandı"
+  },
+  "commit": {
+    "updatePrefix": "Güncelle:",
+    "andMore": "ve {count} tane daha",
+    "multipleFiles": "birden fazla dosya"
+  }
+}

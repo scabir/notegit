@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "تعذر عرض الملفات",
+    "read": "تعذر قراءة الملف",
+    "save": "تعذر حفظ الملف",
+    "saveWithGitWorkflow": "تعذر الحفظ عبر سير عمل Git",
+    "commitFile": "تعذر تنفيذ الملف",
+    "commitAll": "تعذر تنفيذ جميع التغييرات",
+    "commitAndPush": "تعذر التنفيذ والدفع",
+    "createFile": "تعذر إنشاء الملف",
+    "createFolder": "تعذر إنشاء المجلد",
+    "delete": "تعذر الحذف",
+    "rename": "تعذر إعادة التسمية",
+    "duplicateFile": "تعذر نسخ الملف",
+    "importFile": "تعذر استيراد الملف",
+    "localRepoNoSync": "المستودعات المحلية لا تدعم المزامنة",
+    "gitAdapterNotInitialized": "لم تتم تهيئة Git adapter",
+    "onlyFilesCanBeDuplicated": "يمكن نسخ الملفات فقط",
+    "noRepositoryConfigured": "لم يتم إعداد مستودع",
+    "gitOnlyOperation": "عمليات Git متاحة فقط لمستودعات Git"
+  },
+  "success": {
+    "syncedSuccessfully": "تمت المزامنة بنجاح",
+    "nothingToCommit": "لا توجد تغييرات للتنفيذ",
+    "committedAndPushedSuccessfully": "تم تنفيذ التغييرات ودفعها بنجاح"
+  },
+  "commit": {
+    "updatePrefix": "تحديث:",
+    "andMore": "و{count} أخرى",
+    "multipleFiles": "عدة ملفات"
+  }
+}

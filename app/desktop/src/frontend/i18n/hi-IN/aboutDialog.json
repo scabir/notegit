@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "परिचय",
+  "versionPrefix": "संस्करण",
+  "description": "Electron पर आधारित Git या S3 बैकएंड वाला Markdown नोट‑टेकिंग डेस्कटॉप ऐप",
+  "sections": {
+    "features": "मुख्य सुविधाएँ",
+    "author": "लेखक",
+    "links": "लिंक",
+    "techStack": "तकनीकी स्टैक"
+  },
+  "links": {
+    "githubRepository": "GitHub रिपॉज़िटरी",
+    "website": "वेबसाइट"
+  },
+  "close": "बंद करें",
+  "license": "MIT लाइसेंस",
+  "features": {
+    "markdownLivePreview": "लाइव प्रीव्यू के साथ Markdown संपादन",
+    "gitOrS3History": "Git या S3 संस्करण इतिहास",
+    "fileAndFolderManagement": "फ़ाइल और फ़ोल्डर प्रबंधन",
+    "fullTextSearch": "नोट्स में पूर्ण‑पाठ खोज",
+    "darkModeSupport": "डार्क मोड समर्थन",
+    "autoSaveAndSync": "ऑटो‑सेव और सिंक",
+    "fileHistoryAndVersionViewing": "फ़ाइल इतिहास और संस्करण देखना"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

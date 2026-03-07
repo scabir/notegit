@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "تعذر تحميل الإعدادات",
+    "failedUpdateAppSettings": "تعذر تحديث إعدادات التطبيق",
+    "failedUpdateRepositorySettings": "تعذر تحديث إعدادات المستودع",
+    "failedLoadApplicationSettings": "تعذر تحميل إعدادات التطبيق",
+    "failedLoadFavorites": "تعذر تحميل المفضلة",
+    "failedSaveFavorites": "تعذر حفظ المفضلة",
+    "failedLoadProfiles": "تعذر تحميل الملفات التعريفية",
+    "failedLoadActiveProfileId": "تعذر تحميل معرّف الملف التعريفي النشط",
+    "failedPrepareRepositoryTemplate": "تعذر تجهيز المستودع: {message}",
+    "failedCreateProfileTemplate": "تعذر إنشاء الملف التعريفي: {message}",
+    "failedDeleteProfile": "تعذر حذف الملف التعريفي",
+    "failedSetActiveProfile": "تعذر تعيين الملف التعريفي النشط",
+    "repoProviderCannotChange": "لا يمكن تغيير مزوّد المستودع",
+    "s3RequiredFields": "حقل S3 bucket و region و access key و secret مطلوبة"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Cureya depoyê",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Herêmî"
+  },
+  "git": {
+    "remoteUrlLabel": "Remote URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Branch",
+    "branchPlaceholder": "main",
+    "patLabel": "Personal Access Token",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Personal Access Token-a te di keychaina pergala xebitandinê de ne, lê di data directory ya appê de bi şîfrekirinê tê tomarkirin.",
+    "patGuide": {
+      "title": "Çawa GitHub Personal Access Token çêbikî:",
+      "line1": "1. Biçe GitHub Settings -> Developer settings",
+      "line2": "2. Personal access tokens -> Fine Grained Tokens hilbijêre",
+      "line3": "3. Li Generate new token bitikîne",
+      "line4": "4. Navek ji token re bide",
+      "line5": "5. Dema qedandinê danî",
+      "line6": "6. Opsiyona \"Only select repositories\" hilbijêre",
+      "line7": "7. Depoya ku dixwazî bikar bînî hilbijêre",
+      "line8": "8. Li \"Add Permission\" bitikîne",
+      "line9": "9. \"Contents\" hilbijêre û destûra \"Read and Write\" bide",
+      "line10": "10. Li Generate Token bitikîne",
+      "line11": "11. Tokenê kopî bike û li jor pêve bike"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Region",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefix (opsiyonel)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Di data directory ya appê de bi şîfrekirinê tê tomarkirin.",
+    "sessionTokenLabel": "Session Token (opsiyonel)",
+    "info": "Ji bo desteka dîrokê, bucket-a S3 divê versioning çalak bike."
+  },
+  "local": {
+    "info": "Depoyên herêmî tenê li ser vê cîhazê ne û nayên hevgirtin."
+  },
+  "saveButton": "Mîhengên depoyê tomar bike",
+  "localPath": {
+    "title": "Rêça depoya herêmî",
+    "description": "Ev cih e ku depoya te li ser kompîtûtera te bi herêmî tê tomarkirin.",
+    "label": "Rêça herêmî",
+    "copyPathButton": "Rêçê kopî bike",
+    "openFolderButton": "Peldankê veke"
+  }
+}

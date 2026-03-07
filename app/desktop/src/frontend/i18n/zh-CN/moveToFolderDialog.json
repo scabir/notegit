@@ -1,0 +1,16 @@
+{
+  "title": "移动项目",
+  "movingLabel": "正在移动",
+  "currentLocationLabel": "当前位置",
+  "selectDestination": "请选择目标文件夹：",
+  "rootLabel": "根目录",
+  "noFolders": "仓库中没有文件夹",
+  "cancel": "取消",
+  "confirm": "移动到这里",
+  "rootFallback": "根目录",
+  "errors": {
+    "selectDestination": "请选择目标文件夹",
+    "sameLocation": "项目已在该位置",
+    "duplicateItemTemplate": "目标文件夹中已存在名为 \"{name}\" 的项目"
+  }
+}

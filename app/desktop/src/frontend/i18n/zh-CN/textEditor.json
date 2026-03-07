@@ -1,0 +1,14 @@
+{
+  "emptyState": "请选择要编辑的文件",
+  "modified": "已修改",
+  "showTreeTooltip": "显示文件树",
+  "backTooltip": "后退",
+  "forwardTooltip": "前进",
+  "saveTooltip": "保存到磁盘",
+  "exportTooltip": "导出笔记",
+  "messages": {
+    "failedExportNote": "导出笔记失败",
+    "failedExportTemplate": "导出失败：{message}",
+    "unknownError": "未知错误"
+  }
+}

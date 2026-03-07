@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "Nasnamepêşandan serneket. Ji kerema xwe agahiyên xwe kontrol bike.",
+    "authenticationFailedPull": "Nasnamepêşandan di demê pull de serneket",
+    "authenticationFailedPush": "Nasnamepêşandan di demê push de serneket",
+    "mergeConflictDetected": "Têkoşîna merge hate dîtin. Ji kerema xwe bi destan çareser bike.",
+    "failedCloneRepository": "Clonekirina depoyê serneket: {message}",
+    "failedGetStatus": "Girtina statusa git serneket: {message}",
+    "failedPull": "Pull serneket: {message}",
+    "failedPush": "Push serneket: {message}",
+    "failedAddFile": "Zêdekirina pelê serneket: {message}",
+    "failedCommit": "Commit serneket: {message}",
+    "failedAddRemote": "Zêdekirina remote serneket: {message}",
+    "failedGetLog": "Girtina loga git serneket: {message}",
+    "failedShowFile": "Nîşandana pelê serneket: {message}",
+    "failedGetDiff": "Girtina diff serneket: {message}",
+    "notInitialized": "Adapter-a Git nehatîye destpêkirin"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Dîroka Pelê",
+  "closeTooltip": "Dîrokê bigire",
+  "selectFile": "Pelê hilbijêre da dîroka wê bibînî",
+  "noCommits": "Ji bo vî pelî commit nehate dîtin",
+  "loadFailed": "Barkirina dîrokê serneket",
+  "commitFoundSingularTemplate": "{count} commit hate dîtin",
+  "commitFoundPluralTemplate": "{count} commit hatin dîtin",
+  "relativeTime": {
+    "justNow": "niha",
+    "minutesAgoTemplate": "{count} deqîqe berê",
+    "hoursAgoTemplate": "{count} saet berê",
+    "yesterday": "doh",
+    "daysAgoTemplate": "{count} roj berê"
+  }
+}

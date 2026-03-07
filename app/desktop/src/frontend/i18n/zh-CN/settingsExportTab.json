@@ -1,0 +1,12 @@
+{
+  "exportCurrentNoteTitle": "导出当前笔记",
+  "exportCurrentNoteDescription": "将当前打开的笔记（包括未保存更改）导出为独立文件。",
+  "exportMarkdownButton": "导出为 Markdown (.md)",
+  "exportTextButton": "导出为文本 (.txt)",
+  "openNoteHint": "请先在编辑器中打开一条笔记再导出。",
+  "exportRepositoryTitle": "导出仓库",
+  "exportRepositoryDescription": "将整个仓库导出为 ZIP 压缩包用于备份或分享。包含所有文件和文件夹（不含 .git）。",
+  "exportRepositoryButton": "将仓库导出为 ZIP",
+  "exportingButton": "导出中...",
+  "safetyInfo": "导出操作不会修改仓库，也不会触发 Git 命令。你的数据会安全保留在仓库中。"
+}

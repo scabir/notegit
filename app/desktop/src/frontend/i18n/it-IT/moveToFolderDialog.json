@@ -1,0 +1,16 @@
+{
+  "title": "Sposta elemento",
+  "movingLabel": "Spostamento",
+  "currentLocationLabel": "Posizione attuale",
+  "selectDestination": "Seleziona cartella di destinazione:",
+  "rootLabel": "Directory principale",
+  "noFolders": "Nessuna cartella nel repository",
+  "cancel": "Annulla",
+  "confirm": "Sposta qui",
+  "rootFallback": "root",
+  "errors": {
+    "selectDestination": "Seleziona una cartella di destinazione",
+    "sameLocation": "L'elemento è già in questa posizione",
+    "duplicateItemTemplate": "Nella cartella di destinazione esiste già un elemento chiamato \"{name}\""
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "Logi aplikacji",
+  "info": "Logi są zapisywane lokalnie dziennie i zawierają operacje Git/S3, błędy oraz zdarzenia synchronizacji.",
+  "logsFolderLabel": "Folder logów",
+  "openFolderButton": "Otwórz folder",
+  "copyLogsFolderAriaLabel": "kopiuj folder logów"
+}

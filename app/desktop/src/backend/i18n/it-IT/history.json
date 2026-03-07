@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "Impossibile ottenere la cronologia del file",
+    "failedGetFileVersion": "Impossibile ottenere la versione del file",
+    "failedGetDiff": "Impossibile ottenere il diff",
+    "noRepositoryConfigured": "Nessun repository configurato",
+    "unsupportedProvider": "Provider cronologia non supportato: {provider}",
+    "localHistoryUnavailable": "La cronologia non è disponibile per i repository locali",
+    "s3DiffNotSupported": "Il diff non è supportato per la cronologia S3"
+  }
+}

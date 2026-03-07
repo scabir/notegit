@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Typ repozytorium",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Lokalne"
+  },
+  "git": {
+    "remoteUrlLabel": "Zdalny URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Gałąź",
+    "branchPlaceholder": "main",
+    "patLabel": "Personal Access Token",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Twój Personal Access Token jest przechowywany zaszyfrowany w katalogu danych aplikacji, a nie w systemowym keychainie.",
+    "patGuide": {
+      "title": "Jak utworzyć GitHub Personal Access Token:",
+      "line1": "1. Przejdź do GitHub Settings -> Developer settings",
+      "line2": "2. Kliknij Personal access tokens -> Fine Grained Tokens",
+      "line3": "3. Kliknij Generate new token",
+      "line4": "4. Nadaj nazwę tokenowi",
+      "line5": "5. Ustaw datę wygaśnięcia",
+      "line6": "6. Wybierz opcję \"Only select repositories\"",
+      "line7": "7. Wybierz repozytorium, którego chcesz używać",
+      "line8": "8. Kliknij \"Add Permission\"",
+      "line9": "9. Wybierz \"Contents\" i nadaj uprawnienia \"Read and Write\"",
+      "line10": "10. Kliknij Generate Token",
+      "line11": "11. Skopiuj i wklej token powyżej"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Region",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefiks (opcjonalnie)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Przechowywany zaszyfrowany w katalogu danych aplikacji.",
+    "sessionTokenLabel": "Session Token (opcjonalnie)",
+    "info": "Bucket S3 musi mieć włączone versioning, aby historia działała poprawnie."
+  },
+  "local": {
+    "info": "Lokalne repozytoria są przechowywane tylko na tym urządzeniu i nie są synchronizowane."
+  },
+  "saveButton": "Zapisz ustawienia repozytorium",
+  "localPath": {
+    "title": "Lokalna ścieżka repozytorium",
+    "description": "To jest miejsce, w którym repozytorium jest przechowywane lokalnie na Twoim komputerze.",
+    "label": "Lokalna ścieżka",
+    "copyPathButton": "Kopiuj ścieżkę",
+    "openFolderButton": "Otwórz folder"
+  }
+}

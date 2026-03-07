@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "Autenticazione non riuscita. Verifica le credenziali.",
+    "authenticationFailedPull": "Autenticazione non riuscita durante il pull",
+    "authenticationFailedPush": "Autenticazione non riuscita durante il push",
+    "mergeConflictDetected": "Rilevato conflitto di merge. Risolvi i conflitti manualmente.",
+    "failedCloneRepository": "Impossibile clonare il repository: {message}",
+    "failedGetStatus": "Impossibile ottenere lo stato git: {message}",
+    "failedPull": "Pull non riuscito: {message}",
+    "failedPush": "Push non riuscito: {message}",
+    "failedAddFile": "Impossibile aggiungere il file: {message}",
+    "failedCommit": "Commit non riuscito: {message}",
+    "failedAddRemote": "Impossibile aggiungere il remote: {message}",
+    "failedGetLog": "Impossibile ottenere il log git: {message}",
+    "failedShowFile": "Impossibile mostrare il file: {message}",
+    "failedGetDiff": "Impossibile ottenere il diff: {message}",
+    "notInitialized": "Git adapter non inizializzato"
+  }
+}

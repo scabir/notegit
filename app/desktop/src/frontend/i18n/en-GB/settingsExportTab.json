@@ -1,0 +1,12 @@
+{
+  "exportCurrentNoteTitle": "Export Current Note",
+  "exportCurrentNoteDescription": "Export the currently open note (including unsaved changes) as a standalone file.",
+  "exportMarkdownButton": "Export as Markdown (.md)",
+  "exportTextButton": "Export as Text (.txt)",
+  "openNoteHint": "Open a note in the editor to export it.",
+  "exportRepositoryTitle": "Export Repository",
+  "exportRepositoryDescription": "Export the entire repository as a ZIP archive for backup or sharing. This includes all files and folders (excluding .git).",
+  "exportRepositoryButton": "Export Repository as ZIP",
+  "exportingButton": "Exporting...",
+  "safetyInfo": "Export operations do not modify your repository or trigger any Git commands. Your work remains safely in the repository."
+}

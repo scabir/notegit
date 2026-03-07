@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "Αποτυχία λήψης ιστορικού αρχείου",
+    "failedGetFileVersion": "Αποτυχία λήψης έκδοσης αρχείου",
+    "failedGetDiff": "Αποτυχία λήψης diff",
+    "noRepositoryConfigured": "Δεν έχει ρυθμιστεί αποθετήριο",
+    "unsupportedProvider": "Μη υποστηριζόμενος πάροχος ιστορικού: {provider}",
+    "localHistoryUnavailable": "Το ιστορικό δεν είναι διαθέσιμο για τοπικά αποθετήρια",
+    "s3DiffNotSupported": "Το diff δεν υποστηρίζεται για ιστορικό S3"
+  }
+}

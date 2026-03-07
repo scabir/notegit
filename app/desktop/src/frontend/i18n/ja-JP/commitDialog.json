@@ -1,0 +1,11 @@
+{
+  "title": "変更をコミット",
+  "messageLabel": "コミットメッセージ",
+  "messagePlaceholder": "変更内容を入力してください...",
+  "helperText": "Cmd/Ctrl+Enter でコミット",
+  "cancel": "キャンセル",
+  "confirm": "コミットしてプッシュ",
+  "loading": "コミット中...",
+  "emptyMessageError": "コミットメッセージを入力してください",
+  "commitFailed": "コミットに失敗しました"
+}

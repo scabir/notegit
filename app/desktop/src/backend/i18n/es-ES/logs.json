@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "Aún no hay registros de {logType}.",
+    "logFileEmpty": "El archivo de registro está vacío."
+  },
+  "errors": {
+    "failedGetContent": "No se pudo obtener el contenido del registro",
+    "failedExport": "No se pudieron exportar los registros",
+    "failedGetFolder": "No se pudo obtener la carpeta de registros",
+    "failedReadLogTemplate": "No se pudo leer el registro de {logType}: {message}",
+    "logFileNotFound": "Archivo de registro no encontrado: {logType}",
+    "failedExportLogTemplate": "No se pudo exportar el registro de {logType}: {message}"
+  }
+}

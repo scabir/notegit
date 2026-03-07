@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "Nie udało się wczytać metadanych i18n",
+    "failedLoadFrontendTranslations": "Nie udało się wczytać tłumaczeń frontendowych",
+    "languageRequired": "Język jest wymagany",
+    "unsupportedLanguage": "Nieobsługiwany język: {language}",
+    "failedSetLanguage": "Nie udało się ustawić języka"
+  }
+}

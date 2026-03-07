@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "Det gick inte att läsa in konfiguration",
+    "failedUpdateAppSettings": "Det gick inte att uppdatera appinställningar",
+    "failedUpdateRepositorySettings": "Det gick inte att uppdatera repositoryinställningar",
+    "failedLoadApplicationSettings": "Det gick inte att läsa in appinställningar",
+    "failedLoadFavorites": "Det gick inte att läsa in favoriter",
+    "failedSaveFavorites": "Det gick inte att spara favoriter",
+    "failedLoadProfiles": "Det gick inte att läsa in profiler",
+    "failedLoadActiveProfileId": "Det gick inte att läsa in aktivt profil-ID",
+    "failedPrepareRepositoryTemplate": "Det gick inte att förbereda repository: {message}",
+    "failedCreateProfileTemplate": "Det gick inte att skapa profil: {message}",
+    "failedDeleteProfile": "Det gick inte att ta bort profil",
+    "failedSetActiveProfile": "Det gick inte att ställa in aktiv profil",
+    "repoProviderCannotChange": "Repository-provider kan inte ändras",
+    "s3RequiredFields": "S3 bucket, region, access key och secret är obligatoriska"
+  }
+}

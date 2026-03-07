@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "failedLoadConfiguration": "Échec du chargement de la configuration",
+    "failedUpdateAppSettings": "Impossible de mettre à jour les paramètres de l'application",
+    "failedUpdateRepositorySettings": "Impossible de mettre à jour les paramètres du dépôt",
+    "failedLoadApplicationSettings": "Échec du chargement des paramètres de l'application",
+    "failedLoadFavorites": "Échec du chargement des favoris",
+    "failedSaveFavorites": "Échec de l'enregistrement des favoris",
+    "failedLoadProfiles": "Échec du chargement des profils",
+    "failedLoadActiveProfileId": "Échec du chargement de l'identifiant du profil actif",
+    "failedPrepareRepositoryTemplate": "Impossible de préparer le dépôt : {message}",
+    "failedCreateProfileTemplate": "Impossible de créer le profil : {message}",
+    "failedDeleteProfile": "Impossible de supprimer le profil",
+    "failedSetActiveProfile": "Impossible de définir le profil actif",
+    "repoProviderCannotChange": "Le fournisseur du dépôt ne peut pas être modifié",
+    "s3RequiredFields": "Le bucket S3, la région, la clé d'accès et le secret sont requis"
+  }
+}

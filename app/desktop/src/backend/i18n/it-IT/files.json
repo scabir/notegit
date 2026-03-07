@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "Impossibile elencare i file",
+    "read": "Impossibile leggere il file",
+    "save": "Impossibile salvare il file",
+    "saveWithGitWorkflow": "Impossibile salvare con il flusso Git",
+    "commitFile": "Impossibile eseguire il commit del file",
+    "commitAll": "Impossibile eseguire il commit di tutte le modifiche",
+    "commitAndPush": "Impossibile eseguire commit e push",
+    "createFile": "Impossibile creare il file",
+    "createFolder": "Impossibile creare la cartella",
+    "delete": "Impossibile eliminare",
+    "rename": "Impossibile rinominare",
+    "duplicateFile": "Impossibile duplicare il file",
+    "importFile": "Impossibile importare il file",
+    "localRepoNoSync": "I repository locali non supportano la sincronizzazione",
+    "gitAdapterNotInitialized": "Git adapter non inizializzato",
+    "onlyFilesCanBeDuplicated": "È possibile duplicare solo i file",
+    "noRepositoryConfigured": "Nessun repository configurato",
+    "gitOnlyOperation": "Le operazioni Git sono disponibili solo per repository Git"
+  },
+  "success": {
+    "syncedSuccessfully": "Sincronizzazione completata",
+    "nothingToCommit": "Nessuna modifica da confermare",
+    "committedAndPushedSuccessfully": "Modifiche confermate e inviate con successo"
+  },
+  "commit": {
+    "updatePrefix": "Aggiornamento:",
+    "andMore": "e altre {count}",
+    "multipleFiles": "più file"
+  }
+}

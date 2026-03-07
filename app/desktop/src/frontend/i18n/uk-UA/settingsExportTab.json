@@ -1,0 +1,12 @@
+{
+  "exportCurrentNoteTitle": "Експорт поточної нотатки",
+  "exportCurrentNoteDescription": "Експортуйте відкриту нотатку (включно з незбереженими змінами) як окремий файл.",
+  "exportMarkdownButton": "Експортувати як Markdown (.md)",
+  "exportTextButton": "Експортувати як текст (.txt)",
+  "openNoteHint": "Відкрийте нотатку в редакторі, щоб її експортувати.",
+  "exportRepositoryTitle": "Експорт репозиторію",
+  "exportRepositoryDescription": "Експортуйте весь репозиторій у ZIP-архів для резервної копії або обміну. Це включає всі файли й папки (окрім .git).",
+  "exportRepositoryButton": "Експортувати репозиторій як ZIP",
+  "exportingButton": "Експортування...",
+  "safetyInfo": "Операції експорту не змінюють ваш репозиторій і не запускають Git-команди. Ваші дані залишаються в безпеці."
+}

@@ -10,6 +10,7 @@
 ## Local dev
 
 ```bash
+cd app/desktop
 pnpm install
 pnpm run dev
 ```
@@ -17,6 +18,7 @@ pnpm run dev
 ## Build and run
 
 ```bash
+cd app/desktop
 pnpm run build
 pnpm start
 ```
@@ -26,21 +28,22 @@ pnpm start
 Launch the app with DevTools open:
 
 ```bash
+cd app/desktop
 pnpm start -- --devtools
 ```
 
 ## Packaging
 
-Build scripts live in `setup/`:
+Build scripts live in `app/desktop/setup/`:
 
 ```bash
-cd setup
+cd app/desktop/setup
 ./build-mac.sh
 ./build-windows.sh
 ./build-linux.sh
 ```
 
-Outputs are written to `release/`:
+Outputs are written to `app/desktop/release/`:
 
 - `notegit-{version}.dmg` and `notegit-{version}-mac.zip`
 - `notegit Setup {version}.exe` and `notegit {version}.exe`

@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "failedLoadMetadata": "تعذر تحميل بيانات i18n",
+    "failedLoadFrontendTranslations": "تعذر تحميل ترجمات الواجهة",
+    "languageRequired": "اللغة مطلوبة",
+    "unsupportedLanguage": "لغة غير مدعومة: {language}",
+    "failedSetLanguage": "تعذر تعيين اللغة"
+  }
+}

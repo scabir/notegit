@@ -1,0 +1,10 @@
+{
+  "title": "Buscar notas",
+  "placeholder": "Buscar por nombre de archivo o contenido...",
+  "helperText": "Usa ↑↓ para navegar, Enter para abrir, Esc para cerrar",
+  "noResults": "No se encontraron resultados",
+  "startTyping": "Empieza a escribir para buscar en todas las notas",
+  "searchFailed": "La búsqueda falló",
+  "lineLabel": "Línea",
+  "moreSuffix": "más"
+}

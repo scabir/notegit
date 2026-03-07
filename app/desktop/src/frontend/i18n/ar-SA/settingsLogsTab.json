@@ -1,0 +1,7 @@
+{
+  "applicationLogsTitle": "سجلات التطبيق",
+  "info": "تُحفظ السجلات محليًا بشكل يومي وتتضمن عمليات Git/S3 والأخطاء وأحداث المزامنة.",
+  "logsFolderLabel": "مجلد السجلات",
+  "openFolderButton": "فتح المجلد",
+  "copyLogsFolderAriaLabel": "نسخ مجلد السجلات"
+}

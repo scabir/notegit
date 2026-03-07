@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "Sobre",
+  "versionPrefix": "Versão",
+  "description": "Aplicação de desktop para notas em Markdown com backend Git ou S3, construída com Electron",
+  "sections": {
+    "features": "Funcionalidades",
+    "author": "Autor",
+    "links": "Ligações",
+    "techStack": "Tecnologias"
+  },
+  "links": {
+    "githubRepository": "Repositório GitHub",
+    "website": "Site"
+  },
+  "close": "Fechar",
+  "license": "Licença MIT",
+  "features": {
+    "markdownLivePreview": "Edição Markdown com pré-visualização em tempo real",
+    "gitOrS3History": "Histórico de versões em Git ou S3",
+    "fileAndFolderManagement": "Gestão de ficheiros e pastas",
+    "fullTextSearch": "Pesquisa de texto completo nas notas",
+    "darkModeSupport": "Suporte para modo escuro",
+    "autoSaveAndSync": "Gravação automática e sincronização",
+    "fileHistoryAndVersionViewing": "Histórico de ficheiros e visualização de versões"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

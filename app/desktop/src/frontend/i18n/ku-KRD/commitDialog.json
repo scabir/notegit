@@ -1,0 +1,11 @@
+{
+  "title": "Commitkirina Guhertinan",
+  "messageLabel": "Peyama Commit",
+  "messagePlaceholder": "Guhertinên xwe diyar bike...",
+  "helperText": "Ji bo commitkirinê Cmd/Ctrl+Enter bikar bîne",
+  "cancel": "Betal",
+  "confirm": "Commit & Push",
+  "loading": "Tê commitkirin...",
+  "emptyMessageError": "Ji kerema xwe peyama commitê binivîse",
+  "commitFailed": "Commit serneket"
+}

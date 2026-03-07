@@ -1,0 +1,11 @@
+{
+  "bucketLabel": "Bucket",
+  "branchLabel": "Branch",
+  "synced": "Synkroniserad",
+  "saved": "Sparad",
+  "uncommitted": "Ocommittade ändringar",
+  "unsynced": "Osynkroniserade ändringar",
+  "fetchTooltip": "Hämta från remote",
+  "pullTooltip": "Pull från remote",
+  "pushTooltip": "Push till remote"
+}

@@ -1,0 +1,14 @@
+{
+  "emptyState": "Виберіть файл для редагування",
+  "modified": "Змінено",
+  "showTreeTooltip": "Показати дерево файлів",
+  "backTooltip": "Назад",
+  "forwardTooltip": "Вперед",
+  "saveTooltip": "Зберегти на диск",
+  "exportTooltip": "Експортувати нотатку",
+  "messages": {
+    "failedExportNote": "Не вдалося експортувати нотатку",
+    "failedExportTemplate": "Помилка експорту: {message}",
+    "unknownError": "Невідома помилка"
+  }
+}

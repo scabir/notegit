@@ -1,0 +1,16 @@
+{
+  "title": "Filhistorik",
+  "closeTooltip": "Stäng historik",
+  "selectFile": "Välj en fil för att visa historik",
+  "noCommits": "Inga commits hittades för den här filen",
+  "loadFailed": "Det gick inte att läsa in historik",
+  "commitFoundSingularTemplate": "{count} commit hittad",
+  "commitFoundPluralTemplate": "{count} commits hittade",
+  "relativeTime": {
+    "justNow": "just nu",
+    "minutesAgoTemplate": "{count} min sedan",
+    "hoursAgoTemplate": "{count} h sedan",
+    "yesterday": "igår",
+    "daysAgoTemplate": "{count} dagar sedan"
+  }
+}

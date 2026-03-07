@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Тип репозиторію",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Локальний"
+  },
+  "git": {
+    "remoteUrlLabel": "Віддалений URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Гілка",
+    "branchPlaceholder": "main",
+    "patLabel": "Персональний токен доступу",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Ваш Personal Access Token зберігається в зашифрованому вигляді в каталозі даних застосунку, а не в keychain операційної системи.",
+    "patGuide": {
+      "title": "Як створити GitHub Personal Access Token:",
+      "line1": "1. Перейдіть у GitHub Settings -> Developer settings",
+      "line2": "2. Відкрийте Personal access tokens -> Fine Grained Tokens",
+      "line3": "3. Натисніть Generate new token",
+      "line4": "4. Вкажіть назву токена",
+      "line5": "5. Встановіть термін дії",
+      "line6": "6. Оберіть опцію \"Only select repositories\"",
+      "line7": "7. Оберіть репозиторій, який хочете використовувати",
+      "line8": "8. Натисніть \"Add Permission\"",
+      "line9": "9. Оберіть \"Contents\" і надайте права \"Read and Write\"",
+      "line10": "10. Натисніть Generate Token",
+      "line11": "11. Скопіюйте токен і вставте його вище"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Бакет",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Регіон",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Префікс (необов'язково)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "ID ключа доступу",
+    "secretAccessKeyLabel": "Секретний ключ доступу",
+    "secretAccessKeyHelperText": "Зберігається в зашифрованому вигляді в каталозі даних застосунку.",
+    "sessionTokenLabel": "Токен сесії (необов'язково)",
+    "info": "Для підтримки історії у S3 bucket має бути ввімкнено versioning."
+  },
+  "local": {
+    "info": "Локальні репозиторії зберігаються лише на цьому пристрої та не синхронізуються."
+  },
+  "saveButton": "Зберегти налаштування репозиторію",
+  "localPath": {
+    "title": "Локальний шлях репозиторію",
+    "description": "Тут локально зберігається ваш репозиторій на комп'ютері.",
+    "label": "Локальний шлях",
+    "copyPathButton": "Копіювати шлях",
+    "openFolderButton": "Відкрити папку"
+  }
+}

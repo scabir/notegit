@@ -1,0 +1,11 @@
+{
+  "title": "Änderungen committen",
+  "messageLabel": "Commit-Nachricht",
+  "messagePlaceholder": "Beschreibe deine Änderungen...",
+  "helperText": "Cmd/Ctrl+Enter zum Committen",
+  "cancel": "Abbrechen",
+  "confirm": "Commit & Push",
+  "loading": "Commit läuft...",
+  "emptyMessageError": "Bitte gib eine Commit-Nachricht ein",
+  "commitFailed": "Commit fehlgeschlagen"
+}

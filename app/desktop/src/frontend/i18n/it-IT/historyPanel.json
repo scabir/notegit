@@ -1,0 +1,16 @@
+{
+  "title": "Cronologia file",
+  "closeTooltip": "Chiudi cronologia",
+  "selectFile": "Seleziona un file per visualizzarne la cronologia",
+  "noCommits": "Nessun commit trovato per questo file",
+  "loadFailed": "Impossibile caricare la cronologia",
+  "commitFoundSingularTemplate": "Trovato {count} commit",
+  "commitFoundPluralTemplate": "Trovati {count} commit",
+  "relativeTime": {
+    "justNow": "proprio ora",
+    "minutesAgoTemplate": "{count} min fa",
+    "hoursAgoTemplate": "{count} h fa",
+    "yesterday": "ieri",
+    "daysAgoTemplate": "{count} giorni fa"
+  }
+}

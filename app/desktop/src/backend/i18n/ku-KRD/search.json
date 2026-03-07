@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "Lêgerîn serneket",
+    "failedRepoWideSearch": "Lêgerîna tevahî-depoyê serneket",
+    "failedRepoWideReplace": "Guherandina tevahî-depoyê serneket",
+    "repositoryNotInitialized": "Depo nehatiye destpêkirin",
+    "searchFailed": "Lêgerîn serneket",
+    "repoWideSearchFailedTemplate": "Lêgerîna tevahî-depoyê serneket: {message}",
+    "repoWideReplaceFailedTemplate": "Guherandina tevahî-depoyê serneket: {message}"
+  }
+}

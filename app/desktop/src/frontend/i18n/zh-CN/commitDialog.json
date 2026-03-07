@@ -1,0 +1,11 @@
+{
+  "title": "提交更改",
+  "messageLabel": "提交信息",
+  "messagePlaceholder": "请描述你的更改...",
+  "helperText": "Cmd/Ctrl+Enter 提交",
+  "cancel": "取消",
+  "confirm": "提交并推送",
+  "loading": "正在提交...",
+  "emptyMessageError": "请输入提交信息",
+  "commitFailed": "提交失败"
+}

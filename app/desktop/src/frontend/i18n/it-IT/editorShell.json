@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "Cerca (Cmd/Ctrl+P)",
+    "history": "Cronologia file",
+    "saveAll": "Salva tutti i file aperti",
+    "sync": "Sincronizza",
+    "commitPush": "Commit e Push",
+    "settings": "Impostazioni",
+    "shortcuts": "Scorciatoie da tastiera"
+  },
+  "labels": {
+    "saving": "Salvataggio in corso...",
+    "saved": "Salvato",
+    "error": "Errore"
+  },
+  "messages": {
+    "failedLoadWorkspace": "Impossibile caricare lo spazio di lavoro",
+    "savedLocally": "Salvato in locale",
+    "failedSaveFile": "Impossibile salvare il file",
+    "failedReadFile": "Impossibile leggere il file",
+    "pullSuccessful": "Pull completato",
+    "failedPull": "Pull non riuscito",
+    "fetchSuccessful": "Fetch completato",
+    "failedFetch": "Fetch non riuscito",
+    "pushSuccessful": "Push completato",
+    "failedPush": "Push non riuscito",
+    "failedCreateFile": "Impossibile creare il file",
+    "failedCreateFolder": "Impossibile creare la cartella",
+    "failedDelete": "Impossibile eliminare",
+    "failedRename": "Impossibile rinominare",
+    "failedImportFile": "Impossibile importare il file",
+    "moveCommitMessagePrefix": "Spostamento:",
+    "failedAutoCommitMove": "Commit automatico dello spostamento non riuscito",
+    "failedDuplicateFile": "Impossibile duplicare il file",
+    "syncing": "Sincronizzazione in corso...",
+    "committingAndPushing": "Commit e push in corso...",
+    "syncedSuccessfully": "Sincronizzazione completata",
+    "failedSync": "Sincronizzazione non riuscita",
+    "nothingToCommit": "Nessuna modifica da confermare",
+    "committedAndPushedSuccessfully": "Commit e push completati con successo",
+    "failedCommitAndPush": "Commit e push non riusciti"
+  }
+}

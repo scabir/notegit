@@ -1,0 +1,11 @@
+{
+  "title": "Zatwierdź zmiany",
+  "messageLabel": "Wiadomość commita",
+  "messagePlaceholder": "Opisz swoje zmiany...",
+  "helperText": "Cmd/Ctrl+Enter, aby zatwierdzić",
+  "cancel": "Anuluj",
+  "confirm": "Commit i Push",
+  "loading": "Zatwierdzanie...",
+  "emptyMessageError": "Wpisz wiadomość commita",
+  "commitFailed": "Nie udało się wykonać commita"
+}

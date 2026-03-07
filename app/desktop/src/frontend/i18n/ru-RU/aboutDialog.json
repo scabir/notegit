@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "О приложении",
+  "versionPrefix": "Версия",
+  "description": "Десктопное приложение для заметок в Markdown на базе Git или S3, созданное на Electron",
+  "sections": {
+    "features": "Возможности",
+    "author": "Автор",
+    "links": "Ссылки",
+    "techStack": "Технологический стек"
+  },
+  "links": {
+    "githubRepository": "Репозиторий GitHub",
+    "website": "Сайт"
+  },
+  "close": "Закрыть",
+  "license": "Лицензия MIT",
+  "features": {
+    "markdownLivePreview": "Редактирование Markdown с предпросмотром в реальном времени",
+    "gitOrS3History": "История версий в Git или S3",
+    "fileAndFolderManagement": "Управление файлами и папками",
+    "fullTextSearch": "Полнотекстовый поиск по заметкам",
+    "darkModeSupport": "Поддержка темной темы",
+    "autoSaveAndSync": "Автосохранение и синхронизация",
+    "fileHistoryAndVersionViewing": "История файлов и просмотр версий"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "notegit",
+    "tagline": "Git‑आधारित Markdown नोट‑टेकिंग ऐप",
+    "welcome": "notegit में आपका स्वागत है! शुरू करने के लिए किसी रिपॉज़िटरी से जुड़ें।",
+    "connectToRepository": "रिपॉज़िटरी से जुड़ें"
+  },
+  "gitMissing": {
+    "message": "आपके सिस्टम में Git इंस्टॉल नहीं है। notegit इस्तेमाल करने के लिए Git इंस्टॉल करें।",
+    "downloadPrompt": "Git डाउनलोड करने के लिए।"
+  }
+}

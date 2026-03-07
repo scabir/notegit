@@ -1,0 +1,46 @@
+{
+  "profileManagementTitle": "Διαχείριση προφίλ",
+  "info": "Τα προφίλ σας επιτρέπουν να εργάζεστε με πολλαπλά αποθετήρια. Μόνο ένα προφίλ είναι ενεργό κάθε φορά. Κατά τη δημιουργία νέου προφίλ, η εφαρμογή προετοιμάζει το αποθετήριο. Η αλλαγή προφίλ θα επανεκκινήσει την εφαρμογή.",
+  "activeProfileTitle": "Ενεργό προφίλ",
+  "activeChipLabel": "Ενεργό",
+  "deleteAriaLabel": "διαγραφή",
+  "createNewProfileButton": "Δημιουργία νέου προφίλ",
+  "newProfileTitle": "Νέο προφίλ",
+  "creatingProfileMessage": "Δημιουργία προφίλ και προετοιμασία αποθετηρίου... Αυτό μπορεί να διαρκέσει λίγο.",
+  "repositoryTypeLabel": "Τύπος αποθετηρίου",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Τοπικό"
+  },
+  "profileNameLabel": "Όνομα προφίλ",
+  "profileNamePlaceholder": "Οι σημειώσεις μου",
+  "profileNameHelper": "Θα δημιουργηθεί αυτόματα τοπικός φάκελος με βάση αυτό το όνομα",
+  "git": {
+    "remoteUrlLabel": "Απομακρυσμένο URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Κλάδος",
+    "branchPlaceholder": "main",
+    "patLabel": "Personal Access Token",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Το Personal Access Token αποθηκεύεται κρυπτογραφημένο"
+  },
+  "s3": {
+    "bucketLabel": "Κάδος",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Περιοχή",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Πρόθεμα (προαιρετικό)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Αποθηκεύεται κρυπτογραφημένο στον κατάλογο δεδομένων της εφαρμογής.",
+    "sessionTokenLabel": "Session Token (προαιρετικό)"
+  },
+  "local": {
+    "info": "Τα τοπικά αποθετήρια αποθηκεύονται μόνο σε αυτή τη συσκευή και δεν συγχρονίζονται."
+  },
+  "createProfileButton": "Δημιουργία προφίλ",
+  "creatingButton": "Δημιουργία...",
+  "cancelButton": "Ακύρωση"
+}

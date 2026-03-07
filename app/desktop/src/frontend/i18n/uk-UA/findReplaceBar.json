@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "Знайти",
+  "replacePlaceholder": "Замінити",
+  "noMatches": "Немає збігів",
+  "findPrevious": "Знайти попередній (Shift+Enter)",
+  "findNext": "Знайти наступний (Enter)",
+  "replaceCurrent": "Замінити поточний збіг",
+  "replaceAll": "Замінити всі збіги",
+  "close": "Закрити (Esc)"
+}

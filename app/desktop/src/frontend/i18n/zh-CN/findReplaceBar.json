@@ -1,0 +1,10 @@
+{
+  "findPlaceholder": "查找",
+  "replacePlaceholder": "替换",
+  "noMatches": "无匹配",
+  "findPrevious": "查找上一个 (Shift+Enter)",
+  "findNext": "查找下一个 (Enter)",
+  "replaceCurrent": "替换当前匹配",
+  "replaceAll": "替换全部匹配",
+  "close": "关闭 (Esc)"
+}

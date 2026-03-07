@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Τύπος αποθετηρίου",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Τοπικό"
+  },
+  "git": {
+    "remoteUrlLabel": "Απομακρυσμένο URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Κλάδος",
+    "branchPlaceholder": "main",
+    "patLabel": "Personal Access Token",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Το Personal Access Token αποθηκεύεται κρυπτογραφημένο στον κατάλογο δεδομένων της εφαρμογής και όχι στο keychain του λειτουργικού συστήματος.",
+    "patGuide": {
+      "title": "Πώς να δημιουργήσετε GitHub Personal Access Token:",
+      "line1": "1. Μεταβείτε στο GitHub Settings -> Developer settings",
+      "line2": "2. Επιλέξτε Personal access tokens -> Fine Grained Tokens",
+      "line3": "3. Πατήστε Generate new token",
+      "line4": "4. Δώστε όνομα στο token",
+      "line5": "5. Ορίστε ημερομηνία λήξης",
+      "line6": "6. Επιλέξτε \"Only select repositories\"",
+      "line7": "7. Επιλέξτε το αποθετήριο που θέλετε να χρησιμοποιήσετε",
+      "line8": "8. Πατήστε \"Add Permission\"",
+      "line9": "9. Επιλέξτε \"Contents\" και δώστε δικαιώματα \"Read and Write\"",
+      "line10": "10. Πατήστε Generate Token",
+      "line11": "11. Αντιγράψτε και επικολλήστε το token παραπάνω"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Κάδος",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Περιοχή",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Πρόθεμα (προαιρετικό)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Αποθηκεύεται κρυπτογραφημένο στον κατάλογο δεδομένων της εφαρμογής.",
+    "sessionTokenLabel": "Session Token (προαιρετικό)",
+    "info": "Ο S3 bucket πρέπει να έχει ενεργό versioning για να λειτουργεί το ιστορικό."
+  },
+  "local": {
+    "info": "Τα τοπικά αποθετήρια αποθηκεύονται μόνο σε αυτή τη συσκευή και δεν συγχρονίζονται."
+  },
+  "saveButton": "Αποθήκευση ρυθμίσεων αποθετηρίου",
+  "localPath": {
+    "title": "Τοπική διαδρομή αποθετηρίου",
+    "description": "Εδώ αποθηκεύεται τοπικά το αποθετήριό σας στον υπολογιστή.",
+    "label": "Τοπική διαδρομή",
+    "copyPathButton": "Αντιγραφή διαδρομής",
+    "openFolderButton": "Άνοιγμα φακέλου"
+  }
+}

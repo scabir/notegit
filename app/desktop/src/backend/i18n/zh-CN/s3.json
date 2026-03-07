@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "获取 bucket 版本控制状态失败：{message}",
+    "failedListObjects": "列出对象失败：{message}",
+    "failedListObjectVersions": "列出对象版本失败：{message}",
+    "failedGetObject": "获取对象失败：{message}",
+    "failedUploadObject": "上传对象失败：{message}",
+    "failedReadObjectMetadata": "读取对象元数据失败：{message}",
+    "failedDeleteObject": "删除对象失败：{message}",
+    "notConfigured": "S3 适配器未配置",
+    "bucketNotConfigured": "S3 bucket 未配置"
+  }
+}

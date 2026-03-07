@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "Aucun journal {logType} pour le moment.",
+    "logFileEmpty": "Le fichier journal est vide."
+  },
+  "errors": {
+    "failedGetContent": "Impossible de récupérer le contenu du journal",
+    "failedExport": "Impossible d'exporter les journaux",
+    "failedGetFolder": "Impossible de récupérer le dossier des journaux",
+    "failedReadLogTemplate": "Impossible de lire le journal {logType} : {message}",
+    "logFileNotFound": "Fichier journal introuvable : {logType}",
+    "failedExportLogTemplate": "Impossible d'exporter le journal {logType} : {message}"
+  }
+}

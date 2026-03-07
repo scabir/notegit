@@ -1,0 +1,14 @@
+{
+  "emptyState": "編集するファイルを選択してください",
+  "modified": "変更あり",
+  "showTreeTooltip": "ファイルツリーを表示",
+  "backTooltip": "戻る",
+  "forwardTooltip": "進む",
+  "saveTooltip": "ディスクに保存",
+  "exportTooltip": "ノートをエクスポート",
+  "messages": {
+    "failedExportNote": "ノートのエクスポートに失敗しました",
+    "failedExportTemplate": "エクスポートに失敗しました: {message}",
+    "unknownError": "不明なエラー"
+  }
+}

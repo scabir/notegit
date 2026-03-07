@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "Depo açılamadı veya klonlanamadı",
+    "failedGetRepositoryStatus": "Depo durumu alınamadı",
+    "failedFetchFromRemote": "Uzak depodan fetch başarısız",
+    "failedPullFromRemote": "Uzak depodan pull başarısız",
+    "failedPushToRemote": "Uzak depoya push başarısız",
+    "failedStartAutoPush": "Otomatik push başlatılamadı",
+    "noRepositoryConfigured": "Yapılandırılmış depo yok",
+    "unsupportedProvider": "Desteklenmeyen depo sağlayıcısı: {provider}",
+    "localRepoOperationNotSupported": "Yerel depolar {operation} işlemini desteklemez"
+  }
+}

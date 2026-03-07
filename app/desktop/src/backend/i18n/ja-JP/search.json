@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "検索に失敗しました",
+    "failedRepoWideSearch": "リポジトリ全体検索に失敗しました",
+    "failedRepoWideReplace": "リポジトリ全体置換に失敗しました",
+    "repositoryNotInitialized": "リポジトリが初期化されていません",
+    "searchFailed": "検索に失敗しました",
+    "repoWideSearchFailedTemplate": "リポジトリ全体検索に失敗しました: {message}",
+    "repoWideReplaceFailedTemplate": "リポジトリ全体置換に失敗しました: {message}"
+  }
+}

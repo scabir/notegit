@@ -1,0 +1,16 @@
+{
+  "title": "ファイル履歴",
+  "closeTooltip": "履歴を閉じる",
+  "selectFile": "履歴を表示するファイルを選択してください",
+  "noCommits": "このファイルにはコミット履歴がありません",
+  "loadFailed": "履歴の読み込みに失敗しました",
+  "commitFoundSingularTemplate": "{count} 件のコミット",
+  "commitFoundPluralTemplate": "{count} 件のコミット",
+  "relativeTime": {
+    "justNow": "たった今",
+    "minutesAgoTemplate": "{count}分前",
+    "hoursAgoTemplate": "{count}時間前",
+    "yesterday": "昨日",
+    "daysAgoTemplate": "{count}日前"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Tipo de repositorio",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Local"
+  },
+  "git": {
+    "remoteUrlLabel": "URL remota",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Rama",
+    "branchPlaceholder": "main",
+    "patLabel": "Token de acceso personal",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Tu token de acceso personal se guarda cifrado en el directorio de datos de la aplicación, no en el llavero del sistema operativo.",
+    "patGuide": {
+      "title": "Cómo crear un token de acceso personal de GitHub:",
+      "line1": "1. Ve a Configuración de GitHub -> Configuración de desarrollador",
+      "line2": "2. Haz clic en Tokens de acceso personal -> Fine Grained Tokens",
+      "line3": "3. Haz clic en Generate new token",
+      "line4": "4. Asigna un nombre al token",
+      "line5": "5. Establece la fecha de expiración",
+      "line6": "6. Selecciona la opción \"Only select repositories\"",
+      "line7": "7. Selecciona el repositorio que quieres usar",
+      "line8": "8. Haz clic en \"Add Permission\"",
+      "line9": "9. Selecciona \"Content\" y asegúrate de dar permisos de lectura y escritura",
+      "line10": "10. Haz clic en Generate Token",
+      "line11": "11. Copia y pega el token arriba"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Región",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Prefijo (opcional)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Se guarda cifrado en el directorio de datos de la aplicación.",
+    "sessionTokenLabel": "Session Token (opcional)",
+    "info": "El bucket S3 debe tener versionado habilitado para soportar historial."
+  },
+  "local": {
+    "info": "Los repositorios locales se almacenan solo en este dispositivo y no se sincronizan."
+  },
+  "saveButton": "Guardar ajustes del repositorio",
+  "localPath": {
+    "title": "Ruta local del repositorio",
+    "description": "Aquí se almacena localmente tu repositorio en tu equipo.",
+    "label": "Ruta local",
+    "copyPathButton": "Copiar ruta",
+    "openFolderButton": "Abrir carpeta"
+  }
+}

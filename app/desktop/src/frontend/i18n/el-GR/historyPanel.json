@@ -1,0 +1,16 @@
+{
+  "title": "Ιστορικό αρχείου",
+  "closeTooltip": "Κλείσιμο ιστορικού",
+  "selectFile": "Επιλέξτε αρχείο για να δείτε το ιστορικό του",
+  "noCommits": "Δεν βρέθηκαν commits για αυτό το αρχείο",
+  "loadFailed": "Αποτυχία φόρτωσης ιστορικού",
+  "commitFoundSingularTemplate": "Βρέθηκε {count} commit",
+  "commitFoundPluralTemplate": "Βρέθηκαν {count} commits",
+  "relativeTime": {
+    "justNow": "μόλις τώρα",
+    "minutesAgoTemplate": "{count}λ πριν",
+    "hoursAgoTemplate": "{count}ω πριν",
+    "yesterday": "χθες",
+    "daysAgoTemplate": "{count} ημέρες πριν"
+  }
+}

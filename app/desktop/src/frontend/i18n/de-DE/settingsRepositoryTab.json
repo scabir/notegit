@@ -1,0 +1,55 @@
+{
+  "repositoryTypeLabel": "Repository-Typ",
+  "repoType": {
+    "git": "Git",
+    "s3": "S3",
+    "local": "Lokal"
+  },
+  "git": {
+    "remoteUrlLabel": "Remote-URL",
+    "remoteUrlPlaceholder": "https://github.com/user/repo.git",
+    "branchLabel": "Branch",
+    "branchPlaceholder": "main",
+    "patLabel": "Persönlicher Zugriffstoken",
+    "patPlaceholder": "ghp_...",
+    "patHelperText": "Dein Personal Access Token wird verschlüsselt im Datenverzeichnis der App gespeichert, nicht im Keychain deines Betriebssystems.",
+    "patGuide": {
+      "title": "So erstellst du einen GitHub Personal Access Token:",
+      "line1": "1. Öffne GitHub Settings -> Developer settings",
+      "line2": "2. Klicke auf Personal access tokens -> Fine Grained Tokens",
+      "line3": "3. Klicke auf Generate new token",
+      "line4": "4. Vergib einen Tokennamen",
+      "line5": "5. Lege das Ablaufdatum fest",
+      "line6": "6. Wähle die Option \"Only select repositories\"",
+      "line7": "7. Wähle das Repository aus, das du verwenden möchtest",
+      "line8": "8. Klicke auf \"Add Permission\"",
+      "line9": "9. Wähle \"Content\" und gib Lese- und Schreibrechte",
+      "line10": "10. Klicke auf Generate Token",
+      "line11": "11. Kopiere den Token und füge ihn oben ein"
+    }
+  },
+  "s3": {
+    "bucketLabel": "Bucket",
+    "bucketPlaceholder": "my-notes-bucket",
+    "regionLabel": "Region",
+    "regionPlaceholder": "us-east-1",
+    "prefixLabel": "Präfix (optional)",
+    "prefixPlaceholder": "notes/",
+    "accessKeyIdLabel": "Access Key ID",
+    "secretAccessKeyLabel": "Secret Access Key",
+    "secretAccessKeyHelperText": "Wird verschlüsselt im Datenverzeichnis der App gespeichert.",
+    "sessionTokenLabel": "Session Token (optional)",
+    "info": "Der S3-Bucket muss Versionierung aktiviert haben, um Verlauf zu unterstützen."
+  },
+  "local": {
+    "info": "Lokale Repositories werden nur auf diesem Gerät gespeichert und nicht synchronisiert."
+  },
+  "saveButton": "Repository-Einstellungen speichern",
+  "localPath": {
+    "title": "Lokaler Repository-Pfad",
+    "description": "Hier wird dein Repository lokal auf deinem Computer gespeichert.",
+    "label": "Lokaler Pfad",
+    "copyPathButton": "Pfad kopieren",
+    "openFolderButton": "Ordner öffnen"
+  }
+}

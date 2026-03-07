@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "{logType} günlükleri henüz yok.",
+    "logFileEmpty": "Günlük dosyası boş."
+  },
+  "errors": {
+    "failedGetContent": "Günlük içeriği alınamadı",
+    "failedExport": "Günlükler dışa aktarılamadı",
+    "failedGetFolder": "Günlük klasörü alınamadı",
+    "failedReadLogTemplate": "{logType} günlüğü okunamadı: {message}",
+    "logFileNotFound": "Günlük dosyası bulunamadı: {logType}",
+    "failedExportLogTemplate": "{logType} günlüğü dışa aktarılamadı: {message}"
+  }
+}

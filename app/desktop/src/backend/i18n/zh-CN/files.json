@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "列出文件失败",
+    "read": "读取文件失败",
+    "save": "保存文件失败",
+    "saveWithGitWorkflow": "按 Git 流程保存失败",
+    "commitFile": "提交文件失败",
+    "commitAll": "提交全部更改失败",
+    "commitAndPush": "提交并推送更改失败",
+    "createFile": "创建文件失败",
+    "createFolder": "创建文件夹失败",
+    "delete": "删除失败",
+    "rename": "重命名失败",
+    "duplicateFile": "复制文件失败",
+    "importFile": "导入文件失败",
+    "localRepoNoSync": "本地仓库不支持同步",
+    "gitAdapterNotInitialized": "Git 适配器未初始化",
+    "onlyFilesCanBeDuplicated": "只能复制文件",
+    "noRepositoryConfigured": "未配置仓库",
+    "gitOnlyOperation": "Git 操作仅适用于 Git 仓库"
+  },
+  "success": {
+    "syncedSuccessfully": "同步成功",
+    "nothingToCommit": "没有可提交的更改",
+    "committedAndPushedSuccessfully": "提交并推送成功"
+  },
+  "commit": {
+    "updatePrefix": "更新：",
+    "andMore": "以及另外 {count} 项",
+    "multipleFiles": "多个文件"
+  }
+}

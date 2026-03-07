@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "authenticationFailed": "认证失败，请检查凭据。",
+    "authenticationFailedPull": "拉取时认证失败",
+    "authenticationFailedPush": "推送时认证失败",
+    "mergeConflictDetected": "检测到合并冲突，请手动解决。",
+    "failedCloneRepository": "克隆仓库失败：{message}",
+    "failedGetStatus": "获取 Git 状态失败：{message}",
+    "failedPull": "拉取失败：{message}",
+    "failedPush": "推送失败：{message}",
+    "failedAddFile": "添加文件失败：{message}",
+    "failedCommit": "提交失败：{message}",
+    "failedAddRemote": "添加 remote 失败：{message}",
+    "failedGetLog": "获取 git log 失败：{message}",
+    "failedShowFile": "显示文件失败：{message}",
+    "failedGetDiff": "获取 diff 失败：{message}",
+    "notInitialized": "Git 适配器未初始化"
+  }
+}

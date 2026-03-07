@@ -1,0 +1,16 @@
+{
+  "title": "Dosya Geçmişi",
+  "closeTooltip": "Geçmişi kapat",
+  "selectFile": "Geçmişini görüntülemek için bir dosya seçin",
+  "noCommits": "Bu dosya için commit bulunamadı",
+  "loadFailed": "Geçmiş yüklenemedi",
+  "commitFoundSingularTemplate": "{count} commit bulundu",
+  "commitFoundPluralTemplate": "{count} commit bulundu",
+  "relativeTime": {
+    "justNow": "az önce",
+    "minutesAgoTemplate": "{count} dk önce",
+    "hoursAgoTemplate": "{count} sa önce",
+    "yesterday": "dün",
+    "daysAgoTemplate": "{count} gün önce"
+  }
+}

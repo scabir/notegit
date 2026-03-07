@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "打开或克隆仓库失败",
+    "failedGetRepositoryStatus": "获取仓库状态失败",
+    "failedFetchFromRemote": "从远端 fetch 失败",
+    "failedPullFromRemote": "从远端 pull 失败",
+    "failedPushToRemote": "推送到远端失败",
+    "failedStartAutoPush": "启动自动推送失败",
+    "noRepositoryConfigured": "未配置仓库",
+    "unsupportedProvider": "不支持的仓库提供方：{provider}",
+    "localRepoOperationNotSupported": "本地仓库不支持操作 {operation}"
+  }
+}

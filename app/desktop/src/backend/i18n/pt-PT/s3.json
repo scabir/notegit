@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Não foi possível obter o estado do versionamento do bucket: {message}",
+    "failedListObjects": "Não foi possível listar os objetos: {message}",
+    "failedListObjectVersions": "Não foi possível listar as versões dos objetos: {message}",
+    "failedGetObject": "Não foi possível obter o objeto: {message}",
+    "failedUploadObject": "Não foi possível enviar o objeto: {message}",
+    "failedReadObjectMetadata": "Não foi possível ler os metadados do objeto: {message}",
+    "failedDeleteObject": "Não foi possível eliminar o objeto: {message}",
+    "notConfigured": "Adaptador S3 não configurado",
+    "bucketNotConfigured": "Bucket S3 não configurado"
+  }
+}

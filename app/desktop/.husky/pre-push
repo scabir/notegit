@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+sh "$PROJECT_ROOT/scripts/run-git-hook-checks.sh" pre-push

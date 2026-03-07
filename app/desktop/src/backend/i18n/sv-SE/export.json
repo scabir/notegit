@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "Exportera anteckning",
+    "exportRepoZipTitle": "Exportera repository som Zip",
+    "markdownFiles": "Markdown-filer",
+    "textFiles": "Textfiler",
+    "zipArchives": "Zip-arkiv",
+    "allFiles": "Alla filer"
+  },
+  "errors": {
+    "cancelled": "Export avbruten",
+    "failedExportNote": "Det gick inte att exportera anteckningen",
+    "failedExportRepositoryZip": "Det gick inte att exportera repository som zip",
+    "failedExportNoteTemplate": "Det gick inte att exportera anteckning: {message}",
+    "failedExportRepoTemplate": "Det gick inte att exportera repository: {message}",
+    "noRepositoryConfigured": "Inget repository är konfigurerat"
+  }
+}

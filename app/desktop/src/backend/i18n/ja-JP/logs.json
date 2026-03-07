@@ -1,0 +1,14 @@
+{
+  "info": {
+    "noLogsYet": "{logType} ログはまだありません。",
+    "logFileEmpty": "ログファイルは空です。"
+  },
+  "errors": {
+    "failedGetContent": "ログ内容の取得に失敗しました",
+    "failedExport": "ログのエクスポートに失敗しました",
+    "failedGetFolder": "ログフォルダの取得に失敗しました",
+    "failedReadLogTemplate": "{logType} ログの読み込みに失敗しました: {message}",
+    "logFileNotFound": "ログファイルが見つかりません: {logType}",
+    "failedExportLogTemplate": "{logType} ログのエクスポートに失敗しました: {message}"
+  }
+}

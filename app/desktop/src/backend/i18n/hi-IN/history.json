@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "फ़ाइल इतिहास प्राप्त करना असफल रहा",
+    "failedGetFileVersion": "फ़ाइल संस्करण प्राप्त करना असफल रहा",
+    "failedGetDiff": "Diff प्राप्त करना असफल रहा",
+    "noRepositoryConfigured": "कोई रिपॉज़िटरी कॉन्फ़िगर नहीं है",
+    "unsupportedProvider": "असमर्थित history provider: {provider}",
+    "localHistoryUnavailable": "लोकल रिपॉज़िटरी के लिए इतिहास उपलब्ध नहीं है",
+    "s3DiffNotSupported": "S3 इतिहास में Diff समर्थित नहीं है"
+  }
+}

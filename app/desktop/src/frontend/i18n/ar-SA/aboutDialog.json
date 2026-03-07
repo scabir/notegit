@@ -1,0 +1,34 @@
+{
+  "titlePrefix": "حول",
+  "versionPrefix": "الإصدار",
+  "description": "تطبيق سطح مكتب لتدوين الملاحظات بصيغة Markdown يعتمد على Git أو S3 ومبني باستخدام Electron",
+  "sections": {
+    "features": "الميزات",
+    "author": "المؤلف",
+    "links": "الروابط",
+    "techStack": "التقنيات المستخدمة"
+  },
+  "links": {
+    "githubRepository": "مستودع GitHub",
+    "website": "الموقع الإلكتروني"
+  },
+  "close": "إغلاق",
+  "license": "ترخيص MIT",
+  "features": {
+    "markdownLivePreview": "تحرير Markdown مع معاينة مباشرة",
+    "gitOrS3History": "سجل الإصدارات عبر Git أو S3",
+    "fileAndFolderManagement": "إدارة الملفات والمجلدات",
+    "fullTextSearch": "بحث نصي شامل داخل الملاحظات",
+    "darkModeSupport": "دعم الوضع الداكن",
+    "autoSaveAndSync": "حفظ ومزامنة تلقائيان",
+    "fileHistoryAndVersionViewing": "عرض سجل الملفات والإصدارات السابقة"
+  },
+  "techStack": {
+    "electron": "Electron",
+    "react": "React",
+    "typeScript": "TypeScript",
+    "materialUi": "Material-UI",
+    "codeMirror": "CodeMirror",
+    "git": "Git"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "खोजें (Cmd/Ctrl+P)",
+    "history": "फ़ाइल इतिहास",
+    "saveAll": "सभी खुली फ़ाइलें सहेजें",
+    "sync": "सिंक",
+    "commitPush": "Commit और Push",
+    "settings": "सेटिंग्स",
+    "shortcuts": "कीबोर्ड शॉर्टकट"
+  },
+  "labels": {
+    "saving": "सहेजा जा रहा है...",
+    "saved": "सहेजा गया",
+    "error": "त्रुटि"
+  },
+  "messages": {
+    "failedLoadWorkspace": "वर्कस्पेस लोड नहीं हो पाया",
+    "savedLocally": "लोकल रूप से सहेजा गया",
+    "failedSaveFile": "फ़ाइल सहेजना असफल रहा",
+    "failedReadFile": "फ़ाइल पढ़ना असफल रहा",
+    "pullSuccessful": "Pull सफल रहा",
+    "failedPull": "Pull असफल रहा",
+    "fetchSuccessful": "Fetch सफल रहा",
+    "failedFetch": "Fetch असफल रहा",
+    "pushSuccessful": "Push सफल रहा",
+    "failedPush": "Push असफल रहा",
+    "failedCreateFile": "फ़ाइल बनाना असफल रहा",
+    "failedCreateFolder": "फ़ोल्डर बनाना असफल रहा",
+    "failedDelete": "हटाना असफल रहा",
+    "failedRename": "नाम बदलना असफल रहा",
+    "failedImportFile": "फ़ाइल आयात करना असफल रहा",
+    "moveCommitMessagePrefix": "स्थानांतरण:",
+    "failedAutoCommitMove": "स्थानांतरण का auto‑commit असफल रहा",
+    "failedDuplicateFile": "फ़ाइल की प्रतिलिपि बनाना असफल रहा",
+    "syncing": "सिंक हो रहा है...",
+    "committingAndPushing": "Commit और Push हो रहा है...",
+    "syncedSuccessfully": "सिंक सफल रहा",
+    "failedSync": "सिंक असफल रहा",
+    "nothingToCommit": "Commit करने के लिए कुछ नहीं है",
+    "committedAndPushedSuccessfully": "Commit और Push सफल रहे",
+    "failedCommitAndPush": "Commit और Push असफल रहे"
+  }
+}

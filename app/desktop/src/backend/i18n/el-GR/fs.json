@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "Το αρχείο δεν βρέθηκε: {path}",
+    "directoryNotFound": "Ο κατάλογος δεν βρέθηκε: {path}",
+    "pathNotFound": "Η διαδρομή δεν βρέθηκε: {path}",
+    "sourceFileNotFound": "Το αρχείο προέλευσης δεν βρέθηκε: {path}",
+    "permissionDenied": "Άρνηση πρόσβασης",
+    "permissionDeniedPath": "Άρνηση πρόσβασης: {path}",
+    "failedReadFile": "Αποτυχία ανάγνωσης αρχείου: {path}",
+    "failedWriteFile": "Αποτυχία εγγραφής αρχείου: {path}",
+    "failedDeleteFile": "Αποτυχία διαγραφής αρχείου: {path}",
+    "failedRename": "Αποτυχία μετονομασίας από {from} σε {to}",
+    "failedCreateDirectory": "Αποτυχία δημιουργίας καταλόγου: {path}",
+    "failedDeleteDirectory": "Αποτυχία διαγραφής καταλόγου: {path}",
+    "failedReadDirectory": "Αποτυχία ανάγνωσης καταλόγου: {path}",
+    "failedStat": "Αποτυχία stat: {path}",
+    "failedCopyFile": "Αποτυχία αντιγραφής αρχείου από {from} σε {to}"
+  }
+}

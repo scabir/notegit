@@ -1,0 +1,19 @@
+{
+  "errors": {
+    "fileNotFound": "Файл не знайдено: {path}",
+    "directoryNotFound": "Каталог не знайдено: {path}",
+    "pathNotFound": "Шлях не знайдено: {path}",
+    "sourceFileNotFound": "Вихідний файл не знайдено: {path}",
+    "permissionDenied": "Доступ заборонено",
+    "permissionDeniedPath": "Доступ заборонено: {path}",
+    "failedReadFile": "Не вдалося прочитати файл: {path}",
+    "failedWriteFile": "Не вдалося записати файл: {path}",
+    "failedDeleteFile": "Не вдалося видалити файл: {path}",
+    "failedRename": "Не вдалося перейменувати з {from} на {to}",
+    "failedCreateDirectory": "Не вдалося створити каталог: {path}",
+    "failedDeleteDirectory": "Не вдалося видалити каталог: {path}",
+    "failedReadDirectory": "Не вдалося прочитати каталог: {path}",
+    "failedStat": "Не вдалося отримати stat: {path}",
+    "failedCopyFile": "Не вдалося скопіювати файл з {from} до {to}"
+  }
+}

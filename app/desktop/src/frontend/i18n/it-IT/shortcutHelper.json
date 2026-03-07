@@ -1,0 +1,42 @@
+{
+  "title": "Scorciatoie da tastiera",
+  "footer": "Premi di nuovo F1 per chiudere questa guida",
+  "sections": {
+    "fileTree": "Albero file",
+    "editorFormatting": "Formattazione editor",
+    "global": "Globale"
+  },
+  "labels": {
+    "addNewFile": "Aggiungi nuovo file",
+    "addNewFolder": "Aggiungi nuova cartella",
+    "deleteSelection": "Elimina selezione",
+    "importFile": "Importa file",
+    "renameSelection": "Rinomina selezione",
+    "moveSelection": "Sposta selezione",
+    "duplicateFile": "Duplica file",
+    "toggleFavorite": "Attiva/disattiva preferito",
+    "collapseAllFolders": "Comprimi tutte le cartelle",
+    "bold": "Grassetto",
+    "italic": "Corsivo",
+    "heading": "Titolo",
+    "inlineCode": "Codice inline",
+    "codeBlock": "Blocco di codice",
+    "link": "Link",
+    "table": "Tabella",
+    "footnote": "Nota a piè di pagina",
+    "taskList": "Task list",
+    "highlight": "Evidenzia",
+    "definitionList": "Elenco definizioni",
+    "mermaidDiagram": "Diagramma Mermaid",
+    "saveCurrentNote": "Salva nota corrente",
+    "navigateBack": "Vai indietro",
+    "navigateForward": "Vai avanti",
+    "quickFileSearch": "Ricerca rapida file",
+    "quickSearchAlternative": "Ricerca rapida alternativa",
+    "findInFile": "Trova nel file",
+    "findInRepo": "Trova nel repository",
+    "openSettings": "Apri impostazioni",
+    "quitApplication": "Chiudi applicazione",
+    "toggleThisHelper": "Mostra/nascondi questa guida"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Історія файлу",
+  "closeTooltip": "Закрити історію",
+  "selectFile": "Виберіть файл, щоб переглянути його історію",
+  "noCommits": "Для цього файлу не знайдено commit'ів",
+  "loadFailed": "Не вдалося завантажити історію",
+  "commitFoundSingularTemplate": "Знайдено {count} commit",
+  "commitFoundPluralTemplate": "Знайдено {count} commit'ів",
+  "relativeTime": {
+    "justNow": "щойно",
+    "minutesAgoTemplate": "{count} хв тому",
+    "hoursAgoTemplate": "{count} год тому",
+    "yesterday": "вчора",
+    "daysAgoTemplate": "{count} дн. тому"
+  }
+}

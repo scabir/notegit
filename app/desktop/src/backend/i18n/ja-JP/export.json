@@ -1,0 +1,18 @@
+{
+  "dialog": {
+    "exportNoteTitle": "ノートをエクスポート",
+    "exportRepoZipTitle": "リポジトリを Zip でエクスポート",
+    "markdownFiles": "Markdown ファイル",
+    "textFiles": "テキストファイル",
+    "zipArchives": "Zip アーカイブ",
+    "allFiles": "すべてのファイル"
+  },
+  "errors": {
+    "cancelled": "エクスポートをキャンセルしました",
+    "failedExportNote": "ノートのエクスポートに失敗しました",
+    "failedExportRepositoryZip": "リポジトリの Zip エクスポートに失敗しました",
+    "failedExportNoteTemplate": "ノートのエクスポートに失敗しました: {message}",
+    "failedExportRepoTemplate": "リポジトリのエクスポートに失敗しました: {message}",
+    "noRepositoryConfigured": "リポジトリが設定されていません"
+  }
+}

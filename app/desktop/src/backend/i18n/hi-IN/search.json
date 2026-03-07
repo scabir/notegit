@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedSearch": "खोज असफल रही",
+    "failedRepoWideSearch": "रिपॉज़िटरी‑स्तरीय खोज असफल रही",
+    "failedRepoWideReplace": "रिपॉज़िटरी‑स्तरीय बदलना असफल रहा",
+    "repositoryNotInitialized": "रिपॉज़िटरी इनिशियलाइज़ नहीं है",
+    "searchFailed": "खोज असफल रही",
+    "repoWideSearchFailedTemplate": "रिपॉज़िटरी‑स्तरीय खोज असफल रही: {message}",
+    "repoWideReplaceFailedTemplate": "रिपॉज़िटरी‑स्तरीय बदलना असफल रहा: {message}"
+  }
+}

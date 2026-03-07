@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedOpenOrClone": "Не вдалося відкрити або клонувати репозиторій",
+    "failedGetRepositoryStatus": "Не вдалося отримати стан репозиторію",
+    "failedFetchFromRemote": "Не вдалося виконати fetch із remote",
+    "failedPullFromRemote": "Не вдалося виконати pull із remote",
+    "failedPushToRemote": "Не вдалося виконати push у remote",
+    "failedStartAutoPush": "Не вдалося запустити авто-push",
+    "noRepositoryConfigured": "Репозиторій не налаштовано",
+    "unsupportedProvider": "Непідтримуваний постачальник репозиторію: {provider}",
+    "localRepoOperationNotSupported": "Локальні репозиторії не підтримують операцію {operation}"
+  }
+}

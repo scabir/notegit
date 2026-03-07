@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "failedGetFileHistory": "获取文件历史失败",
+    "failedGetFileVersion": "获取文件版本失败",
+    "failedGetDiff": "获取 diff 失败",
+    "noRepositoryConfigured": "未配置仓库",
+    "unsupportedProvider": "不支持的历史提供方：{provider}",
+    "localHistoryUnavailable": "本地仓库不提供历史记录",
+    "s3DiffNotSupported": "S3 历史不支持 diff"
+  }
+}

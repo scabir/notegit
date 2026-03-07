@@ -1,0 +1,10 @@
+{
+  "title": "Szukaj notatek",
+  "placeholder": "Szukaj po nazwie pliku lub treści...",
+  "helperText": "Użyj ↑↓ do nawigacji, Enter aby otworzyć, Esc aby zamknąć",
+  "noResults": "Brak wyników",
+  "startTyping": "Zacznij pisać, aby przeszukać wszystkie notatki",
+  "searchFailed": "Wyszukiwanie nie powiodło się",
+  "lineLabel": "Linia",
+  "moreSuffix": "więcej"
+}

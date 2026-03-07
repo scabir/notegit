@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "list": "Failed to list files",
+    "read": "Failed to read file",
+    "save": "Failed to save file",
+    "saveWithGitWorkflow": "Failed to save with Git workflow",
+    "commitFile": "Failed to commit file",
+    "commitAll": "Failed to commit all changes",
+    "commitAndPush": "Failed to commit and push changes",
+    "createFile": "Failed to create file",
+    "createFolder": "Failed to create folder",
+    "delete": "Failed to delete",
+    "rename": "Failed to rename",
+    "duplicateFile": "Failed to duplicate file",
+    "importFile": "Failed to import file",
+    "localRepoNoSync": "Local repositories do not support sync",
+    "gitAdapterNotInitialized": "Git adapter not initialized",
+    "onlyFilesCanBeDuplicated": "Only files can be duplicated",
+    "noRepositoryConfigured": "No repository configured",
+    "gitOnlyOperation": "Git operations are only available for Git repositories"
+  },
+  "success": {
+    "syncedSuccessfully": "Synced successfully",
+    "nothingToCommit": "Nothing to commit",
+    "committedAndPushedSuccessfully": "Changes committed and pushed successfully"
+  },
+  "commit": {
+    "updatePrefix": "Update:",
+    "andMore": "and {count} more",
+    "multipleFiles": "multiple files"
+  }
+}

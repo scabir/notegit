@@ -1,0 +1,43 @@
+{
+  "tooltips": {
+    "search": "Sök (Cmd/Ctrl+P)",
+    "history": "Filhistorik",
+    "saveAll": "Spara alla öppna filer",
+    "sync": "Synkronisera",
+    "commitPush": "Commit och Push",
+    "settings": "Inställningar",
+    "shortcuts": "Kortkommandon"
+  },
+  "labels": {
+    "saving": "Sparar...",
+    "saved": "Sparad",
+    "error": "Fel"
+  },
+  "messages": {
+    "failedLoadWorkspace": "Det gick inte att läsa in arbetsytan",
+    "savedLocally": "Sparad lokalt",
+    "failedSaveFile": "Det gick inte att spara filen",
+    "failedReadFile": "Det gick inte att läsa filen",
+    "pullSuccessful": "Pull lyckades",
+    "failedPull": "Pull misslyckades",
+    "fetchSuccessful": "Fetch lyckades",
+    "failedFetch": "Fetch misslyckades",
+    "pushSuccessful": "Push lyckades",
+    "failedPush": "Push misslyckades",
+    "failedCreateFile": "Det gick inte att skapa filen",
+    "failedCreateFolder": "Det gick inte att skapa mappen",
+    "failedDelete": "Det gick inte att ta bort",
+    "failedRename": "Det gick inte att byta namn",
+    "failedImportFile": "Det gick inte att importera filen",
+    "moveCommitMessagePrefix": "Flytta:",
+    "failedAutoCommitMove": "Automatisk commit av flytt misslyckades",
+    "failedDuplicateFile": "Det gick inte att duplicera filen",
+    "syncing": "Synkroniserar...",
+    "committingAndPushing": "Committar och pushar...",
+    "syncedSuccessfully": "Synkronisering slutförd",
+    "failedSync": "Synkronisering misslyckades",
+    "nothingToCommit": "Inget att committa",
+    "committedAndPushedSuccessfully": "Commit och push slutförda",
+    "failedCommitAndPush": "Commit och push misslyckades"
+  }
+}

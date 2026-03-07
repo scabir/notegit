@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "Nie udało się pobrać wersjonowania bucketa: {message}",
+    "failedListObjects": "Nie udało się wylistować obiektów: {message}",
+    "failedListObjectVersions": "Nie udało się wylistować wersji obiektów: {message}",
+    "failedGetObject": "Nie udało się pobrać obiektu: {message}",
+    "failedUploadObject": "Nie udało się przesłać obiektu: {message}",
+    "failedReadObjectMetadata": "Nie udało się odczytać metadanych obiektu: {message}",
+    "failedDeleteObject": "Nie udało się usunąć obiektu: {message}",
+    "notConfigured": "Adapter S3 nie jest skonfigurowany",
+    "bucketNotConfigured": "Bucket S3 nie jest skonfigurowany"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "failedGetBucketVersioning": "تعذر جلب إعداد versioning للحاوية: {message}",
+    "failedListObjects": "تعذر عرض الكائنات: {message}",
+    "failedListObjectVersions": "تعذر عرض إصدارات الكائنات: {message}",
+    "failedGetObject": "تعذر جلب الكائن: {message}",
+    "failedUploadObject": "تعذر رفع الكائن: {message}",
+    "failedReadObjectMetadata": "تعذر قراءة بيانات الكائن: {message}",
+    "failedDeleteObject": "تعذر حذف الكائن: {message}",
+    "notConfigured": "لم يتم إعداد S3 adapter",
+    "bucketNotConfigured": "لم يتم إعداد حاوية S3"
+  }
+}
