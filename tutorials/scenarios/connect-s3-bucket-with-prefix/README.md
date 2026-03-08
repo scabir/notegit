@@ -1,0 +1,43 @@
+# [S3] Connect S3 Bucket with Prefix
+
+This tutorial is generated with Playwright against the local notegit app in mock S3 mode.
+
+## Step 1: Open notegit and start repository setup
+
+From the first launch screen, click **Connect to Repository** to configure S3 access.
+
+![Open notegit and start repository setup](images/step-01-welcome-screen.png)
+
+## Step 2: Switch repository type to S3
+
+In the connect dialog, choose **S3** so bucket and credential fields are shown.
+
+![Switch repository type to S3](images/step-02-switch-to-s3-tab.png)
+
+## Step 3: Fill bucket, region, and prefix
+
+Set a prefix to scope notes to a folder-like path inside the bucket.
+
+![Fill bucket, region, and prefix](images/step-03-fill-bucket-region-prefix.png)
+
+## Step 4: Enter AWS credentials
+
+Add Access Key ID and Secret Access Key, then verify all fields before connecting.
+
+![Enter AWS credentials](images/step-04-fill-s3-credentials.png)
+
+## Step 5: Verify S3 repository connected
+
+After connect, workspace loads and repository status confirms S3 connection with prefix scope.
+
+![Verify S3 repository connected](images/step-05-verify-s3-connected.png)
+
+## Manual Steps Not Captured in Screenshots
+
+### AWS and S3 checklist
+
+1. Open AWS S3 and verify bucket versioning is enabled.
+2. Create or use IAM credentials with S3 read/write permissions for the target bucket.
+3. Copy Access Key ID and Secret Access Key.
+4. In notegit, enter bucket, region, optional prefix, and credentials.
+5. If your organization rotates credentials, update them in Settings when sync fails.
