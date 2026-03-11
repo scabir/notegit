@@ -225,9 +225,17 @@ export const appendToCurrentEditor = async (
 };
 
 export const saveCurrentFile = async (page: Page): Promise<void> => {
-  await page.keyboard.press(`${getModKey()}+S`);
-  await expect(page.getByTestId("status-bar-save-status")).toBeVisible();
-  await expect(page.getByTestId("status-bar-save-status-saved")).toBeVisible();
+  const saveAllAction = page.getByTestId("status-bar-save-all-action");
+  await expect(saveAllAction).toBeVisible();
+
+  try {
+    await expect(saveAllAction).toBeEnabled({ timeout: 3000 });
+    await saveAllAction.click();
+  } catch {
+    await page.keyboard.press(`${getModKey()}+S`);
+  }
+
+  await expect(saveAllAction).toBeDisabled();
 };
 
 export const commitAndPushAll = async (page: Page): Promise<void> => {

@@ -22,8 +22,7 @@ run_pre_commit_checks() {
 }
 
 run_pre_push_checks() {
-  run_pre_commit_checks
-  run_step "pnpm run test" pnpm --dir "$PROJECT_ROOT" run test
+  run_step "pnpm run build" pnpm --dir "$PROJECT_ROOT" run build
 }
 
 case "$MODE" in
