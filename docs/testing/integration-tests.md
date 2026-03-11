@@ -2,6 +2,16 @@
 
 Integration tests run the packaged Electron app with isolated test `userData` directories and mocked providers.
 
+## Running Locally
+
+From `app/desktop`:
+
+```bash
+pnpm run test:integration
+```
+
+On Linux without an active display (`$DISPLAY`/`$WAYLAND_DISPLAY`), the runner automatically uses `xvfb-run`. If `xvfb-run` is missing, install `xvfb`.
+
 Current suite size:
 
 - `(git)`: 60 scenarios

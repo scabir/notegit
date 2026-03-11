@@ -20,15 +20,29 @@ jobs:
           - arch: x64
             runner: macos-15-intel
             artifact_name: app-macos-x64-dmg
+            artifact_basename: notegit-macos-x64
           - arch: arm64
             runner: macos-15
             artifact_name: app-macos-arm64-dmg
+            artifact_basename: notegit-macos-arm64
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
       CSC_FOR_PULL_REQUEST: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Read app version
+        id: app_version
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_VERSION="$(node -p "require('./package.json').version")"
+          if [ -z "$APP_VERSION" ]; then
+            echo "::error::Could not resolve app version from package.json"
+            exit 1
+          fi
+          echo "value=$APP_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Detect package manager
         id: detect_pm
@@ -196,13 +210,18 @@ jobs:
             exit 1
           fi
 
+          versioned_name="${{ matrix.artifact_basename }}-v${{ steps.app_version.outputs.value }}.dmg"
+          mkdir -p release-versioned
+          cp "$selected" "release-versioned/$versioned_name"
+
           echo "Selected DMG: $selected"
-          echo "dmg_path=app/desktop/$selected" >> "$GITHUB_OUTPUT"
+          echo "Versioned DMG: release-versioned/$versioned_name"
+          echo "dmg_path=app/desktop/release-versioned/$versioned_name" >> "$GITHUB_OUTPUT"
 
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
+          name: ${{ matrix.artifact_name }}-v${{ steps.app_version.outputs.value }}
           path: ${{ steps.locate_dmg.outputs.dmg_path }}
           if-no-files-found: error
           retention-days: 14
