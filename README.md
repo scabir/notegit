@@ -21,6 +21,18 @@ notegit is a desktop Markdown notes app that works with Git, S3, or Local reposi
 - Search and replace in file and across repository
 - Use history/version views and export notes or full repository ZIP
 
+### Quick Start (End Users)
+
+1. Install notegit from the latest release.
+2. Open the app and connect a repository:
+
+- Git
+- S3
+- Local (offline)
+
+3. Create your first note and save with `Ctrl/Cmd + S`.
+4. Use tutorials for feature-by-feature walkthroughs.
+
 ### Install
 
 Download the latest release from GitHub:
@@ -38,14 +50,23 @@ All releases: [github.com/scabir/notegit/releases](https://github.com/scabir/not
 - User guide: [USER_GUIDE.md](USER_GUIDE.md)
 - Step-by-step tutorials with screenshots: [tutorials/README.md](tutorials/README.md)
 
-## For Developers
+### Popular Tutorials
+
+- Git setup: [Connect Git Repository](tutorials/scenarios/connect-git-repository/README.md)
+- Git workflow: [Create and Edit Markdown in Preview + Split](tutorials/scenarios/create-and-edit-markdown-preview-split/README.md)
+- Git sync: [Commit, Pull, Push from Status Bar](tutorials/scenarios/commit-pull-push-from-status-bar/README.md)
+- S3 setup: [Connect S3 Bucket with Prefix](tutorials/scenarios/connect-s3-bucket-with-prefix/README.md)
+- Local offline mode: [Create Local Repository and Work Offline](tutorials/scenarios/create-local-repository-and-work-offline/README.md)
+- Language settings: [Switch Language and Verify Persistence](tutorials/scenarios/switch-language-and-verify-persistence/README.md)
+
+## Support
+
+Open an issue: https://github.com/scabir/notegit/issues
+
+## Developer Resources
 
 - Developer's Guide: [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)
 - Architecture: [docs/architecture/README.md](docs/architecture/README.md)
 - Testing: [docs/testing/README.md](docs/testing/README.md)
 - Integration scenario catalog: [docs/testing/integration-tests.md](docs/testing/integration-tests.md)
 - Build scripts: [app/desktop/setup/README.md](app/desktop/setup/README.md)
-
-## Support
-
-Open an issue: https://github.com/scabir/notegit/issues
