@@ -20,15 +20,29 @@ jobs:
           - target: deb
             extension: deb
             artifact_name: app-linux-deb
+            artifact_basename: notegit-linux-amd64
           - target: rpm
             extension: rpm
             artifact_name: app-linux-rpm
+            artifact_basename: notegit-linux-x86_64
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
       CSC_FOR_PULL_REQUEST: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Read app version
+        id: app_version
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_VERSION="$(node -p "require('./package.json').version")"
+          if [ -z "$APP_VERSION" ]; then
+            echo "::error::Could not resolve app version from package.json"
+            exit 1
+          fi
+          echo "value=$APP_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Detect package manager
         id: detect_pm
@@ -186,13 +200,18 @@ jobs:
             exit 1
           fi
 
+          versioned_name="${{ matrix.artifact_basename }}-v${{ steps.app_version.outputs.value }}.${{ matrix.extension }}"
+          mkdir -p release-versioned
+          cp "$selected" "release-versioned/$versioned_name"
+
           echo "Selected package: $selected"
-          echo "package_path=app/desktop/$selected" >> "$GITHUB_OUTPUT"
+          echo "Versioned package: release-versioned/$versioned_name"
+          echo "package_path=app/desktop/release-versioned/$versioned_name" >> "$GITHUB_OUTPUT"
 
       - name: Upload Linux ${{ matrix.target }} artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
+          name: ${{ matrix.artifact_name }}-v${{ steps.app_version.outputs.value }}
           path: ${{ steps.locate_pkg.outputs.package_path }}
           if-no-files-found: error
           retention-days: 14
