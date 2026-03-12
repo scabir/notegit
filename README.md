@@ -8,7 +8,7 @@ notegit is a desktop Markdown notes app that works with Git, S3, or Local reposi
 [![Windows Installer](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml)
 [![Linux Packages](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml/badge.svg)](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml)
 
-**Version**: 2.8.0  
+**Version**: 2.8.1  
 **License**: MIT
 
 ## For Users

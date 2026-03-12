@@ -29,8 +29,9 @@ import { registerExportHandlers } from "./handlers/exportHandlers";
 import { registerLogsHandlers } from "./handlers/logsHandlers";
 import { registerI18nHandlers } from "./handlers/i18nHandlers";
 import { logger } from "./utils/logger";
-import * as path from "path";
+import * as fs from "fs";
 import { createBackendTranslator } from "./i18n/backendTranslator";
+import { resolveLocalesRootDir } from "./utils/resolveLocalesRootDir";
 
 export function createBackend(ipcMain: IpcMain): void {
   logger.info("Initializing backend services");
@@ -70,9 +71,12 @@ export function createBackend(ipcMain: IpcMain): void {
   const searchService = new SearchService(fsAdapter);
   const logsService = new LogsService();
   const translationService = new TranslationService(fsAdapter, {
-    localesRootDir:
-      process.env.NOTEGIT_LOCALES_ROOT ||
-      path.resolve(__dirname, "../../../src"),
+    localesRootDir: resolveLocalesRootDir({
+      explicitRoot: process.env.NOTEGIT_LOCALES_ROOT,
+      resourcesPath: process.resourcesPath,
+      compiledDir: __dirname,
+      exists: (targetPath) => fs.existsSync(targetPath),
+    }),
   });
   const translate = createBackendTranslator(translationService, configService);
   const exportService = new ExportService(fsAdapter, configService, translate);

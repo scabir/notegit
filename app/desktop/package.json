@@ -1,6 +1,6 @@
 {
   "name": "notegit",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "packageManager": "pnpm@10.28.0",
   "description": "A Git-backed Markdown note-taking desktop application",
   "homepage": "https://github.com/scabir/notegit",
@@ -24,7 +24,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:integration": "pnpm run build && pnpm exec playwright test -c playwright.integration.config.ts",
+    "test:integration": "pnpm run build && node scripts/run-integration-tests.js",
     "test:integration:headed": "pnpm run build && pnpm exec playwright test -c playwright.integration.config.ts --headed",
     "coverage:check": "node scripts/check-coverage-threshold.js",
     "coverage:check-staged": "pnpm run coverage:check",
@@ -114,7 +114,19 @@
     },
     "files": [
       "dist/**/*",
+      "src/backend/i18n/**/*",
+      "src/frontend/i18n/**/*",
       "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "src/frontend/i18n",
+        "to": "locales/frontend/i18n"
+      },
+      {
+        "from": "src/backend/i18n",
+        "to": "locales/backend/i18n"
+      }
     ],
     "mac": {
       "category": "public.app-category.productivity",
