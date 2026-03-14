@@ -6,6 +6,9 @@ import splitViewScreenshot from "../assets/screenshots/split-view.png";
 import linuxIcon from "../assets/icons/linux.svg";
 import macosIcon from "../assets/icons/macos.svg";
 import windowsIcon from "../assets/icons/windows.svg";
+import githubIcon from "../assets/icons/github.svg";
+import linkedinIcon from "../assets/icons/linkedin.svg";
+import awsS3Icon from "../assets/icons/aws-s3.svg";
 
 export interface NavigationItem {
   label: string;
@@ -17,11 +20,6 @@ export interface ActionLink {
   href: string;
 }
 
-export interface HeroMetric {
-  label: string;
-  value: string;
-}
-
 export interface HeroPreview {
   image: string;
   alt: string;
@@ -29,8 +27,23 @@ export interface HeroPreview {
 }
 
 export interface FeatureItem {
+  icon: string;
   title: string;
   description: string;
+  badges?: FeatureBadge[];
+  platformIcons?: FeaturePlatformIcon[];
+  isWide?: boolean;
+}
+
+export interface FeatureBadge {
+  alt: string;
+  imageUrl: string;
+  href: string;
+}
+
+export interface FeaturePlatformIcon {
+  icon: string;
+  iconAlt: string;
 }
 
 export interface ScreenshotItem {
@@ -47,6 +60,7 @@ export interface WhyItem {
 
 export interface WorkflowStep {
   title: string;
+  icon: string;
   description: string;
 }
 
@@ -54,6 +68,15 @@ export interface LinkItem {
   label: string;
   href: string;
   description: string;
+  icon?: string;
+}
+
+export interface OfficialDocumentationLink {
+  label: string;
+  href: string;
+  description: string;
+  icon: string;
+  iconAlt: string;
 }
 
 export interface AboutSectionContent {
@@ -62,12 +85,23 @@ export interface AboutSectionContent {
   details: string[];
 }
 
-export interface DownloadTarget {
+export interface SocialLink {
   label: string;
-  description: string;
-  assetNamePatterns: string[];
+  href: string;
   icon: string;
   iconAlt: string;
+}
+
+export interface DownloadTarget {
+  label: string;
+  icon: string;
+  iconAlt: string;
+  builds: DownloadBuild[];
+}
+
+export interface DownloadBuild {
+  label: string;
+  assetNamePattern: string;
 }
 
 interface RepositoryConfig {
@@ -87,6 +121,12 @@ const githubBase = `https://github.com/${repository.owner}/${repository.name}`;
 const githubBlobBase = `${githubBase}/blob/${repository.branch}`;
 const githubLatestReleasePage = `${githubBase}/releases/latest`;
 const githubLatestReleaseApi = `https://api.github.com/repos/${repository.owner}/${repository.name}/releases/latest`;
+const coverageBadgeImageUrl =
+  "https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/scabir/NoteBranch/main/badges/coverage.json";
+const integrationBadgeImageUrl =
+  "https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/scabir/NoteBranch/main/badges/integration.json";
+const coverageWorkflowUrl = `${githubBase}/actions/workflows/coverage.yml`;
+const integrationWorkflowUrl = `${githubBase}/actions/workflows/integration.yml`;
 
 const toBlobLink = (path: string): string => `${githubBlobBase}/${path}`;
 
@@ -94,17 +134,32 @@ export const branding = {
   productName: "NoteBranch",
   tagline: "Markdown notes that stay in your Git, AWS S3, or local workspace.",
   summary:
-    "A desktop workspace for writing, organizing, versioning, and exporting notes without locking your data into a proprietary cloud.",
-  madeInLabel: "Made in UK"
+    "A free, open-source desktop workspace for writing, organizing, versioning, and exporting notes without locking your data into a proprietary cloud.",
+  madeInLabel: "Made in UK",
+  maintainerIntro: "Built and maintained by",
+  maintainerName: "Suleyman Cabir Ataman, PhD",
+  maintainerSocialLinks: [
+    {
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/in/scabir",
+      icon: linkedinIcon,
+      iconAlt: "LinkedIn"
+    },
+    {
+      label: "GitHub",
+      href: "https://github.com/scabir",
+      icon: githubIcon,
+      iconAlt: "GitHub"
+    }
+  ] as SocialLink[]
 };
 
 export const navItems: NavigationItem[] = [
+  { label: "Home", href: "#top" },
   { label: "Features", href: "#features" },
-  { label: "Screenshots", href: "#screenshots" },
-  { label: "Why", href: "#why" },
   { label: "How it works", href: "#how-it-works" },
   { label: "Tutorials", href: "#tutorials" },
-  { label: "Source Code", href: "#source-code" },
+  { label: "Screenshots", href: "#screenshots" },
   { label: "About", href: "#about" }
 ];
 
@@ -131,50 +186,45 @@ export const latestRelease = {
 
 export const heroDownloadTargets: DownloadTarget[] = [
   {
-    label: "Windows",
-    description: "x64 installer (.exe)",
-    assetNamePatterns: ["NoteBranch-windows-x64-setup-.*\\.exe$"],
-    icon: windowsIcon,
-    iconAlt: "Windows"
-  },
-  {
     label: "macOS",
-    description: "Apple Silicon (.dmg)",
-    assetNamePatterns: [
-      "NoteBranch-macos-arm64-.*\\.dmg$",
-      "NoteBranch-macos-x64-.*\\.dmg$"
-    ],
     icon: macosIcon,
-    iconAlt: "macOS"
+    iconAlt: "macOS",
+    builds: [
+      {
+        label: "Apple Silicon (.dmg)",
+        assetNamePattern: "NoteBranch-macos-arm64-.*\\.dmg$"
+      },
+      {
+        label: "Intel x64 (.dmg)",
+        assetNamePattern: "NoteBranch-macos-x64-.*\\.dmg$"
+      }
+    ]
   },
   {
     label: "Linux",
-    description: ".deb package",
-    assetNamePatterns: [
-      "NoteBranch-linux-amd64-.*\\.deb$",
-      "NoteBranch-linux-x86_64-.*\\.rpm$"
-    ],
     icon: linuxIcon,
-    iconAlt: "Linux"
-  }
-];
-
-export const heroMetrics: HeroMetric[] = [
-  {
-    label: "License",
-    value: "MIT"
+    iconAlt: "Linux",
+    builds: [
+      {
+        label: "AMD64 (.deb)",
+        assetNamePattern: "NoteBranch-linux-amd64-.*\\.deb$"
+      },
+      {
+        label: "x86_64 (.rpm)",
+        assetNamePattern: "NoteBranch-linux-x86_64-.*\\.rpm$"
+      }
+    ]
   },
   {
-    label: "Storage",
-    value: "Git, AWS S3, Local"
-  },
-  {
-    label: "Platforms",
-    value: "macOS, Windows, Linux"
-  },
-  {
-    label: "Languages",
-    value: "17 UI locales"
+    label: "Windows",
+    icon: windowsIcon,
+    iconAlt: "Windows",
+    builds: [
+      {
+        label: "x64 installer (.exe)",
+        assetNamePattern: "NoteBranch-windows-x64-setup-.*\\.exe$"
+      }
+    ]
   }
 ];
 
@@ -200,44 +250,88 @@ export const whatItIs = {
 
 export const features: FeatureItem[] = [
   {
-    title: "Markdown editing built for long sessions",
+    icon: "edit_note",
+    title: "User power of Markdown",
     description:
-      "Create and edit Markdown with dedicated preview and split-view modes for docs-first workflows."
+      "Write in Markdown with editor, preview-only, and split view modes built for real day-to-day documentation."
   },
   {
-    title: "Structured note organization",
+    icon: "cloud_sync",
+    title: "Store in cloud or local",
     description:
-      "Manage files and folders with create, rename, move, duplicate, import, and favorites support."
+      "Use Git repositories, AWS S3 buckets (with optional prefix), or Local mode without changing your core workflow."
   },
   {
-    title: "Provider choice without workflow changes",
+    icon: "lock",
+    title: "Full privacy and ownership",
     description:
-      "Connect to Git repositories, AWS S3 buckets (with optional prefix), or local repositories."
+      "There is no hosted NoteBranch notes cloud. Your notes stay in storage you configure and control."
   },
   {
-    title: "Repository-wide find and replace",
+    icon: "history",
+    title: "History and restore",
     description:
-      "Search inside the current file or across the repository with case-sensitive and regex options."
+      "Inspect file history in Git or versioned objects in AWS S3, then restore the reference you need."
   },
   {
-    title: "Version history and restore references",
+    icon: "schema",
+    title: "Diagram support (Mermaid)",
     description:
-      "Inspect file history for Git and AWS S3 versioned objects, then restore the content reference you need."
+      "Create Mermaid diagrams inside Markdown blocks and preview rendered diagrams directly in the app."
   },
   {
-    title: "Export and portability",
+    icon: "menu_book",
+    title: "Strong help documentation",
     description:
-      "Export the current note or the full repository as ZIP when sharing or backing up work."
+      "User guide, technical docs, and tutorial scenarios are maintained in-repo for setup, workflows, and troubleshooting."
   },
   {
-    title: "Language and workflow settings",
+    icon: "ios_share",
+    title: "Export",
     description:
-      "Switch app language, tune autosave/sync intervals, and keep preferences across restarts."
+      "Export the current note or the full repository as ZIP for backup, migration, or sharing."
   },
   {
-    title: "Local credential protection",
+    icon: "code",
+    title: "Open source and transparent",
     description:
-      "Sensitive credentials are stored locally with encryption in the desktop app environment."
+      "MIT-licensed and free to use. Source code, technical docs, user guide, and tutorial scenarios are maintained in the public repository."
+  },
+  {
+    icon: "verified",
+    title: "High-quality codebase",
+    description:
+      "Current CI reports 92% coverage and 110/110 integration scenarios passing.",
+    badges: [
+      {
+        alt: "Coverage badge (92%)",
+        imageUrl: coverageBadgeImageUrl,
+        href: coverageWorkflowUrl
+      },
+      {
+        alt: "Integration badge (110/110 passing)",
+        imageUrl: integrationBadgeImageUrl,
+        href: integrationWorkflowUrl
+      }
+    ]
+  },
+  {
+    icon: "devices",
+    title: "All desktop platforms supported",
+    description:
+      "Release artifacts are built for macOS, Linux, and Windows, including .dmg, .deb, .rpm, and .exe formats.",
+    platformIcons: [
+      { icon: macosIcon, iconAlt: "macOS" },
+      { icon: linuxIcon, iconAlt: "Linux" },
+      { icon: windowsIcon, iconAlt: "Windows" }
+    ]
+  },
+  {
+    icon: "translate",
+    title: "Strong localization",
+    description:
+      "Supported languages: English (English), Chinese (中文), Hindi (हिन्दी), Spanish (Español), German (Deutsch), Arabic (العربية), French (Français), Russian (Русский), Portuguese (Português), Japanese (日本語), Turkish (Türkçe), Italian (Italiano), Polish (Polski), Ukrainian (Українська), Kurdish (Kurdî), Swedish (Svenska), Greek (Ελληνικά).",
+    isWide: true
   }
 ];
 
@@ -304,40 +398,66 @@ export const aboutSection: AboutSectionContent = {
 export const workflowSteps: WorkflowStep[] = [
   {
     title: "1. Connect a provider",
+    icon: "settings_input_component",
     description:
-      "Start with Git, AWS S3, or Local. Enter only the settings needed for that provider."
+      "Start with Git, AWS S3, or Local, then save provider-specific settings in one setup flow. Profiles let you switch between repositories without repeating setup."
   },
   {
     title: "2. Write and organize notes",
+    icon: "edit_note",
     description:
-      "Create Markdown files, structure folders, and use preview modes while saving changes."
+      "Create Markdown files, organize folders, and move through editor, preview, or split view as you work. Search, replace, and favorites keep larger workspaces manageable."
   },
   {
-    title: "3. Sync in provider-specific mode",
+    title: "3. Sync",
+    icon: "sync",
     description:
-      "Git mode uses commit/pull/push actions, AWS S3 mode tracks pending-to-synced uploads, Local mode stays offline."
+      "Sync changes through a consistent status bar flow: commit/pull/push for Git, pending-to-synced uploads for AWS S3, and local-only persistence for Local mode."
   },
   {
     title: "4. Review history and export",
+    icon: "history",
     description:
-      "Open the history panel for previous versions and export notes or full repository ZIPs when needed."
+      "Open the history panel to inspect earlier versions and restore the content you need. Export single notes or full repository ZIP archives when sharing or backing up."
+  }
+];
+
+export const officialDocumentationLinks: OfficialDocumentationLink[] = [
+  {
+    label: "GitHub Documentation",
+    description:
+      "Official guides for repositories, authentication, and collaboration workflows used in Git mode.",
+    href: "https://docs.github.com/en",
+    icon: githubIcon,
+    iconAlt: "GitHub"
+  },
+  {
+    label: "AWS S3 Documentation",
+    description:
+      "Official AWS S3 user guide for buckets, versioning, permissions, and storage operations.",
+    href: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html",
+    icon: awsS3Icon,
+    iconAlt: "AWS S3"
   }
 ];
 
 export const tutorialLinks: LinkItem[] = [
   {
+    icon: "account_tree",
     label: "Connect Git Repository",
     description:
       "Step-by-step setup for connecting a remote Git repository and verifying workspace state.",
     href: toBlobLink("tutorials/scenarios/connect-git-repository/README.md")
   },
   {
+    icon: "cloud_sync",
     label: "Connect AWS S3 Bucket with Prefix",
     description:
       "Configure bucket, region, prefix, and credentials for an AWS S3-backed workspace.",
     href: toBlobLink("tutorials/scenarios/connect-s3-bucket-with-prefix/README.md")
   },
   {
+    icon: "folder",
     label: "Create Local Repository and Work Offline",
     description:
       "Run the same editor and file workflows with local-only storage and no remote sync.",
@@ -346,6 +466,7 @@ export const tutorialLinks: LinkItem[] = [
     )
   },
   {
+    icon: "edit_note",
     label: "Create and Edit Markdown (Preview + Split)",
     description:
       "Build notes with markdown preview controls and split layout for faster iteration.",
@@ -354,6 +475,7 @@ export const tutorialLinks: LinkItem[] = [
     )
   },
   {
+    icon: "manage_search",
     label: "Search and Replace (File + Repository)",
     description:
       "Find text in current file or across repository scope using search controls.",
@@ -362,6 +484,7 @@ export const tutorialLinks: LinkItem[] = [
     )
   },
   {
+    icon: "sync_alt",
     label: "Commit, Pull, Push from Status Bar",
     description:
       "Use Git status actions in sequence for practical day-to-day repository sync.",
@@ -370,6 +493,7 @@ export const tutorialLinks: LinkItem[] = [
     )
   },
   {
+    icon: "history",
     label: "View History and Restore Reference",
     description:
       "Inspect past versions and restore the content reference you want to continue from.",
@@ -378,6 +502,7 @@ export const tutorialLinks: LinkItem[] = [
     )
   },
   {
+    icon: "ios_share",
     label: "Export Note and Repository ZIP",
     description:
       "Export the current note or full repository archive directly from settings.",
@@ -391,7 +516,7 @@ export const openSourceHighlights: string[] = [
   "Source code is publicly available on GitHub under the MIT license.",
   "Technical docs, user guide, and tutorial scenarios are versioned with the codebase.",
   "Community contributions are handled with issues and pull requests.",
-  "Release artifacts are published for macOS, Windows, and Linux."
+  "Release artifacts are published for macOS, Linux, and Windows."
 ];
 
 export const openSourceAction: ActionLink = {
@@ -401,31 +526,37 @@ export const openSourceAction: ActionLink = {
 
 export const sourceCodeLinks: LinkItem[] = [
   {
+    icon: "code",
     label: "GitHub Repository",
     description: "Browse source, issues, pull requests, and release notes.",
     href: githubBase
   },
   {
+    icon: "new_releases",
     label: "Releases",
     description: "Download desktop builds and track release history.",
     href: `${githubBase}/releases`
   },
   {
+    icon: "menu_book",
     label: "User Guide",
     description: "End-user setup steps, workflows, and troubleshooting.",
     href: toBlobLink("docs/USER_GUIDE.md")
   },
   {
+    icon: "description",
     label: "Technical Documentation",
     description: "Architecture, security model, development, and test reference.",
     href: toBlobLink("docs/tech/README.md")
   },
   {
+    icon: "school",
     label: "Tutorial Hub",
     description: "Playwright-generated tutorials with step-by-step screenshots.",
     href: toBlobLink("tutorials/README.md")
   },
   {
+    icon: "gavel",
     label: "License",
     description: "MIT license terms for using and extending the project.",
     href: toBlobLink("LICENSE")

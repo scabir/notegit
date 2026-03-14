@@ -1,18 +1,29 @@
+import type { CSSProperties } from "react";
 import { SectionHeading } from "../components/SectionHeading";
 import ukIcon from "../assets/icons/uk.svg";
+import type { LinkItem, SocialLink } from "../data/siteContent";
+import { linkTargetProps } from "../utils/links";
 
 interface AboutSectionProps {
   title: string;
   summary: string;
   details: string[];
+  links: LinkItem[];
   madeInLabel: string;
+  maintainerIntro: string;
+  maintainerName: string;
+  maintainerSocialLinks: SocialLink[];
 }
 
 export function AboutSection({
   title,
   summary,
   details,
-  madeInLabel
+  links,
+  madeInLabel,
+  maintainerIntro,
+  maintainerName,
+  maintainerSocialLinks
 }: AboutSectionProps) {
   return (
     <section id="about" className="section">
@@ -29,17 +40,67 @@ export function AboutSection({
               <li key={item}>{item}</li>
             ))}
           </ul>
-          <p className="about-made-in">
-            <img
-              className="about-made-in-icon"
-              src={ukIcon}
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-            />
-            <span>{madeInLabel}</span>
-          </p>
         </article>
+
+        <div className="cards-grid compact-grid about-links-grid">
+          {links.map((link, index) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="surface-card source-link-card reveal"
+              style={{ "--delay": `${0.06 + index * 0.03}s` } as CSSProperties}
+              {...linkTargetProps(link.href)}
+            >
+              <div className="about-link-head">
+                <span className="about-link-icon-wrap" aria-hidden="true">
+                  <span className="about-link-icon material-symbols-rounded">
+                    {link.icon ?? "link"}
+                  </span>
+                </span>
+                <h3>{link.label}</h3>
+              </div>
+              <p>{link.description}</p>
+              <span className="inline-link">Open link</span>
+            </a>
+          ))}
+        </div>
+
+        <p className="about-credit reveal">
+          <span>{maintainerIntro} </span>
+          <strong>{maintainerName}</strong>
+        </p>
+
+        <div className="about-social-links reveal">
+          {maintainerSocialLinks.map((link) => (
+            <a
+              key={link.href}
+              className="about-social-link"
+              href={link.href}
+              aria-label={`${link.label} profile`}
+              {...linkTargetProps(link.href)}
+            >
+              <img
+                className="about-social-icon"
+                src={link.icon}
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+              />
+              <span>{link.label}</span>
+            </a>
+          ))}
+        </div>
+
+        <p className="about-made-in reveal">
+          <img
+            className="about-made-in-icon"
+            src={ukIcon}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+          />
+          <span>{madeInLabel}</span>
+        </p>
       </div>
     </section>
   );

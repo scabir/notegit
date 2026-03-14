@@ -1,8 +1,8 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import type {
   ActionLink,
+  DownloadBuild,
   DownloadTarget,
-  HeroMetric,
   HeroPreview
 } from "../data/siteContent";
 import { linkTargetProps } from "../utils/links";
@@ -12,7 +12,6 @@ interface HeroSectionProps {
   tagline: string;
   summary: string;
   actions: ActionLink[];
-  metrics: HeroMetric[];
   preview: HeroPreview;
   releasePageUrl: string;
   releaseApiUrl: string;
@@ -31,9 +30,13 @@ interface LatestReleaseResponse {
 
 interface ResolvedDownload {
   label: string;
-  description: string;
   icon: string;
   iconAlt: string;
+  builds: ResolvedBuild[];
+}
+
+interface ResolvedBuild {
+  label: string;
   href: string;
   isFallback: boolean;
 }
@@ -44,28 +47,31 @@ const resolveDownloadLinks = (
   releasePageUrl: string
 ): ResolvedDownload[] =>
   targets.map((target) => {
-    const match = assets.find((asset) =>
-      target.assetNamePatterns.some((pattern) => new RegExp(pattern, "i").test(asset.name))
-    );
+    const resolvedBuilds = target.builds.map((build: DownloadBuild) => {
+      const match = assets.find((asset) =>
+        new RegExp(build.assetNamePattern, "i").test(asset.name)
+      );
 
-    if (match) {
+      if (match) {
+        return {
+          label: build.label,
+          href: match.browser_download_url,
+          isFallback: false
+        };
+      }
+
       return {
-        label: target.label,
-        description: target.description,
-        icon: target.icon,
-        iconAlt: target.iconAlt,
-        href: match.browser_download_url,
-        isFallback: false
+        label: build.label,
+        href: releasePageUrl,
+        isFallback: true
       };
-    }
+    });
 
     return {
       label: target.label,
-      description: target.description,
       icon: target.icon,
       iconAlt: target.iconAlt,
-      href: releasePageUrl,
-      isFallback: true
+      builds: resolvedBuilds
     };
   });
 
@@ -74,7 +80,6 @@ export function HeroSection({
   tagline,
   summary,
   actions,
-  metrics,
   preview,
   releasePageUrl,
   releaseApiUrl,
@@ -116,7 +121,9 @@ export function HeroSection({
           assets,
           releasePage
         );
-        const usedFallback = resolvedDownloads.some((item) => item.isFallback);
+        const usedFallback = resolvedDownloads.some((item) =>
+          item.builds.some((build) => build.isFallback)
+        );
 
         if (!active) {
           return;
@@ -150,67 +157,73 @@ export function HeroSection({
 
   return (
     <section id="top" className="section hero-section">
-      <div className="container hero-grid">
-        <div className="reveal hero-copy">
-          <p className="hero-kicker">{productName}</p>
-          <h1>{tagline}</h1>
-          <p className="hero-summary">{summary}</p>
+      <div className="container">
+        <div className="hero-grid">
+          <div className="reveal hero-copy">
+            <p className="hero-kicker">{productName}</p>
+            <h1>{tagline}</h1>
+            <p className="hero-summary">{summary}</p>
 
-          <div className="hero-actions">
-            {actions.map((action, index) => (
-              <a
-                key={action.href}
-                href={action.href}
-                className={index === 0 ? "button button-primary" : "button button-ghost"}
-                {...linkTargetProps(action.href)}
-              >
-                {action.label}
-              </a>
-            ))}
-          </div>
-
-          <div className="downloads-panel">
-            <p className="downloads-title">Download latest</p>
-            <div className="downloads-grid">
-              {downloads.map((download) => (
+            <div className="hero-actions">
+              {actions.map((action, index) => (
                 <a
-                  key={download.label}
-                  className="download-link"
-                  href={download.href}
-                  {...linkTargetProps(download.href)}
+                  key={action.href}
+                  href={action.href}
+                  className={index === 0 ? "button button-primary" : "button button-ghost"}
+                  {...linkTargetProps(action.href)}
                 >
-                  <span className="download-header">
-                    <img
-                      className="download-icon"
-                      src={download.icon}
-                      alt=""
-                      aria-hidden="true"
-                      loading="lazy"
-                    />
-                    <span className="download-label">{download.label}</span>
-                  </span>
-                  <span className="download-description">{download.description}</span>
+                  {action.label}
                 </a>
               ))}
             </div>
-            <p className="downloads-note">{downloadNote}</p>
           </div>
 
-          <div className="metrics-grid">
-            {metrics.map((metric) => (
-              <div key={metric.label} className="metric-chip">
-                <p className="metric-value">{metric.value}</p>
-                <p className="metric-label">{metric.label}</p>
-              </div>
-            ))}
+          <div
+            className="reveal hero-preview"
+            style={{ "--delay": "0.08s" } as CSSProperties}
+          >
+            <div className="preview-frame">
+              <img src={preview.image} alt={preview.alt} loading="eager" />
+              <p className="preview-caption">{preview.caption}</p>
+            </div>
           </div>
         </div>
 
-        <div className="reveal hero-preview" style={{ "--delay": "0.08s" } as CSSProperties}>
-          <div className="preview-frame">
-            <img src={preview.image} alt={preview.alt} loading="eager" />
-            <p className="preview-caption">{preview.caption}</p>
+        <div
+          className="downloads-panel hero-downloads-panel reveal"
+          style={{ "--delay": "0.12s" } as CSSProperties}
+        >
+          <p className="downloads-title">Download latest release</p>
+          <div className="downloads-grid">
+            {downloads.map((download) => (
+              <article key={download.label} className="download-card">
+                <span className="download-header">
+                  <img
+                    className="download-icon"
+                    src={download.icon}
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                  />
+                  <span className="download-label">{download.label}</span>
+                </span>
+
+                <div className="download-build-links">
+                  {download.builds.map((build) => (
+                    <a
+                      key={`${download.label}-${build.label}`}
+                      className="download-build-link"
+                      href={build.href}
+                      {...linkTargetProps(build.href)}
+                    >
+                      {build.label}
+                    </a>
+                  ))}
+                </div>
+              </article>
+            ))}
           </div>
+          <p className="downloads-note">{downloadNote}</p>
         </div>
       </div>
     </section>

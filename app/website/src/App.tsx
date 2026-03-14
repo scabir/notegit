@@ -7,30 +7,22 @@ import {
   footerLinks,
   heroActions,
   heroDownloadTargets,
-  heroMetrics,
   heroPreview,
   latestRelease,
   navItems,
-  openSourceAction,
-  openSourceHighlights,
+  officialDocumentationLinks,
   primaryNavAction,
   screenshots,
   sourceCodeLinks,
   tutorialLinks,
-  whatItIs,
-  whyItExists,
   workflowSteps
 } from "./data/siteContent";
 import { FeaturesSection } from "./sections/FeaturesSection";
 import { HeroSection } from "./sections/HeroSection";
 import { HowItWorksSection } from "./sections/HowItWorksSection";
 import { AboutSection } from "./sections/AboutSection";
-import { OpenSourceSection } from "./sections/OpenSourceSection";
 import { ScreenshotsSection } from "./sections/ScreenshotsSection";
-import { SourceCodeSection } from "./sections/SourceCodeSection";
 import { TutorialsSection } from "./sections/TutorialsSection";
-import { WhatItIsSection } from "./sections/WhatItIsSection";
-import { WhySection } from "./sections/WhySection";
 
 function App() {
   return (
@@ -47,32 +39,27 @@ function App() {
           tagline={branding.tagline}
           summary={branding.summary}
           actions={heroActions}
-          metrics={heroMetrics}
           preview={heroPreview}
           releasePageUrl={latestRelease.pageUrl}
           releaseApiUrl={latestRelease.apiUrl}
           downloadTargets={heroDownloadTargets}
         />
-        <WhatItIsSection
-          title={whatItIs.title}
-          paragraphs={whatItIs.paragraphs}
-          highlights={whatItIs.highlights}
-        />
         <FeaturesSection items={features} />
-        <ScreenshotsSection items={screenshots} />
-        <WhySection items={whyItExists} />
-        <HowItWorksSection steps={workflowSteps} />
-        <TutorialsSection links={tutorialLinks} />
-        <OpenSourceSection
-          highlights={openSourceHighlights}
-          action={openSourceAction}
+        <HowItWorksSection
+          steps={workflowSteps}
+          documentationLinks={officialDocumentationLinks}
         />
-        <SourceCodeSection links={sourceCodeLinks} />
+        <TutorialsSection links={tutorialLinks} />
+        <ScreenshotsSection items={screenshots} />
         <AboutSection
           title={aboutSection.title}
           summary={aboutSection.summary}
           details={aboutSection.details}
+          links={sourceCodeLinks}
           madeInLabel={branding.madeInLabel}
+          maintainerIntro={branding.maintainerIntro}
+          maintainerName={branding.maintainerName}
+          maintainerSocialLinks={branding.maintainerSocialLinks}
         />
       </main>
 
