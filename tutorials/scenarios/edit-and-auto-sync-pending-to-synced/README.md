@@ -1,18 +1,18 @@
-# [S3] Edit and Auto Sync (Pending to Synced)
+# [AWS S3] Edit and Auto Sync (Pending to Synced)
 
-This scenario shows the S3 sync status transition from pending local changes to synced state.
+This scenario shows the AWS S3 sync status transition from pending local changes to synced state.
 
-## Step 1: Start from connected S3 workspace
+## Step 1: Start from connected AWS S3 workspace
 
-Connect to S3 first so status bar sync actions and pending counters become available.
+Connect to AWS S3 first so status bar sync actions and pending counters become available.
 
-![Start from connected S3 workspace](images/step-01-connected-s3-workspace.png)
+![Start from connected AWS S3 workspace](images/step-01-connected-s3-workspace.png)
 
-## Step 2: Create local S3 changes
+## Step 2: Create local AWS S3 changes
 
-Create local note changes first so S3 sync chip can transition from pending to synced.
+Create local note changes first so AWS S3 sync chip can transition from pending to synced.
 
-![Create local S3 changes](images/step-02-edit-and-save-note.png)
+![Create local AWS S3 changes](images/step-02-edit-and-save-note.png)
 
 ## Step 3: Observe pending sync state
 
@@ -34,5 +34,5 @@ After upload finishes, the sync chip returns to **Synced**.
 
 ## Manual Notes
 
-- S3 auto sync also runs on interval from App Settings.
+- AWS S3 auto sync also runs on interval from App Settings.
 - Use the status bar sync action when you need immediate upload.

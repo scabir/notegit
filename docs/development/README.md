@@ -1,53 +1,5 @@
-# Development
+# Development (Moved)
 
-## Prerequisites
+Development workflows are consolidated into:
 
-- Node.js 18+
-- pnpm
-- Git (for Git repos)
-- S3 credentials (for S3 repos)
-
-## Local dev
-
-```bash
-cd app/desktop
-pnpm install
-pnpm run dev
-```
-
-## Build and run
-
-```bash
-cd app/desktop
-pnpm run build
-pnpm start
-```
-
-### Dev console (optional)
-
-Launch the app with DevTools open:
-
-```bash
-cd app/desktop
-pnpm start -- --devtools
-```
-
-## Packaging
-
-Build scripts live in `app/desktop/setup/`:
-
-```bash
-cd app/desktop/setup
-./build-mac.sh
-./build-windows.sh
-./build-linux.sh
-```
-
-Outputs are written to `app/desktop/release/`:
-
-- `notegit-{version}.dmg` and `notegit-{version}-mac.zip`
-- `notegit Setup {version}.exe` and `notegit {version}.exe`
-- `notegit-{version}.AppImage`, `notegit_{version}_amd64.deb`, `notegit-{version}.x86_64.rpm`
-
-Released binaries:
-https://drive.google.com/drive/folders/1kI5mWrkVu30ASVN2loQVWnXtE8MgXq4v
+- [docs/tech/README.md](../tech/README.md#development)

@@ -14,8 +14,8 @@ const loadDesktopPackageJson = (): DesktopPackageJson => {
   return JSON.parse(raw) as DesktopPackageJson;
 };
 
-describe("electron-builder i18n packaging config", () => {
-  it("includes frontend and backend locale directories", () => {
+describe("electron-builder packaging config", () => {
+  it("includes locale directories and tutorial assets", () => {
     const packageJson = loadDesktopPackageJson();
     const buildFiles = packageJson.build?.files;
     const extraResources = packageJson.build?.extraResources;
@@ -38,6 +38,11 @@ describe("electron-builder i18n packaging config", () => {
         expect.objectContaining({
           from: "src/backend/i18n",
           to: "locales/backend/i18n",
+        }),
+        expect.objectContaining({
+          from: "../../tutorials",
+          to: "tutorials",
+          filter: ["scenarios/**/*"],
         }),
       ]),
     );

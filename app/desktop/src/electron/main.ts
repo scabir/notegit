@@ -18,7 +18,7 @@ import {
 let mainWindow: BrowserWindow | null = null;
 const buildWindowTitle = () => `notegit - ${app.getVersion()}`;
 const SOURCE_CODE_URL = "https://github.com/scabir/notegit";
-const USER_GUIDE_URL = `${SOURCE_CODE_URL}/blob/main/USER_GUIDE.md`;
+const USER_GUIDE_URL = `${SOURCE_CODE_URL}/blob/main/docs/USER_GUIDE.md`;
 const isIntegrationTestMode = process.env.NOTEGIT_INTEGRATION_TEST === "1";
 
 const configureIntegrationUserDataPath = () => {
@@ -184,7 +184,7 @@ if (!gotTheLock) {
       }
 
       const { createBackend } = await import("../backend");
-      createBackend(ipcMain);
+      await createBackend(ipcMain);
       Menu.setApplicationMenu(Menu.buildFromTemplate(buildAppMenu()));
 
       ipcMain.handle("app:restart", () => {

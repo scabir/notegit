@@ -36,9 +36,9 @@ node tutorials/scripts/generate-global-switch-language-and-verify-persistence-tu
 - [[Git] Commit, Pull, Push from Status Bar](scenarios/commit-pull-push-from-status-bar/README.md)
 - [[Git] View History and Restore Reference](scenarios/view-history-and-restore-reference/README.md)
 - [[Git] Export Note and Export Repository ZIP](scenarios/export-note-and-export-repository-zip/README.md)
-- [[S3] Connect S3 Bucket with Prefix](scenarios/connect-s3-bucket-with-prefix/README.md)
-- [[S3] Edit and Auto Sync (Pending to Synced)](scenarios/edit-and-auto-sync-pending-to-synced/README.md)
-- [[S3] History with Versioned Objects](scenarios/s3-history-with-versioned-objects/README.md)
+- [[AWS S3] Connect AWS S3 Bucket with Prefix](scenarios/connect-s3-bucket-with-prefix/README.md)
+- [[AWS S3] Edit and Auto Sync (Pending to Synced)](scenarios/edit-and-auto-sync-pending-to-synced/README.md)
+- [[AWS S3] History with Versioned Objects](scenarios/s3-history-with-versioned-objects/README.md)
 - [[Local] Create Local Repository and Work Offline](scenarios/create-local-repository-and-work-offline/README.md)
 - [[Local] Save and Reopen Persistence Check](scenarios/local-save-and-reopen-persistence-check/README.md)
 - [[Global] Switch Language and Verify Persistence](scenarios/switch-language-and-verify-persistence/README.md)
@@ -55,9 +55,9 @@ node tutorials/scripts/generate-global-switch-language-and-verify-persistence-tu
 - [x] `[Git] commit-pull-push-from-status-bar`
 - [x] `[Git] view-history-and-restore-reference`
 - [x] `[Git] export-note-and-export-repository-zip`
-- [x] `[S3] connect-s3-bucket-with-prefix`
-- [x] `[S3] edit-and-auto-sync-pending-to-synced`
-- [x] `[S3] s3-history-with-versioned-objects`
+- [x] `[AWS S3] connect-s3-bucket-with-prefix`
+- [x] `[AWS S3] edit-and-auto-sync-pending-to-synced`
+- [x] `[AWS S3] s3-history-with-versioned-objects`
 - [x] `[Local] create-local-repository-and-work-offline`
 - [x] `[Local] local-save-and-reopen-persistence-check`
 - [x] `[Global] switch-language-and-verify-persistence`

@@ -35,8 +35,8 @@ After connecting, the workspace loads with the file tree and branch status visib
 3. Copy token securely and paste it in the **Personal Access Token** field.
 4. If your organization enforces SSO, authorize the token before connecting.
 
-### S3 checklist (for S3 connection scenarios)
+### AWS S3 checklist (for AWS S3 connection scenarios)
 
 1. Enable bucket versioning in AWS S3.
-2. Prepare Access Key ID and Secret Access Key with S3 read/write permissions.
+2. Prepare Access Key ID and Secret Access Key with AWS S3 read/write permissions.
 3. Enter bucket, region, optional prefix, and credentials in notegit.

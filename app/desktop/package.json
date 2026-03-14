@@ -126,6 +126,13 @@
       {
         "from": "src/backend/i18n",
         "to": "locales/backend/i18n"
+      },
+      {
+        "from": "../../tutorials",
+        "to": "tutorials",
+        "filter": [
+          "scenarios/**/*"
+        ]
       }
     ],
     "mac": {

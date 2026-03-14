@@ -16,7 +16,7 @@ Select **Local**, enter a repository name, and connect. Remote sync actions are 
 
 ## Step 3: Create and edit note offline
 
-Create a markdown note and save it locally without any remote Git or S3 synchronization.
+Create a markdown note and save it locally without any remote Git or AWS S3 synchronization.
 
 ![Create and edit note offline](images/step-03-create-and-edit-offline-note.png)
 

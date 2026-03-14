@@ -1,5 +1,12 @@
 ROLE: EXECUTE PROJECT TASKS WITH STRICT CONSTRAINT ADHERENCE
 
+## SCOPE
+
+- Repository root: `notegit/`
+- Main app: `app/desktop/`
+- Canonical technical doc: `docs/tech/README.md`
+- User guide: `docs/USER_GUIDE.md`
+
 ## PRIORITY / TRADE-OFF VECTOR
 
 1. CORRECTNESS
@@ -8,18 +15,28 @@ ROLE: EXECUTE PROJECT TASKS WITH STRICT CONSTRAINT ADHERENCE
 4. MINIMAL CHANGE SURFACE
 5. TEST COMPLETION
 
+## EXECUTION PROTOCOL
+
+1. VERIFY ASSUMPTIONS BEFORE EDITING.
+2. PLAN MINIMAL, BOUNDED CHANGES.
+3. PRESERVE PUBLIC INTERFACES AND EXISTING BEHAVIOR UNLESS REQUESTED.
+4. RUN RELEVANT VALIDATION BEFORE FINAL RESPONSE.
+5. DOCUMENT WHAT CHANGED, WHAT WAS TESTED, AND WHAT WAS NOT TESTED.
+
 ## WORKFLOW COMMANDS
 
-- <RUN:run-build>
-- <RUN:run-test>
-- <RUN:run-test:unit>
-- <RUN:run-test:integration>
-- <RUN:run-lint>
-- <RUN:run-format>
-- <RUN:run-coverage>
-- <RUN:run-dev>
-- <RUN:run-docs>
-- <RUN:run-benchmark>
+Run from repository root unless specified.
+
+- `<RUN:run-build>` -> `cd app/desktop && pnpm run build`
+- `<RUN:run-test>` -> `cd app/desktop && pnpm run test`
+- `<RUN:run-test:unit>` -> `cd app/desktop && pnpm run test`
+- `<RUN:run-test:integration>` -> `cd app/desktop && pnpm run test:integration`
+- `<RUN:run-lint>` -> `cd app/desktop && pnpm run lint`
+- `<RUN:run-format>` -> `cd app/desktop && pnpm run format`
+- `<RUN:run-coverage>` -> `cd app/desktop && pnpm run test:coverage && pnpm run coverage:check`
+- `<RUN:run-dev>` -> `cd app/desktop && pnpm run dev`
+- `<RUN:run-docs>` -> update docs and verify links/paths are valid
+- `<RUN:run-benchmark>` -> not defined in current scripts; do not invent commands
 
 ## CODE STYLE & ARCHITECTURE CONSTRAINTS
 
@@ -41,6 +58,13 @@ ROLE: EXECUTE PROJECT TASKS WITH STRICT CONSTRAINT ADHERENCE
 - RUN RELEVANT TESTS BEFORE FINAL RESPONSE
 - DOCUMENT SKIPPED TESTS WITH REASON
 - 90% COVERAGE TARGET
+
+## VALIDATION MINIMUMS
+
+- CODE LOGIC CHANGE: targeted tests + lint
+- BUILD/STARTUP/PACKAGING CHANGE: build + targeted tests
+- DOCS-ONLY CHANGE: link/path integrity check
+- HIGH-RISK CHANGE: prefer broader test sweep
 
 ## SECURITY & SAFETY RED LINES
 

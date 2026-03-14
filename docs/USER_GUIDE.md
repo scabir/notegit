@@ -9,7 +9,7 @@ How to use notegit as an end user.
 
 1. [Quick Start](#quick-start)
 2. [Connect a Git Repository (Step-by-Step)](#connect-a-git-repository-step-by-step)
-3. [Connect an S3 Bucket (Step-by-Step)](#connect-an-s3-bucket-step-by-step)
+3. [Connect an AWS S3 Bucket (Step-by-Step)](#connect-an-aws-s3-bucket-step-by-step)
 4. [Connect a Local Repository (Offline)](#connect-a-local-repository-offline)
 5. [Create and Edit Notes](#create-and-edit-notes)
 6. [Organize Files and Folders](#organize-files-and-folders)
@@ -28,14 +28,14 @@ How to use notegit as an end user.
 3. Choose one provider:
 
 - **Git** for remote Git repositories.
-- **S3** for bucket-backed notes.
+- **AWS S3** for bucket-backed notes.
 - **Local** for offline notes on your device.
 
 4. After connection, create/open a note from the file tree.
 
 ## Connect a Git Repository (Step-by-Step)
 
-This is the same flow used in the tutorial scenario: [tutorials/scenarios/connect-git-repository/README.md](tutorials/scenarios/connect-git-repository/README.md).
+This is the same flow used in the tutorial scenario: [tutorials/scenarios/connect-git-repository/README.md](../tutorials/scenarios/connect-git-repository/README.md).
 
 ### Before opening notegit
 
@@ -66,18 +66,18 @@ This is the same flow used in the tutorial scenario: [tutorials/scenarios/connec
 - Status bar shows branch label.
 - File tree is visible.
 
-## Connect an S3 Bucket (Step-by-Step)
+## Connect an AWS S3 Bucket (Step-by-Step)
 
 ### Before opening notegit
 
 1. Pick bucket and AWS region.
 2. Decide optional prefix (for example `notes/`).
 3. Confirm bucket versioning is enabled (required for history).
-4. Create IAM credentials with S3 read/write access.
+4. Create IAM credentials with AWS S3 read/write access.
 
 ### Manual AWS setup (no in-app screenshot)
 
-1. In AWS Console, open **S3** and verify versioning is **Enabled** on the target bucket.
+1. In AWS Console, open **AWS S3** and verify versioning is **Enabled** on the target bucket.
 2. In IAM, create or use an access key with least required permissions.
 3. Copy **Access Key ID** and **Secret Access Key**.
 4. Return to notegit.
@@ -85,7 +85,7 @@ This is the same flow used in the tutorial scenario: [tutorials/scenarios/connec
 ### In notegit
 
 1. Click **Connect to Repository**.
-2. Select **S3**.
+2. Select **AWS S3**.
 3. Fill **Bucket**, **Region**, optional **Prefix**.
 4. Enter **Access Key ID** and **Secret Access Key** (session token optional).
 5. Click **Connect**.
@@ -139,9 +139,9 @@ Case-sensitive and regex options are available in search dialogs.
 - Manual status-bar actions: fetch, pull, push.
 - If authentication fails, refresh credentials in repository settings.
 
-### S3 repositories
+### AWS S3 repositories
 
-- Saves queue/upload to S3 using auto sync.
+- Saves queue/upload to AWS S3 using auto sync.
 - Pending changes are shown in sync status until upload completes.
 
 ### Local repositories
@@ -158,7 +158,7 @@ Case-sensitive and regex options are available in search dialogs.
 
 Notes:
 
-- S3 history requires bucket versioning.
+- AWS S3 history requires bucket versioning.
 - Local repositories do not provide remote history.
 
 ## Export Notes and Repositories
@@ -193,7 +193,7 @@ Press `F1` to open the built-in shortcut helper.
 - Verify token/SSH permissions.
 - Confirm network/proxy access.
 
-### Cannot connect S3 bucket
+### Cannot connect AWS S3 bucket
 
 - Verify bucket name and region.
 - Confirm versioning is enabled.

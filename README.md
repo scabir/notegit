@@ -1,6 +1,6 @@
 # notegit
 
-Your Markdown workspace for real projects, docs, and personal knowledge bases, backed by Git, S3, or Local storage.
+Your Markdown workspace for real projects, docs, and personal knowledge bases, backed by Git, AWS S3, or Local storage.
 
 [![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/scabir/notegit/main/badges/coverage.json)](https://github.com/scabir/notegit/actions/workflows/coverage.yml)
 [![Integration](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/scabir/notegit/main/badges/integration.json)](https://github.com/scabir/notegit/actions/workflows/integration.yml)
@@ -31,23 +31,23 @@ notegit keeps your notes where your work already lives. Write in Markdown, conne
 
 Supported languages:
 
-- English (`en-GB`)
-- 中文 (`zh-CN`)
-- Español (`es-ES`)
-- German (`de-DE`)
-- Arabic (`ar-SA`)
-- Français (`fr-FR`)
-- Русский (`ru-RU`)
-- Português (`pt-PT`)
-- 日本語 (`ja-JP`)
-- Türkçe (`tr-TR`)
-- Italiano (`it-IT`)
-- हिन्दी (`hi-IN`)
-- Polski (`pl-PL`)
-- Kurdî (`ku-KRD`)
-- Svenska (`sv-SE`)
-- Українська (`uk-UA`)
-- Ελληνικά (`el-GR`)
+- English
+- Chinese (中文)
+- Hindi (हिन्दी)
+- Spanish (Español)
+- German (Deutsch)
+- Arabic (العربية)
+- French (Français)
+- Russian (Русский)
+- Portuguese (Português)
+- Japanese (日本語)
+- Turkish (Türkçe)
+- Italian (Italiano)
+- Polish (Polski)
+- Ukrainian (Українська)
+- Kurdish (Kurdî)
+- Swedish (Svenska)
+- Greek (Ελληνικά)
 
 ### Use notegit in dark mode
 
@@ -55,7 +55,7 @@ Supported languages:
 
 ## What you can do
 
-- Connect Git, S3, or Local repositories
+- Connect Git, AWS S3, or Local repositories
 - Create Markdown notes with editor, preview, and split view
 - Organize files and folders with rename, move, duplicate, and favorites
 - Search and replace in current file and across the repository
@@ -69,7 +69,7 @@ All releases: [github.com/scabir/notegit/releases](https://github.com/scabir/not
 ## User Guide
 
 New to notegit? Start here with a complete walkthrough:
-[Read the User Guide with setup steps, daily workflows, and troubleshooting](USER_GUIDE.md)
+[Read the User Guide with setup steps, daily workflows, and troubleshooting](docs/USER_GUIDE.md)
 
 ## Tutorials
 
@@ -80,9 +80,9 @@ New to notegit? Start here with a complete walkthrough:
 - [Commit, Pull, Push from Status Bar](tutorials/scenarios/commit-pull-push-from-status-bar/README.md)
 - [View History and Restore Reference](tutorials/scenarios/view-history-and-restore-reference/README.md)
 - [Export Note and Repository ZIP](tutorials/scenarios/export-note-and-export-repository-zip/README.md)
-- [Connect S3 Bucket with Prefix](tutorials/scenarios/connect-s3-bucket-with-prefix/README.md)
+- [Connect AWS S3 Bucket with Prefix](tutorials/scenarios/connect-s3-bucket-with-prefix/README.md)
 - [Edit and Auto-Sync Pending Changes](tutorials/scenarios/edit-and-auto-sync-pending-to-synced/README.md)
-- [S3 History with Versioned Objects](tutorials/scenarios/s3-history-with-versioned-objects/README.md)
+- [AWS S3 History with Versioned Objects](tutorials/scenarios/s3-history-with-versioned-objects/README.md)
 - [Create Local Repository and Work Offline](tutorials/scenarios/create-local-repository-and-work-offline/README.md)
 - [Local Save and Reopen Persistence Check](tutorials/scenarios/local-save-and-reopen-persistence-check/README.md)
 - [Switch Language and Verify Persistence](tutorials/scenarios/switch-language-and-verify-persistence/README.md)
@@ -91,9 +91,7 @@ Tutorial hub: [tutorials/README.md](tutorials/README.md)
 
 ## Technical Documentation
 
-- Developer's guide: [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)
-- Architecture: [docs/architecture/README.md](docs/architecture/README.md)
-- Testing: [docs/testing/README.md](docs/testing/README.md)
+- [Technical Documentation](docs/tech/README.md)
 
 ## Support
 

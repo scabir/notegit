@@ -1,4 +1,4 @@
-import { IpcMain } from "electron";
+import { app, IpcMain } from "electron";
 import { FsAdapter } from "./adapters/FsAdapter";
 import { CryptoAdapter } from "./adapters/CryptoAdapter";
 import { GitAdapter } from "./adapters/GitAdapter";
@@ -13,6 +13,7 @@ import { SearchService } from "./services/SearchService";
 import { ExportService } from "./services/ExportService";
 import { LogsService } from "./services/LogsService";
 import { TranslationService } from "./services/TranslationService";
+import { DefaultLocalRepoBootstrapService } from "./services/DefaultLocalRepoBootstrapService";
 import { GitRepoProvider } from "./providers/GitRepoProvider";
 import { S3RepoProvider } from "./providers/S3RepoProvider";
 import { GitHistoryProvider } from "./providers/GitHistoryProvider";
@@ -32,8 +33,9 @@ import { logger } from "./utils/logger";
 import * as fs from "fs";
 import { createBackendTranslator } from "./i18n/backendTranslator";
 import { resolveLocalesRootDir } from "./utils/resolveLocalesRootDir";
+import { resolveTutorialsRootDir } from "./utils/resolveTutorialsRootDir";
 
-export function createBackend(ipcMain: IpcMain): void {
+export async function createBackend(ipcMain: IpcMain): Promise<void> {
   logger.info("Initializing backend services");
 
   const fsAdapter = new FsAdapter();
@@ -48,6 +50,10 @@ export function createBackend(ipcMain: IpcMain): void {
       : new S3Adapter();
 
   const configService = new ConfigService(fsAdapter, cryptoAdapter);
+  const defaultLocalRepoBootstrapService = new DefaultLocalRepoBootstrapService(
+    fsAdapter,
+    configService,
+  );
   const gitRepoProvider = new GitRepoProvider(gitAdapter, fsAdapter);
   const s3RepoProvider = new S3RepoProvider(s3Adapter);
   const localRepoProvider = new LocalRepoProvider(fsAdapter);
@@ -83,6 +89,25 @@ export function createBackend(ipcMain: IpcMain): void {
 
   repoService.setFilesService(filesService);
   filesService.setGitAdapter(gitAdapter);
+
+  const tutorialsRootDir = resolveTutorialsRootDir({
+    explicitRoot: process.env.NOTEGIT_TUTORIALS_ROOT,
+    resourcesPath: process.resourcesPath,
+    appPath: app.getAppPath(),
+    compiledDir: __dirname,
+    exists: (targetPath) => fs.existsSync(targetPath),
+  });
+
+  try {
+    await defaultLocalRepoBootstrapService.ensureDefaultLocalRepo({
+      tutorialsRootDir,
+      integrationTestMode: process.env.NOTEGIT_INTEGRATION_TEST === "1",
+    });
+  } catch (error) {
+    logger.error("Failed to bootstrap first-install default repository", {
+      error,
+    });
+  }
 
   configService.getFull().then((config) => {
     if (config?.repoSettings?.localPath) {
