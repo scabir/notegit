@@ -8,7 +8,7 @@ Your Markdown workspace for real projects, docs, and personal knowledge bases, b
 [![Windows](https://img.shields.io/github/actions/workflow/status/scabir/notegit/windows-installer.yml?branch=main&label=Windows)](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml)
 [![Linux](https://img.shields.io/github/actions/workflow/status/scabir/notegit/linux-packages.yml?branch=main&label=Linux)](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml)
 
-**Version**: 2.8.1  
+**Version**: 2.8.2  
 **License**: MIT
 
 ## Built for daily note workflows

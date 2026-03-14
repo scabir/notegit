@@ -2,7 +2,7 @@
 
 How to use notegit as an end user.
 
-**Version**: 2.8.0  
+**Version**: 2.8.2  
 **Last Updated**: March 7, 2026
 
 ## Table of Contents
