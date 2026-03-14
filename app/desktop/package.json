@@ -195,7 +195,7 @@
         }
       ],
       "category": "Office",
-      "icon": "src/electron/resources/NoteBranch.png"
+      "icon": "src/electron/resources/linux-icons"
     },
     "nsis": {
       "oneClick": false,
