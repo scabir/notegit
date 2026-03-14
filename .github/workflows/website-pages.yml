@@ -7,6 +7,10 @@ on:
     paths:
       - "app/website/**"
       - ".github/workflows/website-pages.yml"
+  pull_request:
+    paths:
+      - "app/website/**"
+      - ".github/workflows/website-pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -17,6 +21,9 @@ permissions:
 concurrency:
   group: website-pages
   cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
@@ -35,12 +42,9 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
           cache-dependency-path: app/website/pnpm-lock.yaml
-
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
 
       - name: Install website dependencies
         working-directory: app/website
@@ -61,6 +65,7 @@ jobs:
     name: Deploy Website
     runs-on: ubuntu-latest
     needs: build
+    if: ${{ github.event_name != 'pull_request' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
