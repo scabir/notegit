@@ -66,6 +66,11 @@ Supported languages:
 
 All releases: [github.com/scabir/notebranch/releases](https://github.com/scabir/notebranch/releases)
 
+## Website
+
+Static product website source:
+[app/website/README.md](app/website/README.md)
+
 ## User Guide
 
 New to NoteBranch? Start here with a complete walkthrough:
