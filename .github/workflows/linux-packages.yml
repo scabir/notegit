@@ -20,11 +20,11 @@ jobs:
           - target: deb
             extension: deb
             artifact_name: app-linux-deb
-            artifact_basename: notegit-linux-amd64
+            artifact_basename: NoteBranch-linux-amd64
           - target: rpm
             extension: rpm
             artifact_name: app-linux-rpm
-            artifact_basename: notegit-linux-x86_64
+            artifact_basename: NoteBranch-linux-x86_64
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
       CSC_FOR_PULL_REQUEST: "true"

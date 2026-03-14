@@ -11,7 +11,7 @@ const createBundle = (locale = "tr-TR"): I18nBundle => ({
   translations: {
     common: {
       app: {
-        name: "notegit-tr",
+        name: "NoteBranch-tr",
         retryCount: 3,
         enabled: true,
       },
@@ -21,7 +21,7 @@ const createBundle = (locale = "tr-TR"): I18nBundle => ({
 
 describe("FrontendTranslationClient", () => {
   afterEach(() => {
-    delete (global as any).window.notegitApi;
+    delete (global as any).window.NoteBranchApi;
   });
 
   it("uses a loaded bundle and resolves nested keys", async () => {
@@ -38,7 +38,7 @@ describe("FrontendTranslationClient", () => {
 
     expect(loadBundle).toHaveBeenCalledTimes(1);
     expect(client.getBundle().locale).toBe("tr-TR");
-    expect(client.t("common.app.name")).toBe("notegit-tr");
+    expect(client.t("common.app.name")).toBe("NoteBranch-tr");
     expect(client.t("common.app.retryCount")).toBe("3");
     expect(client.t("common.app.enabled")).toBe("true");
     expect(client.has("common.app.name")).toBe(true);
@@ -116,7 +116,7 @@ describe("FrontendTranslationClient", () => {
       ok: true,
       data: bundle,
     }));
-    (global as any).window.notegitApi = {
+    (global as any).window.NoteBranchApi = {
       i18n: {
         getFrontendBundle,
       },
@@ -130,7 +130,7 @@ describe("FrontendTranslationClient", () => {
   });
 
   it("returns default bundle when window loader is unavailable", async () => {
-    delete (global as any).window.notegitApi;
+    delete (global as any).window.NoteBranchApi;
 
     const client = new FrontendTranslationClient();
     const loadedBundle = await client.initialize();

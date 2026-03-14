@@ -88,7 +88,7 @@ export function SearchDialog({
       setError(null);
 
       try {
-        const response = await window.notegitApi.search.query(query, {
+        const response = await window.NoteBranchApi.search.query(query, {
           maxResults: 50,
         });
 

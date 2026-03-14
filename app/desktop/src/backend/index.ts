@@ -41,11 +41,11 @@ export async function createBackend(ipcMain: IpcMain): Promise<void> {
   const fsAdapter = new FsAdapter();
   const cryptoAdapter = new CryptoAdapter();
   const gitAdapter =
-    process.env.NOTEGIT_INTEGRATION_GIT_MOCK === "1"
+    process.env.NOTEBRANCH_INTEGRATION_GIT_MOCK === "1"
       ? new MockGitAdapter()
       : new GitAdapter();
   const s3Adapter =
-    process.env.NOTEGIT_INTEGRATION_S3_MOCK === "1"
+    process.env.NOTEBRANCH_INTEGRATION_S3_MOCK === "1"
       ? new MockS3Adapter()
       : new S3Adapter();
 
@@ -78,7 +78,7 @@ export async function createBackend(ipcMain: IpcMain): Promise<void> {
   const logsService = new LogsService();
   const translationService = new TranslationService(fsAdapter, {
     localesRootDir: resolveLocalesRootDir({
-      explicitRoot: process.env.NOTEGIT_LOCALES_ROOT,
+      explicitRoot: process.env.NOTEBRANCH_LOCALES_ROOT,
       resourcesPath: process.resourcesPath,
       compiledDir: __dirname,
       exists: (targetPath) => fs.existsSync(targetPath),
@@ -91,7 +91,7 @@ export async function createBackend(ipcMain: IpcMain): Promise<void> {
   filesService.setGitAdapter(gitAdapter);
 
   const tutorialsRootDir = resolveTutorialsRootDir({
-    explicitRoot: process.env.NOTEGIT_TUTORIALS_ROOT,
+    explicitRoot: process.env.NOTEBRANCH_TUTORIALS_ROOT,
     resourcesPath: process.resourcesPath,
     appPath: app.getAppPath(),
     compiledDir: __dirname,
@@ -101,7 +101,7 @@ export async function createBackend(ipcMain: IpcMain): Promise<void> {
   try {
     await defaultLocalRepoBootstrapService.ensureDefaultLocalRepo({
       tutorialsRootDir,
-      integrationTestMode: process.env.NOTEGIT_INTEGRATION_TEST === "1",
+      integrationTestMode: process.env.NOTEBRANCH_INTEGRATION_TEST === "1",
     });
   } catch (error) {
     logger.error("Failed to bootstrap first-install default repository", {

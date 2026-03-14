@@ -75,10 +75,10 @@ test("(S3) parallel app instances stay isolated by userData path", async ({
   request: _request,
 }) => {
   const userDataDirA = await fs.mkdtemp(
-    path.join(os.tmpdir(), `notegit-s3-isolation-a-${Date.now()}-`),
+    path.join(os.tmpdir(), `NoteBranch-s3-isolation-a-${Date.now()}-`),
   );
   const userDataDirB = await fs.mkdtemp(
-    path.join(os.tmpdir(), `notegit-s3-isolation-b-${Date.now()}-`),
+    path.join(os.tmpdir(), `NoteBranch-s3-isolation-b-${Date.now()}-`),
   );
 
   let appA: ElectronApplication | null = null;
@@ -215,10 +215,10 @@ test("(S3) same bucket with different prefixes remain isolated", async ({
   request: _request,
 }) => {
   const userDataDirA = await fs.mkdtemp(
-    path.join(os.tmpdir(), `notegit-s3-prefix-a-${Date.now()}-`),
+    path.join(os.tmpdir(), `NoteBranch-s3-prefix-a-${Date.now()}-`),
   );
   const userDataDirB = await fs.mkdtemp(
-    path.join(os.tmpdir(), `notegit-s3-prefix-b-${Date.now()}-`),
+    path.join(os.tmpdir(), `NoteBranch-s3-prefix-b-${Date.now()}-`),
   );
 
   let appA: ElectronApplication | null = null;

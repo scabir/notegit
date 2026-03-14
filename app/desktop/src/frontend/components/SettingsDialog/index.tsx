@@ -116,7 +116,7 @@ export function SettingsDialog({
     setError(null);
 
     try {
-      const i18nMetaResponse = await window.notegitApi.i18n.getMeta();
+      const i18nMetaResponse = await window.NoteBranchApi.i18n.getMeta();
       if (i18nMetaResponse.ok && i18nMetaResponse.data) {
         const locales = i18nMetaResponse.data.supportedLocales.filter(
           (locale) => locale && locale.trim().length > 0,
@@ -128,7 +128,7 @@ export function SettingsDialog({
         setSupportedLocales([DEFAULT_APP_LANGUAGE]);
       }
 
-      const response = await window.notegitApi.config.getFull();
+      const response = await window.NoteBranchApi.config.getFull();
 
       if (response.ok && response.data) {
         setAppSettings({
@@ -165,13 +165,13 @@ export function SettingsDialog({
 
     try {
       const response =
-        await window.notegitApi.config.updateAppSettings(appSettings);
+        await window.NoteBranchApi.config.updateAppSettings(appSettings);
 
       if (response.ok) {
         const selectedLanguage =
           appSettings.language?.trim() || DEFAULT_APP_LANGUAGE;
         const setLanguageResponse =
-          await window.notegitApi.i18n.setLanguage(selectedLanguage);
+          await window.NoteBranchApi.i18n.setLanguage(selectedLanguage);
         if (!setLanguageResponse.ok) {
           setError(
             setLanguageResponse.error?.message ||
@@ -257,7 +257,7 @@ export function SettingsDialog({
       }
 
       const response =
-        await window.notegitApi.config.updateRepoSettings(settingsToSave);
+        await window.NoteBranchApi.config.updateRepoSettings(settingsToSave);
 
       if (response.ok) {
         setSuccess(t(SETTINGS_KEYS.repoSettingsSaved));
@@ -290,7 +290,7 @@ export function SettingsDialog({
     setSuccess(null);
 
     try {
-      const response = await window.notegitApi.export.note(
+      const response = await window.NoteBranchApi.export.note(
         currentNotePath,
         currentNoteContent,
         format,
@@ -314,7 +314,7 @@ export function SettingsDialog({
     setSuccess(null);
 
     try {
-      const response = await window.notegitApi.export.repoZip();
+      const response = await window.NoteBranchApi.export.repoZip();
 
       if (response.ok && response.data) {
         setSuccess(
@@ -352,12 +352,12 @@ export function SettingsDialog({
 
     try {
       const response =
-        await window.notegitApi.config.setActiveProfile(profileId);
+        await window.NoteBranchApi.config.setActiveProfile(profileId);
 
       if (response.ok) {
         setSuccess(t(SETTINGS_KEYS.profileSwitched));
         setTimeout(async () => {
-          await window.notegitApi.config.restartApp();
+          await window.NoteBranchApi.config.restartApp();
         }, 1500);
       } else {
         setError(
@@ -421,7 +421,7 @@ export function SettingsDialog({
                 provider: REPO_PROVIDERS.local,
               };
 
-      const response = await window.notegitApi.config.createProfile(
+      const response = await window.NoteBranchApi.config.createProfile(
         newProfileName.trim(),
         newRepoSettings,
       );
@@ -452,7 +452,8 @@ export function SettingsDialog({
     setError(null);
 
     try {
-      const response = await window.notegitApi.config.deleteProfile(profileId);
+      const response =
+        await window.NoteBranchApi.config.deleteProfile(profileId);
 
       if (response.ok) {
         setSuccess(t(SETTINGS_KEYS.profileDeleted));
@@ -478,7 +479,7 @@ export function SettingsDialog({
     }
     setLoadingLogsFolder(true);
     try {
-      const response = await window.notegitApi.logs.getFolder();
+      const response = await window.NoteBranchApi.logs.getFolder();
       if (response.ok && response.data) {
         setLogsFolder(response.data);
       } else {
@@ -516,7 +517,7 @@ export function SettingsDialog({
     folderPath: string,
     fallbackMessage: string,
   ) => {
-    const response = await window.notegitApi.dialog.openFolder(folderPath);
+    const response = await window.NoteBranchApi.dialog.openFolder(folderPath);
     if (!response.ok) {
       setError(response.error?.message || fallbackMessage);
     }

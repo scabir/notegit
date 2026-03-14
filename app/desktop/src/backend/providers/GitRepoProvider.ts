@@ -86,12 +86,12 @@ export class GitRepoProvider implements RepoProvider {
           const readmePath = path.join(localPath, "README.md");
           await this.fsAdapter.writeFile(
             readmePath,
-            `# ${repoName}\n\nThis repository was initialized by notegit.\n`,
+            `# ${repoName}\n\nThis repository was initialized by NoteBranch.\n`,
           );
 
           await this.gitAdapter.addRemote(settings.remoteUrl);
           await this.gitAdapter.add("README.md");
-          await this.gitAdapter.commit("Initial commit from notegit");
+          await this.gitAdapter.commit("Initial commit from NoteBranch");
 
           logger.info("Pushing initial commit to create remote branch...", {
             branch: settings.branch,

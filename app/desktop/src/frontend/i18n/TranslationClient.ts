@@ -25,7 +25,7 @@ const resolveWindowBundleLoader = (): BundleLoader | null => {
     return null;
   }
 
-  return window.notegitApi?.i18n?.getFrontendBundle || null;
+  return window.NoteBranchApi?.i18n?.getFrontendBundle || null;
 };
 
 export class FrontendTranslationClient {

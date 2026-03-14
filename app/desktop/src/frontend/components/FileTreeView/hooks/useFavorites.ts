@@ -13,7 +13,7 @@ export function useFavorites(
   const [favoriteMenuState, setFavoriteMenuState] =
     useState<FavoriteMenuState | null>(null);
   const configApi =
-    typeof window !== "undefined" ? window.notegitApi?.config : undefined;
+    typeof window !== "undefined" ? window.NoteBranchApi?.config : undefined;
   const hasFavoritesApi = Boolean(
     configApi?.getFavorites && configApi?.updateFavorites,
   );

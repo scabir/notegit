@@ -1,4 +1,4 @@
-# notegit Tutorials
+# NoteBranch Tutorials
 
 Playwright-generated end-user tutorials with step-by-step screenshots.
 
@@ -42,9 +42,9 @@ node tutorials/scripts/generate-global-switch-language-and-verify-persistence-tu
 - [[Local] Create Local Repository and Work Offline](scenarios/create-local-repository-and-work-offline/README.md)
 - [[Local] Save and Reopen Persistence Check](scenarios/local-save-and-reopen-persistence-check/README.md)
 - [[Global] Switch Language and Verify Persistence](scenarios/switch-language-and-verify-persistence/README.md)
-- [How to Create a Repo on notegit](scenarios/create-repo-on-notegit/README.md)
+- [How to Create a Repo on NoteBranch](scenarios/create-repo-on-NoteBranch/README.md)
 - [Create a New Markdown File and Review in Preview + Split Mode](scenarios/create-file-markdown-preview-split/README.md)
-- [Build a Linked Wiki in notegit and Host It Free on GitHub](scenarios/build-wiki-and-host-on-github/README.md)
+- [Build a Linked Wiki in NoteBranch and Host It Free on GitHub](scenarios/build-wiki-and-host-on-github/README.md)
 
 ## Scenario Roadmap
 

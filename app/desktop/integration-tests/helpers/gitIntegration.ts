@@ -6,9 +6,9 @@ import * as path from "path";
 
 export const DEFAULT_BRANCH = "main";
 export const DEFAULT_REMOTE_URL =
-  "https://github.com/mock/notegit-integration.git";
+  "https://github.com/mock/NoteBranch-integration.git";
 export const DEFAULT_PAT = "integration-token";
-export const DEFAULT_S3_BUCKET = "notegit-integration-bucket";
+export const DEFAULT_S3_BUCKET = "NoteBranch-integration-bucket";
 export const DEFAULT_S3_REGION = "us-east-1";
 export const DEFAULT_S3_ACCESS_KEY_ID = "mock-access-key";
 export const DEFAULT_S3_SECRET_ACCESS_KEY = "mock-secret-key";
@@ -68,7 +68,7 @@ export const createIsolatedUserDataDir = async (
   await fs.mkdtemp(
     path.join(
       os.tmpdir(),
-      `notegit-integration-${testInfo.parallelIndex}-${Date.now()}-`,
+      `NoteBranch-integration-${testInfo.parallelIndex}-${Date.now()}-`,
     ),
   );
 
@@ -85,9 +85,9 @@ export const launchIntegrationApp = async (
   const launchEnv: Record<string, string> = {
     ...(process.env as Record<string, string>),
     NODE_ENV: "test",
-    NOTEGIT_INTEGRATION_TEST: "1",
-    NOTEGIT_INTEGRATION_GIT_MOCK: "1",
-    NOTEGIT_INTEGRATION_USER_DATA_DIR: userDataDir,
+    NOTEBRANCH_INTEGRATION_TEST: "1",
+    NOTEBRANCH_INTEGRATION_GIT_MOCK: "1",
+    NOTEBRANCH_INTEGRATION_USER_DATA_DIR: userDataDir,
     ...(options.env || {}),
   };
   delete launchEnv.ELECTRON_RUN_AS_NODE;
@@ -107,7 +107,7 @@ export const launchS3IntegrationApp = async (
   options: LaunchOptions = {},
 ): Promise<LaunchResult> => {
   const mergedEnv: Record<string, string> = {
-    NOTEGIT_INTEGRATION_S3_MOCK: "1",
+    NOTEBRANCH_INTEGRATION_S3_MOCK: "1",
     ...(options.env || {}),
   };
   return await launchIntegrationApp(userDataDir, {
@@ -254,7 +254,7 @@ export const syncAll = async (page: Page): Promise<void> => {
   await expect
     .poll(async () => {
       const response = await page.evaluate(async () => {
-        return await window.notegitApi.repo.getStatus();
+        return await window.NoteBranchApi.repo.getStatus();
       });
       if (!response.ok || !response.data) {
         throw new Error(
@@ -334,7 +334,7 @@ export const switchAppLanguageFromSettings = async (
   await expect
     .poll(async () => {
       const response = await page.evaluate(async () => {
-        return await window.notegitApi.config.getAppSettings();
+        return await window.NoteBranchApi.config.getAppSettings();
       });
       if (!response.ok || !response.data) {
         throw new Error(
@@ -396,7 +396,7 @@ export const readEditorPathLabel = async (page: Page): Promise<string> => {
 
 export const listTree = async (page: Page): Promise<any[]> => {
   const response = await page.evaluate(async () => {
-    const res = await window.notegitApi.files.listTree();
+    const res = await window.NoteBranchApi.files.listTree();
     return res;
   });
   if (!response.ok || !response.data) {
@@ -452,7 +452,7 @@ export const apiCreateFile = async (
 ): Promise<void> => {
   const response = await page.evaluate(
     async ({ parentPath: p, name: n }) => {
-      return await window.notegitApi.files.create(p, n);
+      return await window.NoteBranchApi.files.create(p, n);
     },
     { parentPath, name },
   );
@@ -468,7 +468,7 @@ export const apiCreateFolder = async (
 ): Promise<void> => {
   const response = await page.evaluate(
     async ({ parentPath: p, name: n }) => {
-      return await window.notegitApi.files.createFolder(p, n);
+      return await window.NoteBranchApi.files.createFolder(p, n);
     },
     { parentPath, name },
   );
@@ -484,7 +484,7 @@ export const apiRenamePath = async (
 ): Promise<void> => {
   const response = await page.evaluate(
     async ({ oldPath: oldValue, newPath: newValue }) => {
-      return await window.notegitApi.files.rename(oldValue, newValue);
+      return await window.NoteBranchApi.files.rename(oldValue, newValue);
     },
     { oldPath, newPath },
   );
@@ -498,7 +498,7 @@ export const apiDeletePath = async (
   targetPath: string,
 ): Promise<void> => {
   const response = await page.evaluate(async (pathValue) => {
-    return await window.notegitApi.files.delete(pathValue);
+    return await window.NoteBranchApi.files.delete(pathValue);
   }, targetPath);
   if (!response.ok) {
     throw new Error(response.error?.message || "Failed to delete path");
@@ -510,7 +510,7 @@ export const apiDuplicateFile = async (
   targetPath: string,
 ): Promise<string> => {
   const response = await page.evaluate(async (pathValue) => {
-    return await window.notegitApi.files.duplicate(pathValue);
+    return await window.NoteBranchApi.files.duplicate(pathValue);
   }, targetPath);
   if (!response.ok || !response.data) {
     throw new Error(response.error?.message || "Failed to duplicate file");
@@ -525,7 +525,7 @@ export const apiImportFile = async (
 ): Promise<void> => {
   const response = await page.evaluate(
     async ({ source, target }) => {
-      return await window.notegitApi.files.import(source, target);
+      return await window.NoteBranchApi.files.import(source, target);
     },
     { source: sourcePath, target: targetPath },
   );
@@ -539,7 +539,7 @@ export const apiCommitAll = async (
   message: string,
 ): Promise<void> => {
   const response = await page.evaluate(async (msg) => {
-    return await window.notegitApi.files.commitAll(msg);
+    return await window.NoteBranchApi.files.commitAll(msg);
   }, message);
   if (!response.ok) {
     throw new Error(response.error?.message || "Failed to commit all");
@@ -548,7 +548,7 @@ export const apiCommitAll = async (
 
 export const apiCommitAndPushAll = async (page: Page): Promise<string> => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.files.commitAndPushAll();
+    return await window.NoteBranchApi.files.commitAndPushAll();
   });
   if (!response.ok || !response.data) {
     throw new Error(response.error?.message || "Failed to commit and push all");
@@ -558,7 +558,7 @@ export const apiCommitAndPushAll = async (page: Page): Promise<string> => {
 
 export const apiPush = async (page: Page): Promise<void> => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.repo.push();
+    return await window.NoteBranchApi.repo.push();
   });
   if (!response.ok) {
     throw new Error(response.error?.message || "Failed to push");
@@ -567,7 +567,7 @@ export const apiPush = async (page: Page): Promise<void> => {
 
 export const apiFetch = async (page: Page): Promise<void> => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.repo.fetch();
+    return await window.NoteBranchApi.repo.fetch();
   });
   if (!response.ok) {
     throw new Error(response.error?.message || "Failed to fetch");
@@ -576,7 +576,7 @@ export const apiFetch = async (page: Page): Promise<void> => {
 
 export const apiPull = async (page: Page): Promise<void> => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.repo.pull();
+    return await window.NoteBranchApi.repo.pull();
   });
   if (!response.ok) {
     throw new Error(response.error?.message || "Failed to pull");
@@ -588,7 +588,7 @@ export const apiReadFile = async (
   filePath: string,
 ): Promise<string> => {
   const response = await page.evaluate(async (pathValue) => {
-    return await window.notegitApi.files.read(pathValue);
+    return await window.NoteBranchApi.files.read(pathValue);
   }, filePath);
   if (!response.ok || !response.data) {
     throw new Error(response.error?.message || "Failed to read file");
@@ -603,7 +603,7 @@ export const apiSaveFile = async (
 ): Promise<void> => {
   const response = await page.evaluate(
     async ({ pathValue, contentValue }) => {
-      return await window.notegitApi.files.save(pathValue, contentValue);
+      return await window.NoteBranchApi.files.save(pathValue, contentValue);
     },
     { pathValue: filePath, contentValue: content },
   );
@@ -617,7 +617,7 @@ export const apiGetHistory = async (
   filePath: string,
 ): Promise<any[]> => {
   const response = await page.evaluate(async (pathValue) => {
-    return await window.notegitApi.history.getForFile(pathValue);
+    return await window.NoteBranchApi.history.getForFile(pathValue);
   }, filePath);
   if (!response.ok || !response.data) {
     throw new Error(response.error?.message || "Failed to get history");
@@ -632,7 +632,7 @@ export const apiGetVersion = async (
 ): Promise<string> => {
   const response = await page.evaluate(
     async ({ hash, pathValue }) => {
-      return await window.notegitApi.history.getVersion(hash, pathValue);
+      return await window.NoteBranchApi.history.getVersion(hash, pathValue);
     },
     { hash: commitHash, pathValue: filePath },
   );
@@ -650,7 +650,7 @@ export const apiGetDiff = async (
 ): Promise<any[]> => {
   const response = await page.evaluate(
     async ({ a, b, pathValue }) => {
-      return await window.notegitApi.history.getDiff(a, b, pathValue);
+      return await window.NoteBranchApi.history.getDiff(a, b, pathValue);
     },
     { a: hashA, b: hashB, pathValue: filePath },
   );
@@ -667,7 +667,7 @@ export const apiCreateProfile = async (
 ): Promise<any> => {
   const response = await page.evaluate(
     async ({ profileName, settings }) => {
-      return await window.notegitApi.config.createProfile(
+      return await window.NoteBranchApi.config.createProfile(
         profileName,
         settings as any,
       );
@@ -685,7 +685,7 @@ export const apiSetActiveProfile = async (
   profileId: string,
 ): Promise<void> => {
   const response = await page.evaluate(async (targetId) => {
-    return await window.notegitApi.config.setActiveProfile(targetId);
+    return await window.NoteBranchApi.config.setActiveProfile(targetId);
   }, profileId);
   if (!response.ok) {
     throw new Error(response.error?.message || "Failed to set active profile");
@@ -694,7 +694,7 @@ export const apiSetActiveProfile = async (
 
 export const apiGetProfiles = async (page: Page): Promise<any[]> => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.config.getProfiles();
+    return await window.NoteBranchApi.config.getProfiles();
   });
   if (!response.ok || !response.data) {
     throw new Error(response.error?.message || "Failed to get profiles");
@@ -706,7 +706,7 @@ export const apiGetActiveProfileId = async (
   page: Page,
 ): Promise<string | null> => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.config.getActiveProfileId();
+    return await window.NoteBranchApi.config.getActiveProfileId();
   });
   if (!response.ok) {
     throw new Error(response.error?.message || "Failed to get active profile");
@@ -716,7 +716,7 @@ export const apiGetActiveProfileId = async (
 
 export const apiGetFullConfig = async (page: Page): Promise<any> => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.config.getFull();
+    return await window.NoteBranchApi.config.getFull();
   });
   if (!response.ok || !response.data) {
     throw new Error(response.error?.message || "Failed to get full config");
@@ -728,7 +728,7 @@ export const apiGetFrontendBundle = async (
   page: Page,
 ): Promise<FrontendBundlePayload> => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.i18n.getFrontendBundle();
+    return await window.NoteBranchApi.i18n.getFrontendBundle();
   });
   if (!response.ok || !response.data) {
     throw new Error(
@@ -740,7 +740,7 @@ export const apiGetFrontendBundle = async (
 
 export const apiGetI18nMeta = async (page: Page): Promise<I18nMetaPayload> => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.i18n.getMeta();
+    return await window.NoteBranchApi.i18n.getMeta();
   });
   if (!response.ok || !response.data) {
     throw new Error(response.error?.message || "Failed to load i18n metadata");
@@ -796,7 +796,7 @@ export const apiUpdateRepoSettings = async (
   settings: Record<string, unknown>,
 ): Promise<ApiResponsePayload<void>> => {
   return await page.evaluate(async (newSettings) => {
-    return await window.notegitApi.config.updateRepoSettings(
+    return await window.NoteBranchApi.config.updateRepoSettings(
       newSettings as any,
     );
   }, settings);
@@ -804,7 +804,7 @@ export const apiUpdateRepoSettings = async (
 
 export const apiCheckGitInstalled = async (page: Page): Promise<boolean> => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.config.checkGitInstalled();
+    return await window.NoteBranchApi.config.checkGitInstalled();
   });
   if (!response.ok || response.data === undefined) {
     throw new Error(response.error?.message || "Failed to check Git");
@@ -832,7 +832,7 @@ export const expectConnectScreen = async (page: Page): Promise<void> => {
 
 export const getRepoStatus = async (page: Page): Promise<RepoStatus> => {
   return await page.evaluate(async () => {
-    const response = await window.notegitApi.repo.getStatus();
+    const response = await window.NoteBranchApi.repo.getStatus();
     if (!response.ok || !response.data) {
       throw new Error(response.error?.message || "Failed to load repo status");
     }
@@ -842,7 +842,7 @@ export const getRepoStatus = async (page: Page): Promise<RepoStatus> => {
 
 export const getRepoInfo = async (page: Page): Promise<RepoInfo> => {
   return await page.evaluate(async () => {
-    const response = await window.notegitApi.config.getFull();
+    const response = await window.NoteBranchApi.config.getFull();
     if (!response.ok || !response.data?.repoSettings) {
       throw new Error(
         response.error?.message || "Failed to load repository settings",
@@ -861,7 +861,7 @@ export const getLatestCommitMessageForFile = async (
   filePath: string,
 ): Promise<string> => {
   return await page.evaluate(async (targetPath) => {
-    const response = await window.notegitApi.history.getForFile(targetPath);
+    const response = await window.NoteBranchApi.history.getForFile(targetPath);
     if (!response.ok || !response.data || response.data.length === 0) {
       throw new Error(
         response.error?.message || "Failed to load commit history for file",

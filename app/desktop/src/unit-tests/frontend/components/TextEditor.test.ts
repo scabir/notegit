@@ -94,7 +94,7 @@ const renderEditor = async (
 describe("TextEditor", () => {
   beforeEach(() => {
     (global as any).window = {
-      notegitApi: {
+      NoteBranchApi: {
         config: {
           getAppSettings: jest.fn().mockResolvedValue({
             ok: true,
@@ -190,7 +190,7 @@ describe("TextEditor", () => {
     const alertMock = jest.fn();
     (global as any).alert = alertMock;
     (global as any).window.alert = alertMock;
-    (global as any).window.notegitApi.export.note = jest
+    (global as any).window.NoteBranchApi.export.note = jest
       .fn()
       .mockResolvedValue({ ok: false, error: { message: "Boom" } });
     const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
@@ -217,7 +217,7 @@ describe("TextEditor", () => {
       type: FileType.TEXT,
     };
 
-    (global as any).window.notegitApi.export.note = jest
+    (global as any).window.NoteBranchApi.export.note = jest
       .fn()
       .mockResolvedValueOnce({ ok: true, data: "/tmp/note.txt" })
       .mockRejectedValueOnce(new Error("export boom"));

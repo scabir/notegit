@@ -43,10 +43,10 @@ export function CommitDialog({
     setError(null);
 
     try {
-      const response = await window.notegitApi.files.commitAll(message);
+      const response = await window.NoteBranchApi.files.commitAll(message);
 
       if (response.ok) {
-        await window.notegitApi.repo.push();
+        await window.NoteBranchApi.repo.push();
         onSuccess();
         onClose();
       } else {

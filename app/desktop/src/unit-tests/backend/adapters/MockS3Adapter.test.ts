@@ -38,13 +38,13 @@ describe("MockS3Adapter", () => {
 
     await expect(adapter.getBucketVersioning()).resolves.toBe("Enabled");
 
-    process.env.NOTEGIT_MOCK_S3_VERSIONING_STATUS = "Suspended";
+    process.env.NOTEBRANCH_MOCK_S3_VERSIONING_STATUS = "Suspended";
     await expect(adapter.getBucketVersioning()).resolves.toBe("Suspended");
 
-    process.env.NOTEGIT_MOCK_S3_VERSIONING_STATUS = "";
+    process.env.NOTEBRANCH_MOCK_S3_VERSIONING_STATUS = "";
     await expect(adapter.getBucketVersioning()).resolves.toBe("Enabled");
 
-    process.env.NOTEGIT_MOCK_S3_VERSIONING_STATUS = "bad-value";
+    process.env.NOTEBRANCH_MOCK_S3_VERSIONING_STATUS = "bad-value";
     await expect(adapter.getBucketVersioning()).resolves.toBe("Enabled");
   });
 

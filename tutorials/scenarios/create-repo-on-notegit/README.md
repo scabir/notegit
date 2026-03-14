@@ -1,12 +1,12 @@
-# How to Create a Repo on notegit
+# How to Create a Repo on NoteBranch
 
-This tutorial was generated automatically with Playwright using the local notegit app in mock Git mode.
+This tutorial was generated automatically with Playwright using the local NoteBranch app in mock Git mode.
 
-## Step 1: Open notegit and start setup
+## Step 1: Open NoteBranch and start setup
 
-When you open notegit for the first time, use the 'Connect to Repository' button to start creating your repo connection.
+When you open NoteBranch for the first time, use the 'Connect to Repository' button to start creating your repo connection.
 
-![Open notegit and start setup](images/step-01-welcome-screen.png)
+![Open NoteBranch and start setup](images/step-01-welcome-screen.png)
 
 ## Step 2: Open the repository connection dialog
 

@@ -507,7 +507,7 @@ describe("ConfigService", () => {
       const gitSettings = profile.repoSettings as GitRepoSettings;
       expect(gitSettings.provider).toBe(REPO_PROVIDERS.git);
       expect(gitSettings.remoteUrl).toBe("https://github.com/user/repo.git");
-      expect(gitSettings.localPath).toContain("/tmp/notegit-test/repos");
+      expect(gitSettings.localPath).toContain("/tmp/NoteBranch-test/repos");
     });
 
     it("creates a local profile", async () => {

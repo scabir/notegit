@@ -70,7 +70,7 @@ export function HistoryPanel({
       setSelectedHash(null);
 
       try {
-        const response = await window.notegitApi.history.getForFile(path);
+        const response = await window.NoteBranchApi.history.getForFile(path);
 
         if (response.ok && response.data) {
           setHistory(response.data);

@@ -39,7 +39,7 @@ const flatten = (node: any): string => {
 describe("RepoSearchDialog", () => {
   beforeEach(() => {
     (global as any).window = {
-      notegitApi: {
+      NoteBranchApi: {
         search: {
           repoWide: jest.fn(),
           replaceInRepo: jest.fn(),
@@ -96,7 +96,7 @@ describe("RepoSearchDialog", () => {
       ],
     };
     const repoWide = jest.fn().mockResolvedValue({ ok: true, data: [result] });
-    (global as any).window.notegitApi.search.repoWide = repoWide;
+    (global as any).window.NoteBranchApi.search.repoWide = repoWide;
 
     const onSelectMatch = jest.fn();
     const onClose = jest.fn();
@@ -180,8 +180,8 @@ describe("RepoSearchDialog", () => {
         errors: [],
       },
     });
-    (global as any).window.notegitApi.search.repoWide = repoWide;
-    (global as any).window.notegitApi.search.replaceInRepo = replaceInRepo;
+    (global as any).window.NoteBranchApi.search.repoWide = repoWide;
+    (global as any).window.NoteBranchApi.search.replaceInRepo = replaceInRepo;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -271,8 +271,8 @@ describe("RepoSearchDialog", () => {
         errors: [],
       },
     });
-    (global as any).window.notegitApi.search.repoWide = repoWide;
-    (global as any).window.notegitApi.search.replaceInRepo = replaceInRepo;
+    (global as any).window.NoteBranchApi.search.repoWide = repoWide;
+    (global as any).window.NoteBranchApi.search.replaceInRepo = replaceInRepo;
     (global as any).window.confirm = jest.fn().mockReturnValue(true);
 
     let renderer: TestRenderer.ReactTestRenderer;
@@ -345,7 +345,7 @@ describe("RepoSearchDialog", () => {
   });
 
   it("shows an info alert when no matches are found", async () => {
-    (global as any).window.notegitApi.search.repoWide = jest
+    (global as any).window.NoteBranchApi.search.repoWide = jest
       .fn()
       .mockResolvedValue({ ok: true, data: [] });
 
@@ -395,7 +395,7 @@ describe("RepoSearchDialog", () => {
         error: { message: "api search failed" },
       })
       .mockRejectedValueOnce(new Error("search crashed"));
-    (global as any).window.notegitApi.search.repoWide = repoWide;
+    (global as any).window.NoteBranchApi.search.repoWide = repoWide;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -442,7 +442,7 @@ describe("RepoSearchDialog", () => {
 
   it("searches with case-sensitive regex options and supports Enter-to-search", async () => {
     const repoWide = jest.fn().mockResolvedValue({ ok: true, data: [] });
-    (global as any).window.notegitApi.search.repoWide = repoWide;
+    (global as any).window.NoteBranchApi.search.repoWide = repoWide;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -500,10 +500,10 @@ describe("RepoSearchDialog", () => {
         },
       ],
     };
-    (global as any).window.notegitApi.search.repoWide = jest
+    (global as any).window.NoteBranchApi.search.repoWide = jest
       .fn()
       .mockResolvedValue({ ok: true, data: [result] });
-    (global as any).window.notegitApi.search.replaceInRepo = jest
+    (global as any).window.NoteBranchApi.search.replaceInRepo = jest
       .fn()
       .mockResolvedValue({
         ok: false,
@@ -584,10 +584,10 @@ describe("RepoSearchDialog", () => {
         },
       ],
     };
-    (global as any).window.notegitApi.search.repoWide = jest
+    (global as any).window.NoteBranchApi.search.repoWide = jest
       .fn()
       .mockResolvedValue({ ok: true, data: [result] });
-    (global as any).window.notegitApi.search.replaceInRepo = jest
+    (global as any).window.NoteBranchApi.search.replaceInRepo = jest
       .fn()
       .mockRejectedValue(new Error("replace crashed"));
 
@@ -666,8 +666,8 @@ describe("RepoSearchDialog", () => {
 
     const repoWide = jest.fn().mockResolvedValue({ ok: true, data: [result] });
     const replaceInRepo = jest.fn();
-    (global as any).window.notegitApi.search.repoWide = repoWide;
-    (global as any).window.notegitApi.search.replaceInRepo = replaceInRepo;
+    (global as any).window.NoteBranchApi.search.repoWide = repoWide;
+    (global as any).window.NoteBranchApi.search.replaceInRepo = replaceInRepo;
     (global as any).window.confirm = jest.fn().mockReturnValue(false);
 
     let renderer: TestRenderer.ReactTestRenderer;
@@ -756,8 +756,8 @@ describe("RepoSearchDialog", () => {
         },
       })
       .mockRejectedValueOnce(new Error("replace all crashed"));
-    (global as any).window.notegitApi.search.repoWide = repoWide;
-    (global as any).window.notegitApi.search.replaceInRepo = replaceInRepo;
+    (global as any).window.NoteBranchApi.search.repoWide = repoWide;
+    (global as any).window.NoteBranchApi.search.replaceInRepo = replaceInRepo;
     (global as any).window.confirm = jest.fn().mockReturnValue(true);
 
     let renderer: TestRenderer.ReactTestRenderer;

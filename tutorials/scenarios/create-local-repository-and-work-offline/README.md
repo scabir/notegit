@@ -2,11 +2,11 @@
 
 This scenario demonstrates local-only workflow with no remote network sync operations.
 
-## Step 1: Open notegit and start repository setup
+## Step 1: Open NoteBranch and start repository setup
 
 From first launch, click **Connect to Repository** to choose local provider.
 
-![Open notegit and start repository setup](images/step-01-welcome-screen.png)
+![Open NoteBranch and start repository setup](images/step-01-welcome-screen.png)
 
 ## Step 2: Connect a local repository
 

@@ -38,7 +38,7 @@ describe("SearchDialog", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     (global as any).window = {
-      notegitApi: {
+      NoteBranchApi: {
         search: {
           query: jest.fn(),
         },
@@ -69,7 +69,7 @@ describe("SearchDialog", () => {
     const queryMock = jest
       .fn()
       .mockResolvedValue({ ok: true, data: [createResult()] });
-    (global as any).window.notegitApi.search.query = queryMock;
+    (global as any).window.NoteBranchApi.search.query = queryMock;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -112,7 +112,7 @@ describe("SearchDialog", () => {
     const queryMock = jest
       .fn()
       .mockResolvedValue({ ok: false, error: { message: "search failed" } });
-    (global as any).window.notegitApi.search.query = queryMock;
+    (global as any).window.NoteBranchApi.search.query = queryMock;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -142,7 +142,7 @@ describe("SearchDialog", () => {
 
   it("shows no results message when search returns empty", async () => {
     const queryMock = jest.fn().mockResolvedValue({ ok: true, data: [] });
-    (global as any).window.notegitApi.search.query = queryMock;
+    (global as any).window.NoteBranchApi.search.query = queryMock;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -177,7 +177,7 @@ describe("SearchDialog", () => {
       createResultWithMatches("notes/two.txt", "two.txt", 3),
     ];
     const queryMock = jest.fn().mockResolvedValue({ ok: true, data: results });
-    (global as any).window.notegitApi.search.query = queryMock;
+    (global as any).window.NoteBranchApi.search.query = queryMock;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -248,7 +248,7 @@ describe("SearchDialog", () => {
 
   it("handles query errors and resets on close", async () => {
     const queryMock = jest.fn().mockRejectedValue(new Error("boom"));
-    (global as any).window.notegitApi.search.query = queryMock;
+    (global as any).window.NoteBranchApi.search.query = queryMock;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -306,7 +306,7 @@ describe("SearchDialog", () => {
       createResultWithMatches("notes/two.md", "two.md", 1),
     ];
     const queryMock = jest.fn().mockResolvedValue({ ok: true, data: results });
-    (global as any).window.notegitApi.search.query = queryMock;
+    (global as any).window.NoteBranchApi.search.query = queryMock;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {

@@ -98,12 +98,12 @@ describe("GitRepoProvider", () => {
     expect(gitAdapter.init).toHaveBeenCalledWith("/repo");
     expect(fsAdapter.writeFile).toHaveBeenCalledWith(
       path.join("/repo", "README.md"),
-      "# my-notes\n\nThis repository was initialized by notegit.\n",
+      "# my-notes\n\nThis repository was initialized by NoteBranch.\n",
     );
     expect(gitAdapter.addRemote).toHaveBeenCalledWith(baseSettings.remoteUrl);
     expect(gitAdapter.add).toHaveBeenCalledWith("README.md");
     expect(gitAdapter.commit).toHaveBeenCalledWith(
-      "Initial commit from notegit",
+      "Initial commit from NoteBranch",
     );
     expect(gitAdapter.push).toHaveBeenCalledWith(baseSettings.pat);
   });

@@ -22,12 +22,12 @@ interface TutorialImageAsset {
 const TUTORIAL_IMAGE_ASSETS: ReadonlyArray<TutorialImageAsset> = [
   {
     sourcePath:
-      "scenarios/create-repo-on-notegit/images/step-01-welcome-screen.png",
+      "scenarios/create-repo-on-NoteBranch/images/step-01-welcome-screen.png",
     targetFileName: "create-repo-step-01-welcome-screen.png",
   },
   {
     sourcePath:
-      "scenarios/create-repo-on-notegit/images/step-02-open-connect-dialog.png",
+      "scenarios/create-repo-on-NoteBranch/images/step-02-open-connect-dialog.png",
     targetFileName: "create-repo-step-02-open-connect-dialog.png",
   },
   {

@@ -187,7 +187,7 @@ const fireWindowKeydown = (
 describe("MarkdownEditor task list formatting", () => {
   beforeEach(() => {
     (global as any).window = {
-      notegitApi: {
+      NoteBranchApi: {
         config: {
           getAppSettings: jest.fn().mockResolvedValue({
             ok: true,
@@ -467,7 +467,7 @@ describe("MarkdownEditor task list formatting", () => {
     (global as any).alert = alertMock;
     (global as any).window.alert = alertMock;
 
-    (global as any).window.notegitApi.export.note = jest
+    (global as any).window.NoteBranchApi.export.note = jest
       .fn()
       .mockResolvedValueOnce({ ok: true, data: "/tmp/note.md" })
       .mockResolvedValueOnce({ ok: false, error: { message: "Boom" } });
@@ -495,7 +495,7 @@ describe("MarkdownEditor task list formatting", () => {
     const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     (global as any).alert = alertMock;
     (global as any).window.alert = alertMock;
-    (global as any).window.notegitApi.export.note = jest
+    (global as any).window.NoteBranchApi.export.note = jest
       .fn()
       .mockRejectedValue(new Error("export boom"));
 

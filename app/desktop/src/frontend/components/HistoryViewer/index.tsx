@@ -72,7 +72,7 @@ export function HistoryViewer({
     setError(null);
 
     try {
-      const response = await window.notegitApi.history.getVersion(
+      const response = await window.NoteBranchApi.history.getVersion(
         commitHash,
         filePath,
       );

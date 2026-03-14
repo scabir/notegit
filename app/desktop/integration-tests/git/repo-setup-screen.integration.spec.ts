@@ -240,7 +240,7 @@ test("(git) auth failure on clone shows error and keeps setup open", async ({
   let app: ElectronApplication | null = null;
   try {
     const launched = await launchIntegrationApp(userDataDir, {
-      env: { NOTEGIT_MOCK_GIT_FAIL_CLONE_AUTH: "1" },
+      env: { NOTEBRANCH_MOCK_GIT_FAIL_CLONE_AUTH: "1" },
     });
     app = launched.app;
     const page = launched.page;

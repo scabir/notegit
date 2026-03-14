@@ -1,4 +1,4 @@
-# Build a Linked Wiki in notegit and Host It Free on GitHub
+# Build a Linked Wiki in NoteBranch and Host It Free on GitHub
 
 This scenario starts after repository setup and login. It focuses on wiki structure, linking, images, and publish flow.
 

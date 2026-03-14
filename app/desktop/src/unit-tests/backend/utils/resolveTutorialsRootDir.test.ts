@@ -1,7 +1,7 @@
 import { resolveTutorialsRootDir } from "../../../backend/utils/resolveTutorialsRootDir";
 
 const TUTORIAL_SENTINELS = [
-  "scenarios/create-repo-on-notegit/images/step-01-welcome-screen.png",
+  "scenarios/create-repo-on-NoteBranch/images/step-01-welcome-screen.png",
   "scenarios/connect-s3-bucket-with-prefix/images/step-05-verify-s3-connected.png",
 ];
 

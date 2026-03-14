@@ -11,7 +11,7 @@ jest.mock("electron", () => ({
     openPath: jest.fn(),
   },
   app: {
-    getPath: jest.fn(() => "/tmp/notegit-test"),
+    getPath: jest.fn(() => "/tmp/NoteBranch-test"),
   },
 }));
 
@@ -92,10 +92,10 @@ describe("dialogHandlers", () => {
 
     registerDialogHandlers(ipcMain);
 
-    const result = await handlers["dialog:openFolder"](null, "/tmp/notegit");
+    const result = await handlers["dialog:openFolder"](null, "/tmp/NoteBranch");
 
     expect(result).toEqual({ ok: true });
-    expect(shell.openPath).toHaveBeenCalledWith("/tmp/notegit");
+    expect(shell.openPath).toHaveBeenCalledWith("/tmp/NoteBranch");
   });
 
   it("returns failure when shell openPath reports an error", async () => {
@@ -104,7 +104,7 @@ describe("dialogHandlers", () => {
 
     registerDialogHandlers(ipcMain);
 
-    const result = await handlers["dialog:openFolder"](null, "/tmp/notegit");
+    const result = await handlers["dialog:openFolder"](null, "/tmp/NoteBranch");
 
     expect(result.ok).toBe(false);
     expect(result.error?.message).toBe("cannot open");
@@ -113,7 +113,7 @@ describe("dialogHandlers", () => {
   it("localizes coded open-folder errors", async () => {
     (shell.openPath as jest.Mock).mockRejectedValue({
       code: ApiErrorCode.FS_NOT_FOUND,
-      message: "File not found: /tmp/notegit",
+      message: "File not found: /tmp/NoteBranch",
       details: {
         messageKey: "dialog.errors.failedOpenFolder",
       },
@@ -123,7 +123,7 @@ describe("dialogHandlers", () => {
 
     registerDialogHandlers(ipcMain, translate);
 
-    const result = await handlers["dialog:openFolder"](null, "/tmp/notegit");
+    const result = await handlers["dialog:openFolder"](null, "/tmp/NoteBranch");
 
     expect(result.ok).toBe(false);
     expect(result.error?.code).toBe(ApiErrorCode.FS_NOT_FOUND);
@@ -137,7 +137,7 @@ describe("dialogHandlers", () => {
 
     registerDialogHandlers(ipcMain, translate);
 
-    const result = await handlers["dialog:openFolder"](null, "/tmp/notegit");
+    const result = await handlers["dialog:openFolder"](null, "/tmp/NoteBranch");
 
     expect(result.ok).toBe(false);
     expect(result.error?.code).toBe(ApiErrorCode.UNKNOWN_ERROR);

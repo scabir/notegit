@@ -77,7 +77,7 @@ const findButtonByText = (
 describe("HistoryViewer", () => {
   beforeEach(() => {
     (global as any).window = {
-      notegitApi: {
+      NoteBranchApi: {
         history: {
           getVersion: jest.fn(),
         },
@@ -94,7 +94,7 @@ describe("HistoryViewer", () => {
     const getVersion = jest
       .fn()
       .mockResolvedValue({ ok: true, data: "# Title" });
-    (global as any).window.notegitApi.history.getVersion = getVersion;
+    (global as any).window.NoteBranchApi.history.getVersion = getVersion;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -139,7 +139,7 @@ describe("HistoryViewer", () => {
       ok: false,
       error: { message: "Boom" },
     });
-    (global as any).window.notegitApi.history.getVersion = getVersion;
+    (global as any).window.NoteBranchApi.history.getVersion = getVersion;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -164,7 +164,7 @@ describe("HistoryViewer", () => {
 
   it("shows an error when load throws", async () => {
     const getVersion = jest.fn().mockRejectedValue(new Error("Crash"));
-    (global as any).window.notegitApi.history.getVersion = getVersion;
+    (global as any).window.NoteBranchApi.history.getVersion = getVersion;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -191,7 +191,7 @@ describe("HistoryViewer", () => {
     const getVersion = jest
       .fn()
       .mockResolvedValue({ ok: true, data: "# Title" });
-    (global as any).window.notegitApi.history.getVersion = getVersion;
+    (global as any).window.NoteBranchApi.history.getVersion = getVersion;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -242,7 +242,7 @@ describe("HistoryViewer", () => {
 
   it("does not load version when dialog is closed or commit hash is missing", async () => {
     const getVersion = jest.fn();
-    (global as any).window.notegitApi.history.getVersion = getVersion;
+    (global as any).window.NoteBranchApi.history.getVersion = getVersion;
 
     await act(async () => {
       TestRenderer.create(
@@ -279,7 +279,7 @@ describe("HistoryViewer", () => {
       error: {},
     });
     const onClose = jest.fn();
-    (global as any).window.notegitApi.history.getVersion = getVersion;
+    (global as any).window.NoteBranchApi.history.getVersion = getVersion;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -314,7 +314,7 @@ describe("HistoryViewer", () => {
 
   it("renders plain text content without markdown preview toggles", async () => {
     const getVersion = jest.fn().mockResolvedValue({ ok: true, data: "plain" });
-    (global as any).window.notegitApi.history.getVersion = getVersion;
+    (global as any).window.NoteBranchApi.history.getVersion = getVersion;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -350,7 +350,7 @@ describe("HistoryViewer", () => {
       ok: true,
       data: "TRIGGER_MARKDOWN_COMPONENTS",
     });
-    (global as any).window.notegitApi.history.getVersion = getVersion;
+    (global as any).window.NoteBranchApi.history.getVersion = getVersion;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {

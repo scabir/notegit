@@ -114,7 +114,7 @@ export function RepoSetupDialog({
         };
       }
 
-      const response = await window.notegitApi.repo.openOrClone(settings);
+      const response = await window.NoteBranchApi.repo.openOrClone(settings);
 
       if (response.ok) {
         onSuccess();

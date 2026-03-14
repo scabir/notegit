@@ -19,10 +19,10 @@ jobs:
         include:
           - arch: x64
             artifact_name: app-windows-x64-installer
-            artifact_basename: notegit-windows-x64-setup
+            artifact_basename: NoteBranch-windows-x64-setup
           - arch: ia32
             artifact_name: app-windows-ia32-installer
-            artifact_basename: notegit-windows-ia32-setup
+            artifact_basename: NoteBranch-windows-ia32-setup
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
       CSC_FOR_PULL_REQUEST: "true"

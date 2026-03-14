@@ -28,7 +28,7 @@ export function useMarkdownDocumentState({
 
   useEffect(() => {
     const loadSettings = async () => {
-      const response = await window.notegitApi.config.getAppSettings();
+      const response = await window.NoteBranchApi.config.getAppSettings();
       if (response.ok && response.data) {
         setAppSettings(response.data);
       }
@@ -58,7 +58,7 @@ export function useMarkdownDocumentState({
     if (!file) return;
 
     try {
-      const response = await window.notegitApi.export.note(
+      const response = await window.NoteBranchApi.export.note(
         file.path,
         content,
         "md",

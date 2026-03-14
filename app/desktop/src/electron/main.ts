@@ -16,23 +16,23 @@ import {
 } from "./utils/navigationGuard";
 
 let mainWindow: BrowserWindow | null = null;
-const buildWindowTitle = () => `notegit - ${app.getVersion()}`;
-const SOURCE_CODE_URL = "https://github.com/scabir/notegit";
+const buildWindowTitle = () => `NoteBranch - ${app.getVersion()}`;
+const SOURCE_CODE_URL = "https://github.com/scabir/notebranch";
 const USER_GUIDE_URL = `${SOURCE_CODE_URL}/blob/main/docs/USER_GUIDE.md`;
-const isIntegrationTestMode = process.env.NOTEGIT_INTEGRATION_TEST === "1";
+const isIntegrationTestMode = process.env.NOTEBRANCH_INTEGRATION_TEST === "1";
 
 const configureIntegrationUserDataPath = () => {
   if (!isIntegrationTestMode) {
     return;
   }
 
-  const configuredPath = process.env.NOTEGIT_INTEGRATION_USER_DATA_DIR;
+  const configuredPath = process.env.NOTEBRANCH_INTEGRATION_USER_DATA_DIR;
   const integrationUserDataPath =
     configuredPath && configuredPath.trim().length > 0
       ? configuredPath
       : path.join(
           os.tmpdir(),
-          `notegit-integration-${Date.now()}-${process.pid}-${Math.random()
+          `NoteBranch-integration-${Date.now()}-${process.pid}-${Math.random()
             .toString(36)
             .slice(2, 10)}`,
         );
@@ -175,7 +175,7 @@ if (!gotTheLock) {
           "src",
           "electron",
           "resources",
-          "notegit.png",
+          "NoteBranch.png",
         );
         const icon = nativeImage.createFromPath(iconPath);
         if (!icon.isEmpty()) {

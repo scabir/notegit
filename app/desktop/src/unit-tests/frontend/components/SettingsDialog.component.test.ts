@@ -115,7 +115,7 @@ describe("SettingsDialog component", () => {
     jest.useRealTimers();
     openFolder = jest.fn().mockResolvedValue({ ok: true });
     (global as any).window = {
-      notegitApi: {
+      NoteBranchApi: {
         config: {
           getFull: jest
             .fn()
@@ -224,7 +224,7 @@ describe("SettingsDialog component", () => {
       await flushPromises();
     });
 
-    const updateRepoSettings = (global as any).window.notegitApi.config
+    const updateRepoSettings = (global as any).window.NoteBranchApi.config
       .updateRepoSettings;
     expect(updateRepoSettings).toHaveBeenCalledWith({
       provider: REPO_PROVIDERS.git,
@@ -261,9 +261,9 @@ describe("SettingsDialog component", () => {
       await flushPromises();
     });
 
-    const updateAppSettings = (global as any).window.notegitApi.config
+    const updateAppSettings = (global as any).window.NoteBranchApi.config
       .updateAppSettings;
-    const setLanguage = (global as any).window.notegitApi.i18n.setLanguage;
+    const setLanguage = (global as any).window.NoteBranchApi.i18n.setLanguage;
     expect(updateAppSettings).toHaveBeenCalled();
     expect(setLanguage).toHaveBeenCalledWith("en-GB");
   });
@@ -336,7 +336,7 @@ describe("SettingsDialog component", () => {
       await flushPromises();
     });
 
-    const createProfile = (global as any).window.notegitApi.config
+    const createProfile = (global as any).window.NoteBranchApi.config
       .createProfile;
     expect(createProfile).toHaveBeenCalledWith("New Profile", {
       provider: REPO_PROVIDERS.git,
@@ -348,7 +348,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("creates a new local profile from the profiles tab", async () => {
-    (global as any).window.notegitApi.config.createProfile = jest
+    (global as any).window.NoteBranchApi.config.createProfile = jest
       .fn()
       .mockResolvedValue({
         ok: true,
@@ -418,7 +418,7 @@ describe("SettingsDialog component", () => {
       await flushPromises();
     });
 
-    const createProfile = (global as any).window.notegitApi.config
+    const createProfile = (global as any).window.NoteBranchApi.config
       .createProfile;
     expect(createProfile).toHaveBeenCalledWith("Local Profile", {
       provider: REPO_PROVIDERS.local,
@@ -426,10 +426,10 @@ describe("SettingsDialog component", () => {
   });
 
   it("exports current note and repository", async () => {
-    (global as any).window.notegitApi.export.note = jest
+    (global as any).window.NoteBranchApi.export.note = jest
       .fn()
       .mockResolvedValue({ ok: true, data: "/tmp/note.md" });
-    (global as any).window.notegitApi.export.repoZip = jest
+    (global as any).window.NoteBranchApi.export.repoZip = jest
       .fn()
       .mockResolvedValue({ ok: true, data: "/tmp/repo.zip" });
 
@@ -472,17 +472,17 @@ describe("SettingsDialog component", () => {
       await flushPromises();
     });
 
-    expect((global as any).window.notegitApi.export.note).toHaveBeenCalledWith(
-      "note.md",
-      "note",
-      "md",
-    );
-    expect((global as any).window.notegitApi.export.repoZip).toHaveBeenCalled();
+    expect(
+      (global as any).window.NoteBranchApi.export.note,
+    ).toHaveBeenCalledWith("note.md", "note", "md");
+    expect(
+      (global as any).window.NoteBranchApi.export.repoZip,
+    ).toHaveBeenCalled();
   });
 
   it("switches profiles after confirmation", async () => {
     (global as any).window.confirm = jest.fn().mockReturnValue(true);
-    (global as any).window.notegitApi.config.setActiveProfile = jest
+    (global as any).window.NoteBranchApi.config.setActiveProfile = jest
       .fn()
       .mockResolvedValue({ ok: true });
     const switchConfig = buildConfig();
@@ -506,7 +506,7 @@ describe("SettingsDialog component", () => {
       },
     ];
     switchConfig.activeProfileId = "profile-1";
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({ ok: true, data: switchConfig });
 
@@ -550,10 +550,10 @@ describe("SettingsDialog component", () => {
     });
 
     expect(
-      (global as any).window.notegitApi.config.setActiveProfile,
+      (global as any).window.NoteBranchApi.config.setActiveProfile,
     ).toHaveBeenCalled();
     expect(
-      (global as any).window.notegitApi.config.restartApp,
+      (global as any).window.NoteBranchApi.config.restartApp,
     ).toHaveBeenCalled();
   });
 
@@ -656,7 +656,9 @@ describe("SettingsDialog component", () => {
       await flushPromises();
     });
 
-    expect((global as any).window.notegitApi.logs.getFolder).toHaveBeenCalled();
+    expect(
+      (global as any).window.NoteBranchApi.logs.getFolder,
+    ).toHaveBeenCalled();
 
     const openFolderButton = renderer!.root
       .findAllByType(Button)
@@ -789,7 +791,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("creates a new s3 profile from the profiles tab", async () => {
-    (global as any).window.notegitApi.config.createProfile = jest
+    (global as any).window.NoteBranchApi.config.createProfile = jest
       .fn()
       .mockResolvedValue({
         ok: true,
@@ -894,7 +896,7 @@ describe("SettingsDialog component", () => {
     });
 
     expect(
-      (global as any).window.notegitApi.config.createProfile,
+      (global as any).window.NoteBranchApi.config.createProfile,
     ).toHaveBeenCalledWith("S3 Profile", {
       provider: REPO_PROVIDERS.s3,
       bucket: "bucket",
@@ -918,7 +920,7 @@ describe("SettingsDialog component", () => {
       secretAccessKey: "secret",
       sessionToken: "",
     };
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({ ok: true, data: s3Config });
 
@@ -955,7 +957,7 @@ describe("SettingsDialog component", () => {
     });
 
     expect(
-      (global as any).window.notegitApi.config.updateRepoSettings,
+      (global as any).window.NoteBranchApi.config.updateRepoSettings,
     ).toHaveBeenCalledWith({
       provider: REPO_PROVIDERS.s3,
       bucket: "bucket",
@@ -987,10 +989,10 @@ describe("SettingsDialog component", () => {
       },
     ];
     deleteConfig.activeProfileId = "profile-1";
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({ ok: true, data: deleteConfig });
-    (global as any).window.notegitApi.config.deleteProfile = jest
+    (global as any).window.NoteBranchApi.config.deleteProfile = jest
       .fn()
       .mockResolvedValue({ ok: true });
 
@@ -1026,12 +1028,12 @@ describe("SettingsDialog component", () => {
     });
 
     expect(
-      (global as any).window.notegitApi.config.deleteProfile,
+      (global as any).window.NoteBranchApi.config.deleteProfile,
     ).toHaveBeenCalledWith("profile-2");
   });
 
   it("keeps copy disabled when logs folder is missing", async () => {
-    (global as any).window.notegitApi.logs.getFolder = jest
+    (global as any).window.NoteBranchApi.logs.getFolder = jest
       .fn()
       .mockResolvedValue({
         ok: false,
@@ -1069,7 +1071,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("shows an error when config load fails", async () => {
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({
         ok: false,
@@ -1137,7 +1139,7 @@ describe("SettingsDialog component", () => {
       pat: "",
       authMethod: AuthMethod.PAT,
     };
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({ ok: true, data: gitConfig });
 
@@ -1174,7 +1176,7 @@ describe("SettingsDialog component", () => {
     });
 
     expect(
-      (global as any).window.notegitApi.config.updateRepoSettings,
+      (global as any).window.NoteBranchApi.config.updateRepoSettings,
     ).not.toHaveBeenCalled();
     expect(flattenText(renderer!.toJSON())).toContain(
       "Please fill in all required Git fields",
@@ -1236,7 +1238,7 @@ describe("SettingsDialog component", () => {
       autoSaveEnabled: true,
       s3AutoSyncEnabled: true,
     };
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({ ok: true, data: s3Config });
 
@@ -1268,7 +1270,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("shows error when saving app settings fails", async () => {
-    (global as any).window.notegitApi.config.updateAppSettings = jest
+    (global as any).window.NoteBranchApi.config.updateAppSettings = jest
       .fn()
       .mockResolvedValue({
         ok: false,
@@ -1303,7 +1305,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("shows error when repository settings save fails", async () => {
-    (global as any).window.notegitApi.config.updateRepoSettings = jest
+    (global as any).window.NoteBranchApi.config.updateRepoSettings = jest
       .fn()
       .mockResolvedValue({
         ok: false,
@@ -1357,7 +1359,7 @@ describe("SettingsDialog component", () => {
       secretAccessKey: "",
       sessionToken: "",
     };
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({ ok: true, data: s3Config });
 
@@ -1394,7 +1396,7 @@ describe("SettingsDialog component", () => {
     });
 
     expect(
-      (global as any).window.notegitApi.config.updateRepoSettings,
+      (global as any).window.NoteBranchApi.config.updateRepoSettings,
     ).not.toHaveBeenCalled();
     expect(flattenText(renderer!.toJSON())).toContain(
       "Please fill in all required S3 fields",
@@ -1424,7 +1426,7 @@ describe("SettingsDialog component", () => {
       },
     ];
     switchConfig.activeProfileId = "profile-1";
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({ ok: true, data: switchConfig });
 
@@ -1461,12 +1463,12 @@ describe("SettingsDialog component", () => {
     });
 
     expect(
-      (global as any).window.notegitApi.config.setActiveProfile,
+      (global as any).window.NoteBranchApi.config.setActiveProfile,
     ).not.toHaveBeenCalled();
   });
 
   it("shows log folder load errors", async () => {
-    (global as any).window.notegitApi.logs.getFolder = jest
+    (global as any).window.NoteBranchApi.logs.getFolder = jest
       .fn()
       .mockResolvedValue({
         ok: false,
@@ -1497,7 +1499,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("shows error when config load throws", async () => {
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockRejectedValue(new Error("load boom"));
 
@@ -1519,7 +1521,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("shows error when saving app settings throws", async () => {
-    (global as any).window.notegitApi.config.updateAppSettings = jest
+    (global as any).window.NoteBranchApi.config.updateAppSettings = jest
       .fn()
       .mockRejectedValue(new Error("app boom"));
 
@@ -1551,7 +1553,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("shows error when saving repo settings throws", async () => {
-    (global as any).window.notegitApi.config.updateRepoSettings = jest
+    (global as any).window.NoteBranchApi.config.updateRepoSettings = jest
       .fn()
       .mockRejectedValue(new Error("repo boom"));
 
@@ -1591,7 +1593,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("shows error when export note throws", async () => {
-    (global as any).window.notegitApi.export.note = jest
+    (global as any).window.NoteBranchApi.export.note = jest
       .fn()
       .mockRejectedValue(new Error("export boom"));
 
@@ -1633,7 +1635,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("shows error when export repo throws", async () => {
-    (global as any).window.notegitApi.export.repoZip = jest
+    (global as any).window.NoteBranchApi.export.repoZip = jest
       .fn()
       .mockRejectedValue(new Error("repo export boom"));
 
@@ -1674,7 +1676,7 @@ describe("SettingsDialog component", () => {
 
   it("shows error when profile switch fails", async () => {
     (global as any).window.confirm = jest.fn().mockReturnValue(true);
-    (global as any).window.notegitApi.config.setActiveProfile = jest
+    (global as any).window.NoteBranchApi.config.setActiveProfile = jest
       .fn()
       .mockResolvedValue({
         ok: false,
@@ -1701,7 +1703,7 @@ describe("SettingsDialog component", () => {
       },
     ];
     switchConfig.activeProfileId = "profile-1";
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({ ok: true, data: switchConfig });
 
@@ -1741,7 +1743,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("shows error when profile creation fails", async () => {
-    (global as any).window.notegitApi.config.createProfile = jest
+    (global as any).window.NoteBranchApi.config.createProfile = jest
       .fn()
       .mockResolvedValue({
         ok: false,
@@ -1834,10 +1836,10 @@ describe("SettingsDialog component", () => {
       },
     ];
     deleteConfig.activeProfileId = "profile-1";
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({ ok: true, data: deleteConfig });
-    (global as any).window.notegitApi.config.deleteProfile = jest
+    (global as any).window.NoteBranchApi.config.deleteProfile = jest
       .fn()
       .mockResolvedValue({
         ok: false,
@@ -1879,7 +1881,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("shows an error when setting the language fails after saving app settings", async () => {
-    (global as any).window.notegitApi.i18n.setLanguage = jest
+    (global as any).window.NoteBranchApi.i18n.setLanguage = jest
       .fn()
       .mockResolvedValue({
         ok: false,
@@ -1914,7 +1916,7 @@ describe("SettingsDialog component", () => {
   });
 
   it("falls back to the default language when i18n metadata is unavailable", async () => {
-    (global as any).window.notegitApi.i18n.getMeta = jest
+    (global as any).window.NoteBranchApi.i18n.getMeta = jest
       .fn()
       .mockResolvedValue({ ok: false });
 
@@ -1943,7 +1945,7 @@ describe("SettingsDialog component", () => {
     });
 
     expect(
-      (global as any).window.notegitApi.i18n.setLanguage,
+      (global as any).window.NoteBranchApi.i18n.setLanguage,
     ).toHaveBeenCalledWith("en-GB");
   });
 });

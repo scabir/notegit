@@ -11,7 +11,7 @@ describe("S3HistoryProvider", () => {
     bucket: "notes-bucket",
     region: "us-east-1",
     prefix: "notes",
-    localPath: "/tmp/notegit-s3",
+    localPath: "/tmp/NoteBranch-s3",
     accessKeyId: "access-key",
     secretAccessKey: "secret-key",
     sessionToken: "",

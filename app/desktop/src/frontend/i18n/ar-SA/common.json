@@ -1,12 +1,12 @@
 {
   "app": {
-    "name": "notegit",
+    "name": "NoteBranch",
     "tagline": "تطبيق ملاحظات Markdown مدعوم بـ Git",
-    "welcome": "مرحبًا بك في notegit! للبدء، اتصل بمستودع.",
+    "welcome": "مرحبًا بك في NoteBranch! للبدء، اتصل بمستودع.",
     "connectToRepository": "الاتصال بالمستودع"
   },
   "gitMissing": {
-    "message": "Git غير مثبت على نظامك. يرجى تثبيت Git لاستخدام notegit.",
+    "message": "Git غير مثبت على نظامك. يرجى تثبيت Git لاستخدام NoteBranch.",
     "downloadPrompt": "لتنزيل Git."
   }
 }

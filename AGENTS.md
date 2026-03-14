@@ -2,7 +2,7 @@ ROLE: EXECUTE PROJECT TASKS WITH STRICT CONSTRAINT ADHERENCE
 
 ## SCOPE
 
-- Repository root: `notegit/`
+- Repository root: `NoteBranch/`
 - Main app: `app/desktop/`
 - Canonical technical doc: `docs/tech/README.md`
 - User guide: `docs/USER_GUIDE.md`

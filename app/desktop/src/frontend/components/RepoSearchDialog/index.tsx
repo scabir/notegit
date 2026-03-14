@@ -102,7 +102,7 @@ export function RepoSearchDialog({
     setResults([]);
 
     try {
-      const response = await window.notegitApi.search.repoWide(query, {
+      const response = await window.NoteBranchApi.search.repoWide(query, {
         caseSensitive,
         useRegex,
       });
@@ -132,7 +132,7 @@ export function RepoSearchDialog({
     setError(null);
 
     try {
-      const response = await window.notegitApi.search.replaceInRepo(
+      const response = await window.NoteBranchApi.search.replaceInRepo(
         query,
         replacement,
         {
@@ -176,7 +176,7 @@ export function RepoSearchDialog({
     setError(null);
 
     try {
-      const response = await window.notegitApi.search.replaceInRepo(
+      const response = await window.NoteBranchApi.search.replaceInRepo(
         query,
         replacement,
         {

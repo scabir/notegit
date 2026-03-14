@@ -73,10 +73,10 @@ test("(git) parallel app instances stay isolated by userData path", async ({
   request: _request,
 }) => {
   const userDataDirA = await fs.mkdtemp(
-    path.join(os.tmpdir(), `notegit-isolation-a-${Date.now()}-`),
+    path.join(os.tmpdir(), `NoteBranch-isolation-a-${Date.now()}-`),
   );
   const userDataDirB = await fs.mkdtemp(
-    path.join(os.tmpdir(), `notegit-isolation-b-${Date.now()}-`),
+    path.join(os.tmpdir(), `NoteBranch-isolation-b-${Date.now()}-`),
   );
 
   let appA: ElectronApplication | null = null;
@@ -152,7 +152,7 @@ test("(git) restart preserves uncommitted changes and git status", async ({
     expect(reopenedTree).toContain("restart-dirty.md");
 
     const status = await secondPage.evaluate(async () => {
-      const response = await window.notegitApi.repo.getStatus();
+      const response = await window.NoteBranchApi.repo.getStatus();
       if (!response.ok || !response.data) {
         throw new Error(
           response.error?.message || "Failed to read repo status",

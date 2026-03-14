@@ -1,10 +1,10 @@
 # Technical Documentation
 
-This is the canonical technical documentation for notegit.
+This is the canonical technical documentation for NoteBranch.
 
 ## Architecture
 
-notegit is an Electron app with a React renderer and a Node/Electron main process.
+NoteBranch is an Electron app with a React renderer and a Node/Electron main process.
 
 ```
 Renderer (React + CodeMirror)
@@ -18,7 +18,7 @@ Main process services
 ### Key modules
 
 - **Renderer**: React UI, Markdown/Text editors, MUI components
-- **Preload**: `window.notegitApi` bridge with typed IPC calls
+- **Preload**: `window.NoteBranchApi` bridge with typed IPC calls
 - **Handlers**: IPC endpoints for files, repo, config, search, history, export
 - **Services**: business logic (files, repo, config, history, search, export)
 - **Adapters**: filesystem, Git CLI, AWS S3, encryption
@@ -28,9 +28,9 @@ Main process services
 
 App data lives in the OS app-data folder:
 
-- macOS: `~/Library/Application Support/notegit/`
-- Windows: `%APPDATA%/notegit/`
-- Linux: `~/.config/notegit/`
+- macOS: `~/Library/Application Support/NoteBranch/`
+- Windows: `%APPDATA%/NoteBranch/`
+- Linux: `~/.config/NoteBranch/`
 
 Folders:
 
@@ -125,9 +125,9 @@ cd app/desktop/setup
 
 Artifacts are written to `app/desktop/release/`:
 
-- `notegit-{version}.dmg` and `notegit-{version}-mac.zip`
-- `notegit Setup {version}.exe` and `notegit {version}.exe`
-- `notegit-{version}.AppImage`, `notegit_{version}_amd64.deb`, `notegit-{version}.x86_64.rpm`
+- `NoteBranch-{version}.dmg` and `NoteBranch-{version}-mac.zip`
+- `NoteBranch Setup {version}.exe` and `NoteBranch {version}.exe`
+- `NoteBranch-{version}.AppImage`, `NoteBranch_{version}_amd64.deb`, `NoteBranch-{version}.x86_64.rpm`
 
 Build script docs:
 

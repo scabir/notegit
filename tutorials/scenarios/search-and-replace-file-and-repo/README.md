@@ -4,7 +4,7 @@ This scenario currently includes setup screenshots plus manual step-by-step acti
 
 ## Step 1: Start from connected Git workspace
 
-Open notegit and connect your Git repository.
+Open NoteBranch and connect your Git repository.
 
 ![Start from connected Git workspace](images/step-01-connected-workspace.png)
 

@@ -63,12 +63,12 @@ function App() {
     setLoading(true);
 
     try {
-      const gitResponse = await window.notegitApi.config.checkGitInstalled();
+      const gitResponse = await window.NoteBranchApi.config.checkGitInstalled();
       if (gitResponse.ok && gitResponse.data !== undefined) {
         setGitInstalled(gitResponse.data);
       }
 
-      const configResponse = await window.notegitApi.config.getFull();
+      const configResponse = await window.NoteBranchApi.config.getFull();
       if (configResponse.ok && configResponse.data?.repoSettings) {
         setHasRepo(true);
         setRepoProvider(configResponse.data.repoSettings.provider || null);
@@ -93,7 +93,7 @@ function App() {
     setThemeMode(newTheme);
 
     try {
-      await window.notegitApi.config.updateAppSettings({ theme: newTheme });
+      await window.NoteBranchApi.config.updateAppSettings({ theme: newTheme });
     } catch (error) {
       console.error("Failed to save theme preference:", error);
     }
@@ -141,7 +141,7 @@ function App() {
           }}
         >
           <Typography variant="h3" component="h1" gutterBottom>
-            notegit
+            NoteBranch
           </Typography>
           <Alert severity="error" sx={{ maxWidth: 600 }}>
             <Typography variant="body2">{gitText("message")}</Typography>
@@ -178,7 +178,7 @@ function App() {
           }}
         >
           <Typography variant="h3" component="h1" gutterBottom>
-            notegit
+            NoteBranch
           </Typography>
           <Typography variant="body1" color="text.secondary" gutterBottom>
             {appText("tagline")}

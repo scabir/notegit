@@ -5,7 +5,7 @@ import { DefaultLocalRepoBootstrapService } from "../../../backend/services/Defa
 import { REPO_PROVIDERS } from "../../../shared/types";
 
 describe("DefaultLocalRepoBootstrapService", () => {
-  const reposBaseDir = path.join("/tmp/notegit-test", "repos");
+  const reposBaseDir = path.join("/tmp/NoteBranch-test", "repos");
   const defaultRepoPath = path.join(reposBaseDir, "default");
   const tutorialsRootDir = "/workspace/tutorials";
 

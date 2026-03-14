@@ -20,7 +20,7 @@ const OUTPUT_SCENARIO_DIR = path.join(
 const OUTPUT_MARKDOWN_PATH = path.join(OUTPUT_SCENARIO_DIR, "README.md");
 const OUTPUT_IMAGE_DIR = path.join(OUTPUT_SCENARIO_DIR, "images");
 
-const DEFAULT_BUCKET = "notegit-integration-bucket";
+const DEFAULT_BUCKET = "NoteBranch-integration-bucket";
 const DEFAULT_REGION = "us-east-1";
 const DEFAULT_PREFIX = "team/notes";
 const DEFAULT_ACCESS_KEY_ID = "mock-access-key";
@@ -55,7 +55,7 @@ const createMarkdownDoc = () => {
   const lines = [
     `# ${SCENARIO_TITLE}`,
     "",
-    "This tutorial is generated with Playwright against the local notegit app in mock S3 mode.",
+    "This tutorial is generated with Playwright against the local NoteBranch app in mock S3 mode.",
     "",
   ];
 
@@ -78,7 +78,7 @@ const createMarkdownDoc = () => {
   );
   lines.push("3. Copy Access Key ID and Secret Access Key.");
   lines.push(
-    "4. In notegit, enter bucket, region, optional prefix, and credentials.",
+    "4. In NoteBranch, enter bucket, region, optional prefix, and credentials.",
   );
   lines.push(
     "5. If your organization rotates credentials, update them in Settings when sync fails.",
@@ -99,7 +99,7 @@ const assertS3PrefixConnected = async (page) => {
   await expect
     .poll(async () => {
       const response = await page.evaluate(async () => {
-        return await window.notegitApi.repo.getStatus();
+        return await window.NoteBranchApi.repo.getStatus();
       });
       if (!response?.ok || !response.data) {
         throw new Error(
@@ -116,7 +116,7 @@ const run = async () => {
   await fs.mkdir(OUTPUT_IMAGE_DIR, { recursive: true });
 
   const userDataDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), "notegit-tutorial-connect-s3-"),
+    path.join(os.tmpdir(), "NoteBranch-tutorial-connect-s3-"),
   );
 
   /** @type {import('@playwright/test').ElectronApplication | null} */
@@ -126,10 +126,10 @@ const run = async () => {
     const launchEnv = {
       ...process.env,
       NODE_ENV: "test",
-      NOTEGIT_INTEGRATION_TEST: "1",
-      NOTEGIT_INTEGRATION_GIT_MOCK: "1",
-      NOTEGIT_INTEGRATION_S3_MOCK: "1",
-      NOTEGIT_INTEGRATION_USER_DATA_DIR: userDataDir,
+      NOTEBRANCH_INTEGRATION_TEST: "1",
+      NOTEBRANCH_INTEGRATION_GIT_MOCK: "1",
+      NOTEBRANCH_INTEGRATION_S3_MOCK: "1",
+      NOTEBRANCH_INTEGRATION_USER_DATA_DIR: userDataDir,
     };
     delete launchEnv.ELECTRON_RUN_AS_NODE;
 
@@ -147,7 +147,7 @@ const run = async () => {
     await captureStep({
       page,
       fileName: "step-01-welcome-screen.png",
-      title: "Open notegit and start repository setup",
+      title: "Open NoteBranch and start repository setup",
       explanation:
         "From the first launch screen, click **Connect to Repository** to configure S3 access.",
     });

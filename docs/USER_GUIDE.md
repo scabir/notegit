@@ -1,6 +1,6 @@
-# notegit User Guide
+# NoteBranch User Guide
 
-How to use notegit as an end user.
+How to use NoteBranch as an end user.
 
 **Version**: 2.8.2  
 **Last Updated**: March 7, 2026
@@ -23,7 +23,7 @@ How to use notegit as an end user.
 
 ## Quick Start
 
-1. Open notegit.
+1. Open NoteBranch.
 2. Click **Connect to Repository**.
 3. Choose one provider:
 
@@ -37,7 +37,7 @@ How to use notegit as an end user.
 
 This is the same flow used in the tutorial scenario: [tutorials/scenarios/connect-git-repository/README.md](../tutorials/scenarios/connect-git-repository/README.md).
 
-### Before opening notegit
+### Before opening NoteBranch
 
 1. Confirm the remote repository URL (HTTPS or SSH).
 2. Confirm branch name (`main`, `master`, or your project branch).
@@ -51,9 +51,9 @@ This is the same flow used in the tutorial scenario: [tutorials/scenarios/connec
 1. Open your Git provider account settings (GitHub/GitLab/Bitbucket).
 2. Create a new token with repository read/write permissions.
 3. Copy token once and store securely.
-4. Return to notegit.
+4. Return to NoteBranch.
 
-### In notegit
+### In NoteBranch
 
 1. Click **Connect to Repository**.
 2. Select **Git**.
@@ -68,7 +68,7 @@ This is the same flow used in the tutorial scenario: [tutorials/scenarios/connec
 
 ## Connect an AWS S3 Bucket (Step-by-Step)
 
-### Before opening notegit
+### Before opening NoteBranch
 
 1. Pick bucket and AWS region.
 2. Decide optional prefix (for example `notes/`).
@@ -80,9 +80,9 @@ This is the same flow used in the tutorial scenario: [tutorials/scenarios/connec
 1. In AWS Console, open **AWS S3** and verify versioning is **Enabled** on the target bucket.
 2. In IAM, create or use an access key with least required permissions.
 3. Copy **Access Key ID** and **Secret Access Key**.
-4. Return to notegit.
+4. Return to NoteBranch.
 
-### In notegit
+### In NoteBranch
 
 1. Click **Connect to Repository**.
 2. Select **AWS S3**.

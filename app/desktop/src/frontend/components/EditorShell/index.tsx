@@ -198,19 +198,19 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   const loadWorkspace = React.useCallback(async () => {
     try {
       // Load file tree
-      const treeResponse = await window.notegitApi.files.listTree();
+      const treeResponse = await window.NoteBranchApi.files.listTree();
       if (treeResponse.ok && treeResponse.data) {
         setTree(treeResponse.data);
       }
 
       // Load repo status
-      const statusResponse = await window.notegitApi.repo.getStatus();
+      const statusResponse = await window.NoteBranchApi.repo.getStatus();
       if (statusResponse.ok && statusResponse.data) {
         setRepoStatus(statusResponse.data);
       }
 
       // Get repo path and profile info from config
-      const configResponse = await window.notegitApi.config.getFull();
+      const configResponse = await window.NoteBranchApi.config.getFull();
       if (configResponse.ok && configResponse.data) {
         const configData = configResponse.data;
         setAppSettings(configData.appSettings);
@@ -255,9 +255,9 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       appSettings.s3AutoSyncEnabled,
       appSettings.s3AutoSyncIntervalSec,
       {
-        startAutoPush: window.notegitApi.repo.startAutoPush,
-        getStatus: window.notegitApi.repo.getStatus,
-        listTree: window.notegitApi.files.listTree,
+        startAutoPush: window.NoteBranchApi.repo.startAutoPush,
+        getStatus: window.NoteBranchApi.repo.getStatus,
+        listTree: window.NoteBranchApi.files.listTree,
         setStatus: setRepoStatus,
         setTree,
       },
@@ -284,7 +284,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       setSaveMessage("");
 
       try {
-        const response = await window.notegitApi.files.save(
+        const response = await window.NoteBranchApi.files.save(
           selectedFile,
           content,
         );
@@ -301,7 +301,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
             setSaveMessage(message("savedLocally"));
           }
 
-          const statusResponse = await window.notegitApi.repo.getStatus();
+          const statusResponse = await window.NoteBranchApi.repo.getStatus();
           if (statusResponse.ok && statusResponse.data) {
             setRepoStatus(statusResponse.data);
           }
@@ -362,8 +362,8 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
     };
 
     const offOpenShortcuts =
-      window.notegitApi.menu.onOpenShortcuts(handleOpenShortcuts);
-    const offOpenAbout = window.notegitApi.menu.onOpenAbout(handleOpenAbout);
+      window.NoteBranchApi.menu.onOpenShortcuts(handleOpenShortcuts);
+    const offOpenAbout = window.NoteBranchApi.menu.onOpenAbout(handleOpenAbout);
 
     return () => {
       if (typeof offOpenShortcuts === "function") {
@@ -435,7 +435,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         const cachedContent = fileContentCacheRef.current.get(path);
 
         if (cachedContent !== undefined) {
-          const response = await window.notegitApi.files.read(path);
+          const response = await window.NoteBranchApi.files.read(path);
           if (response.ok && response.data) {
             setFileContent({
               ...response.data,
@@ -445,7 +445,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
             setHasUnsavedChanges(true);
           }
         } else {
-          const response = await window.notegitApi.files.read(path);
+          const response = await window.NoteBranchApi.files.read(path);
           if (response.ok && response.data) {
             setFileContent(response.data);
             setEditorContent(response.data.content);
@@ -524,7 +524,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   }, [handleNavigateBack, handleNavigateForward, isEditableTarget]);
 
   const handleCommit = async () => {
-    const statusResponse = await window.notegitApi.repo.getStatus();
+    const statusResponse = await window.NoteBranchApi.repo.getStatus();
     if (statusResponse.ok && statusResponse.data) {
       setRepoStatus(statusResponse.data);
     }
@@ -532,12 +532,13 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
 
   const handlePull = async () => {
     try {
-      const response = await window.notegitApi.repo.pull();
+      const response = await window.NoteBranchApi.repo.pull();
       if (response.ok) {
         setTransientStatus("saved", message("pullSuccessful"), 2000);
         await loadWorkspace();
         if (selectedFile) {
-          const fileResponse = await window.notegitApi.files.read(selectedFile);
+          const fileResponse =
+            await window.NoteBranchApi.files.read(selectedFile);
           if (fileResponse.ok && fileResponse.data) {
             setFileContent(fileResponse.data);
           }
@@ -565,16 +566,16 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
           appSettings.s3AutoSyncEnabled,
           appSettings.s3AutoSyncIntervalSec,
           {
-            startAutoPush: window.notegitApi.repo.startAutoPush,
-            getStatus: window.notegitApi.repo.getStatus,
-            listTree: window.notegitApi.files.listTree,
+            startAutoPush: window.NoteBranchApi.repo.startAutoPush,
+            getStatus: window.NoteBranchApi.repo.getStatus,
+            listTree: window.NoteBranchApi.files.listTree,
             setStatus: setRepoStatus,
             setTree,
           },
         );
       }
 
-      const response = await window.notegitApi.repo.fetch();
+      const response = await window.NoteBranchApi.repo.fetch();
       if (response.ok && response.data) {
         setRepoStatus(response.data);
         setTransientStatus("saved", message("fetchSuccessful"), 2000);
@@ -599,20 +600,20 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
 
   const handlePush = async () => {
     try {
-      const response = await window.notegitApi.repo.push();
+      const response = await window.NoteBranchApi.repo.push();
       if (response.ok) {
         setTransientStatus("saved", message("pushSuccessful"), 2000);
         if (isS3Repo) {
           await loadWorkspace();
           if (selectedFile) {
             const fileResponse =
-              await window.notegitApi.files.read(selectedFile);
+              await window.NoteBranchApi.files.read(selectedFile);
             if (fileResponse.ok && fileResponse.data) {
               setFileContent(fileResponse.data);
             }
           }
         }
-        const statusResponse = await window.notegitApi.repo.getStatus();
+        const statusResponse = await window.NoteBranchApi.repo.getStatus();
         if (statusResponse.ok && statusResponse.data) {
           setRepoStatus(statusResponse.data);
         }
@@ -629,11 +630,14 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   };
 
   const handleCreateFile = async (parentPath: string, fileName: string) => {
-    const response = await window.notegitApi.files.create(parentPath, fileName);
+    const response = await window.NoteBranchApi.files.create(
+      parentPath,
+      fileName,
+    );
     if (response.ok) {
       const newFilePath = parentPath ? `${parentPath}/${fileName}` : fileName;
 
-      const treeResponse = await window.notegitApi.files.listTree();
+      const treeResponse = await window.NoteBranchApi.files.listTree();
       if (treeResponse.ok && treeResponse.data) {
         setTree(treeResponse.data);
       }
@@ -646,12 +650,12 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   };
 
   const handleCreateFolder = async (parentPath: string, folderName: string) => {
-    const response = await window.notegitApi.files.createFolder(
+    const response = await window.NoteBranchApi.files.createFolder(
       parentPath,
       folderName,
     );
     if (response.ok) {
-      const treeResponse = await window.notegitApi.files.listTree();
+      const treeResponse = await window.NoteBranchApi.files.listTree();
       if (treeResponse.ok && treeResponse.data) {
         setTree(treeResponse.data);
       }
@@ -662,17 +666,17 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   };
 
   const handleDelete = async (path: string) => {
-    const response = await window.notegitApi.files.delete(path);
+    const response = await window.NoteBranchApi.files.delete(path);
     if (response.ok) {
       if (selectedFile === path) {
         setSelectedFile(null);
         setFileContent(null);
       }
-      const treeResponse = await window.notegitApi.files.listTree();
+      const treeResponse = await window.NoteBranchApi.files.listTree();
       if (treeResponse.ok && treeResponse.data) {
         setTree(treeResponse.data);
       }
-      const statusResponse = await window.notegitApi.repo.getStatus();
+      const statusResponse = await window.NoteBranchApi.repo.getStatus();
       if (statusResponse.ok && statusResponse.data) {
         setRepoStatus(statusResponse.data);
       }
@@ -683,7 +687,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   };
 
   const handleRename = async (oldPath: string, newPath: string) => {
-    const response = await window.notegitApi.files.rename(oldPath, newPath);
+    const response = await window.NoteBranchApi.files.rename(oldPath, newPath);
     if (response.ok) {
       if (selectedFile === oldPath) {
         setSelectedFile(newPath);
@@ -709,7 +713,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
 
       if (repoStatus?.provider === REPO_PROVIDERS.git) {
         try {
-          await window.notegitApi.files.commitAll(
+          await window.NoteBranchApi.files.commitAll(
             `${message("moveCommitMessagePrefix")} ${oldPath} -> ${newPath}`,
           );
         } catch (commitError) {
@@ -717,11 +721,11 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         }
       }
 
-      const treeResponse = await window.notegitApi.files.listTree();
+      const treeResponse = await window.NoteBranchApi.files.listTree();
       if (treeResponse.ok && treeResponse.data) {
         setTree(treeResponse.data);
       }
-      const statusResponse = await window.notegitApi.repo.getStatus();
+      const statusResponse = await window.NoteBranchApi.repo.getStatus();
       if (statusResponse.ok && statusResponse.data) {
         setRepoStatus(statusResponse.data);
       }
@@ -732,16 +736,16 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   };
 
   const handleImport = async (sourcePath: string, targetPath: string) => {
-    const response = await window.notegitApi.files.import(
+    const response = await window.NoteBranchApi.files.import(
       sourcePath,
       targetPath,
     );
     if (response.ok) {
-      const treeResponse = await window.notegitApi.files.listTree();
+      const treeResponse = await window.NoteBranchApi.files.listTree();
       if (treeResponse.ok && treeResponse.data) {
         setTree(treeResponse.data);
       }
-      const statusResponse = await window.notegitApi.repo.getStatus();
+      const statusResponse = await window.NoteBranchApi.repo.getStatus();
       if (statusResponse.ok && statusResponse.data) {
         setRepoStatus(statusResponse.data);
       }
@@ -764,9 +768,9 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
 
   const handleDuplicate = async (path: string): Promise<string | void> => {
     try {
-      const response = await window.notegitApi.files.duplicate(path);
+      const response = await window.NoteBranchApi.files.duplicate(path);
       if (response.ok && response.data) {
-        const treeResponse = await window.notegitApi.files.listTree();
+        const treeResponse = await window.NoteBranchApi.files.listTree();
         if (treeResponse.ok && treeResponse.data) {
           setTree(treeResponse.data);
         }
@@ -806,14 +810,14 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
 
     try {
       if (isS3Repo) {
-        const response = await window.notegitApi.repo.push();
+        const response = await window.NoteBranchApi.repo.push();
         if (response.ok) {
           setSaveStatus("saved");
           setSaveMessage(message("syncedSuccessfully"));
           await loadWorkspace();
           if (selectedFile) {
             const fileResponse =
-              await window.notegitApi.files.read(selectedFile);
+              await window.NoteBranchApi.files.read(selectedFile);
             if (fileResponse.ok && fileResponse.data) {
               setFileContent(fileResponse.data);
             }
@@ -823,7 +827,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
           setSaveMessage(response.error?.message || message("failedSync"));
         }
       } else {
-        const response = await window.notegitApi.files.commitAndPushAll();
+        const response = await window.NoteBranchApi.files.commitAndPushAll();
 
         if (response.ok) {
           if (
@@ -843,7 +847,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         }
       }
 
-      const statusResponse = await window.notegitApi.repo.getStatus();
+      const statusResponse = await window.NoteBranchApi.repo.getStatus();
       if (statusResponse.ok && statusResponse.data) {
         setRepoStatus(statusResponse.data);
       }

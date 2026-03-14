@@ -178,7 +178,9 @@ describe("I18nProvider", () => {
       button.props.onClick();
     });
 
-    expect(flattenText(renderer.toJSON())).toContain("ready|en-GB|has|notegit");
+    expect(flattenText(renderer.toJSON())).toContain(
+      "ready|en-GB|has|NoteBranch",
+    );
   });
 
   it("renders null when no children are provided", async () => {

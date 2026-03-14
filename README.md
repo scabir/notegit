@@ -1,19 +1,19 @@
-# notegit
+# NoteBranch
 
 Your Markdown workspace for real projects, docs, and personal knowledge bases, backed by Git, AWS S3, or Local storage.
 
-[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/scabir/notegit/main/badges/coverage.json)](https://github.com/scabir/notegit/actions/workflows/coverage.yml)
-[![Integration](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/scabir/notegit/main/badges/integration.json)](https://github.com/scabir/notegit/actions/workflows/integration.yml)
-[![macOS](https://img.shields.io/github/actions/workflow/status/scabir/notegit/macos-dmg.yml?branch=main&label=macOS)](https://github.com/scabir/notegit/actions/workflows/macos-dmg.yml)
-[![Windows](https://img.shields.io/github/actions/workflow/status/scabir/notegit/windows-installer.yml?branch=main&label=Windows)](https://github.com/scabir/notegit/actions/workflows/windows-installer.yml)
-[![Linux](https://img.shields.io/github/actions/workflow/status/scabir/notegit/linux-packages.yml?branch=main&label=Linux)](https://github.com/scabir/notegit/actions/workflows/linux-packages.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/scabir/NoteBranch/main/badges/coverage.json)](https://github.com/scabir/notebranch/actions/workflows/coverage.yml)
+[![Integration](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/scabir/NoteBranch/main/badges/integration.json)](https://github.com/scabir/notebranch/actions/workflows/integration.yml)
+[![macOS](https://img.shields.io/github/actions/workflow/status/scabir/NoteBranch/macos-dmg.yml?branch=main&label=macOS)](https://github.com/scabir/notebranch/actions/workflows/macos-dmg.yml)
+[![Windows](https://img.shields.io/github/actions/workflow/status/scabir/NoteBranch/windows-installer.yml?branch=main&label=Windows)](https://github.com/scabir/notebranch/actions/workflows/windows-installer.yml)
+[![Linux](https://img.shields.io/github/actions/workflow/status/scabir/NoteBranch/linux-packages.yml?branch=main&label=Linux)](https://github.com/scabir/notebranch/actions/workflows/linux-packages.yml)
 
 **Version**: 2.8.2  
 **License**: MIT
 
 ## Built for daily note workflows
 
-notegit keeps your notes where your work already lives. Write in Markdown, connect to your repository type of choice, and keep everything organized and versioned in one desktop app.
+NoteBranch keeps your notes where your work already lives. Write in Markdown, connect to your repository type of choice, and keep everything organized and versioned in one desktop app.
 
 ## See it in action
 
@@ -49,9 +49,9 @@ Supported languages:
 - Swedish (Svenska)
 - Greek (Ελληνικά)
 
-### Use notegit in dark mode
+### Use NoteBranch in dark mode
 
-![Use notegit in dark mode](tutorials/scenarios/switch-language-and-verify-persistence/images/step-04-dark-mode-workspace.png)
+![Use NoteBranch in dark mode](tutorials/scenarios/switch-language-and-verify-persistence/images/step-04-dark-mode-workspace.png)
 
 ## What you can do
 
@@ -64,11 +64,11 @@ Supported languages:
 
 ## Installation
 
-All releases: [github.com/scabir/notegit/releases](https://github.com/scabir/notegit/releases)
+All releases: [github.com/scabir/notebranch/releases](https://github.com/scabir/notebranch/releases)
 
 ## User Guide
 
-New to notegit? Start here with a complete walkthrough:
+New to NoteBranch? Start here with a complete walkthrough:
 [Read the User Guide with setup steps, daily workflows, and troubleshooting](docs/USER_GUIDE.md)
 
 ## Tutorials
@@ -95,10 +95,10 @@ Tutorial hub: [tutorials/README.md](tutorials/README.md)
 
 ## Support
 
-Open an issue: https://github.com/scabir/notegit/issues
+Open an issue: https://github.com/scabir/notebranch/issues
 
 ## Outro
 
-Thanks for using notegit.
+Thanks for using NoteBranch.
 
 Built and maintained by **Suleyman Cabir Ataman**.

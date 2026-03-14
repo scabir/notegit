@@ -28,7 +28,7 @@ export const logger = winston.createLogger({
     winston.format.splat(),
     logFormat,
   ),
-  defaultMeta: { service: "notegit" },
+  defaultMeta: { service: "NoteBranch" },
   transports: [
     new DailyRotateFile({
       filename: path.join(logsDir, "combined-%DATE%.log"),

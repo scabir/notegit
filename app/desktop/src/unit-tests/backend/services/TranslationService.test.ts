@@ -21,7 +21,7 @@ describe("TranslationService", () => {
   let translationService: TranslationService;
 
   beforeEach(async () => {
-    tmpRootDir = await fs.mkdtemp(path.join(os.tmpdir(), "notegit-i18n-"));
+    tmpRootDir = await fs.mkdtemp(path.join(os.tmpdir(), "NoteBranch-i18n-"));
     translationService = new TranslationService(new FsAdapter(), {
       localesRootDir: tmpRootDir,
       fallbackLocale: "en-GB",
@@ -215,7 +215,7 @@ describe("TranslationService", () => {
       "frontend",
       "de-DE",
       "common.json",
-      JSON.stringify({ app: { name: "notegit" } }),
+      JSON.stringify({ app: { name: "NoteBranch" } }),
     );
 
     const locales = await translationService.listSupportedLocales("frontend");

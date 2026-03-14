@@ -13,7 +13,7 @@ const hashContent = (content: string) =>
   crypto.createHash("sha256").update(content).digest("hex");
 
 const manifestPath = (dir: string) =>
-  path.join(dir, ".notegit", "s3-sync.json");
+  path.join(dir, ".NoteBranch", "s3-sync.json");
 
 const readManifest = async (dir: string) => {
   const content = await fs.readFile(manifestPath(dir), "utf-8");
@@ -62,7 +62,7 @@ describe("S3RepoProvider", () => {
   const tempDirs: string[] = [];
 
   const createTempDir = async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "notegit-s3-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "NoteBranch-s3-"));
     tempDirs.push(dir);
     return dir;
   };
@@ -202,7 +202,7 @@ describe("S3RepoProvider", () => {
       },
     };
 
-    await fs.mkdir(path.join(tempDir, ".notegit"), { recursive: true });
+    await fs.mkdir(path.join(tempDir, ".NoteBranch"), { recursive: true });
     await fs.writeFile(
       manifestPath(tempDir),
       JSON.stringify(manifest, null, 2),
@@ -258,7 +258,7 @@ describe("S3RepoProvider", () => {
       },
     };
 
-    await fs.mkdir(path.join(tempDir, ".notegit"), { recursive: true });
+    await fs.mkdir(path.join(tempDir, ".NoteBranch"), { recursive: true });
     await fs.writeFile(
       manifestPath(tempDir),
       JSON.stringify(manifest, null, 2),
@@ -348,7 +348,7 @@ describe("S3RepoProvider", () => {
       },
     };
 
-    await fs.mkdir(path.join(tempDir, ".notegit"), { recursive: true });
+    await fs.mkdir(path.join(tempDir, ".NoteBranch"), { recursive: true });
     await fs.writeFile(
       manifestPath(tempDir),
       JSON.stringify(manifest, null, 2),
@@ -375,7 +375,7 @@ describe("S3RepoProvider", () => {
   it("uses the provided interval for auto sync", () => {
     jest.useFakeTimers();
 
-    const tempDir = "/tmp/notegit-s3";
+    const tempDir = "/tmp/NoteBranch-s3";
     const settings = { ...baseSettings, localPath: tempDir };
 
     const s3Adapter = createAdapter();
@@ -397,7 +397,7 @@ describe("S3RepoProvider", () => {
   it("restarts the auto sync timer when called again", () => {
     jest.useFakeTimers();
 
-    const tempDir = "/tmp/notegit-s3";
+    const tempDir = "/tmp/NoteBranch-s3";
     const settings = { ...baseSettings, localPath: tempDir };
 
     const s3Adapter = createAdapter();
@@ -451,10 +451,10 @@ describe("S3RepoProvider", () => {
     provider.configure(settings);
 
     await fs.mkdir(path.join(tempDir, ".git"), { recursive: true });
-    await fs.mkdir(path.join(tempDir, ".notegit"), { recursive: true });
+    await fs.mkdir(path.join(tempDir, ".NoteBranch"), { recursive: true });
     await fs.mkdir(path.join(tempDir, "sub"), { recursive: true });
     await fs.writeFile(path.join(tempDir, ".DS_Store"), "ignore");
-    await fs.writeFile(path.join(tempDir, ".notegit", "s3-sync.json"), "{}");
+    await fs.writeFile(path.join(tempDir, ".NoteBranch", "s3-sync.json"), "{}");
     await fs.writeFile(
       path.join(tempDir, "note.s3-conflict-20240101-000000.md"),
       "conflict",
@@ -490,7 +490,7 @@ describe("S3RepoProvider", () => {
 
   it("clears an existing conflict when both sides now match", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
 
     const localInfo = new Map([
       [
@@ -534,7 +534,7 @@ describe("S3RepoProvider", () => {
 
   it("clears conflict metadata when the remote matches and the local copy changed", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
 
     const localInfo = new Map([
       ["note.md", { relativePath: "note.md", hash: "new-local", mtimeMs: 100 }],
@@ -584,7 +584,7 @@ describe("S3RepoProvider", () => {
 
   it("marks deleted manifest entries when neither side has the file anymore", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
     const manifest = {
       version: 1,
       updatedAt: "",
@@ -610,7 +610,7 @@ describe("S3RepoProvider", () => {
 
   it("creates a conflict copy placeholder when the generated path already exists", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
     const manifest: any = { version: 1, updatedAt: "", files: {} };
     jest.spyOn(provider as any, "resolveConflictPath").mockResolvedValue(null);
 
@@ -630,7 +630,7 @@ describe("S3RepoProvider", () => {
     const provider = new S3RepoProvider(createAdapter() as any);
     provider.configure({ ...baseSettings, localPath: tempDir });
 
-    await fs.mkdir(path.join(tempDir, ".notegit"), { recursive: true });
+    await fs.mkdir(path.join(tempDir, ".NoteBranch"), { recursive: true });
     await fs.writeFile(
       manifestPath(tempDir),
       JSON.stringify({ version: 99, files: {} }),
@@ -643,7 +643,7 @@ describe("S3RepoProvider", () => {
     expect(manifest.files).toEqual({});
   });
 
-  it("saves manifests under the notegit metadata folder", async () => {
+  it("saves manifests under the NoteBranch metadata folder", async () => {
     const tempDir = await createTempDir();
     const provider = new S3RepoProvider(createAdapter() as any);
     provider.configure({ ...baseSettings, localPath: tempDir });
@@ -667,12 +667,12 @@ describe("S3RepoProvider", () => {
 
   it("hydrates repoPath from settings in ensureRepoReady", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
     (provider as any).repoPath = null;
 
     await (provider as any).ensureRepoReady();
 
-    expect((provider as any).repoPath).toBe("/tmp/notegit-s3");
+    expect((provider as any).repoPath).toBe("/tmp/NoteBranch-s3");
   });
 
   it("throws when ensureRepoReady has no configured local path", async () => {
@@ -713,7 +713,7 @@ describe("S3RepoProvider", () => {
 
   it("returns status using calculated change counts", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
     (provider as any).ensureRepoReady = jest.fn().mockResolvedValue(undefined);
     (provider as any).calculateChangeCounts = jest
       .fn()
@@ -729,7 +729,7 @@ describe("S3RepoProvider", () => {
 
   it("fetch delegates to getStatus after ensureRepoReady", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
     const ensureRepoReady = jest.fn().mockResolvedValue(undefined);
     (provider as any).ensureRepoReady = ensureRepoReady;
     const getStatus = jest.fn().mockResolvedValue({
@@ -752,7 +752,7 @@ describe("S3RepoProvider", () => {
 
   it("schedules a pending sync when a queued sync fails", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
     (provider as any).sync = jest.fn().mockRejectedValue(new Error("boom"));
     const schedulePendingSync = jest.spyOn(
       provider as any,
@@ -765,7 +765,7 @@ describe("S3RepoProvider", () => {
 
   it("upgrades queued sync mode while an active cycle is running", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
     const callModes: Array<"pull" | "sync"> = [];
     let queuedSync: Promise<void> | null = null;
 
@@ -796,7 +796,7 @@ describe("S3RepoProvider", () => {
           lastModified: new Date("2024-01-01T00:00:00Z"),
         },
         {
-          key: "notes/.notegit/meta.json",
+          key: "notes/.NoteBranch/meta.json",
           eTag: '"etag-ignore"',
           lastModified: new Date(),
         },
@@ -808,7 +808,7 @@ describe("S3RepoProvider", () => {
       ]),
     });
     const provider = new S3RepoProvider(s3Adapter as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
 
     const result = await (provider as any).collectRemoteInfo();
 
@@ -818,7 +818,7 @@ describe("S3RepoProvider", () => {
 
   it("counts conflicts and change sets when calculating status", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
     (provider as any).ensureRepoReady = jest.fn().mockResolvedValue(undefined);
     (provider as any).loadManifest = jest.fn().mockResolvedValue({
       version: 1,
@@ -864,7 +864,7 @@ describe("S3RepoProvider", () => {
   it("does not schedule pending sync when one is already queued", () => {
     jest.useFakeTimers();
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
     (provider as any).pendingSyncTimer = {} as any;
     const setTimeoutSpy = jest.spyOn(global, "setTimeout");
 
@@ -877,7 +877,7 @@ describe("S3RepoProvider", () => {
 
   it("reconciles conflicts when both local and remote changed", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
 
     const localInfo = new Map([
       ["note.md", { relativePath: "note.md", hash: "local", mtimeMs: 100 }],
@@ -918,7 +918,7 @@ describe("S3RepoProvider", () => {
 
   it("downloads remote updates when no baseline exists and remote is newer", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
 
     const localInfo = new Map([
       ["note.md", { relativePath: "note.md", hash: "local", mtimeMs: 100 }],
@@ -954,7 +954,7 @@ describe("S3RepoProvider", () => {
 
   it("uploads local updates when no baseline exists and local is newer", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
 
     const localInfo = new Map([
       ["note.md", { relativePath: "note.md", hash: "local", mtimeMs: 300 }],
@@ -990,7 +990,7 @@ describe("S3RepoProvider", () => {
 
   it("deletes local files when remote removes a baseline file", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
 
     const localInfo = new Map([
       ["note.md", { relativePath: "note.md", hash: "base", mtimeMs: 100 }],
@@ -1029,7 +1029,7 @@ describe("S3RepoProvider", () => {
 
   it("deletes remote files when local baseline is missing", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
 
     const localInfo = new Map<string, any>();
     const remoteInfo = new Map([
@@ -1068,7 +1068,7 @@ describe("S3RepoProvider", () => {
 
   it("marks deletions when both local and remote are missing", async () => {
     const provider = new S3RepoProvider(createAdapter() as any);
-    provider.configure({ ...baseSettings, localPath: "/tmp/notegit-s3" });
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
 
     const localInfo = new Map<string, any>();
     const remoteInfo = new Map<string, any>();

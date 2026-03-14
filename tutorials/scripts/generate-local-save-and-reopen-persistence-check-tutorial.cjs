@@ -55,7 +55,7 @@ const createMarkdownDoc = () => {
   const lines = [
     `# ${SCENARIO_TITLE}`,
     "",
-    "This scenario verifies local notes are persisted and restored after closing and reopening notegit.",
+    "This scenario verifies local notes are persisted and restored after closing and reopening NoteBranch.",
     "",
   ];
 
@@ -75,9 +75,9 @@ const launchEnvForUserDataDir = (userDataDir) => {
   const launchEnv = {
     ...process.env,
     NODE_ENV: "test",
-    NOTEGIT_INTEGRATION_TEST: "1",
-    NOTEGIT_INTEGRATION_GIT_MOCK: "1",
-    NOTEGIT_INTEGRATION_USER_DATA_DIR: userDataDir,
+    NOTEBRANCH_INTEGRATION_TEST: "1",
+    NOTEBRANCH_INTEGRATION_GIT_MOCK: "1",
+    NOTEBRANCH_INTEGRATION_USER_DATA_DIR: userDataDir,
   };
   delete launchEnv.ELECTRON_RUN_AS_NODE;
   return launchEnv;
@@ -126,7 +126,7 @@ const run = async () => {
   await fs.mkdir(OUTPUT_IMAGE_DIR, { recursive: true });
 
   const userDataDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), "notegit-tutorial-local-persistence-"),
+    path.join(os.tmpdir(), "NoteBranch-tutorial-local-persistence-"),
   );
 
   let firstApp = null;

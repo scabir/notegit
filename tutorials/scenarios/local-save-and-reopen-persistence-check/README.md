@@ -1,6 +1,6 @@
 # [Local] Save and Reopen Persistence Check
 
-This scenario verifies local notes are persisted and restored after closing and reopening notegit.
+This scenario verifies local notes are persisted and restored after closing and reopening NoteBranch.
 
 ## Step 1: Connect local repository
 

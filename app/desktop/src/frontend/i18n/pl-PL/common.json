@@ -1,12 +1,12 @@
 {
   "app": {
-    "name": "notegit",
+    "name": "NoteBranch",
     "tagline": "Aplikacja do notatek Markdown oparta na Git",
-    "welcome": "Witamy w notegit! Aby rozpocząć, połącz się z repozytorium Git.",
+    "welcome": "Witamy w NoteBranch! Aby rozpocząć, połącz się z repozytorium Git.",
     "connectToRepository": "Połącz z repozytorium"
   },
   "gitMissing": {
-    "message": "Git nie jest zainstalowany w Twoim systemie. Zainstaluj Git, aby korzystać z notegit.",
+    "message": "Git nie jest zainstalowany w Twoim systemie. Zainstaluj Git, aby korzystać z NoteBranch.",
     "downloadPrompt": "aby pobrać Git."
   }
 }

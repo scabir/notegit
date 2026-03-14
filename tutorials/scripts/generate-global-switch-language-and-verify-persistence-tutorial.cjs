@@ -22,7 +22,7 @@ const OUTPUT_SCENARIO_DIR = path.join(
 const OUTPUT_MARKDOWN_PATH = path.join(OUTPUT_SCENARIO_DIR, "README.md");
 const OUTPUT_IMAGE_DIR = path.join(OUTPUT_SCENARIO_DIR, "images");
 
-const DEFAULT_REMOTE_URL = "https://github.com/mock/notegit-integration.git";
+const DEFAULT_REMOTE_URL = "https://github.com/mock/NoteBranch-integration.git";
 const DEFAULT_BRANCH = "main";
 const DEFAULT_PAT = "integration-token";
 const SHOWCASE_FILE_NAME = "dark-mode-showcase.md";
@@ -88,9 +88,9 @@ const launchEnvForUserDataDir = (userDataDir) => {
   const launchEnv = {
     ...process.env,
     NODE_ENV: "test",
-    NOTEGIT_INTEGRATION_TEST: "1",
-    NOTEGIT_INTEGRATION_GIT_MOCK: "1",
-    NOTEGIT_INTEGRATION_USER_DATA_DIR: userDataDir,
+    NOTEBRANCH_INTEGRATION_TEST: "1",
+    NOTEBRANCH_INTEGRATION_GIT_MOCK: "1",
+    NOTEBRANCH_INTEGRATION_USER_DATA_DIR: userDataDir,
   };
   delete launchEnv.ELECTRON_RUN_AS_NODE;
   return launchEnv;
@@ -123,7 +123,7 @@ const connectGitRepo = async (page) => {
 
 const getI18nMeta = async (page) => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.i18n.getMeta();
+    return await window.NoteBranchApi.i18n.getMeta();
   });
 
   if (!response?.ok || !response.data) {
@@ -135,7 +135,7 @@ const getI18nMeta = async (page) => {
 
 const getCurrentLocale = async (page) => {
   const response = await page.evaluate(async () => {
-    return await window.notegitApi.i18n.getFrontendBundle();
+    return await window.NoteBranchApi.i18n.getFrontendBundle();
   });
 
   if (!response?.ok || !response.data) {
@@ -276,7 +276,7 @@ const run = async () => {
   await fs.mkdir(OUTPUT_IMAGE_DIR, { recursive: true });
 
   const userDataDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), "notegit-tutorial-global-language-"),
+    path.join(os.tmpdir(), "NoteBranch-tutorial-global-language-"),
   );
 
   let firstApp = null;

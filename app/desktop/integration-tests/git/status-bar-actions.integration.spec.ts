@@ -255,7 +255,7 @@ test("(git) pull button enabled when behind and disabled after pull", async ({
   let app: ElectronApplication | null = null;
   try {
     const launched = await launchIntegrationApp(userDataDir, {
-      env: { NOTEGIT_MOCK_GIT_INITIAL_BEHIND: "2" },
+      env: { NOTEBRANCH_MOCK_GIT_INITIAL_BEHIND: "2" },
     });
     app = launched.app;
     const page = launched.page;
@@ -281,7 +281,7 @@ test("(git) fetch refreshes behind count without changing tree", async ({
   let app: ElectronApplication | null = null;
   try {
     const launched = await launchIntegrationApp(userDataDir, {
-      env: { NOTEGIT_MOCK_GIT_FETCH_SETS_BEHIND: "3" },
+      env: { NOTEBRANCH_MOCK_GIT_FETCH_SETS_BEHIND: "3" },
     });
     app = launched.app;
     const page = launched.page;
@@ -420,8 +420,8 @@ test("(git) pull conflict is surfaced without crashing", async ({
   try {
     const launched = await launchIntegrationApp(userDataDir, {
       env: {
-        NOTEGIT_MOCK_GIT_INITIAL_BEHIND: "1",
-        NOTEGIT_MOCK_GIT_FAIL_PULL: "conflict",
+        NOTEBRANCH_MOCK_GIT_INITIAL_BEHIND: "1",
+        NOTEBRANCH_MOCK_GIT_FAIL_PULL: "conflict",
       },
     });
     app = launched.app;
@@ -443,7 +443,7 @@ test("(git) push failure is surfaced and app stays responsive", async ({
   let app: ElectronApplication | null = null;
   try {
     const launched = await launchIntegrationApp(userDataDir, {
-      env: { NOTEGIT_MOCK_GIT_FAIL_PUSH: "1" },
+      env: { NOTEBRANCH_MOCK_GIT_FAIL_PUSH: "1" },
     });
     app = launched.app;
     const page = launched.page;
@@ -466,7 +466,7 @@ test("(git) fetch failure is surfaced and app stays responsive", async ({
   let app: ElectronApplication | null = null;
   try {
     const launched = await launchIntegrationApp(userDataDir, {
-      env: { NOTEGIT_MOCK_GIT_FAIL_FETCH: "1" },
+      env: { NOTEBRANCH_MOCK_GIT_FAIL_FETCH: "1" },
     });
     app = launched.app;
     const page = launched.page;
@@ -487,7 +487,7 @@ test("(git) commit failure is surfaced and app stays responsive", async ({
   let app: ElectronApplication | null = null;
   try {
     const launched = await launchIntegrationApp(userDataDir, {
-      env: { NOTEGIT_MOCK_GIT_FAIL_COMMIT: "1" },
+      env: { NOTEBRANCH_MOCK_GIT_FAIL_COMMIT: "1" },
     });
     app = launched.app;
     const page = launched.page;
@@ -513,7 +513,7 @@ test("(git) push remains disabled when repo is only behind", async ({
   let app: ElectronApplication | null = null;
   try {
     const launched = await launchIntegrationApp(userDataDir, {
-      env: { NOTEGIT_MOCK_GIT_INITIAL_BEHIND: "2" },
+      env: { NOTEBRANCH_MOCK_GIT_INITIAL_BEHIND: "2" },
     });
     app = launched.app;
     const page = launched.page;
@@ -541,7 +541,7 @@ test("(git) git unavailable warning is shown for existing git config", async ({
     firstApp = null;
 
     const secondLaunch = await launchIntegrationApp(userDataDir, {
-      env: { NOTEGIT_MOCK_GIT_INSTALLED: "0" },
+      env: { NOTEBRANCH_MOCK_GIT_INSTALLED: "0" },
     });
     secondApp = secondLaunch.app;
     const page = secondLaunch.page;

@@ -63,7 +63,7 @@ describe("useFavorites", () => {
       configurable: true,
     });
 
-    (window as any).notegitApi = {
+    (window as any).NoteBranchApi = {
       config: {
         getFavorites: jest.fn().mockResolvedValue({ ok: true, data: [] }),
         updateFavorites: jest.fn().mockResolvedValue({ ok: true }),
@@ -76,7 +76,7 @@ describe("useFavorites", () => {
   });
 
   it("loads favorites from the config api when available", async () => {
-    (window as any).notegitApi.config.getFavorites.mockResolvedValue({
+    (window as any).NoteBranchApi.config.getFavorites.mockResolvedValue({
       ok: true,
       data: ["folder/note.md", "missing.md"],
     });
@@ -96,7 +96,7 @@ describe("useFavorites", () => {
   });
 
   it("falls back to localStorage when config api fails", async () => {
-    (window as any).notegitApi.config.getFavorites.mockRejectedValue(
+    (window as any).NoteBranchApi.config.getFavorites.mockRejectedValue(
       new Error("fail"),
     );
     window.localStorage.setItem(
@@ -119,7 +119,7 @@ describe("useFavorites", () => {
   });
 
   it("ignores invalid localStorage data", async () => {
-    (window as any).notegitApi.config.getFavorites.mockResolvedValue({
+    (window as any).NoteBranchApi.config.getFavorites.mockResolvedValue({
       ok: false,
     });
     window.localStorage.setItem(FAVORITES_STORAGE_KEY, "not-json");
@@ -152,13 +152,13 @@ describe("useFavorites", () => {
     });
 
     expect(
-      (window as any).notegitApi.config.updateFavorites,
+      (window as any).NoteBranchApi.config.updateFavorites,
     ).toHaveBeenCalledWith(["folder/note.md"]);
     expect(window.localStorage.setItem).toHaveBeenCalled();
   });
 
   it("updates favorites on path changes and removes nested paths", async () => {
-    (window as any).notegitApi.config.getFavorites.mockResolvedValue({
+    (window as any).NoteBranchApi.config.getFavorites.mockResolvedValue({
       ok: true,
       data: ["folder/note.md", "folder/sub/file.md"],
     });
@@ -177,7 +177,7 @@ describe("useFavorites", () => {
     });
 
     expect(
-      (window as any).notegitApi.config.updateFavorites,
+      (window as any).NoteBranchApi.config.updateFavorites,
     ).toHaveBeenCalledWith(["renamed/note.md", "renamed/sub/file.md"]);
 
     act(() => {
@@ -185,12 +185,12 @@ describe("useFavorites", () => {
     });
 
     expect(
-      (window as any).notegitApi.config.updateFavorites,
+      (window as any).NoteBranchApi.config.updateFavorites,
     ).toHaveBeenCalledWith(["renamed/note.md"]);
   });
 
   it("removes favorites through the context menu", async () => {
-    (window as any).notegitApi.config.getFavorites.mockResolvedValue({
+    (window as any).NoteBranchApi.config.getFavorites.mockResolvedValue({
       ok: true,
       data: ["folder/note.md"],
     });
@@ -220,7 +220,7 @@ describe("useFavorites", () => {
     });
 
     expect(
-      (window as any).notegitApi.config.updateFavorites,
+      (window as any).NoteBranchApi.config.updateFavorites,
     ).toHaveBeenCalledWith([]);
   });
 });

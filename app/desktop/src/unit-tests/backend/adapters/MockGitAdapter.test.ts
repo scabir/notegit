@@ -4,7 +4,7 @@ import * as path from "path";
 import { MockGitAdapter } from "../../../backend/adapters/MockGitAdapter";
 
 const makeTempDir = async (label: string): Promise<string> =>
-  fs.mkdtemp(path.join(os.tmpdir(), `notegit-mock-git-${label}-`));
+  fs.mkdtemp(path.join(os.tmpdir(), `NoteBranch-mock-git-${label}-`));
 
 const writeFile = async (
   repoPath: string,
@@ -48,7 +48,7 @@ describe("MockGitAdapter", () => {
     const adapter = new MockGitAdapter();
     await expect(adapter.checkGitInstalled()).resolves.toBe(true);
 
-    process.env.NOTEGIT_MOCK_GIT_INSTALLED = "0";
+    process.env.NOTEBRANCH_MOCK_GIT_INSTALLED = "0";
     await expect(adapter.checkGitInstalled()).resolves.toBe(false);
     await expect(adapter.status()).rejects.toThrow(
       "MockGitAdapter not initialized. Call init() first.",
@@ -70,7 +70,7 @@ describe("MockGitAdapter", () => {
       adapter.clone("https://host/empty-remote/repo.git", localPath, "main"),
     ).rejects.toThrow("Remote branch main not found");
 
-    process.env.NOTEGIT_MOCK_GIT_INITIAL_BEHIND = "2";
+    process.env.NOTEBRANCH_MOCK_GIT_INITIAL_BEHIND = "2";
     await adapter.clone("https://host/good/repo.git", localPath, "dev");
 
     await expect(adapter.getCurrentBranch()).resolves.toBe("dev");
@@ -152,31 +152,31 @@ describe("MockGitAdapter", () => {
   it("handles pull, fetch and push success and failure modes", async () => {
     const { adapter } = await createRepo();
 
-    process.env.NOTEGIT_MOCK_GIT_OFFLINE = "1";
+    process.env.NOTEBRANCH_MOCK_GIT_OFFLINE = "1";
     await expect(adapter.pull()).rejects.toThrow("Network offline");
     await expect(adapter.fetch()).rejects.toThrow("Network offline");
     await expect(adapter.push()).rejects.toThrow("Network offline");
 
-    process.env.NOTEGIT_MOCK_GIT_OFFLINE = "0";
-    process.env.NOTEGIT_MOCK_GIT_FAIL_PULL = "conflict";
+    process.env.NOTEBRANCH_MOCK_GIT_OFFLINE = "0";
+    process.env.NOTEBRANCH_MOCK_GIT_FAIL_PULL = "conflict";
     await expect(adapter.pull()).rejects.toThrow("CONFLICT simulated conflict");
 
-    process.env.NOTEGIT_MOCK_GIT_FAIL_PULL = "1";
+    process.env.NOTEBRANCH_MOCK_GIT_FAIL_PULL = "1";
     await expect(adapter.pull()).rejects.toThrow("Pull failed");
 
-    process.env.NOTEGIT_MOCK_GIT_FAIL_PULL = "";
-    process.env.NOTEGIT_MOCK_GIT_FETCH_SETS_BEHIND = "3";
+    process.env.NOTEBRANCH_MOCK_GIT_FAIL_PULL = "";
+    process.env.NOTEBRANCH_MOCK_GIT_FETCH_SETS_BEHIND = "3";
     await adapter.fetch();
     await expect(adapter.getAheadBehind()).resolves.toEqual({
       ahead: 0,
       behind: 3,
     });
 
-    process.env.NOTEGIT_MOCK_GIT_FAIL_FETCH = "true";
+    process.env.NOTEBRANCH_MOCK_GIT_FAIL_FETCH = "true";
     await expect(adapter.fetch()).rejects.toThrow("Fetch failed");
 
-    process.env.NOTEGIT_MOCK_GIT_FAIL_FETCH = "";
-    process.env.NOTEGIT_MOCK_GIT_FAIL_PUSH = "true";
+    process.env.NOTEBRANCH_MOCK_GIT_FAIL_FETCH = "";
+    process.env.NOTEBRANCH_MOCK_GIT_FAIL_PUSH = "true";
     await expect(adapter.push()).rejects.toThrow("Push failed");
   });
 
@@ -185,11 +185,11 @@ describe("MockGitAdapter", () => {
     await writeFile(repoPath, "env.md", "data");
     await adapter.add(".");
 
-    process.env.NOTEGIT_MOCK_GIT_FAIL_COMMIT = "true";
+    process.env.NOTEBRANCH_MOCK_GIT_FAIL_COMMIT = "true";
     await expect(adapter.commit("blocked")).rejects.toThrow("Commit failed");
 
     await adapter.addRemote("https://example.com/repo.git");
-    process.env.NOTEGIT_MOCK_GIT_FAIL_COMMIT = "";
+    process.env.NOTEBRANCH_MOCK_GIT_FAIL_COMMIT = "";
     await adapter.commit("ok");
     await expect(adapter.log()).resolves.toHaveLength(1);
   });

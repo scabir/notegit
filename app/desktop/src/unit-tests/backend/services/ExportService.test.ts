@@ -27,7 +27,7 @@ jest.mock("electron", () => ({
     showSaveDialog: jest.fn(),
   },
   app: {
-    getPath: jest.fn(() => "/tmp/notegit-test"),
+    getPath: jest.fn(() => "/tmp/NoteBranch-test"),
   },
 }));
 

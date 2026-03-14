@@ -175,4 +175,4 @@ export const FILE_TREE_TEXT = buildFileTreeText(defaultText);
 export const FILE_TREE_MESSAGES = buildFileTreeMessages(defaultText);
 
 export const INVALID_NAME_CHARS = /[<>:"/\\|?*]/;
-export const FAVORITES_STORAGE_KEY = "notegit-tree-favorites";
+export const FAVORITES_STORAGE_KEY = "NoteBranch-tree-favorites";

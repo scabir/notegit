@@ -1,12 +1,12 @@
 {
   "app": {
-    "name": "notegit",
+    "name": "NoteBranch",
     "tagline": "Git destekli Markdown not alma uygulaması",
-    "welcome": "notegit'e hoş geldiniz! Başlamak için bir Git deposuna bağlanın.",
+    "welcome": "NoteBranch'e hoş geldiniz! Başlamak için bir Git deposuna bağlanın.",
     "connectToRepository": "Depoya Bağlan"
   },
   "gitMissing": {
-    "message": "Sisteminizde Git kurulu değil. notegit'i kullanmak için lütfen Git yükleyin.",
+    "message": "Sisteminizde Git kurulu değil. NoteBranch'i kullanmak için lütfen Git yükleyin.",
     "downloadPrompt": "Git'i indirmek için."
   }
 }

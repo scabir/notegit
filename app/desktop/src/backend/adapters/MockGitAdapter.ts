@@ -36,7 +36,7 @@ export class MockGitAdapter extends GitAdapter {
   private activeRepoPath: string | null = null;
 
   async checkGitInstalled(): Promise<boolean> {
-    return process.env.NOTEGIT_MOCK_GIT_INSTALLED !== "0";
+    return process.env.NOTEBRANCH_MOCK_GIT_INSTALLED !== "0";
   }
 
   async init(repoPath: string): Promise<void> {
@@ -115,7 +115,7 @@ export class MockGitAdapter extends GitAdapter {
       throw new Error("Network offline");
     }
 
-    const failPull = process.env.NOTEGIT_MOCK_GIT_FAIL_PULL || "";
+    const failPull = process.env.NOTEBRANCH_MOCK_GIT_FAIL_PULL || "";
     if (failPull === "conflict") {
       throw new Error("CONFLICT simulated conflict");
     }
@@ -133,8 +133,8 @@ export class MockGitAdapter extends GitAdapter {
       throw new Error("Network offline");
     }
     if (
-      process.env.NOTEGIT_MOCK_GIT_FAIL_PUSH === "1" ||
-      process.env.NOTEGIT_MOCK_GIT_FAIL_PUSH === "true"
+      process.env.NOTEBRANCH_MOCK_GIT_FAIL_PUSH === "1" ||
+      process.env.NOTEBRANCH_MOCK_GIT_FAIL_PUSH === "true"
     ) {
       throw new Error("Push failed");
     }
@@ -147,14 +147,14 @@ export class MockGitAdapter extends GitAdapter {
       throw new Error("Network offline");
     }
     if (
-      process.env.NOTEGIT_MOCK_GIT_FAIL_FETCH === "1" ||
-      process.env.NOTEGIT_MOCK_GIT_FAIL_FETCH === "true"
+      process.env.NOTEBRANCH_MOCK_GIT_FAIL_FETCH === "1" ||
+      process.env.NOTEBRANCH_MOCK_GIT_FAIL_FETCH === "true"
     ) {
       throw new Error("Fetch failed");
     }
 
     const state = await this.ensureActiveState();
-    const configuredBehind = process.env.NOTEGIT_MOCK_GIT_FETCH_SETS_BEHIND;
+    const configuredBehind = process.env.NOTEBRANCH_MOCK_GIT_FETCH_SETS_BEHIND;
     if (configuredBehind !== undefined && configuredBehind !== "") {
       const parsedBehind = Number.parseInt(configuredBehind, 10);
       if (Number.isFinite(parsedBehind) && parsedBehind >= 0) {
@@ -171,8 +171,8 @@ export class MockGitAdapter extends GitAdapter {
 
   async commit(message: string): Promise<void> {
     if (
-      process.env.NOTEGIT_MOCK_GIT_FAIL_COMMIT === "1" ||
-      process.env.NOTEGIT_MOCK_GIT_FAIL_COMMIT === "true"
+      process.env.NOTEBRANCH_MOCK_GIT_FAIL_COMMIT === "1" ||
+      process.env.NOTEBRANCH_MOCK_GIT_FAIL_COMMIT === "true"
     ) {
       throw new Error("Commit failed");
     }
@@ -238,8 +238,8 @@ export class MockGitAdapter extends GitAdapter {
       })
       .map((commit) => ({
         hash: commit.hash,
-        author_name: "notegit-integration",
-        author_email: "integration@notegit.local",
+        author_name: "NoteBranch-integration",
+        author_email: "integration@NoteBranch.local",
         date: commit.date,
         message: commit.message,
       }));
@@ -408,7 +408,7 @@ export class MockGitAdapter extends GitAdapter {
   }
 
   private getConfiguredInitialBehindCount(): number {
-    const configured = process.env.NOTEGIT_MOCK_GIT_INITIAL_BEHIND || "0";
+    const configured = process.env.NOTEBRANCH_MOCK_GIT_INITIAL_BEHIND || "0";
     const parsed = Number.parseInt(configured, 10);
     if (!Number.isFinite(parsed) || parsed < 0) {
       return 0;
@@ -418,8 +418,8 @@ export class MockGitAdapter extends GitAdapter {
 
   private shouldFailCloneAuth(remoteUrl: string): boolean {
     return (
-      process.env.NOTEGIT_MOCK_GIT_FAIL_CLONE_AUTH === "1" ||
-      process.env.NOTEGIT_MOCK_GIT_FAIL_CLONE_AUTH === "true" ||
+      process.env.NOTEBRANCH_MOCK_GIT_FAIL_CLONE_AUTH === "1" ||
+      process.env.NOTEBRANCH_MOCK_GIT_FAIL_CLONE_AUTH === "true" ||
       remoteUrl.includes("auth-fail")
     );
   }
@@ -430,16 +430,16 @@ export class MockGitAdapter extends GitAdapter {
 
   private shouldSimulateEmptyRemote(remoteUrl: string): boolean {
     return (
-      process.env.NOTEGIT_MOCK_GIT_EMPTY_REMOTE === "1" ||
-      process.env.NOTEGIT_MOCK_GIT_EMPTY_REMOTE === "true" ||
+      process.env.NOTEBRANCH_MOCK_GIT_EMPTY_REMOTE === "1" ||
+      process.env.NOTEBRANCH_MOCK_GIT_EMPTY_REMOTE === "true" ||
       remoteUrl.includes("empty-remote")
     );
   }
 
   private isOfflineMode(): boolean {
     return (
-      process.env.NOTEGIT_MOCK_GIT_OFFLINE === "1" ||
-      process.env.NOTEGIT_MOCK_GIT_OFFLINE === "true"
+      process.env.NOTEBRANCH_MOCK_GIT_OFFLINE === "1" ||
+      process.env.NOTEBRANCH_MOCK_GIT_OFFLINE === "true"
     );
   }
 }

@@ -22,7 +22,7 @@ const flattenText = (node: any): string => {
 describe("HistoryPanel", () => {
   beforeEach(() => {
     (global as any).window = {
-      notegitApi: {
+      NoteBranchApi: {
         history: {
           getForFile: jest.fn(),
         },
@@ -53,7 +53,7 @@ describe("HistoryPanel", () => {
     const getForFile = jest
       .fn()
       .mockResolvedValue({ ok: true, data: [commit] });
-    (global as any).window.notegitApi.history.getForFile = getForFile;
+    (global as any).window.NoteBranchApi.history.getForFile = getForFile;
 
     const onViewVersion = jest.fn();
 
@@ -89,7 +89,7 @@ describe("HistoryPanel", () => {
       .fn()
       .mockResolvedValueOnce({ ok: false, error: {} })
       .mockResolvedValueOnce({ ok: true, data: [] });
-    (global as any).window.notegitApi.history.getForFile = getForFile;
+    (global as any).window.NoteBranchApi.history.getForFile = getForFile;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -138,7 +138,7 @@ describe("HistoryPanel", () => {
       .fn()
       .mockResolvedValue({ ok: true, data: [commit] });
     const onClose = jest.fn();
-    (global as any).window.notegitApi.history.getForFile = getForFile;
+    (global as any).window.NoteBranchApi.history.getForFile = getForFile;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {

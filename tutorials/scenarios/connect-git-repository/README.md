@@ -1,12 +1,12 @@
 # [Git] Connect Git Repository
 
-This tutorial is generated with Playwright against the local notegit app in mock Git mode.
+This tutorial is generated with Playwright against the local NoteBranch app in mock Git mode.
 
-## Step 1: Open notegit and start repository setup
+## Step 1: Open NoteBranch and start repository setup
 
 From the first launch screen, click **Connect to Repository** to start linking your Git remote.
 
-![Open notegit and start repository setup](images/step-01-welcome-screen.png)
+![Open NoteBranch and start repository setup](images/step-01-welcome-screen.png)
 
 ## Step 2: Open the Git connection dialog
 
@@ -39,4 +39,4 @@ After connecting, the workspace loads with the file tree and branch status visib
 
 1. Enable bucket versioning in AWS S3.
 2. Prepare Access Key ID and Secret Access Key with AWS S3 read/write permissions.
-3. Enter bucket, region, optional prefix, and credentials in notegit.
+3. Enter bucket, region, optional prefix, and credentials in NoteBranch.

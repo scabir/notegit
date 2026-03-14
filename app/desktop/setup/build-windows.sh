@@ -6,7 +6,7 @@
 
 set -e
 
-echo "🪟 Building notegit for Windows..."
+echo "🪟 Building NoteBranch for Windows..."
 echo ""
 
 # Get the project root (parent of setup directory)

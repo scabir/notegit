@@ -20,11 +20,11 @@ jobs:
           - arch: x64
             runner: macos-15-intel
             artifact_name: app-macos-x64-dmg
-            artifact_basename: notegit-macos-x64
+            artifact_basename: NoteBranch-macos-x64
           - arch: arm64
             runner: macos-15
             artifact_name: app-macos-arm64-dmg
-            artifact_basename: notegit-macos-arm64
+            artifact_basename: NoteBranch-macos-arm64
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
       CSC_FOR_PULL_REQUEST: "true"

@@ -18,7 +18,7 @@ export class CryptoAdapter {
     // Use machine ID as part of the salt for key derivation
     // This makes the encryption machine-specific
     const machineId = machineIdSync();
-    this.salt = `notegit-${machineId}`;
+    this.salt = `NoteBranch-${machineId}`;
   }
 
   encrypt(plaintext: string): string {

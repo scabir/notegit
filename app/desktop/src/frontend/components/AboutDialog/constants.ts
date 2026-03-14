@@ -20,7 +20,7 @@ export const ABOUT_DIALOG_KEYS = {
 const defaultText = (key: string): string => getDefaultTranslation(key);
 
 export const APP_INFO = {
-  name: "notegit",
+  name: "NoteBranch",
   version: versionInfo.version,
   description: defaultText(ABOUT_DIALOG_KEYS.description),
   author: "Suleyman Cabir Ataman",

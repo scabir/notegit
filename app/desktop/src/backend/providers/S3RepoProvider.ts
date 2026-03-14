@@ -49,7 +49,7 @@ type RemoteFileInfo = {
 export class S3RepoProvider implements RepoProvider {
   readonly type = REPO_PROVIDERS.s3;
   private readonly conflictSuffix = "s3-conflict";
-  private readonly manifestFolder = ".notegit";
+  private readonly manifestFolder = ".NoteBranch";
   private readonly manifestFile = "s3-sync.json";
   private readonly manifestVersion = 1;
   private settings: S3RepoSettings | null = null;
@@ -828,7 +828,7 @@ export class S3RepoProvider implements RepoProvider {
     if (name === ".git" || name === ".DS_Store") {
       return true;
     }
-    if (name.startsWith(".notegit")) {
+    if (name.startsWith(".NoteBranch")) {
       return true;
     }
     if (this.isConflictFileName(name)) {

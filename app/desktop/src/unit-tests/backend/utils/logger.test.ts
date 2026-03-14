@@ -25,7 +25,7 @@ describe("logger", () => {
     jest.resetModules();
     jest.doMock("electron", () => ({
       app: {
-        getPath: jest.fn(() => "/tmp/notegit-test"),
+        getPath: jest.fn(() => "/tmp/NoteBranch-test"),
       },
     }));
     jest.doMock("winston", () => ({

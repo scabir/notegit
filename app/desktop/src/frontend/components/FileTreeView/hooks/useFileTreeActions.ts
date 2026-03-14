@@ -333,12 +333,12 @@ export function useFileTreeActions({
 
   const handleImportFile = useCallback(async () => {
     try {
-      if (!window.notegitApi.dialog) {
+      if (!window.NoteBranchApi.dialog) {
         alert(messages.dialogApiNotAvailable);
         return;
       }
 
-      const result = await window.notegitApi.dialog.showOpenDialog({
+      const result = await window.NoteBranchApi.dialog.showOpenDialog({
         properties: ["openFile"],
         title: messages.importDialogTitle,
       });

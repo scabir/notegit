@@ -20,7 +20,7 @@ const OUTPUT_SCENARIO_DIR = path.join(
 const OUTPUT_MARKDOWN_PATH = path.join(OUTPUT_SCENARIO_DIR, "README.md");
 const OUTPUT_IMAGE_DIR = path.join(OUTPUT_SCENARIO_DIR, "images");
 
-const DEFAULT_REMOTE_URL = "https://github.com/mock/notegit-integration.git";
+const DEFAULT_REMOTE_URL = "https://github.com/mock/NoteBranch-integration.git";
 const DEFAULT_BRANCH = "main";
 const DEFAULT_PAT = "integration-token";
 
@@ -53,7 +53,7 @@ const createMarkdownDoc = () => {
   const lines = [
     `# ${SCENARIO_TITLE}`,
     "",
-    "This tutorial is generated with Playwright against the local notegit app in mock Git mode.",
+    "This tutorial is generated with Playwright against the local NoteBranch app in mock Git mode.",
     "",
   ];
 
@@ -88,7 +88,7 @@ const createMarkdownDoc = () => {
     "2. Prepare Access Key ID and Secret Access Key with S3 read/write permissions.",
   );
   lines.push(
-    "3. Enter bucket, region, optional prefix, and credentials in notegit.",
+    "3. Enter bucket, region, optional prefix, and credentials in NoteBranch.",
   );
 
   return `${lines.join("\n")}\n`;
@@ -99,7 +99,7 @@ const run = async () => {
   await fs.mkdir(OUTPUT_IMAGE_DIR, { recursive: true });
 
   const userDataDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), "notegit-tutorial-connect-git-"),
+    path.join(os.tmpdir(), "NoteBranch-tutorial-connect-git-"),
   );
 
   /** @type {import('@playwright/test').ElectronApplication | null} */
@@ -109,9 +109,9 @@ const run = async () => {
     const launchEnv = {
       ...process.env,
       NODE_ENV: "test",
-      NOTEGIT_INTEGRATION_TEST: "1",
-      NOTEGIT_INTEGRATION_GIT_MOCK: "1",
-      NOTEGIT_INTEGRATION_USER_DATA_DIR: userDataDir,
+      NOTEBRANCH_INTEGRATION_TEST: "1",
+      NOTEBRANCH_INTEGRATION_GIT_MOCK: "1",
+      NOTEBRANCH_INTEGRATION_USER_DATA_DIR: userDataDir,
     };
     delete launchEnv.ELECTRON_RUN_AS_NODE;
 
@@ -129,7 +129,7 @@ const run = async () => {
     await captureStep({
       page,
       fileName: "step-01-welcome-screen.png",
-      title: "Open notegit and start repository setup",
+      title: "Open NoteBranch and start repository setup",
       explanation:
         "From the first launch screen, click **Connect to Repository** to start linking your Git remote.",
     });

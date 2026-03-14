@@ -22,35 +22,35 @@ jobs:
             target_format: dmg
             target_arch: x64
             file_ext: dmg
-            asset_basename: notegit-macos-x64
+            asset_basename: NoteBranch-macos-x64
           - id: macos-arm64
             runner: macos-15
             target_os: mac
             target_format: dmg
             target_arch: arm64
             file_ext: dmg
-            asset_basename: notegit-macos-arm64
+            asset_basename: NoteBranch-macos-arm64
           - id: windows-x64
             runner: windows-latest
             target_os: win
             target_format: nsis
             target_arch: x64
             file_ext: exe
-            asset_basename: notegit-windows-x64-setup
+            asset_basename: NoteBranch-windows-x64-setup
           - id: linux-deb
             runner: ubuntu-22.04
             target_os: linux
             target_format: deb
             target_arch: x64
             file_ext: deb
-            asset_basename: notegit-linux-amd64
+            asset_basename: NoteBranch-linux-amd64
           - id: linux-rpm
             runner: ubuntu-22.04
             target_os: linux
             target_format: rpm
             target_arch: x64
             file_ext: rpm
-            asset_basename: notegit-linux-x86_64
+            asset_basename: NoteBranch-linux-x86_64
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
       CSC_FOR_PULL_REQUEST: "true"

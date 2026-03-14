@@ -21,9 +21,9 @@ cd app/desktop/setup
 
 Artifacts are written to `app/desktop/release/`:
 
-- `notegit-{version}.dmg`, `notegit-{version}-mac.zip`
-- `notegit Setup {version}.exe`, `notegit {version}.exe`
-- `notegit-{version}.AppImage`, `notegit_{version}_amd64.deb`, `notegit-{version}.x86_64.rpm`
+- `NoteBranch-{version}.dmg`, `NoteBranch-{version}-mac.zip`
+- `NoteBranch Setup {version}.exe`, `NoteBranch {version}.exe`
+- `NoteBranch-{version}.AppImage`, `NoteBranch_{version}_amd64.deb`, `NoteBranch-{version}.x86_64.rpm`
 
 Released binaries:
 https://drive.google.com/drive/folders/1kI5mWrkVu30ASVN2loQVWnXtE8MgXq4v
@@ -31,7 +31,7 @@ https://drive.google.com/drive/folders/1kI5mWrkVu30ASVN2loQVWnXtE8MgXq4v
 ## Notes
 
 - Cross-platform builds work, but macOS builds must run on macOS.
-- Icons are configured in `package.json` (default: `src/electron/resources/notegit.png`).
+- Icons are configured in `package.json` (default: `src/electron/resources/NoteBranch.png`).
 - Code signing is recommended for distribution.
 
 ## Troubleshooting

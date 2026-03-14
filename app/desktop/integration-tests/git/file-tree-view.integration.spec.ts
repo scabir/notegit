@@ -242,7 +242,7 @@ test("(git) import external file then commit+push", async ({
 }, testInfo) => {
   const userDataDir = await createIsolatedUserDataDir(testInfo);
   const importTmpDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), `notegit-import-${Date.now()}-`),
+    path.join(os.tmpdir(), `NoteBranch-import-${Date.now()}-`),
   );
   const sourcePath = path.join(importTmpDir, "external.txt");
   let app: ElectronApplication | null = null;

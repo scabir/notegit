@@ -133,7 +133,7 @@ test("(S3) bucket versioning disabled blocks setup and stays on setup", async ({
   let app: ElectronApplication | null = null;
   try {
     const launched = await launchS3IntegrationApp(userDataDir, {
-      env: { NOTEGIT_MOCK_S3_VERSIONING_STATUS: "Suspended" },
+      env: { NOTEBRANCH_MOCK_S3_VERSIONING_STATUS: "Suspended" },
     });
     app = launched.app;
     const page = launched.page;

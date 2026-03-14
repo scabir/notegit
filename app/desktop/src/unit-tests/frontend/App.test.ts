@@ -67,7 +67,7 @@ const flattenText = (node: any): string => {
 describe("App", () => {
   beforeEach(() => {
     (global as any).window = {
-      notegitApi: {
+      NoteBranchApi: {
         config: {
           checkGitInstalled: jest.fn(),
           getFull: jest.fn(),
@@ -80,11 +80,11 @@ describe("App", () => {
   it("shows git missing message when git is not installed and repo is git", async () => {
     (
       global as any
-    ).window.notegitApi.config.checkGitInstalled.mockResolvedValue({
+    ).window.NoteBranchApi.config.checkGitInstalled.mockResolvedValue({
       ok: true,
       data: false,
     });
-    (global as any).window.notegitApi.config.getFull.mockResolvedValue({
+    (global as any).window.NoteBranchApi.config.getFull.mockResolvedValue({
       ok: true,
       data: {
         repoSettings: {
@@ -114,11 +114,11 @@ describe("App", () => {
   it("shows repo setup when no repository is connected", async () => {
     (
       global as any
-    ).window.notegitApi.config.checkGitInstalled.mockResolvedValue({
+    ).window.NoteBranchApi.config.checkGitInstalled.mockResolvedValue({
       ok: true,
       data: false,
     });
-    (global as any).window.notegitApi.config.getFull.mockResolvedValue({
+    (global as any).window.NoteBranchApi.config.getFull.mockResolvedValue({
       ok: true,
       data: { repoSettings: null, appSettings: { theme: "system" } },
     });
@@ -138,11 +138,11 @@ describe("App", () => {
   it("opens repo setup dialog when connect button is clicked", async () => {
     (
       global as any
-    ).window.notegitApi.config.checkGitInstalled.mockResolvedValue({
+    ).window.NoteBranchApi.config.checkGitInstalled.mockResolvedValue({
       ok: true,
       data: true,
     });
-    (global as any).window.notegitApi.config.getFull.mockResolvedValue({
+    (global as any).window.NoteBranchApi.config.getFull.mockResolvedValue({
       ok: true,
       data: { repoSettings: null, appSettings: { theme: "system" } },
     });
@@ -173,11 +173,11 @@ describe("App", () => {
   it("renders editor shell when local repo is configured without git", async () => {
     (
       global as any
-    ).window.notegitApi.config.checkGitInstalled.mockResolvedValue({
+    ).window.NoteBranchApi.config.checkGitInstalled.mockResolvedValue({
       ok: true,
       data: false,
     });
-    (global as any).window.notegitApi.config.getFull.mockResolvedValue({
+    (global as any).window.NoteBranchApi.config.getFull.mockResolvedValue({
       ok: true,
       data: {
         repoSettings: {
@@ -206,11 +206,11 @@ describe("App", () => {
   it("renders editor shell when a repo is configured", async () => {
     (
       global as any
-    ).window.notegitApi.config.checkGitInstalled.mockResolvedValue({
+    ).window.NoteBranchApi.config.checkGitInstalled.mockResolvedValue({
       ok: true,
       data: true,
     });
-    (global as any).window.notegitApi.config.getFull.mockResolvedValue({
+    (global as any).window.NoteBranchApi.config.getFull.mockResolvedValue({
       ok: true,
       data: {
         repoSettings: {
@@ -243,11 +243,11 @@ describe("App", () => {
   it("updates theme preference when editor shell requests a theme change", async () => {
     (
       global as any
-    ).window.notegitApi.config.checkGitInstalled.mockResolvedValue({
+    ).window.NoteBranchApi.config.checkGitInstalled.mockResolvedValue({
       ok: true,
       data: true,
     });
-    (global as any).window.notegitApi.config.getFull.mockResolvedValue({
+    (global as any).window.NoteBranchApi.config.getFull.mockResolvedValue({
       ok: true,
       data: {
         repoSettings: {
@@ -281,7 +281,7 @@ describe("App", () => {
     });
 
     expect(
-      (global as any).window.notegitApi.config.updateAppSettings,
+      (global as any).window.NoteBranchApi.config.updateAppSettings,
     ).toHaveBeenCalledWith({ theme: "dark" });
   });
 
@@ -289,10 +289,10 @@ describe("App", () => {
     const consoleSpy = jest.spyOn(console, "error").mockImplementation();
     (
       global as any
-    ).window.notegitApi.config.checkGitInstalled.mockRejectedValue(
+    ).window.NoteBranchApi.config.checkGitInstalled.mockRejectedValue(
       new Error("init failed"),
     );
-    (global as any).window.notegitApi.config.getFull.mockResolvedValue({
+    (global as any).window.NoteBranchApi.config.getFull.mockResolvedValue({
       ok: true,
       data: {
         repoSettings: {
@@ -327,11 +327,11 @@ describe("App", () => {
     const consoleSpy = jest.spyOn(console, "error").mockImplementation();
     (
       global as any
-    ).window.notegitApi.config.checkGitInstalled.mockResolvedValue({
+    ).window.NoteBranchApi.config.checkGitInstalled.mockResolvedValue({
       ok: true,
       data: true,
     });
-    (global as any).window.notegitApi.config.getFull.mockResolvedValue({
+    (global as any).window.NoteBranchApi.config.getFull.mockResolvedValue({
       ok: true,
       data: {
         repoSettings: {
@@ -347,7 +347,7 @@ describe("App", () => {
     });
     (
       global as any
-    ).window.notegitApi.config.updateAppSettings.mockRejectedValue(
+    ).window.NoteBranchApi.config.updateAppSettings.mockRejectedValue(
       new Error("theme failed"),
     );
 

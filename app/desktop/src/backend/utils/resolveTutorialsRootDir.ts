@@ -3,7 +3,7 @@ import * as path from "path";
 const REQUIRED_TUTORIAL_SENTINELS = [
   path.join(
     "scenarios",
-    "create-repo-on-notegit",
+    "create-repo-on-NoteBranch",
     "images",
     "step-01-welcome-screen.png",
   ),

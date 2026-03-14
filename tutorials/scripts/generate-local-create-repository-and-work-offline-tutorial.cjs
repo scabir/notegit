@@ -115,7 +115,7 @@ const run = async () => {
   await fs.mkdir(OUTPUT_IMAGE_DIR, { recursive: true });
 
   const userDataDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), "notegit-tutorial-local-offline-"),
+    path.join(os.tmpdir(), "NoteBranch-tutorial-local-offline-"),
   );
 
   /** @type {import('@playwright/test').ElectronApplication | null} */
@@ -125,9 +125,9 @@ const run = async () => {
     const launchEnv = {
       ...process.env,
       NODE_ENV: "test",
-      NOTEGIT_INTEGRATION_TEST: "1",
-      NOTEGIT_INTEGRATION_GIT_MOCK: "1",
-      NOTEGIT_INTEGRATION_USER_DATA_DIR: userDataDir,
+      NOTEBRANCH_INTEGRATION_TEST: "1",
+      NOTEBRANCH_INTEGRATION_GIT_MOCK: "1",
+      NOTEBRANCH_INTEGRATION_USER_DATA_DIR: userDataDir,
     };
     delete launchEnv.ELECTRON_RUN_AS_NODE;
 
@@ -142,7 +142,7 @@ const run = async () => {
     await captureStep({
       page,
       fileName: "step-01-welcome-screen.png",
-      title: "Open notegit and start repository setup",
+      title: "Open NoteBranch and start repository setup",
       explanation:
         "From first launch, click **Connect to Repository** to choose local provider.",
     });

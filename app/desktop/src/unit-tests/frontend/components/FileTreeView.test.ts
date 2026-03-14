@@ -102,7 +102,7 @@ describe("FileTreeView toolbar actions", () => {
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     (global as any).window = {
       localStorage: createLocalStorageMock(),
-      notegitApi: {
+      NoteBranchApi: {
         config: {
           getFavorites: jest.fn().mockResolvedValue({ ok: true, data: [] }),
           updateFavorites: jest.fn().mockResolvedValue({ ok: true }),
@@ -307,7 +307,7 @@ describe("FileTreeView toolbar actions", () => {
       fireShortcut({ key: "i", ctrlKey: true, preventDefault });
 
       expect(
-        (global as any).window.notegitApi.dialog.showOpenDialog,
+        (global as any).window.NoteBranchApi.dialog.showOpenDialog,
       ).toHaveBeenCalled();
       expect(preventDefault).toHaveBeenCalled();
     });
@@ -696,7 +696,7 @@ describe("FileTreeView toolbar actions", () => {
       act(() => menuItem.props.onClick());
 
       expect(
-        (global as any).window.notegitApi.dialog.showOpenDialog,
+        (global as any).window.NoteBranchApi.dialog.showOpenDialog,
       ).toHaveBeenCalled();
     });
   });
@@ -930,7 +930,7 @@ describe("FileTreeView toolbar actions", () => {
 
   it("imports a file into the selected folder", async () => {
     const onImport = jest.fn().mockResolvedValue(undefined);
-    (global as any).window.notegitApi.dialog.showOpenDialog = jest
+    (global as any).window.NoteBranchApi.dialog.showOpenDialog = jest
       .fn()
       .mockResolvedValue({
         canceled: false,
@@ -1831,7 +1831,7 @@ describe("FileTreeView toolbar actions", () => {
   });
 
   it("alerts when dialog api is missing for import", async () => {
-    (global as any).window.notegitApi.dialog = undefined;
+    (global as any).window.NoteBranchApi.dialog = undefined;
     (global as any).window.alert = jest.fn();
     (global as any).alert = (global as any).window.alert;
     const onImport = jest.fn();
@@ -1862,7 +1862,7 @@ describe("FileTreeView toolbar actions", () => {
   });
 
   it("does not import when file selection is canceled", async () => {
-    (global as any).window.notegitApi.dialog.showOpenDialog = jest
+    (global as any).window.NoteBranchApi.dialog.showOpenDialog = jest
       .fn()
       .mockResolvedValue({
         canceled: true,
@@ -1894,7 +1894,7 @@ describe("FileTreeView toolbar actions", () => {
 
   it("imports into the parent folder when a file is selected", async () => {
     const onImport = jest.fn().mockResolvedValue(undefined);
-    (global as any).window.notegitApi.dialog.showOpenDialog = jest
+    (global as any).window.NoteBranchApi.dialog.showOpenDialog = jest
       .fn()
       .mockResolvedValue({
         canceled: false,
@@ -1937,7 +1937,7 @@ describe("FileTreeView toolbar actions", () => {
       .mockImplementation(() => {});
     (global as any).window.alert = jest.fn();
     (global as any).alert = (global as any).window.alert;
-    (global as any).window.notegitApi.dialog.showOpenDialog = jest
+    (global as any).window.NoteBranchApi.dialog.showOpenDialog = jest
       .fn()
       .mockResolvedValue({
         canceled: false,

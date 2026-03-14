@@ -403,7 +403,7 @@ describe("EditorShell", () => {
       listeners.get(event.type)?.forEach((handler) => handler(event));
       return true;
     });
-    (global as any).window.notegitApi = {
+    (global as any).window.NoteBranchApi = {
       files: {
         listTree: jest.fn().mockResolvedValue({
           ok: true,
@@ -525,7 +525,7 @@ describe("EditorShell", () => {
   });
 
   it("shows a transient error when workspace loading fails", async () => {
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockRejectedValue(new Error("load failed"));
 
@@ -553,16 +553,16 @@ describe("EditorShell", () => {
       await flushPromises();
     });
 
-    expect((global as any).window.notegitApi.files.read).toHaveBeenCalledWith(
-      "notes/doc.md",
-    );
-    expect((global as any).window.notegitApi.files.read).toHaveBeenCalledWith(
-      "linked.md",
-    );
+    expect(
+      (global as any).window.NoteBranchApi.files.read,
+    ).toHaveBeenCalledWith("notes/doc.md");
+    expect(
+      (global as any).window.NoteBranchApi.files.read,
+    ).toHaveBeenCalledWith("linked.md");
   });
 
   it("shows fetch success and duplicate errors in the status message", async () => {
-    (global as any).window.notegitApi.files.duplicate = jest
+    (global as any).window.NoteBranchApi.files.duplicate = jest
       .fn()
       .mockRejectedValue(new Error("duplicate failed"));
 
@@ -590,7 +590,7 @@ describe("EditorShell", () => {
   });
 
   it("skips commit and push for local repositories", async () => {
-    (global as any).window.notegitApi.repo.getStatus = jest
+    (global as any).window.NoteBranchApi.repo.getStatus = jest
       .fn()
       .mockResolvedValue({
         ok: true,
@@ -604,7 +604,7 @@ describe("EditorShell", () => {
           needsPull: false,
         },
       });
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({
         ok: true,
@@ -625,7 +625,7 @@ describe("EditorShell", () => {
     });
 
     expect(
-      (global as any).window.notegitApi.files.commitAndPushAll,
+      (global as any).window.NoteBranchApi.files.commitAndPushAll,
     ).not.toHaveBeenCalled();
   });
 
@@ -668,24 +668,21 @@ describe("EditorShell", () => {
       await flushPromises();
     });
 
-    expect((global as any).window.notegitApi.files.create).toHaveBeenCalledWith(
-      "notes",
-      "new.md",
-    );
     expect(
-      (global as any).window.notegitApi.files.createFolder,
+      (global as any).window.NoteBranchApi.files.create,
+    ).toHaveBeenCalledWith("notes", "new.md");
+    expect(
+      (global as any).window.NoteBranchApi.files.createFolder,
     ).toHaveBeenCalledWith("notes", "folder");
-    expect((global as any).window.notegitApi.files.import).toHaveBeenCalledWith(
-      "/tmp/file.txt",
-      "notes/imported.txt",
-    );
-    expect((global as any).window.notegitApi.files.rename).toHaveBeenCalledWith(
-      "notes/doc.md",
-      "notes/renamed.md",
-    );
-    expect((global as any).window.notegitApi.files.delete).toHaveBeenCalledWith(
-      "notes/doc.md",
-    );
+    expect(
+      (global as any).window.NoteBranchApi.files.import,
+    ).toHaveBeenCalledWith("/tmp/file.txt", "notes/imported.txt");
+    expect(
+      (global as any).window.NoteBranchApi.files.rename,
+    ).toHaveBeenCalledWith("notes/doc.md", "notes/renamed.md");
+    expect(
+      (global as any).window.NoteBranchApi.files.delete,
+    ).toHaveBeenCalledWith("notes/doc.md");
   });
 
   it("saves unsaved content and commits it through the status bar actions", async () => {
@@ -703,29 +700,32 @@ describe("EditorShell", () => {
       await findButton(renderer!, "SaveAll").props.onClick();
       await flushPromises();
     });
-    expect((global as any).window.notegitApi.files.save).toHaveBeenCalledWith(
-      "notes/doc.md",
-      "updated content",
-    );
+    expect(
+      (global as any).window.NoteBranchApi.files.save,
+    ).toHaveBeenCalledWith("notes/doc.md", "updated content");
 
     await act(async () => {
       await findButton(renderer!, "CommitAndPush").props.onClick();
       await flushPromises();
     });
     expect(
-      (global as any).window.notegitApi.files.commitAndPushAll,
+      (global as any).window.NoteBranchApi.files.commitAndPushAll,
     ).toHaveBeenCalled();
   });
 
   it("handles pull and push failures and opens auxiliary panels", async () => {
-    (global as any).window.notegitApi.repo.pull = jest.fn().mockResolvedValue({
-      ok: false,
-      error: { message: "pull failed" },
-    });
-    (global as any).window.notegitApi.repo.push = jest.fn().mockResolvedValue({
-      ok: false,
-      error: { message: "push failed" },
-    });
+    (global as any).window.NoteBranchApi.repo.pull = jest
+      .fn()
+      .mockResolvedValue({
+        ok: false,
+        error: { message: "pull failed" },
+      });
+    (global as any).window.NoteBranchApi.repo.push = jest
+      .fn()
+      .mockResolvedValue({
+        ok: false,
+        error: { message: "push failed" },
+      });
 
     const renderer = await renderEditorShell();
 
@@ -771,10 +771,9 @@ describe("EditorShell", () => {
       jest.advanceTimersByTime(300000);
       await flushPromises();
     });
-    expect((global as any).window.notegitApi.files.save).toHaveBeenCalledWith(
-      "notes/doc.md",
-      "updated content",
-    );
+    expect(
+      (global as any).window.NoteBranchApi.files.save,
+    ).toHaveBeenCalledWith("notes/doc.md", "updated content");
 
     await act(async () => {
       window.dispatchEvent({
@@ -800,7 +799,7 @@ describe("EditorShell", () => {
   });
 
   it("handles git commit-and-push edge cases", async () => {
-    (global as any).window.notegitApi.files.commitAndPushAll = jest
+    (global as any).window.NoteBranchApi.files.commitAndPushAll = jest
       .fn()
       .mockResolvedValueOnce({
         ok: true,
@@ -831,7 +830,7 @@ describe("EditorShell", () => {
   });
 
   it("handles S3 sync flows, cleanup, and history/about interactions", async () => {
-    (global as any).window.notegitApi.repo.getStatus = jest
+    (global as any).window.NoteBranchApi.repo.getStatus = jest
       .fn()
       .mockResolvedValue({
         ok: true,
@@ -845,22 +844,26 @@ describe("EditorShell", () => {
           needsPull: false,
         },
       });
-    (global as any).window.notegitApi.repo.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      data: {
-        provider: REPO_PROVIDERS.git,
-        branch: "main",
-        ahead: 0,
-        behind: 0,
-        hasUncommitted: false,
-        pendingPushCount: 0,
-        needsPull: false,
-      },
-    });
-    (global as any).window.notegitApi.repo.push = jest.fn().mockResolvedValue({
-      ok: true,
-    });
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.repo.fetch = jest
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        data: {
+          provider: REPO_PROVIDERS.git,
+          branch: "main",
+          ahead: 0,
+          behind: 0,
+          hasUncommitted: false,
+          pendingPushCount: 0,
+          needsPull: false,
+        },
+      });
+    (global as any).window.NoteBranchApi.repo.push = jest
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+      });
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({
         ok: true,
@@ -934,7 +937,7 @@ describe("EditorShell", () => {
   });
 
   it("shows the active profile name and opens the shortcut menu from F1 and menu events", async () => {
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({
         ok: true,
@@ -973,7 +976,7 @@ describe("EditorShell", () => {
   });
 
   it("surfaces save failures from failed responses and thrown errors", async () => {
-    (global as any).window.notegitApi.files.save = jest
+    (global as any).window.NoteBranchApi.files.save = jest
       .fn()
       .mockResolvedValueOnce({
         ok: false,
@@ -1025,9 +1028,9 @@ describe("EditorShell", () => {
     expect(
       renderer.root.findByProps({ "data-testid": "save-message" }).children,
     ).toContain("pullSuccessful");
-    expect((global as any).window.notegitApi.files.read).toHaveBeenCalledWith(
-      "notes/doc.md",
-    );
+    expect(
+      (global as any).window.NoteBranchApi.files.read,
+    ).toHaveBeenCalledWith("notes/doc.md");
   });
 
   it("navigates backward and forward through file history", async () => {
@@ -1088,7 +1091,9 @@ describe("EditorShell", () => {
       await flushPromises();
     });
 
-    expect((global as any).window.notegitApi.repo.getStatus).toHaveBeenCalled();
+    expect(
+      (global as any).window.NoteBranchApi.repo.getStatus,
+    ).toHaveBeenCalled();
     expect(flattenText(renderer.toJSON())).not.toContain("settings-open");
     expect(flattenText(renderer.toJSON())).not.toContain("SearchSelect");
     expect(flattenText(renderer.toJSON())).not.toContain("RepoSearchSelect");
@@ -1100,7 +1105,7 @@ describe("EditorShell", () => {
     ) as { startS3AutoSync: jest.Mock };
     s3AutoSyncModule.startS3AutoSync.mockClear();
 
-    (global as any).window.notegitApi.repo.getStatus = jest
+    (global as any).window.NoteBranchApi.repo.getStatus = jest
       .fn()
       .mockResolvedValue({
         ok: true,
@@ -1114,7 +1119,7 @@ describe("EditorShell", () => {
           needsPull: false,
         },
       });
-    (global as any).window.notegitApi.config.getFull = jest
+    (global as any).window.NoteBranchApi.config.getFull = jest
       .fn()
       .mockResolvedValue({
         ok: true,
@@ -1126,7 +1131,7 @@ describe("EditorShell", () => {
           },
         },
       });
-    (global as any).window.notegitApi.repo.fetch = jest
+    (global as any).window.NoteBranchApi.repo.fetch = jest
       .fn()
       .mockRejectedValueOnce(new Error("fetch crashed"))
       .mockResolvedValueOnce({
@@ -1141,7 +1146,7 @@ describe("EditorShell", () => {
           needsPull: false,
         },
       });
-    (global as any).window.notegitApi.repo.push = jest
+    (global as any).window.NoteBranchApi.repo.push = jest
       .fn()
       .mockRejectedValueOnce(new Error("push crashed"))
       .mockResolvedValueOnce({ ok: true });

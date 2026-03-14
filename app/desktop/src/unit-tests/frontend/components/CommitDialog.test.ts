@@ -26,7 +26,7 @@ const findButtonByText = (
 describe("CommitDialog", () => {
   beforeEach(() => {
     (global as any).window = {
-      notegitApi: {
+      NoteBranchApi: {
         files: {
           commitAll: jest.fn(),
         },
@@ -53,8 +53,8 @@ describe("CommitDialog", () => {
   it("commits and pushes when a message is provided", async () => {
     const commitAll = jest.fn().mockResolvedValue({ ok: true });
     const push = jest.fn().mockResolvedValue({ ok: true });
-    (global as any).window.notegitApi.files.commitAll = commitAll;
-    (global as any).window.notegitApi.repo.push = push;
+    (global as any).window.NoteBranchApi.files.commitAll = commitAll;
+    (global as any).window.NoteBranchApi.repo.push = push;
 
     const onClose = jest.fn();
     const onSuccess = jest.fn();
@@ -96,7 +96,7 @@ describe("CommitDialog", () => {
   });
 
   it("shows an error when commit fails", async () => {
-    (global as any).window.notegitApi.files.commitAll = jest
+    (global as any).window.NoteBranchApi.files.commitAll = jest
       .fn()
       .mockResolvedValue({ ok: false, error: { message: "Commit failed" } });
 

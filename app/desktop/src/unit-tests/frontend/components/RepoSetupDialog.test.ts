@@ -33,7 +33,7 @@ const flattenText = (node: any): string => {
 describe("RepoSetupDialog", () => {
   beforeEach(() => {
     (global as any).window = {
-      notegitApi: {
+      NoteBranchApi: {
         repo: {
           openOrClone: jest.fn(),
         },
@@ -43,7 +43,7 @@ describe("RepoSetupDialog", () => {
 
   it("shows error when git fields are missing", async () => {
     const openOrClone = jest.fn();
-    (global as any).window.notegitApi.repo.openOrClone = openOrClone;
+    (global as any).window.NoteBranchApi.repo.openOrClone = openOrClone;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -74,7 +74,7 @@ describe("RepoSetupDialog", () => {
 
   it("connects to git when required fields are provided", async () => {
     const openOrClone = jest.fn().mockResolvedValue({ ok: true });
-    (global as any).window.notegitApi.repo.openOrClone = openOrClone;
+    (global as any).window.NoteBranchApi.repo.openOrClone = openOrClone;
 
     const onClose = jest.fn();
     const onSuccess = jest.fn();
@@ -129,7 +129,7 @@ describe("RepoSetupDialog", () => {
 
   it("shows error when s3 fields are missing", async () => {
     const openOrClone = jest.fn();
-    (global as any).window.notegitApi.repo.openOrClone = openOrClone;
+    (global as any).window.NoteBranchApi.repo.openOrClone = openOrClone;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -165,7 +165,7 @@ describe("RepoSetupDialog", () => {
 
   it("connects to s3 when required fields are provided", async () => {
     const openOrClone = jest.fn().mockResolvedValue({ ok: true });
-    (global as any).window.notegitApi.repo.openOrClone = openOrClone;
+    (global as any).window.NoteBranchApi.repo.openOrClone = openOrClone;
 
     const onClose = jest.fn();
     const onSuccess = jest.fn();
@@ -230,7 +230,7 @@ describe("RepoSetupDialog", () => {
 
   it("shows error when local name is missing", async () => {
     const openOrClone = jest.fn();
-    (global as any).window.notegitApi.repo.openOrClone = openOrClone;
+    (global as any).window.NoteBranchApi.repo.openOrClone = openOrClone;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -269,7 +269,7 @@ describe("RepoSetupDialog", () => {
       ok: false,
       error: { message: "Connection failed" },
     });
-    (global as any).window.notegitApi.repo.openOrClone = openOrClone;
+    (global as any).window.NoteBranchApi.repo.openOrClone = openOrClone;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -313,7 +313,7 @@ describe("RepoSetupDialog", () => {
 
   it("shows error when connect throws", async () => {
     const openOrClone = jest.fn().mockRejectedValue(new Error("Boom"));
-    (global as any).window.notegitApi.repo.openOrClone = openOrClone;
+    (global as any).window.NoteBranchApi.repo.openOrClone = openOrClone;
 
     let renderer: TestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -357,7 +357,7 @@ describe("RepoSetupDialog", () => {
 
   it("connects to local when name is provided", async () => {
     const openOrClone = jest.fn().mockResolvedValue({ ok: true });
-    (global as any).window.notegitApi.repo.openOrClone = openOrClone;
+    (global as any).window.NoteBranchApi.repo.openOrClone = openOrClone;
 
     const onClose = jest.fn();
     const onSuccess = jest.fn();

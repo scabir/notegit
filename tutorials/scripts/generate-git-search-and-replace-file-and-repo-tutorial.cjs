@@ -20,7 +20,7 @@ const OUTPUT_SCENARIO_DIR = path.join(
 const OUTPUT_MARKDOWN_PATH = path.join(OUTPUT_SCENARIO_DIR, "README.md");
 const OUTPUT_IMAGE_DIR = path.join(OUTPUT_SCENARIO_DIR, "images");
 
-const DEFAULT_REMOTE_URL = "https://github.com/mock/notegit-integration.git";
+const DEFAULT_REMOTE_URL = "https://github.com/mock/NoteBranch-integration.git";
 const DEFAULT_BRANCH = "main";
 const DEFAULT_PAT = "integration-token";
 
@@ -86,7 +86,7 @@ const connectRepoWithoutScreenshots = async (page) => {
   await expect
     .poll(async () => {
       const response = await page.evaluate(async () => {
-        return await window.notegitApi.repo.getStatus();
+        return await window.NoteBranchApi.repo.getStatus();
       });
       return response?.ok === true;
     })
@@ -128,7 +128,7 @@ const replaceEditorContent = async (page, content) => {
 
 const apiReadFile = async (page, filePath) => {
   const response = await page.evaluate(async (pathValue) => {
-    return await window.notegitApi.files.read(pathValue);
+    return await window.NoteBranchApi.files.read(pathValue);
   }, filePath);
 
   if (!response?.ok || typeof response.data !== "string") {
@@ -140,7 +140,7 @@ const apiReadFile = async (page, filePath) => {
 
 const apiRepoWideSearch = async (page, query) => {
   const response = await page.evaluate(async (q) => {
-    return await window.notegitApi.search.repoWide(q, {
+    return await window.NoteBranchApi.search.repoWide(q, {
       caseSensitive: false,
       useRegex: false,
     });
@@ -156,7 +156,7 @@ const apiRepoWideSearch = async (page, query) => {
 const apiReplaceInRepo = async (page, query, replacement, filePaths) => {
   const response = await page.evaluate(
     async ({ q, r, files }) => {
-      return await window.notegitApi.search.replaceInRepo(q, r, {
+      return await window.NoteBranchApi.search.replaceInRepo(q, r, {
         caseSensitive: false,
         useRegex: false,
         filePaths: files,
@@ -198,7 +198,7 @@ const run = async () => {
   await fs.mkdir(OUTPUT_IMAGE_DIR, { recursive: true });
 
   const userDataDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), "notegit-tutorial-git-search-replace-"),
+    path.join(os.tmpdir(), "NoteBranch-tutorial-git-search-replace-"),
   );
 
   /** @type {import('@playwright/test').ElectronApplication | null} */
@@ -208,9 +208,9 @@ const run = async () => {
     const launchEnv = {
       ...process.env,
       NODE_ENV: "test",
-      NOTEGIT_INTEGRATION_TEST: "1",
-      NOTEGIT_INTEGRATION_GIT_MOCK: "1",
-      NOTEGIT_INTEGRATION_USER_DATA_DIR: userDataDir,
+      NOTEBRANCH_INTEGRATION_TEST: "1",
+      NOTEBRANCH_INTEGRATION_GIT_MOCK: "1",
+      NOTEBRANCH_INTEGRATION_USER_DATA_DIR: userDataDir,
     };
     delete launchEnv.ELECTRON_RUN_AS_NODE;
 

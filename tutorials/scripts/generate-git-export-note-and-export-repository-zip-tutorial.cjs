@@ -20,7 +20,7 @@ const OUTPUT_SCENARIO_DIR = path.join(
 const OUTPUT_MARKDOWN_PATH = path.join(OUTPUT_SCENARIO_DIR, "README.md");
 const OUTPUT_IMAGE_DIR = path.join(OUTPUT_SCENARIO_DIR, "images");
 
-const DEFAULT_REMOTE_URL = "https://github.com/mock/notegit-integration.git";
+const DEFAULT_REMOTE_URL = "https://github.com/mock/NoteBranch-integration.git";
 const DEFAULT_BRANCH = "main";
 const DEFAULT_PAT = "integration-token";
 const FILE_NAME = "export-demo.md";
@@ -129,7 +129,7 @@ const run = async () => {
   await fs.mkdir(OUTPUT_IMAGE_DIR, { recursive: true });
 
   const userDataDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), "notegit-tutorial-git-export-"),
+    path.join(os.tmpdir(), "NoteBranch-tutorial-git-export-"),
   );
 
   /** @type {import('@playwright/test').ElectronApplication | null} */
@@ -139,9 +139,9 @@ const run = async () => {
     const launchEnv = {
       ...process.env,
       NODE_ENV: "test",
-      NOTEGIT_INTEGRATION_TEST: "1",
-      NOTEGIT_INTEGRATION_GIT_MOCK: "1",
-      NOTEGIT_INTEGRATION_USER_DATA_DIR: userDataDir,
+      NOTEBRANCH_INTEGRATION_TEST: "1",
+      NOTEBRANCH_INTEGRATION_GIT_MOCK: "1",
+      NOTEBRANCH_INTEGRATION_USER_DATA_DIR: userDataDir,
     };
     delete launchEnv.ELECTRON_RUN_AS_NODE;
 

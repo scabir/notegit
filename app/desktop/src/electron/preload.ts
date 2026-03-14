@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { NotegitApi } from "../shared/types/api";
+import type { NoteGitApi } from "../shared/types/api";
 
 const openShortcutsListeners = new Set<() => void>();
 const openAboutListeners = new Set<() => void>();
@@ -12,7 +12,7 @@ ipcRenderer.on("menu:open-about", () => {
   openAboutListeners.forEach((listener) => listener());
 });
 
-const api: NotegitApi = {
+const api: NoteGitApi = {
   menu: {
     onOpenShortcuts: (listener) => {
       openShortcutsListeners.add(listener);
@@ -127,4 +127,4 @@ const api: NotegitApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("notegitApi", api);
+contextBridge.exposeInMainWorld("NoteBranchApi", api);

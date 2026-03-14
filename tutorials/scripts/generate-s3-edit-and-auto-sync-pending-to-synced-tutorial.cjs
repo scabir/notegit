@@ -20,7 +20,7 @@ const OUTPUT_SCENARIO_DIR = path.join(
 const OUTPUT_MARKDOWN_PATH = path.join(OUTPUT_SCENARIO_DIR, "README.md");
 const OUTPUT_IMAGE_DIR = path.join(OUTPUT_SCENARIO_DIR, "images");
 
-const S3_BUCKET = "notegit-integration-bucket";
+const S3_BUCKET = "NoteBranch-integration-bucket";
 const S3_REGION = "us-east-1";
 const S3_ACCESS_KEY_ID = "mock-access-key";
 const S3_SECRET_ACCESS_KEY = "mock-secret-key";
@@ -119,7 +119,7 @@ const createMarkdownFileViaContextMenu = async (page, fileName) => {
 
 const createFileViaApi = async (page, fileName) => {
   const response = await page.evaluate(async (name) => {
-    return await window.notegitApi.files.create("", name);
+    return await window.NoteBranchApi.files.create("", name);
   }, fileName);
 
   if (!response?.ok) {
@@ -132,7 +132,7 @@ const run = async () => {
   await fs.mkdir(OUTPUT_IMAGE_DIR, { recursive: true });
 
   const userDataDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), "notegit-tutorial-s3-auto-sync-"),
+    path.join(os.tmpdir(), "NoteBranch-tutorial-s3-auto-sync-"),
   );
 
   /** @type {import('@playwright/test').ElectronApplication | null} */
@@ -142,10 +142,10 @@ const run = async () => {
     const launchEnv = {
       ...process.env,
       NODE_ENV: "test",
-      NOTEGIT_INTEGRATION_TEST: "1",
-      NOTEGIT_INTEGRATION_GIT_MOCK: "1",
-      NOTEGIT_INTEGRATION_S3_MOCK: "1",
-      NOTEGIT_INTEGRATION_USER_DATA_DIR: userDataDir,
+      NOTEBRANCH_INTEGRATION_TEST: "1",
+      NOTEBRANCH_INTEGRATION_GIT_MOCK: "1",
+      NOTEBRANCH_INTEGRATION_S3_MOCK: "1",
+      NOTEBRANCH_INTEGRATION_USER_DATA_DIR: userDataDir,
     };
     delete launchEnv.ELECTRON_RUN_AS_NODE;
 

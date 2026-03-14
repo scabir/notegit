@@ -138,7 +138,7 @@ jest.mock("unist-util-visit", () => ({
 jest.mock("electron", () => ({
   app: {
     getPath: jest.fn((name: string) => {
-      if (name === "userData") return "/tmp/notegit-test";
+      if (name === "userData") return "/tmp/NoteBranch-test";
       return "/tmp";
     }),
   },

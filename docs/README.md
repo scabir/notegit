@@ -1,6 +1,6 @@
 # Technical Documentation
 
-Documentation index for notegit.
+Documentation index for NoteBranch.
 
 ## End Users
 
