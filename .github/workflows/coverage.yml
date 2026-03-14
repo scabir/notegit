@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "badges/coverage.json"
-      - "badges/integration.json"
+    paths:
+      - "app/desktop/**"
   pull_request:
+    paths:
+      - "app/desktop/**"
   workflow_dispatch:
 
 permissions:
