@@ -1,25 +1,19 @@
 import { PageFrame } from "../components/PageFrame";
 import {
-  branding,
-  heroActions,
-  heroDownloadTargets,
-  heroPreview,
-  latestRelease
+  downloadsPageTargets,
+  latestRelease,
+  releasesPageUrl
 } from "../data/siteContent";
-import { HeroSection } from "../sections/HeroSection";
+import { DownloadsStackSection } from "../sections/DownloadsStackSection";
 
 export function DownloadsPage() {
   return (
     <PageFrame>
-      <HeroSection
-        productName={branding.productName}
-        tagline={branding.tagline}
-        summary={branding.summary}
-        actions={heroActions}
-        preview={heroPreview}
+      <DownloadsStackSection
         releasePageUrl={latestRelease.pageUrl}
         releaseApiUrl={latestRelease.apiUrl}
-        downloadTargets={heroDownloadTargets}
+        releaseArchiveUrl={releasesPageUrl}
+        downloadTargets={downloadsPageTargets}
       />
     </PageFrame>
   );

@@ -104,6 +104,7 @@ export interface DownloadTarget {
 export interface DownloadBuild {
   label: string;
   assetNamePattern: string;
+  details?: string;
 }
 
 interface RepositoryConfig {
@@ -220,12 +221,14 @@ export const latestRelease = {
   apiUrl: githubLatestReleaseApi
 };
 
+export const releasesPageUrl = `${githubBase}/releases`;
+
 export const heroDownloadTargets: DownloadTarget[] = [
   {
     label: "macOS",
-    icon: "laptop_mac",
+    icon: macosIcon,
     iconAlt: "macOS",
-    iconType: "material",
+    iconType: "image",
     builds: [
       {
         label: "Apple Silicon (.dmg)",
@@ -235,14 +238,13 @@ export const heroDownloadTargets: DownloadTarget[] = [
         label: "Intel x64 (.dmg)",
         assetNamePattern: "NoteBranch-macos-x64-.*\\.dmg$"
       }
-    ],
-    note: "Unsigned macOS build: allow it in System Settings > Privacy & Security, then reopen."
+    ]
   },
   {
     label: "Linux",
-    icon: "terminal",
+    icon: linuxIcon,
     iconAlt: "Linux",
-    iconType: "material",
+    iconType: "image",
     builds: [
       {
         label: "AMD64 (.deb)",
@@ -256,13 +258,71 @@ export const heroDownloadTargets: DownloadTarget[] = [
   },
   {
     label: "Windows",
-    icon: "desktop_windows",
+    icon: windowsIcon,
     iconAlt: "Windows",
-    iconType: "material",
+    iconType: "image",
     builds: [
       {
         label: "x64 installer (.exe)",
         assetNamePattern: "NoteBranch-windows-x64-setup-.*\\.exe$"
+      }
+    ]
+  }
+];
+
+export const downloadsPageTargets: DownloadTarget[] = [
+  {
+    label: "macOS",
+    icon: macosIcon,
+    iconAlt: "macOS",
+    iconType: "image",
+    builds: [
+      {
+        label: "Apple Silicon (.dmg)",
+        assetNamePattern: "NoteBranch-macos-arm64-.*\\.dmg$",
+        details:
+          "For Macs with Apple chips (M1, M2, M3, M4; generally late-2020 and newer). Recommended on macOS 12 Monterey or newer."
+      },
+      {
+        label: "Intel x64 (.dmg)",
+        assetNamePattern: "NoteBranch-macos-x64-.*\\.dmg$",
+        details:
+          "For Intel-based Macs (generally 2020 and earlier). Use the latest Intel-supported macOS on your device (commonly Monterey, Ventura, or Sonoma)."
+      }
+    ],
+    note: "Unsigned macOS build: after downloading, open the app once, then allow it under System Settings > Privacy & Security. If macOS blocks launch, click “Open Anyway”, confirm, and reopen the app."
+  },
+  {
+    label: "Linux",
+    icon: linuxIcon,
+    iconAlt: "Linux",
+    iconType: "image",
+    builds: [
+      {
+        label: "AMD64 (.deb)",
+        assetNamePattern: "NoteBranch-linux-amd64-.*\\.deb$",
+        details:
+          "Debian-based distros: Ubuntu, Linux Mint, Debian, Pop!_OS, elementary OS, Zorin OS, and similar."
+      },
+      {
+        label: "x86_64 (.rpm)",
+        assetNamePattern: "NoteBranch-linux-x86_64-.*\\.rpm$",
+        details:
+          "RPM-based distros: Fedora, Red Hat Enterprise Linux (RHEL), CentOS Stream, Rocky Linux, AlmaLinux, openSUSE, and similar."
+      }
+    ]
+  },
+  {
+    label: "Windows",
+    icon: windowsIcon,
+    iconAlt: "Windows",
+    iconType: "image",
+    builds: [
+      {
+        label: "x64 installer (.exe)",
+        assetNamePattern: "NoteBranch-windows-x64-setup-.*\\.exe$",
+        details:
+          "Supported for modern 64-bit Windows desktop installations."
       }
     ]
   }
@@ -603,11 +663,12 @@ export const sourceCodeLinks: LinkItem[] = [
 ];
 
 export const footerLinks: ActionLink[] = [
+  { label: "Home", href: "/" },
   { label: "Downloads", href: "/downloads/" },
   { label: "Features", href: "/features/" },
   { label: "Workflow", href: "/workflow/" },
   { label: "Tutorials", href: "/tutorials/" },
   { label: "GitHub", href: githubBase },
-  { label: "Releases", href: `${githubBase}/releases` },
+  { label: "Releases", href: releasesPageUrl },
   { label: "License", href: toBlobLink("LICENSE") }
 ];

@@ -354,6 +354,82 @@ p {
   color: var(--text-muted);
 }
 
+.downloads-standalone-section {
+  padding-top: 5.2rem;
+}
+
+.downloads-stack {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.download-stack-card {
+  padding: 1.15rem 1.22rem;
+}
+
+.download-stack-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.62rem;
+}
+
+.download-stack-title {
+  margin: 0;
+  font-size: 1.42rem;
+}
+
+.download-stack-icon {
+  width: 2.1rem;
+  height: 2.1rem;
+  filter: brightness(0) invert(1);
+  opacity: 0.94;
+}
+
+.download-stack-items {
+  margin-top: 0.78rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.download-stack-item {
+  display: grid;
+  gap: 0.26rem;
+}
+
+.download-stack-link {
+  text-decoration: none;
+  color: var(--text-main);
+  font-size: 1.1rem;
+  font-weight: 620;
+}
+
+.download-stack-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.download-stack-details {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.download-stack-note {
+  margin-top: 0.92rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.58;
+}
+
+.downloads-archive {
+  margin-top: 1rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.52rem;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
