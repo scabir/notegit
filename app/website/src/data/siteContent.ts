@@ -137,8 +137,8 @@ export const branding = {
   productName: "NoteBranch",
   tagline: "Markdown notes that stay in your Git, AWS S3, or local workspace.",
   summary:
-    "Free and open source forever: a desktop workspace for writing, organizing, versioning, and exporting notes without locking your data into a proprietary cloud.",
-  madeInLabel: "Made in UK",
+    "Free and open source: a desktop workspace for writing, organizing, versioning, and exporting notes without locking your data into a proprietary cloud.",
+  madeInLabel: "made in UK",
   maintainerName: "Suleyman Cabir Ataman",
   maintainerSocialLinks: [
     {
@@ -220,6 +220,8 @@ export const latestRelease = {
   pageUrl: githubLatestReleasePage,
   apiUrl: githubLatestReleaseApi
 };
+
+export const desktopReleaseVersion = "2.8.4";
 
 export const releasesPageUrl = `${githubBase}/releases`;
 
@@ -351,21 +353,21 @@ export const whatItIs = {
 export const features: FeatureItem[] = [
   {
     icon: "edit_note",
-    title: "User power of Markdown",
+    title: "Power of Markdown",
     description:
       "Write in Markdown with editor, preview-only, and split view modes built for real day-to-day documentation."
   },
   {
     icon: "cloud_sync",
-    title: "Store in cloud or local",
+    title: "Store in local, or cloud safely",
     description:
-      "Use Git repositories, AWS S3 buckets (with optional prefix), or Local mode without changing your core workflow."
+      "Utilize GitHub repositories, or AWS S3 buckets, or just Local mode without changing your core workflow."
   },
   {
     icon: "lock",
     title: "Full privacy and ownership",
     description:
-      "There is no hosted NoteBranch notes cloud. Your notes stay in storage you configure and control."
+      "We never get involved into your data. There is no hosted NoteBranch notes cloud. Your notes stay in storage you configure and control."
   },
   {
     icon: "history",

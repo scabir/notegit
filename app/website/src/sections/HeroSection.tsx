@@ -1,9 +1,10 @@
 import { useEffect, useState, type CSSProperties } from "react";
-import type {
-  ActionLink,
-  DownloadBuild,
-  DownloadTarget,
-  HeroPreview
+import {
+  desktopReleaseVersion,
+  type ActionLink,
+  type DownloadBuild,
+  type DownloadTarget,
+  type HeroPreview
 } from "../data/siteContent";
 import { linkTargetProps } from "../utils/links";
 
@@ -93,7 +94,7 @@ export function HeroSection({
     resolveDownloadLinks(downloadTargets, [], releasePageUrl)
   );
   const [downloadNote, setDownloadNote] = useState(
-    "Resolving latest release downloads..."
+    `Resolving release v${desktopReleaseVersion} downloads...`
   );
 
   useEffect(() => {
@@ -136,8 +137,8 @@ export function HeroSection({
         setDownloads(resolvedDownloads);
         setDownloadNote(
           usedFallback
-            ? "Some assets were not found in the latest release. Fallback links open the latest release page."
-            : "Direct links are mapped from the latest published GitHub release."
+            ? `Some assets were not found for release v${desktopReleaseVersion}. Fallback links open the latest release page.`
+            : `Direct links are mapped from GitHub release v${desktopReleaseVersion}.`
         );
       } catch {
         if (!active) {
@@ -146,7 +147,7 @@ export function HeroSection({
 
         setDownloads(resolveDownloadLinks(downloadTargets, [], releasePageUrl));
         setDownloadNote(
-          "Could not load release assets right now. Links open the latest release page."
+          `Could not load release v${desktopReleaseVersion} assets right now. Links open the latest release page.`
         );
       }
     };
@@ -197,7 +198,7 @@ export function HeroSection({
           className="downloads-panel hero-downloads-panel reveal"
           style={{ "--delay": "0.12s" } as CSSProperties}
         >
-          <p className="downloads-title">Download latest release</p>
+          <p className="downloads-title">{`Download release v${desktopReleaseVersion}`}</p>
           <div className="downloads-grid">
             {downloads.map((download) => (
               <article key={download.label} className="download-card">

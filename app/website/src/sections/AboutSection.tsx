@@ -64,7 +64,7 @@ export function AboutSection({
         </div>
 
         <p className="about-credit reveal">
-          <strong>{maintainerName}</strong>
+          built and maintained by <strong>{maintainerName}</strong>
         </p>
 
         <div className="about-social-links reveal">

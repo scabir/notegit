@@ -1,6 +1,10 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { SectionHeading } from "../components/SectionHeading";
-import type { DownloadBuild, DownloadTarget } from "../data/siteContent";
+import {
+  desktopReleaseVersion,
+  type DownloadBuild,
+  type DownloadTarget
+} from "../data/siteContent";
 import { linkTargetProps } from "../utils/links";
 
 interface ReleaseAsset {
@@ -84,7 +88,7 @@ export function DownloadsStackSection({
     resolveDownloadLinks(downloadTargets, [], releasePageUrl)
   );
   const [downloadNote, setDownloadNote] = useState(
-    "Resolving latest release downloads..."
+    `Resolving release v${desktopReleaseVersion} downloads...`
   );
 
   useEffect(() => {
@@ -127,8 +131,8 @@ export function DownloadsStackSection({
         setDownloads(resolvedDownloads);
         setDownloadNote(
           usedFallback
-            ? "Some assets were not found in the latest release. Fallback links open the latest release page."
-            : "Direct links are mapped from the latest published GitHub release."
+            ? `Some assets were not found for release v${desktopReleaseVersion}. Fallback links open the latest release page.`
+            : `Direct links are mapped from GitHub release v${desktopReleaseVersion}.`
         );
       } catch {
         if (!active) {
@@ -137,7 +141,7 @@ export function DownloadsStackSection({
 
         setDownloads(resolveDownloadLinks(downloadTargets, [], releasePageUrl));
         setDownloadNote(
-          "Could not load release assets right now. Links open the latest release page."
+          `Could not load release v${desktopReleaseVersion} assets right now. Links open the latest release page.`
         );
       }
     };
@@ -156,7 +160,7 @@ export function DownloadsStackSection({
         <SectionHeading
           eyebrow="Downloads"
           title="Choose your desktop build"
-          description="Latest installers are mapped from GitHub release assets for macOS, Linux, and Windows."
+          description={`Installers for NoteBranch v${desktopReleaseVersion} are mapped from GitHub release assets for macOS, Linux, and Windows.`}
         />
 
         <div className="downloads-stack">
