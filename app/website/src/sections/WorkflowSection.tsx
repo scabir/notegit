@@ -3,20 +3,20 @@ import { SectionHeading } from "../components/SectionHeading";
 import type { OfficialDocumentationLink, WorkflowStep } from "../data/siteContent";
 import { linkTargetProps } from "../utils/links";
 
-interface HowItWorksSectionProps {
+interface WorkflowSectionProps {
   steps: WorkflowStep[];
   documentationLinks: OfficialDocumentationLink[];
 }
 
-export function HowItWorksSection({
+export function WorkflowSection({
   steps,
   documentationLinks
-}: HowItWorksSectionProps) {
+}: WorkflowSectionProps) {
   return (
-    <section id="how-it-works" className="section">
+    <section id="workflow" className="section">
       <div className="container">
         <SectionHeading
-          eyebrow="How it works"
+          eyebrow="Workflow"
           title="A provider-aware note flow in four steps"
           description="Use the same interface across Git, AWS S3, and local workflows."
         />

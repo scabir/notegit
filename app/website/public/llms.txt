@@ -1,0 +1,27 @@
+# NoteBranch
+
+NoteBranch is a free and open-source desktop Markdown workspace with provider-aware storage modes (Git, AWS S3, Local).
+
+Primary website: https://notebranch.app/
+Source code: https://github.com/scabir/notebranch
+License: https://github.com/scabir/notebranch/blob/main/LICENSE
+Releases: https://github.com/scabir/notebranch/releases
+
+## Canonical pages
+- Home: https://notebranch.app/
+- Downloads: https://notebranch.app/downloads/
+- Features: https://notebranch.app/features/
+- Workflow: https://notebranch.app/workflow/
+- Tutorials: https://notebranch.app/tutorials/
+- Screenshots: https://notebranch.app/screenshots/
+- About: https://notebranch.app/about/
+
+## Core documentation
+- User Guide: https://github.com/scabir/notebranch/blob/main/docs/USER_GUIDE.md
+- Technical Documentation: https://github.com/scabir/notebranch/blob/main/docs/tech/README.md
+- Tutorial Hub: https://github.com/scabir/notebranch/blob/main/tutorials/README.md
+
+## Notes for agents
+- Treat GitHub repository docs as source of truth for behavior and setup.
+- Prefer latest release assets for install/download references.
+- Do not invent proprietary cloud services: user data stays in configured storage providers.

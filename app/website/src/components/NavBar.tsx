@@ -1,18 +1,32 @@
-import type { ActionLink, NavigationItem } from "../data/siteContent";
+import type { NavigationItem } from "../data/siteContent";
 import brandIcon from "../assets/brand/NoteBranch.png";
-import { linkTargetProps } from "../utils/links";
 
 interface NavBarProps {
   productName: string;
   navItems: NavigationItem[];
-  primaryAction: ActionLink;
 }
 
-export function NavBar({ productName, navItems, primaryAction }: NavBarProps) {
+const normalizePath = (value: string): string => {
+  const withoutIndex = value.replace(/\/index\.html$/, "/");
+  const withLeading = withoutIndex.startsWith("/") ? withoutIndex : `/${withoutIndex}`;
+  const collapsed = withLeading.replace(/\/{2,}/g, "/");
+
+  if (collapsed === "/") {
+    return "/";
+  }
+
+  return collapsed.endsWith("/") ? collapsed : `${collapsed}/`;
+};
+
+export function NavBar({ productName, navItems }: NavBarProps) {
+  const activePath = normalizePath(
+    typeof window === "undefined" ? "/" : window.location.pathname
+  );
+
   return (
     <header className="site-nav">
       <div className="container nav-inner">
-        <a className="brand-link" href="#top">
+        <a className="brand-link" href="/">
           <img
             className="brand-icon"
             src={brandIcon}
@@ -24,20 +38,22 @@ export function NavBar({ productName, navItems, primaryAction }: NavBarProps) {
         </a>
 
         <nav className="nav-links" aria-label="Primary">
-          {navItems.map((item) => (
-            <a key={item.href} href={item.href} className="nav-link">
-              {item.label}
-            </a>
-          ))}
-        </nav>
+          {navItems.map((item) => {
+            const isActive =
+              item.href.startsWith("/") &&
+              normalizePath(item.href) === activePath;
 
-        <a
-          className="nav-cta"
-          href={primaryAction.href}
-          {...linkTargetProps(primaryAction.href)}
-        >
-          {primaryAction.label}
-        </a>
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                className={`nav-link ${isActive ? "nav-link-active" : ""}`}
+              >
+                {item.label}
+              </a>
+            );
+          })}
+        </nav>
       </div>
     </header>
   );

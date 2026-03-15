@@ -96,12 +96,15 @@ export interface DownloadTarget {
   label: string;
   icon: string;
   iconAlt: string;
+  iconType?: "material" | "image";
   builds: DownloadBuild[];
+  note?: string;
 }
 
 export interface DownloadBuild {
   label: string;
   assetNamePattern: string;
+  details?: string;
 }
 
 interface RepositoryConfig {
@@ -134,9 +137,8 @@ export const branding = {
   productName: "NoteBranch",
   tagline: "Markdown notes that stay in your Git, AWS S3, or local workspace.",
   summary:
-    "A free, open-source desktop workspace for writing, organizing, versioning, and exporting notes without locking your data into a proprietary cloud.",
+    "Free and open source forever: a desktop workspace for writing, organizing, versioning, and exporting notes without locking your data into a proprietary cloud.",
   madeInLabel: "Made in UK",
-  maintainerIntro: "Built and maintained by",
   maintainerName: "Suleyman Cabir Ataman, PhD",
   maintainerSocialLinks: [
     {
@@ -155,18 +157,14 @@ export const branding = {
 };
 
 export const navItems: NavigationItem[] = [
-  { label: "Home", href: "#top" },
-  { label: "Features", href: "#features" },
-  { label: "How it works", href: "#how-it-works" },
-  { label: "Tutorials", href: "#tutorials" },
-  { label: "Screenshots", href: "#screenshots" },
-  { label: "About", href: "#about" }
+  { label: "Home", href: "/" },
+  { label: "Downloads", href: "/downloads/" },
+  { label: "Features", href: "/features/" },
+  { label: "Workflow", href: "/workflow/" },
+  { label: "Tutorials", href: "/tutorials/" },
+  { label: "Screenshots", href: "/screenshots/" },
+  { label: "About", href: "/about/" }
 ];
-
-export const primaryNavAction: ActionLink = {
-  label: "View GitHub",
-  href: githubBase
-};
 
 export const heroActions: ActionLink[] = [
   {
@@ -179,16 +177,58 @@ export const heroActions: ActionLink[] = [
   }
 ];
 
+export const homeExploreLinks: LinkItem[] = [
+  {
+    icon: "download",
+    label: "Downloads",
+    description: "Direct links for macOS, Linux, and Windows release builds.",
+    href: "/downloads/"
+  },
+  {
+    icon: "rocket_launch",
+    label: "Features",
+    description: "Core capabilities, data ownership, and platform support.",
+    href: "/features/"
+  },
+  {
+    icon: "account_tree",
+    label: "Workflow",
+    description: "Provider-aware flow from setup to sync, history, and export.",
+    href: "/workflow/"
+  },
+  {
+    icon: "menu_book",
+    label: "Tutorials",
+    description: "Step-by-step guides for Git, AWS S3, and local workflows.",
+    href: "/tutorials/"
+  },
+  {
+    icon: "image",
+    label: "Screenshots",
+    description: "Real interface snapshots from repository tutorial scenarios.",
+    href: "/screenshots/"
+  },
+  {
+    icon: "info",
+    label: "About",
+    description: "Project links, license, maintainer details, and open-source context.",
+    href: "/about/"
+  }
+];
+
 export const latestRelease = {
   pageUrl: githubLatestReleasePage,
   apiUrl: githubLatestReleaseApi
 };
+
+export const releasesPageUrl = `${githubBase}/releases`;
 
 export const heroDownloadTargets: DownloadTarget[] = [
   {
     label: "macOS",
     icon: macosIcon,
     iconAlt: "macOS",
+    iconType: "image",
     builds: [
       {
         label: "Apple Silicon (.dmg)",
@@ -204,6 +244,7 @@ export const heroDownloadTargets: DownloadTarget[] = [
     label: "Linux",
     icon: linuxIcon,
     iconAlt: "Linux",
+    iconType: "image",
     builds: [
       {
         label: "AMD64 (.deb)",
@@ -219,10 +260,69 @@ export const heroDownloadTargets: DownloadTarget[] = [
     label: "Windows",
     icon: windowsIcon,
     iconAlt: "Windows",
+    iconType: "image",
     builds: [
       {
         label: "x64 installer (.exe)",
         assetNamePattern: "NoteBranch-windows-x64-setup-.*\\.exe$"
+      }
+    ]
+  }
+];
+
+export const downloadsPageTargets: DownloadTarget[] = [
+  {
+    label: "macOS",
+    icon: macosIcon,
+    iconAlt: "macOS",
+    iconType: "image",
+    builds: [
+      {
+        label: "Apple Silicon (.dmg)",
+        assetNamePattern: "NoteBranch-macos-arm64-.*\\.dmg$",
+        details:
+          "For Macs with Apple chips (M1, M2, M3, M4; generally late-2020 and newer). Recommended on macOS 12 Monterey or newer."
+      },
+      {
+        label: "Intel x64 (.dmg)",
+        assetNamePattern: "NoteBranch-macos-x64-.*\\.dmg$",
+        details:
+          "For Intel-based Macs (generally 2020 and earlier). Use the latest Intel-supported macOS on your device (commonly Monterey, Ventura, or Sonoma)."
+      }
+    ],
+    note: "Unsigned macOS build: after downloading, open the app once, then allow it under System Settings > Privacy & Security. If macOS blocks launch, click “Open Anyway”, confirm, and reopen the app."
+  },
+  {
+    label: "Linux",
+    icon: linuxIcon,
+    iconAlt: "Linux",
+    iconType: "image",
+    builds: [
+      {
+        label: "AMD64 (.deb)",
+        assetNamePattern: "NoteBranch-linux-amd64-.*\\.deb$",
+        details:
+          "Debian-based distros: Ubuntu, Linux Mint, Debian, Pop!_OS, elementary OS, Zorin OS, and similar."
+      },
+      {
+        label: "x86_64 (.rpm)",
+        assetNamePattern: "NoteBranch-linux-x86_64-.*\\.rpm$",
+        details:
+          "RPM-based distros: Fedora, Red Hat Enterprise Linux (RHEL), CentOS Stream, Rocky Linux, AlmaLinux, openSUSE, and similar."
+      }
+    ]
+  },
+  {
+    label: "Windows",
+    icon: windowsIcon,
+    iconAlt: "Windows",
+    iconType: "image",
+    builds: [
+      {
+        label: "x64 installer (.exe)",
+        assetNamePattern: "NoteBranch-windows-x64-setup-.*\\.exe$",
+        details:
+          "Supported for modern 64-bit Windows desktop installations."
       }
     ]
   }
@@ -390,7 +490,6 @@ export const aboutSection: AboutSectionContent = {
   summary:
     "NoteBranch is maintained as an open-source desktop tool focused on practical note workflows and transparent storage choices.",
   details: [
-    "The product direction is documented in public guides, tutorial scenarios, and technical docs that ship with the repository.",
     "The goal is a dependable, file-first note workflow that works across Git, AWS S3, and local repositories."
   ]
 };
@@ -564,8 +663,12 @@ export const sourceCodeLinks: LinkItem[] = [
 ];
 
 export const footerLinks: ActionLink[] = [
+  { label: "Home", href: "/" },
+  { label: "Downloads", href: "/downloads/" },
+  { label: "Features", href: "/features/" },
+  { label: "Workflow", href: "/workflow/" },
+  { label: "Tutorials", href: "/tutorials/" },
   { label: "GitHub", href: githubBase },
-  { label: "Tutorials", href: toBlobLink("tutorials/README.md") },
-  { label: "Releases", href: `${githubBase}/releases` },
+  { label: "Releases", href: releasesPageUrl },
   { label: "License", href: toBlobLink("LICENSE") }
 ];

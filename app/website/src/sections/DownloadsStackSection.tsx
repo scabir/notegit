@@ -1,22 +1,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
-import type {
-  ActionLink,
-  DownloadBuild,
-  DownloadTarget,
-  HeroPreview
-} from "../data/siteContent";
+import { SectionHeading } from "../components/SectionHeading";
+import type { DownloadBuild, DownloadTarget } from "../data/siteContent";
 import { linkTargetProps } from "../utils/links";
-
-interface HeroSectionProps {
-  productName: string;
-  tagline: string;
-  summary: string;
-  actions: ActionLink[];
-  preview: HeroPreview;
-  releasePageUrl: string;
-  releaseApiUrl: string;
-  downloadTargets: DownloadTarget[];
-}
 
 interface ReleaseAsset {
   name: string;
@@ -28,6 +13,13 @@ interface LatestReleaseResponse {
   assets?: ReleaseAsset[];
 }
 
+interface ResolvedBuild {
+  label: string;
+  href: string;
+  isFallback: boolean;
+  details?: string;
+}
+
 interface ResolvedDownload {
   label: string;
   icon: string;
@@ -37,10 +29,11 @@ interface ResolvedDownload {
   note?: string;
 }
 
-interface ResolvedBuild {
-  label: string;
-  href: string;
-  isFallback: boolean;
+interface DownloadsStackSectionProps {
+  releasePageUrl: string;
+  releaseApiUrl: string;
+  releaseArchiveUrl: string;
+  downloadTargets: DownloadTarget[];
 }
 
 const resolveDownloadLinks = (
@@ -58,14 +51,16 @@ const resolveDownloadLinks = (
         return {
           label: build.label,
           href: match.browser_download_url,
-          isFallback: false
+          isFallback: false,
+          details: build.details
         };
       }
 
       return {
         label: build.label,
         href: releasePageUrl,
-        isFallback: true
+        isFallback: true,
+        details: build.details
       };
     });
 
@@ -79,16 +74,12 @@ const resolveDownloadLinks = (
     };
   });
 
-export function HeroSection({
-  productName,
-  tagline,
-  summary,
-  actions,
-  preview,
+export function DownloadsStackSection({
   releasePageUrl,
   releaseApiUrl,
+  releaseArchiveUrl,
   downloadTargets
-}: HeroSectionProps) {
+}: DownloadsStackSectionProps) {
   const [downloads, setDownloads] = useState<ResolvedDownload[]>(
     resolveDownloadLinks(downloadTargets, [], releasePageUrl)
   );
@@ -160,85 +151,69 @@ export function HeroSection({
   }, [downloadTargets, releaseApiUrl, releasePageUrl]);
 
   return (
-    <section id="top" className="section hero-section">
+    <section className="section downloads-standalone-section">
       <div className="container">
-        <div className="hero-grid">
-          <div className="reveal hero-copy">
-            <p className="hero-kicker">{productName}</p>
-            <h1>{tagline}</h1>
-            <p className="hero-summary">{summary}</p>
+        <SectionHeading
+          eyebrow="Downloads"
+          title="Choose your desktop build"
+          description="Latest installers are mapped from GitHub release assets for macOS, Linux, and Windows."
+        />
 
-            <div className="hero-actions">
-              {actions.map((action, index) => (
-                <a
-                  key={action.href}
-                  href={action.href}
-                  className={index === 0 ? "button button-primary" : "button button-ghost"}
-                  {...linkTargetProps(action.href)}
-                >
-                  {action.label}
-                </a>
-              ))}
-            </div>
-          </div>
+        <div className="downloads-stack">
+          {downloads.map((download, index) => (
+            <article
+              key={download.label}
+              className="surface-card download-stack-card reveal"
+              style={{ "--delay": `${index * 0.04}s` } as CSSProperties}
+            >
+              <div className="download-stack-head">
+                {download.iconType === "material" ? (
+                  <span
+                    className="download-icon-symbol material-symbols-rounded"
+                    aria-hidden="true"
+                  >
+                    {download.icon}
+                  </span>
+                ) : (
+                  <img
+                    className="download-stack-icon"
+                    src={download.icon}
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                  />
+                )}
+                <h3 className="download-stack-title">{download.label}</h3>
+              </div>
 
-          <div
-            className="reveal hero-preview"
-            style={{ "--delay": "0.08s" } as CSSProperties}
-          >
-            <div className="preview-frame">
-              <img src={preview.image} alt={preview.alt} loading="eager" />
-              <p className="preview-caption">{preview.caption}</p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className="downloads-panel hero-downloads-panel reveal"
-          style={{ "--delay": "0.12s" } as CSSProperties}
-        >
-          <p className="downloads-title">Download latest release</p>
-          <div className="downloads-grid">
-            {downloads.map((download) => (
-              <article key={download.label} className="download-card">
-                <span className="download-header">
-                  {download.iconType === "material" ? (
-                    <span
-                      className="download-icon-symbol material-symbols-rounded"
-                      aria-hidden="true"
-                    >
-                      {download.icon}
-                    </span>
-                  ) : (
-                    <img
-                      className="download-icon"
-                      src={download.icon}
-                      alt=""
-                      aria-hidden="true"
-                      loading="lazy"
-                    />
-                  )}
-                  <span className="download-label">{download.label}</span>
-                </span>
-
-                <div className="download-build-links">
-                  {download.builds.map((build) => (
+              <div className="download-stack-items">
+                {download.builds.map((build) => (
+                  <div key={`${download.label}-${build.label}`} className="download-stack-item">
                     <a
-                      key={`${download.label}-${build.label}`}
-                      className="download-build-link"
+                      className="download-stack-link"
                       href={build.href}
                       {...linkTargetProps(build.href)}
                     >
                       {build.label}
                     </a>
-                  ))}
-                </div>
-                {download.note ? (
-                  <p className="download-platform-note">{download.note}</p>
-                ) : null}
-              </article>
-            ))}
-          </div>
+                    {build.details ? (
+                      <p className="download-stack-details">{build.details}</p>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+
+              {download.note ? (
+                <p className="download-stack-note">{download.note}</p>
+              ) : null}
+            </article>
+          ))}
+        </div>
+
+        <div className="downloads-archive reveal" style={{ "--delay": "0.14s" } as CSSProperties}>
+          <a className="button button-ghost" href={releaseArchiveUrl} {...linkTargetProps(releaseArchiveUrl)}>
+            Browse previous releases on GitHub
+          </a>
           <p className="downloads-note">{downloadNote}</p>
         </div>
       </div>

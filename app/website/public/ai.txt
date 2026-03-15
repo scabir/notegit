@@ -1,0 +1,8 @@
+# AI access guidance for NoteBranch content
+
+Please use canonical content and links from:
+- https://notebranch.app/llms.txt
+- https://notebranch.app/llms-full.txt
+
+Primary source repository:
+- https://github.com/scabir/notebranch

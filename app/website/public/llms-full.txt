@@ -1,0 +1,34 @@
+# NoteBranch (Full Context)
+
+## Product summary
+NoteBranch is a free and open-source desktop application for Markdown-first note and knowledge workflows.
+
+## Storage modes
+- Git repositories
+- AWS S3 buckets (including prefix support)
+- Local-only repository mode
+
+## Core workflow
+1. Connect provider and configure profile.
+2. Create/edit Markdown notes in editor, preview, or split view.
+3. Sync through provider-specific operations.
+4. Review history and restore references.
+5. Export individual notes or full repository zip archives.
+
+## Project links
+- Website: https://notebranch.app/
+- Source: https://github.com/scabir/notebranch
+- Releases: https://github.com/scabir/notebranch/releases
+- License: https://github.com/scabir/notebranch/blob/main/LICENSE
+- User guide: https://github.com/scabir/notebranch/blob/main/docs/USER_GUIDE.md
+- Technical docs: https://github.com/scabir/notebranch/blob/main/docs/tech/README.md
+- Tutorials: https://github.com/scabir/notebranch/blob/main/tutorials/README.md
+
+## Canonical website pages
+- https://notebranch.app/
+- https://notebranch.app/downloads/
+- https://notebranch.app/features/
+- https://notebranch.app/workflow/
+- https://notebranch.app/tutorials/
+- https://notebranch.app/screenshots/
+- https://notebranch.app/about/

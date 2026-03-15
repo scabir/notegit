@@ -10,7 +10,6 @@ interface AboutSectionProps {
   details: string[];
   links: LinkItem[];
   madeInLabel: string;
-  maintainerIntro: string;
   maintainerName: string;
   maintainerSocialLinks: SocialLink[];
 }
@@ -21,7 +20,6 @@ export function AboutSection({
   details,
   links,
   madeInLabel,
-  maintainerIntro,
   maintainerName,
   maintainerSocialLinks
 }: AboutSectionProps) {
@@ -66,7 +64,6 @@ export function AboutSection({
         </div>
 
         <p className="about-credit reveal">
-          <span>{maintainerIntro} </span>
           <strong>{maintainerName}</strong>
         </p>
 
