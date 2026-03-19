@@ -17,6 +17,14 @@ export default defineConfig({
     port: 5173,
   },
   resolve: {
+    dedupe: [
+      '@codemirror/state',
+      '@codemirror/view',
+      '@codemirror/language',
+      '@codemirror/search',
+      '@codemirror/commands',
+      'codemirror',
+    ],
     alias: {
       '@shared': path.join(rootDir, 'src/shared'),
     },

@@ -12,58 +12,14 @@ const DEFAULT_PROFILE_ID = "profile-default-local";
 const DEFAULT_PROFILE_NAME = "default";
 const DEFAULT_REPO_DIR_NAME = "default";
 const HOW_TO_FILE_NAME = "HOW_TO.md";
-const HOW_TO_IMAGES_DIR_NAME = "images";
 
-interface TutorialImageAsset {
-  sourcePath: string;
-  targetFileName: string;
-}
+const DEFAULT_HOW_TO_CONTENT = `# NoteBranch Quick Start
 
-const TUTORIAL_IMAGE_ASSETS: ReadonlyArray<TutorialImageAsset> = [
-  {
-    sourcePath:
-      "scenarios/create-repo-on-NoteBranch/images/step-01-welcome-screen.png",
-    targetFileName: "create-repo-step-01-welcome-screen.png",
-  },
-  {
-    sourcePath:
-      "scenarios/create-repo-on-NoteBranch/images/step-02-open-connect-dialog.png",
-    targetFileName: "create-repo-step-02-open-connect-dialog.png",
-  },
-  {
-    sourcePath:
-      "scenarios/connect-git-repository/images/step-03-fill-git-details.png",
-    targetFileName: "connect-git-step-03-fill-git-details.png",
-  },
-  {
-    sourcePath:
-      "scenarios/connect-git-repository/images/step-04-verify-connected-workspace.png",
-    targetFileName: "connect-git-step-04-verify-connected-workspace.png",
-  },
-  {
-    sourcePath:
-      "scenarios/connect-s3-bucket-with-prefix/images/step-02-switch-to-s3-tab.png",
-    targetFileName: "connect-s3-step-02-switch-to-s3-tab.png",
-  },
-  {
-    sourcePath:
-      "scenarios/connect-s3-bucket-with-prefix/images/step-05-verify-s3-connected.png",
-    targetFileName: "connect-s3-step-05-verify-s3-connected.png",
-  },
-  {
-    sourcePath:
-      "scenarios/create-local-repository-and-work-offline/images/step-02-connected-local-workspace.png",
-    targetFileName: "local-workspace-step-02-connected-local-workspace.png",
-  },
-];
+Welcome to your default NoteBranch workspace.
 
-const DEFAULT_HOW_TO_CONTENT = `# NoteGit Quick Start
+## What is NoteBranch?
 
-Welcome to your default NoteGit workspace.
-
-## What is NoteGit?
-
-NoteGit is a markdown-first note application where each workspace is backed by a repository profile.
+NoteBranch is a markdown-first note application where each workspace is backed by a repository profile.
 
 - Git profile: connect to a Git remote and use commit/pull/push workflows.
 - S3 profile: connect to an S3 bucket + prefix and sync notes with object storage.
@@ -71,7 +27,7 @@ NoteGit is a markdown-first note application where each workspace is backed by a
 
 ## How workspaces work
 
-A workspace is the local folder that NoteGit opens for the active profile.
+A workspace is the local folder that NoteBranch opens for the active profile.
 
 - Each profile has its own local path.
 - Only one profile is active at a time.
@@ -84,9 +40,6 @@ A workspace is the local folder that NoteGit opens for the active profile.
 2. Keep repository type on **Git**.
 3. Enter remote URL, branch, and token, then click **Connect**.
 
-![Git connection details](images/connect-git-step-03-fill-git-details.png)
-![Git workspace connected](images/connect-git-step-04-verify-connected-workspace.png)
-
 ## Connect an S3 repository
 
 1. Open the repository connection dialog.
@@ -94,21 +47,9 @@ A workspace is the local folder that NoteGit opens for the active profile.
 3. Enter bucket, region, optional prefix, and AWS credentials.
 4. Connect and use sync from the status bar.
 
-![Switch to S3 tab](images/connect-s3-step-02-switch-to-s3-tab.png)
-![S3 workspace connected](images/connect-s3-step-05-verify-s3-connected.png)
-
 ## Use local mode and stay offline
 
 Use the local provider when you want files to stay on your machine only.
-
-![Local workspace connected](images/local-workspace-step-02-connected-local-workspace.png)
-
-## Tutorial screenshots used in this guide
-
-This guide reuses screenshots from the built-in tutorials.
-
-![First launch screen](images/create-repo-step-01-welcome-screen.png)
-![Open repository dialog](images/create-repo-step-02-open-connect-dialog.png)
 `;
 
 export interface EnsureDefaultLocalRepoOptions {
@@ -188,38 +129,11 @@ export class DefaultLocalRepoBootstrapService {
 
   private async seedDefaultRepoFiles(
     localPath: string,
-    tutorialsRootDir: string | null,
+    _tutorialsRootDir: string | null,
   ): Promise<void> {
     const howToPath = path.join(localPath, HOW_TO_FILE_NAME);
     if (!(await this.fsAdapter.exists(howToPath))) {
       await this.fsAdapter.writeFile(howToPath, DEFAULT_HOW_TO_CONTENT);
-    }
-
-    const imagesDir = path.join(localPath, HOW_TO_IMAGES_DIR_NAME);
-    await this.fsAdapter.mkdir(imagesDir, { recursive: true });
-
-    if (!tutorialsRootDir) {
-      logger.warn("Tutorial assets root not found, skipping image bootstrap");
-      return;
-    }
-
-    for (const asset of TUTORIAL_IMAGE_ASSETS) {
-      const sourcePath = path.join(tutorialsRootDir, asset.sourcePath);
-      const targetPath = path.join(imagesDir, asset.targetFileName);
-
-      if (await this.fsAdapter.exists(targetPath)) {
-        continue;
-      }
-
-      if (!(await this.fsAdapter.exists(sourcePath))) {
-        logger.warn("Tutorial image missing, skipping asset copy", {
-          sourcePath,
-          targetPath,
-        });
-        continue;
-      }
-
-      await this.fsAdapter.copyFile(sourcePath, targetPath);
     }
   }
 }

@@ -59,7 +59,7 @@ describe("DefaultLocalRepoBootstrapService", () => {
     };
   };
 
-  it("creates a default local profile and seeds tutorial files on first install", async () => {
+  it("creates a default local profile and seeds default files on first install", async () => {
     const { service, fsAdapter, configService } = createHarness();
 
     await service.ensureDefaultLocalRepo({
@@ -83,9 +83,11 @@ describe("DefaultLocalRepoBootstrapService", () => {
     );
     expect(fsAdapter.writeFile).toHaveBeenCalledWith(
       path.join(defaultRepoPath, "HOW_TO.md"),
-      expect.stringContaining("What is NoteGit?"),
+      expect.stringContaining("What is NoteBranch?"),
     );
-    expect(fsAdapter.copyFile).toHaveBeenCalled();
+    const howToContent = (fsAdapter.writeFile as jest.Mock).mock.calls[0]?.[1];
+    expect(howToContent).not.toContain("](images/");
+    expect(fsAdapter.copyFile).not.toHaveBeenCalled();
   });
 
   it("reuses existing default repository directory when present", async () => {

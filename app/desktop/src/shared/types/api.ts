@@ -52,7 +52,7 @@ export interface OpenOrCloneRepoResponse {
   status: RepoStatus;
 }
 
-export interface NoteGitApi {
+export interface NoteBranchApi {
   menu: {
     onOpenShortcuts: (listener: () => void) => () => void;
     onOpenAbout: (listener: () => void) => () => void;
@@ -188,6 +188,6 @@ export interface NoteGitApi {
 
 declare global {
   interface Window {
-    NoteBranchApi: NoteGitApi;
+    NoteBranchApi: NoteBranchApi;
   }
 }
