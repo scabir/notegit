@@ -87,7 +87,7 @@
     "@uiw/react-codemirror": "^4.21.21",
     "adm-zip": "^0.5.16",
     "archiver": "^7.0.1",
-    "dompurify": "^3.0.6",
+    "dompurify": "^3.3.2",
     "mermaid": "^11.12.2",
     "node-machine-id": "^1.1.12",
     "react": "^18.2.0",
