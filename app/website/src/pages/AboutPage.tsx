@@ -1,5 +1,11 @@
 import { PageFrame } from "../components/PageFrame";
-import { aboutSection, branding, sourceCodeLinks } from "../data/siteContent";
+import {
+  aboutCommunityActions,
+  aboutSection,
+  aboutTrustSignals,
+  branding,
+  sourceCodeLinks
+} from "../data/siteContent";
 import { AboutSection } from "../sections/AboutSection";
 
 export function AboutPage() {
@@ -8,8 +14,11 @@ export function AboutPage() {
       <AboutSection
         title={aboutSection.title}
         summary={aboutSection.summary}
-        details={aboutSection.details}
+        mission={aboutSection.mission}
+        proof={aboutSection.proof}
+        trustSignals={aboutTrustSignals}
         links={sourceCodeLinks}
+        communityActions={aboutCommunityActions}
         madeInLabel={branding.madeInLabel}
         maintainerName={branding.maintainerName}
         maintainerSocialLinks={branding.maintainerSocialLinks}

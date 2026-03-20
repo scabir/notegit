@@ -1,6 +1,8 @@
 import { PageFrame } from "./components/PageFrame";
 import {
+  aboutCommunityActions,
   aboutSection,
+  aboutTrustSignals,
   branding,
   downloadsPageTargets,
   features,
@@ -8,8 +10,6 @@ import {
   heroPreview,
   latestRelease,
   officialDocumentationLinks,
-  openSourceAction,
-  openSourceHighlights,
   releasesPageUrl,
   screenshots,
   sourceCodeLinks,
@@ -21,10 +21,8 @@ import { AboutSection } from "./sections/AboutSection";
 import { DownloadsStackSection } from "./sections/DownloadsStackSection";
 import { FeaturesSection } from "./sections/FeaturesSection";
 import { HeroSection } from "./sections/HeroSection";
-import { OpenSourceSection } from "./sections/OpenSourceSection";
 import { ScreenshotsSection } from "./sections/ScreenshotsSection";
 import { TutorialsSection } from "./sections/TutorialsSection";
-import { WhatItIsSection } from "./sections/WhatItIsSection";
 import { WorkflowSection } from "./sections/WorkflowSection";
 
 function App() {
@@ -36,11 +34,10 @@ function App() {
         summary={branding.summary}
         actions={heroActions}
         preview={heroPreview}
-      />
-      <WhatItIsSection
-        title={whatItIs.title}
-        paragraphs={whatItIs.paragraphs}
-        highlights={whatItIs.highlights}
+        messageTitle={whatItIs.title}
+        messageLead={whatItIs.lead}
+        messageHighlights={whatItIs.highlights}
+        messageParagraphs={whatItIs.paragraphs}
       />
       <FeaturesSection items={features} />
       <DownloadsStackSection
@@ -56,12 +53,14 @@ function App() {
       />
       <TutorialsSection links={tutorialLinks} />
       <ScreenshotsSection items={screenshots} />
-      <OpenSourceSection highlights={openSourceHighlights} action={openSourceAction} />
       <AboutSection
         title={aboutSection.title}
         summary={aboutSection.summary}
-        details={aboutSection.details}
+        mission={aboutSection.mission}
+        proof={aboutSection.proof}
+        trustSignals={aboutTrustSignals}
         links={sourceCodeLinks}
+        communityActions={aboutCommunityActions}
         madeInLabel={branding.madeInLabel}
         maintainerName={branding.maintainerName}
         maintainerSocialLinks={branding.maintainerSocialLinks}

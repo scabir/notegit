@@ -82,7 +82,17 @@ export interface OfficialDocumentationLink {
 export interface AboutSectionContent {
   title: string;
   summary: string;
-  details: string[];
+  mission: string;
+  proof: string;
+}
+
+export interface AboutTrustSignal {
+  label: string;
+  value: string;
+  description: string;
+  href: string;
+  badgeImageUrl?: string;
+  badgeAlt?: string;
 }
 
 export interface SocialLink {
@@ -137,7 +147,7 @@ export const branding = {
   productName: "NoteBranch",
   tagline: "Own your notes before they own you.",
   summary:
-    "NoteBranch is the privacy-first, open-source Markdown workspace for people who refuse lock-in. Write fast, sync with Git or AWS S3, or stay fully local while every note stays in storage you control.",
+    "Open-source Markdown workspace with zero lock-in. Sync to Git or AWS S3, or stay local. Your notes stay under your control.",
   madeInLabel: "made in UK",
   maintainerName: "Suleyman Cabir Ataman",
   maintainerSocialLinks: [
@@ -337,16 +347,16 @@ export const heroPreview: HeroPreview = {
 };
 
 export const whatItIs = {
-  title: "Storage freedom without workflow friction.",
+  title: "Your notes! Your cloud!",
+  lead: "We don't even offer saving your notes. Store your notes in your own cloud!",
   paragraphs: [
-    "Locked notes are rented knowledge. NoteBranch keeps every note in plain Markdown you control.",
-    "Use Git, AWS S3, or Local storage without changing your workflow.",
     "Write, search, sync, restore, and export in one desktop app."
   ],
   highlights: [
-    "Storage freedom: Git, AWS S3, or Local on your terms",
-    "Longevity over lock-in: open formats plus public source code",
-    "Power without friction: visible sync, fast editing, and reliable recovery"
+    "Storage freedom: Git, AWS S3, or no cloud on your terms",
+    "Privacy-first, open-source Markdown workspace ",
+    "Power without friction: visible sync, fast editing, and reliable recovery",
+    "No vendor lock",
   ]
 };
 
@@ -488,13 +498,54 @@ export const whyItExists: WhyItem[] = [
 ];
 
 export const aboutSection: AboutSectionContent = {
-  title: "About the project",
+  title: "Built in the open. Controlled by you.",
   summary:
-    "NoteBranch is built for people who want modern note workflows without handing ownership of their knowledge to a closed platform.",
-  details: [
-    "The goal is a dependable, file-first workflow that works across Git, AWS S3, and Local repositories."
-  ]
+    "No private NoteBranch notes cloud, no hidden lock-in layer. Your knowledge stays portable because your files stay in storage you own.",
+  mission: "Open note workflows, no data captivity.",
+  proof: "Code, docs, tests, and release assets are public and auditable."
 };
+
+export const aboutTrustSignals: AboutTrustSignal[] = [
+  {
+    label: "Latest release",
+    value: `v${desktopReleaseVersion}`,
+    description: "Desktop builds are published on GitHub Releases.",
+    href: githubLatestReleasePage
+  },
+  {
+    label: "License",
+    value: "MIT",
+    description: "Permissive terms for use, extension, and redistribution.",
+    href: toBlobLink("LICENSE")
+  },
+  {
+    label: "Coverage",
+    value: "Coverage",
+    description: "Coverage status is published by CI workflows.",
+    href: coverageWorkflowUrl,
+    badgeImageUrl: coverageBadgeImageUrl,
+    badgeAlt: "Coverage status badge"
+  },
+  {
+    label: "Integration",
+    value: "Integration",
+    description: "End-to-end scenario checks run in CI.",
+    href: integrationWorkflowUrl,
+    badgeImageUrl: integrationBadgeImageUrl,
+    badgeAlt: "Integration status badge"
+  }
+];
+
+export const aboutCommunityActions: ActionLink[] = [
+  {
+    label: "Report an issue",
+    href: `${githubBase}/issues`
+  },
+  {
+    label: "Share an idea",
+    href: `${githubBase}/discussions`
+  }
+];
 
 export const workflowSteps: WorkflowStep[] = [
   {
@@ -633,10 +684,22 @@ export const sourceCodeLinks: LinkItem[] = [
     href: githubBase
   },
   {
+    icon: "bug_report",
+    label: "Report Issues",
+    description: "Report bugs and track fixes in the project issue tracker.",
+    href: `${githubBase}/issues`
+  },
+  {
     icon: "new_releases",
     label: "Releases",
     description: "Download desktop builds and track release history.",
     href: `${githubBase}/releases`
+  },
+  {
+    icon: "forum",
+    label: "Ideas and Discussions",
+    description: "Share ideas, ask questions, and join product discussions.",
+    href: `${githubBase}/discussions`
   },
   {
     icon: "menu_book",
@@ -645,16 +708,16 @@ export const sourceCodeLinks: LinkItem[] = [
     href: toBlobLink("docs/USER_GUIDE.md")
   },
   {
-    icon: "description",
-    label: "Technical Documentation",
-    description: "Architecture, security model, development, and test reference.",
-    href: toBlobLink("docs/tech/README.md")
-  },
-  {
     icon: "school",
     label: "Tutorial Hub",
     description: "Playwright-generated tutorials with step-by-step screenshots.",
     href: toBlobLink("tutorials/README.md")
+  },
+  {
+    icon: "description",
+    label: "Technical Documentation",
+    description: "Architecture, security model, development, and test reference.",
+    href: toBlobLink("docs/tech/README.md")
   },
   {
     icon: "gavel",

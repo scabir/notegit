@@ -28,7 +28,6 @@ export function SourceCodeSection({ links }: SourceCodeSectionProps) {
             >
               <h3>{link.label}</h3>
               <p>{link.description}</p>
-              <span className="inline-link">Open link</span>
             </a>
           ))}
         </div>

@@ -8,6 +8,10 @@ interface HeroSectionProps {
   summary: string;
   actions: ActionLink[];
   preview: HeroPreview;
+  messageTitle: string;
+  messageLead: string;
+  messageHighlights: string[];
+  messageParagraphs: string[];
 }
 
 export function HeroSection({
@@ -15,8 +19,14 @@ export function HeroSection({
   tagline,
   summary,
   actions,
-  preview
+  preview,
+  messageTitle,
+  messageLead,
+  messageHighlights,
+  messageParagraphs
 }: HeroSectionProps) {
+  const messageLines = [...messageHighlights, ...messageParagraphs];
+
   return (
     <section id="top" className="section hero-section">
       <div className="container">
@@ -37,6 +47,18 @@ export function HeroSection({
                   {action.label}
                 </a>
               ))}
+            </div>
+
+            <div className="hero-message reveal" style={{ "--delay": "0.04s" } as CSSProperties}>
+              <h2 className="hero-message-title">{messageTitle}</h2>
+              <p className="hero-message-lead">{messageLead}</p>
+              <div className="hero-message-lines">
+                {messageLines.map((line) => (
+                  <p key={line} className="hero-message-line">
+                    {line}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
 

@@ -1,14 +1,22 @@
 import type { CSSProperties } from "react";
 import { SectionHeading } from "../components/SectionHeading";
 import ukIcon from "../assets/icons/uk.svg";
-import type { LinkItem, SocialLink } from "../data/siteContent";
+import type {
+  AboutTrustSignal,
+  ActionLink,
+  LinkItem,
+  SocialLink
+} from "../data/siteContent";
 import { linkTargetProps } from "../utils/links";
 
 interface AboutSectionProps {
   title: string;
   summary: string;
-  details: string[];
+  mission: string;
+  proof: string;
+  trustSignals: AboutTrustSignal[];
   links: LinkItem[];
+  communityActions: ActionLink[];
   madeInLabel: string;
   maintainerName: string;
   maintainerSocialLinks: SocialLink[];
@@ -17,8 +25,11 @@ interface AboutSectionProps {
 export function AboutSection({
   title,
   summary,
-  details,
+  mission,
+  proof,
+  trustSignals,
   links,
+  communityActions,
   madeInLabel,
   maintainerName,
   maintainerSocialLinks
@@ -32,36 +43,70 @@ export function AboutSection({
           description={summary}
         />
 
-        <article className="surface-card about-panel reveal">
-          <ul>
-            {details.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </article>
+        <p className="about-mission reveal">{mission}</p>
+        <p className="about-proof reveal">{proof}</p>
 
-        <div className="cards-grid compact-grid about-links-grid">
+        <div className="about-trust-grid">
+          {trustSignals.map((signal, index) => (
+            <a
+              key={signal.label}
+              href={signal.href}
+              className="about-trust-item reveal"
+              style={{ "--delay": `${0.04 + index * 0.03}s` } as CSSProperties}
+              {...linkTargetProps(signal.href)}
+            >
+              <span className="about-trust-label">{signal.label}</span>
+              {signal.badgeImageUrl ? (
+                <img
+                  className="about-trust-badge"
+                  src={signal.badgeImageUrl}
+                  alt={signal.badgeAlt ?? `${signal.label} badge`}
+                  loading="lazy"
+                />
+              ) : (
+                <strong className="about-trust-value">{signal.value}</strong>
+              )}
+              <span className="about-trust-description">{signal.description}</span>
+            </a>
+          ))}
+        </div>
+
+        <div className="about-resources-grid">
           {links.map((link, index) => (
             <a
               key={link.href}
               href={link.href}
-              className="surface-card source-link-card reveal"
+              className="about-resource reveal"
               style={{ "--delay": `${0.06 + index * 0.03}s` } as CSSProperties}
               {...linkTargetProps(link.href)}
             >
-              <div className="about-link-head">
-                <span className="about-link-icon-wrap" aria-hidden="true">
-                  <span className="about-link-icon material-symbols-rounded">
-                    {link.icon ?? "link"}
-                  </span>
+              <div className="about-resource-head">
+                <span className="about-resource-icon material-symbols-rounded" aria-hidden="true">
+                  {link.icon ?? "link"}
                 </span>
                 <h3>{link.label}</h3>
               </div>
-              <p>{link.description}</p>
-              <span className="inline-link">Open link</span>
+              <p className="about-resource-description">{link.description}</p>
             </a>
           ))}
         </div>
+
+        <div className="about-community-actions reveal">
+          {communityActions.map((action, index) => (
+            <a
+              key={action.href}
+              href={action.href}
+              className={index === 0 ? "button button-primary" : "button button-ghost"}
+              {...linkTargetProps(action.href)}
+            >
+              {action.label}
+            </a>
+          ))}
+        </div>
+
+        <p className="about-community-note reveal">
+          Community feedback is public: bugs in issues, ideas in discussions.
+        </p>
 
         <p className="about-credit reveal">
           built and maintained by <strong>{maintainerName}</strong>
