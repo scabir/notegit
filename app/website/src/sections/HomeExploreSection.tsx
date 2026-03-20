@@ -28,7 +28,7 @@ export function HomeExploreSection({ links }: HomeExploreSectionProps) {
                 <h3>{link.label}</h3>
               </div>
               <p>{link.description}</p>
-              <span className="inline-link">Open page</span>
+              <span className="inline-link">Go now</span>
             </a>
           ))}
         </div>

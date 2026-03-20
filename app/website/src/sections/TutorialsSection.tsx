@@ -13,8 +13,8 @@ export function TutorialsSection({ links }: TutorialsSectionProps) {
       <div className="container">
         <SectionHeading
           eyebrow="Tutorials"
-          title="Step-by-step guides from real app runs"
-          description="Tutorial pages and images are generated from Playwright scenarios in this repository."
+          title="Proof beats promises"
+          description="Every tutorial maps to tested app scenarios captured from this repository."
         />
 
         <div className="cards-grid compact-grid">

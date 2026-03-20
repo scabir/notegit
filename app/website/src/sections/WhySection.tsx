@@ -11,9 +11,9 @@ export function WhySection({ items }: WhySectionProps) {
     <section id="why" className="section">
       <div className="container">
         <SectionHeading
-          eyebrow="Why this exists"
-          title="Built to keep notes open, portable, and understandable"
-          description="The project philosophy is practical: control your data, keep workflows visible, and avoid unnecessary lock-in."
+          eyebrow="Why switch"
+          title="Why people leave locked-in note apps"
+          description="The mission is simple: keep your data portable, your workflow visible, and your future options open."
         />
 
         <div className="cards-grid compact-grid">

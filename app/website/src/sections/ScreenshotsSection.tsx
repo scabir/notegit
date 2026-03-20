@@ -12,8 +12,8 @@ export function ScreenshotsSection({ items }: ScreenshotsSectionProps) {
       <div className="container">
         <SectionHeading
           eyebrow="Screenshots"
-          title="Real interface snapshots from project tutorials"
-          description="These screenshots come from the repository tutorial scenarios and can be replaced by editing one data file."
+          title="Real UI. Real workflows. No mockups."
+          description="Every screenshot comes from repository scenarios, not marketing artwork."
         />
 
         <div className="screenshot-grid">

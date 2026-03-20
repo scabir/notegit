@@ -5,8 +5,6 @@ import {
   downloadsPageTargets,
   features,
   heroActions,
-  heroDownloadTargets,
-  homeExploreLinks,
   heroPreview,
   latestRelease,
   officialDocumentationLinks,
@@ -17,19 +15,16 @@ import {
   sourceCodeLinks,
   tutorialLinks,
   whatItIs,
-  whyItExists,
   workflowSteps
 } from "./data/siteContent";
 import { AboutSection } from "./sections/AboutSection";
 import { DownloadsStackSection } from "./sections/DownloadsStackSection";
 import { FeaturesSection } from "./sections/FeaturesSection";
 import { HeroSection } from "./sections/HeroSection";
-import { HomeExploreSection } from "./sections/HomeExploreSection";
 import { OpenSourceSection } from "./sections/OpenSourceSection";
 import { ScreenshotsSection } from "./sections/ScreenshotsSection";
 import { TutorialsSection } from "./sections/TutorialsSection";
 import { WhatItIsSection } from "./sections/WhatItIsSection";
-import { WhySection } from "./sections/WhySection";
 import { WorkflowSection } from "./sections/WorkflowSection";
 
 function App() {
@@ -41,17 +36,12 @@ function App() {
         summary={branding.summary}
         actions={heroActions}
         preview={heroPreview}
-        releasePageUrl={latestRelease.pageUrl}
-        releaseApiUrl={latestRelease.apiUrl}
-        downloadTargets={heroDownloadTargets}
       />
-      <HomeExploreSection links={homeExploreLinks} />
       <WhatItIsSection
         title={whatItIs.title}
         paragraphs={whatItIs.paragraphs}
         highlights={whatItIs.highlights}
       />
-      <WhySection items={whyItExists} />
       <FeaturesSection items={features} />
       <DownloadsStackSection
         releasePageUrl={latestRelease.pageUrl}

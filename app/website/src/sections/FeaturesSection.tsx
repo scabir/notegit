@@ -13,8 +13,8 @@ export function FeaturesSection({ items }: FeaturesSectionProps) {
       <div className="container">
         <SectionHeading
           eyebrow="Features"
-          title="Practical capabilities, clearly documented"
-          description="Focused feature set for ownership, portability, and reliable daily note workflows."
+          title="Everything critical. Nothing locked."
+          description="Fast editing, transparent storage, visible sync, and recoverable history in one desktop workspace."
         />
 
         <div className="cards-grid features-grid">

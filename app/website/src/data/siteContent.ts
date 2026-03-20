@@ -135,9 +135,9 @@ const toBlobLink = (path: string): string => `${githubBlobBase}/${path}`;
 
 export const branding = {
   productName: "NoteBranch",
-  tagline: "Free your notes from lock-in with open Markdown storage.",
+  tagline: "Own your notes before they own you.",
   summary:
-    "NoteBranch is a privacy-first, open-source desktop workspace for Markdown notes. Keep your data in Git, AWS S3, or Local storage you control, with history, sync, and export in one app.",
+    "NoteBranch is the privacy-first, open-source Markdown workspace for people who refuse lock-in. Write fast, sync with Git or AWS S3, or stay fully local while every note stays in storage you control.",
   madeInLabel: "made in UK",
   maintainerName: "Suleyman Cabir Ataman",
   maintainerSocialLinks: [
@@ -168,12 +168,12 @@ export const navItems: NavigationItem[] = [
 
 export const heroActions: ActionLink[] = [
   {
-    label: "Download App",
+    label: "Get NoteBranch Free",
     href: "/downloads/"
   },
   {
-    label: "Read User Guide",
-    href: toBlobLink("docs/USER_GUIDE.md")
+    label: "See the Workflow",
+    href: "/workflow/"
   }
 ];
 
@@ -181,37 +181,37 @@ export const homeExploreLinks: LinkItem[] = [
   {
     icon: "rocket_launch",
     label: "Features",
-    description: "See how editing, organization, sync, and history work together.",
+    description: "What you can do in your first 10 minutes.",
     href: "/features/"
   },
   {
     icon: "download",
     label: "Downloads",
-    description: "Installers for macOS, Linux, and Windows, mapped from latest release assets.",
+    description: "Pick your OS and install in minutes.",
     href: "/downloads/"
   },
   {
     icon: "account_tree",
     label: "Workflow",
-    description: "Understand the daily flow from setup to sync, restore, and export.",
+    description: "Connect, write, sync, restore, and export in one flow.",
     href: "/workflow/"
   },
   {
     icon: "menu_book",
     label: "Tutorials",
-    description: "Step-by-step guides for Git, AWS S3, and Local workflows.",
+    description: "Guided scenarios, not vague documentation.",
     href: "/tutorials/"
   },
   {
     icon: "image",
     label: "Screenshots",
-    description: "Real interface snapshots from repository tutorial scenarios.",
+    description: "Real interface captures from tested scenarios.",
     href: "/screenshots/"
   },
   {
     icon: "info",
     label: "About",
-    description: "Project links, license, maintainer details, and open-source context.",
+    description: "Source, license, maintainer, and project details.",
     href: "/about/"
   }
 ];
@@ -333,75 +333,75 @@ export const downloadsPageTargets: DownloadTarget[] = [
 export const heroPreview: HeroPreview = {
   image: heroDarkWorkspace,
   alt: "NoteBranch dark workspace preview",
-  caption: "Dark mode workspace from the official tutorial set."
+  caption: "Real NoteBranch workspace from the official scenario set."
 };
 
 export const whatItIs = {
-  title: "A practical, privacy-first Markdown workspace",
+  title: "Storage freedom without workflow friction.",
   paragraphs: [
-    "NoteBranch is designed around files you own. Connect a provider, open your workspace, and work directly with Markdown files in a structured tree.",
-    "Use the same app for Git repositories, AWS S3 buckets, and Local-only repositories, so your workflow stays consistent from personal notes to team documentation.",
-    "Editing, preview, history, search, and export are built in, while your content remains in open formats you can access outside the app."
+    "Locked notes are rented knowledge. NoteBranch keeps every note in plain Markdown you control.",
+    "Use Git, AWS S3, or Local storage without changing your workflow.",
+    "Write, search, sync, restore, and export in one desktop app."
   ],
   highlights: [
-    "Open Markdown file model with no proprietary note lock-in",
-    "One desktop workflow across Git, AWS S3, and Local providers",
-    "Built-in history and export for safer long-term note ownership"
+    "Storage freedom: Git, AWS S3, or Local on your terms",
+    "Longevity over lock-in: open formats plus public source code",
+    "Power without friction: visible sync, fast editing, and reliable recovery"
   ]
 };
 
 export const features: FeatureItem[] = [
   {
     icon: "edit_note",
-    title: "Write in Markdown, your way",
+    title: "Write at speed",
     description:
-      "Create notes in editor, preview-only, or split view modes for fast, daily writing workflows."
+      "Editor, preview-only, and split view keep typing and verification in one place."
   },
   {
     icon: "cloud_sync",
-    title: "Choose storage without changing habits",
+    title: "Switch storage, not tools",
     description:
       "Work with Git repositories, AWS S3 buckets, or Local mode while keeping the same navigation and editing flow."
   },
   {
     icon: "lock",
-    title: "Privacy-first data ownership",
+    title: "No note lock-in. Period.",
     description:
       "There is no hosted NoteBranch notes cloud. Your notes stay in storage you configure and control."
   },
   {
     icon: "history",
-    title: "Version history and restore",
+    title: "Restore with confidence",
     description:
       "Inspect file history in Git or versioned object history in AWS S3, then restore exactly what you need."
   },
   {
     icon: "schema",
-    title: "Mermaid diagram support",
+    title: "Markdown plus diagrams",
     description:
       "Write Mermaid blocks inside Markdown and preview rendered diagrams directly in the app."
   },
   {
     icon: "menu_book",
-    title: "Practical documentation",
+    title: "Get unblocked faster",
     description:
       "User guide, technical docs, and tutorial scenarios are maintained in-repo for setup, workflows, and troubleshooting."
   },
   {
     icon: "ios_share",
-    title: "Export without friction",
+    title: "Export on demand",
     description:
       "Export the current note or the full repository as ZIP for backup, migration, and sharing."
   },
   {
     icon: "code",
-    title: "Open source and transparent",
+    title: "Open by default",
     description:
       "MIT-licensed and free to use, with source code, docs, and tutorials maintained in the public repository."
   },
   {
     icon: "verified",
-    title: "Quality you can verify",
+    title: "Proof, not hype",
     description:
       "Current CI reports 92% coverage and 110/110 integration scenarios passing.",
     badges: [
@@ -419,7 +419,7 @@ export const features: FeatureItem[] = [
   },
   {
     icon: "devices",
-    title: "Desktop platforms supported",
+    title: "Desktop-ready on every major OS",
     description:
       "Release artifacts are built for macOS, Linux, and Windows, including .dmg, .deb, .rpm, and .exe formats.",
     platformIcons: [
@@ -430,7 +430,7 @@ export const features: FeatureItem[] = [
   },
   {
     icon: "translate",
-    title: "Broad localization",
+    title: "Built for global teams",
     description:
       "Supported languages: English (English), Chinese (中文), Hindi (हिन्दी), Spanish (Español), German (Deutsch), Arabic (العربية), French (Français), Russian (Русский), Portuguese (Português), Japanese (日本語), Turkish (Türkçe), Italian (Italiano), Polish (Polski), Ukrainian (Українська), Kurdish (Kurdî), Swedish (Svenska), Greek (Ελληνικά).",
     isWide: true
@@ -466,17 +466,17 @@ export const screenshots: ScreenshotItem[] = [
 
 export const whyItExists: WhyItem[] = [
   {
-    title: "Ownership by default",
+    title: "Storage freedom",
     description:
       "Keep notes in providers you choose instead of moving your knowledge into a proprietary hosted silo."
   },
   {
-    title: "Less lock-in, more longevity",
+    title: "Longevity over lock-in",
     description:
       "Open formats and public source make long-term access and migration simpler."
   },
   {
-    title: "Powerful without needless complexity",
+    title: "Power without friction",
     description:
       "Git and AWS S3 flows are visible in the UI, while Local mode keeps offline workflows straightforward."
   },
@@ -490,7 +490,7 @@ export const whyItExists: WhyItem[] = [
 export const aboutSection: AboutSectionContent = {
   title: "About the project",
   summary:
-    "NoteBranch is maintained as an open-source desktop app focused on practical note workflows, data ownership, and transparent storage choices.",
+    "NoteBranch is built for people who want modern note workflows without handing ownership of their knowledge to a closed platform.",
   details: [
     "The goal is a dependable, file-first workflow that works across Git, AWS S3, and Local repositories."
   ]

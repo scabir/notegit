@@ -164,7 +164,7 @@ export function DownloadsStackSection({
       <div className="container">
         <SectionHeading
           eyebrow="Downloads"
-          title="Choose your desktop build"
+          title="Download and own your workflow"
           description={`Installers for NoteBranch v${desktopReleaseVersion} are mapped from GitHub release assets for macOS, Linux, and Windows.`}
         />
 

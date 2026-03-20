@@ -13,8 +13,8 @@ export function OpenSourceSection({ highlights, action }: OpenSourceSectionProps
       <div className="container">
         <SectionHeading
           eyebrow="Open source"
-          title="Open-source-first by design"
-          description="Code, docs, tests, and tutorial assets are all part of the same repository history."
+          title="No black box."
+          description="Code, docs, tests, and tutorial assets live in public repository history."
         />
 
         <div className="surface-card open-source-panel reveal">

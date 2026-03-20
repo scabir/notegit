@@ -1,5 +1,4 @@
 import type { CSSProperties } from "react";
-import { SectionHeading } from "../components/SectionHeading";
 
 interface WhatItIsSectionProps {
   title: string;
@@ -15,11 +14,12 @@ export function WhatItIsSection({
   return (
     <section id="what-it-is" className="section">
       <div className="container">
-        <SectionHeading
-          eyebrow="What it is"
-          title={title}
-          description="A desktop-first model designed around editable files, transparent storage, and repeatable note workflows."
-        />
+        <header className="section-heading">
+          <h2 className="section-title">{title}</h2>
+          <p className="section-description">
+            Notes are assets. Assets should not be trapped.
+          </p>
+        </header>
 
         <div className="what-grid">
           <article className="surface-card prose-card reveal">

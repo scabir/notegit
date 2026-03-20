@@ -17,8 +17,8 @@ export function WorkflowSection({
       <div className="container">
         <SectionHeading
           eyebrow="Workflow"
-          title="A provider-aware note flow in four steps"
-          description="Use the same interface across Git, AWS S3, and local workflows."
+          title="Four moves: connect, write, sync, recover"
+          description="Run the same practical flow across Git, AWS S3, and Local workspaces."
         />
 
         <ol className="steps-grid">
@@ -41,7 +41,7 @@ export function WorkflowSection({
         </ol>
 
         <div className="section-subgroup">
-          <h3 className="section-subtitle">Official documentation</h3>
+          <h3 className="section-subtitle">Official provider documentation</h3>
           <div className="cards-grid how-doc-grid">
             {documentationLinks.map((link, index) => (
               <a
