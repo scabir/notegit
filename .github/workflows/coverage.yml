@@ -24,6 +24,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BADGE_PUSH_TOKEN }}
+          persist-credentials: true
 
       - name: Detect package manager
         id: detect_pm
