@@ -111,7 +111,7 @@ jobs:
           retention-days: 14
 
       - name: Update integration badge file on main
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' }}
         shell: bash
         working-directory: .
         run: |

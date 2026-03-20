@@ -134,7 +134,7 @@ jobs:
           node -e "const fs=require('fs'); const pct=Number(process.argv[1]); const color=pct>=90?'brightgreen':pct>=75?'green':pct>=60?'yellowgreen':pct>=45?'yellow':'red'; const out={schemaVersion:1,label:'coverage',message:pct+'%',color}; fs.mkdirSync('../../badges',{recursive:true}); fs.writeFileSync('../../badges/coverage.json', JSON.stringify(out));" "$COVERAGE_PCT"
 
       - name: Update badge file on main
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' }}
         shell: bash
         working-directory: .
         run: |
