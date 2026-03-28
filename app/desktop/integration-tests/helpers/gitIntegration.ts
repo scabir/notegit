@@ -93,7 +93,7 @@ export const launchIntegrationApp = async (
   delete launchEnv.ELECTRON_RUN_AS_NODE;
 
   const app = await electron.launch({
-    args: ["."],
+    args: [".", "--noerrdialogs"],
     env: launchEnv,
   });
 

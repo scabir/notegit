@@ -9,6 +9,7 @@ import {
   ApiError,
   ApiErrorCode,
   RepoProviderType,
+  AuthMethod,
   REPO_PROVIDERS,
 } from "../../shared/types";
 import { logger } from "../utils/logger";
@@ -215,6 +216,12 @@ export class FilesService {
       pushFailed?: boolean;
       conflictDetected?: boolean;
     } = {};
+    const repoSettings = await this.configService.getRepoSettings();
+    const pat =
+      repoSettings?.provider === REPO_PROVIDERS.git &&
+      repoSettings.authMethod === AuthMethod.PAT
+        ? repoSettings.pat || undefined
+        : undefined;
 
     try {
       await this.saveFile(filePath, content);
@@ -234,7 +241,7 @@ export class FilesService {
       }
 
       try {
-        await this.gitAdapter.pull();
+        await this.gitAdapter.pull(pat);
         logger.info("Pull successful", { filePath });
       } catch (pullError: any) {
         logger.error("Pull failed", { error: pullError });
@@ -251,7 +258,7 @@ export class FilesService {
 
       if (!result.conflictDetected) {
         try {
-          await this.gitAdapter.push();
+          await this.gitAdapter.push(pat);
           logger.info("Push successful", { filePath });
         } catch (pushError: any) {
           logger.error("Push failed", { error: pushError });

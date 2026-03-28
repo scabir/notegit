@@ -1,6 +1,10 @@
 import { CryptoAdapter } from "../../../backend/adapters/CryptoAdapter";
 
 describe("CryptoAdapter", () => {
+  const SALT_LENGTH = 64;
+  const IV_LENGTH = 16;
+  const TAG_LENGTH = 16;
+  const MIN_ENCRYPTED_BYTES = SALT_LENGTH + IV_LENGTH + TAG_LENGTH;
   let cryptoAdapter: CryptoAdapter;
 
   beforeEach(() => {
@@ -42,6 +46,24 @@ describe("CryptoAdapter", () => {
       const plaintext = "你好世界 🌍 مرحبا";
       const encrypted = cryptoAdapter.encrypt(plaintext);
       expect(encrypted).toBeDefined();
+    });
+
+    it("produces base64 ciphertext with expected binary envelope", () => {
+      const plaintext = "my-secret-token";
+      const encrypted = cryptoAdapter.encrypt(plaintext);
+
+      expect(encrypted).toMatch(/^[A-Za-z0-9+/=]+$/u);
+
+      const decoded = Buffer.from(encrypted, "base64");
+      expect(decoded.length).toBeGreaterThan(MIN_ENCRYPTED_BYTES);
+    });
+
+    it("does not expose plaintext in ciphertext payload", () => {
+      const plaintext = "my-very-unique-secret-token-12345";
+      const encrypted = cryptoAdapter.encrypt(plaintext);
+      const decodedAsUtf8 = Buffer.from(encrypted, "base64").toString("utf8");
+
+      expect(decodedAsUtf8).not.toContain(plaintext);
     });
   });
 

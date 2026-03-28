@@ -289,8 +289,8 @@ describe("FilesService", () => {
       expect(mockGitAdapter.commit).toHaveBeenCalledWith(
         "Update note: test.md",
       );
-      expect(mockGitAdapter.pull).toHaveBeenCalled();
-      expect(mockGitAdapter.push).toHaveBeenCalled();
+      expect(mockGitAdapter.pull).toHaveBeenCalledWith("token");
+      expect(mockGitAdapter.push).toHaveBeenCalledWith("token");
       expect(result).toEqual({});
     });
 
@@ -298,6 +298,22 @@ describe("FilesService", () => {
       await filesService.saveWithGitWorkflow("notes/test.md", "content", true);
 
       expect(mockGitAdapter.commit).toHaveBeenCalledWith("Autosave: test.md");
+    });
+
+    it("does not pass PAT when auth method is SSH", async () => {
+      mockConfigService.getRepoSettings.mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        localPath: "/repo",
+        remoteUrl: "url",
+        branch: "main",
+        pat: "token",
+        authMethod: AuthMethod.SSH,
+      });
+
+      await filesService.saveWithGitWorkflow("notes/test.md", "content");
+
+      expect(mockGitAdapter.pull).toHaveBeenCalledWith(undefined);
+      expect(mockGitAdapter.push).toHaveBeenCalledWith(undefined);
     });
 
     it("marks pull failure and conflict without pushing", async () => {
@@ -323,7 +339,7 @@ describe("FilesService", () => {
 
       expect(result.pullFailed).toBe(true);
       expect(result.conflictDetected).toBeUndefined();
-      expect(mockGitAdapter.push).toHaveBeenCalled();
+      expect(mockGitAdapter.push).toHaveBeenCalledWith("token");
     });
 
     it("marks push failure when push fails", async () => {
@@ -345,8 +361,8 @@ describe("FilesService", () => {
         "content",
       );
 
-      expect(mockGitAdapter.pull).toHaveBeenCalled();
-      expect(mockGitAdapter.push).toHaveBeenCalled();
+      expect(mockGitAdapter.pull).toHaveBeenCalledWith("token");
+      expect(mockGitAdapter.push).toHaveBeenCalledWith("token");
       expect(result).toEqual({});
     });
 

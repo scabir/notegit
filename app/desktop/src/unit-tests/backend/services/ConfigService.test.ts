@@ -192,6 +192,96 @@ describe("ConfigService", () => {
       expect((settings as GitRepoSettings | null)?.pat).toBe(decryptedPat);
     });
 
+    it("migrates legacy plaintext PAT to encrypted v2.0", async () => {
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) => {
+        return filePath.includes("repo-settings.json");
+      });
+      mockFsAdapter.readFile.mockResolvedValue(
+        JSON.stringify({
+          version: "1.0",
+          provider: REPO_PROVIDERS.git,
+          remoteUrl: "https://github.com/user/repo.git",
+          branch: "main",
+          localPath: "/path/to/repo",
+          pat: "ghp_plaintext",
+          authMethod: AuthMethod.PAT,
+        }),
+      );
+      mockCryptoAdapter.decrypt.mockImplementation(() => {
+        throw new Error("legacy plaintext");
+      });
+      mockCryptoAdapter.encrypt.mockImplementation((value) => `enc:${value}`);
+
+      const settings = await configService.getRepoSettings();
+
+      expect((settings as GitRepoSettings | null)?.pat).toBe("ghp_plaintext");
+      const migrated = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
+      expect(migrated.version).toBe("2.0");
+      expect(migrated.pat).toBe("enc:ghp_plaintext");
+    });
+
+    it("migrates non-2.0 s3 credentials to encrypted v2.0", async () => {
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) => {
+        return filePath.includes("repo-settings.json");
+      });
+      mockFsAdapter.readFile.mockResolvedValue(
+        JSON.stringify({
+          version: "1.0",
+          provider: REPO_PROVIDERS.s3,
+          bucket: "bucket",
+          region: "region",
+          prefix: "",
+          localPath: "/repo",
+          accessKeyId: "plain-ak",
+          secretAccessKey: "plain-sk",
+          sessionToken: "plain-st",
+        }),
+      );
+      mockCryptoAdapter.decrypt.mockImplementation(() => {
+        throw new Error("legacy plaintext");
+      });
+      mockCryptoAdapter.encrypt.mockImplementation((value) => `enc:${value}`);
+
+      const settings = await configService.getRepoSettings();
+
+      expect(settings).toMatchObject({
+        provider: REPO_PROVIDERS.s3,
+        accessKeyId: "plain-ak",
+        secretAccessKey: "plain-sk",
+        sessionToken: "plain-st",
+      });
+      const migrated = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
+      expect(migrated.version).toBe("2.0");
+      expect(migrated.accessKeyId).toBe("enc:plain-ak");
+      expect(migrated.secretAccessKey).toBe("enc:plain-sk");
+      expect(migrated.sessionToken).toBe("enc:plain-st");
+    });
+
+    it("migrates unversioned encrypted PAT to v2.0 metadata", async () => {
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) => {
+        return filePath.includes("repo-settings.json");
+      });
+      mockFsAdapter.readFile.mockResolvedValue(
+        JSON.stringify({
+          provider: REPO_PROVIDERS.git,
+          remoteUrl: "https://github.com/user/repo.git",
+          branch: "main",
+          localPath: "/path/to/repo",
+          pat: "enc-legacy",
+          authMethod: AuthMethod.PAT,
+        }),
+      );
+      mockCryptoAdapter.decrypt.mockReturnValue("ghp_decrypted");
+      mockCryptoAdapter.encrypt.mockImplementation((value) => `enc:${value}`);
+
+      const settings = await configService.getRepoSettings();
+
+      expect((settings as GitRepoSettings | null)?.pat).toBe("ghp_decrypted");
+      const migrated = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
+      expect(migrated.version).toBe("2.0");
+      expect(migrated.pat).toBe("enc:ghp_decrypted");
+    });
+
     it("returns repo settings from active profile", async () => {
       mockFsAdapter.exists.mockImplementation(async (filePath: string) => {
         return (
@@ -252,6 +342,27 @@ describe("ConfigService", () => {
         localPath: "/local/repo",
       });
       expect(mockCryptoAdapter.decrypt).not.toHaveBeenCalled();
+    });
+
+    it("migrates unversioned local settings metadata to v2.0", async () => {
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) => {
+        return filePath.includes("repo-settings.json");
+      });
+      mockFsAdapter.readFile.mockResolvedValue(
+        JSON.stringify({
+          provider: REPO_PROVIDERS.local,
+          localPath: "/local/repo",
+        }),
+      );
+
+      const settings = await configService.getRepoSettings();
+
+      expect(settings).toMatchObject({
+        provider: REPO_PROVIDERS.local,
+        localPath: "/local/repo",
+      });
+      const migrated = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
+      expect(migrated.version).toBe("2.0");
     });
 
     it("decrypts s3 credentials when loading", async () => {
@@ -320,6 +431,7 @@ describe("ConfigService", () => {
       const savedData = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
       expect(savedData.pat).toBe(encryptedPat);
       expect(savedData.remoteUrl).toBe(settings.remoteUrl);
+      expect(savedData.version).toBe("2.0");
     });
 
     it("should encrypt s3 credentials before saving", async () => {
@@ -346,6 +458,7 @@ describe("ConfigService", () => {
       expect(savedData.accessKeyId).toBe("enc-access");
       expect(savedData.secretAccessKey).toBe("enc-secret");
       expect(savedData.sessionToken).toBe("enc-token");
+      expect(savedData.version).toBe("2.0");
     });
 
     it("should not encrypt local settings", async () => {
@@ -462,6 +575,44 @@ describe("ConfigService", () => {
 
       const saved = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
       expect(saved[0].repoSettings.pat).toBe("enc:token");
+      expect(saved[0].repoSettings.version).toBe("2.0");
+    });
+
+    it("migrates legacy plaintext profile credentials to encrypted v2.0", async () => {
+      mockFsAdapter.exists.mockImplementation(async (filePath: string) =>
+        filePath.includes("profiles.json"),
+      );
+      mockFsAdapter.readFile.mockResolvedValue(
+        JSON.stringify([
+          {
+            id: "profile-1",
+            name: "Profile",
+            repoSettings: {
+              provider: REPO_PROVIDERS.git,
+              remoteUrl: "https://github.com/user/repo.git",
+              branch: "main",
+              localPath: "/repo",
+              pat: "ghp_plaintext",
+              authMethod: AuthMethod.PAT,
+            },
+            createdAt: Date.now(),
+            lastUsedAt: Date.now(),
+          },
+        ]),
+      );
+      mockCryptoAdapter.decrypt.mockImplementation(() => {
+        throw new Error("legacy plaintext");
+      });
+      mockCryptoAdapter.encrypt.mockImplementation((value) => `enc:${value}`);
+
+      const profiles = await configService.getProfiles();
+
+      expect((profiles[0].repoSettings as GitRepoSettings).pat).toBe(
+        "ghp_plaintext",
+      );
+      const migrated = JSON.parse(mockFsAdapter.writeFile.mock.calls[0][1]);
+      expect(migrated[0].repoSettings.version).toBe("2.0");
+      expect(migrated[0].repoSettings.pat).toBe("enc:ghp_plaintext");
     });
 
     it("returns empty list when profiles fail to load", async () => {

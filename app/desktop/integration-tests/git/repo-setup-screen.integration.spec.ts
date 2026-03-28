@@ -20,6 +20,7 @@ import {
 } from "../helpers/gitIntegration";
 import { expect, test } from "@playwright/test";
 import type { ElectronApplication } from "@playwright/test";
+import * as fs from "fs/promises";
 import * as path from "path";
 
 const fillAndSubmitConnectForm = async (
@@ -35,6 +36,15 @@ const fillAndSubmitConnectForm = async (
   await page.getByLabel("Branch").fill(branch);
   await page.getByLabel("Personal Access Token").fill(pat);
   await page.getByRole("button", { name: "Connect" }).click();
+};
+
+const getProfilesPath = (userDataDir: string): string =>
+  path.join(userDataDir, "config", "profiles.json");
+
+const readProfilesFromDisk = async (userDataDir: string): Promise<any[]> => {
+  const profilesPath = getProfilesPath(userDataDir);
+  const content = await fs.readFile(profilesPath, "utf8");
+  return JSON.parse(content);
 };
 
 test("(git) connect to git repo (happy path)", async ({
@@ -363,6 +373,99 @@ test("(git) create profile and activate it", async ({
     expect(repoInfo.provider).toBe("git");
   } finally {
     await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("(git) fresh PAT persists encrypted as v2.0", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let app: ElectronApplication | null = null;
+  const freshPat = "fresh-integration-pat-token";
+
+  try {
+    const launched = await launchIntegrationApp(userDataDir);
+    app = launched.app;
+    const page = launched.page;
+
+    await connectGitRepo(page, { pat: freshPat });
+
+    const rawProfilesContent = await fs.readFile(getProfilesPath(userDataDir), {
+      encoding: "utf8",
+    });
+    const profiles = JSON.parse(rawProfilesContent) as any[];
+    const gitProfile = profiles.find(
+      (profile) => profile?.repoSettings?.provider === "git",
+    );
+
+    expect(gitProfile).toBeDefined();
+    expect(gitProfile.repoSettings.version).toBe("2.0");
+    expect(gitProfile.repoSettings.authMethod).toBe("pat");
+    expect(gitProfile.repoSettings.pat).not.toBe(freshPat);
+    expect(rawProfilesContent.includes(freshPat)).toBe(false);
+  } finally {
+    await closeAppIfOpen(app);
+    await cleanupUserDataDir(userDataDir);
+  }
+});
+
+test("(git) non-2.0 plaintext PAT profile migrates to encrypted v2.0", async ({
+  request: _request,
+}, testInfo) => {
+  const userDataDir = await createIsolatedUserDataDir(testInfo);
+  let firstApp: ElectronApplication | null = null;
+  let secondApp: ElectronApplication | null = null;
+  const legacyPat = "legacy-plaintext-pat";
+
+  try {
+    const firstLaunch = await launchIntegrationApp(userDataDir);
+    firstApp = firstLaunch.app;
+    const firstPage = firstLaunch.page;
+
+    await connectGitRepo(firstPage, { pat: "initial-token" });
+
+    await closeAppIfOpen(firstApp);
+    firstApp = null;
+
+    const seededProfiles = await readProfilesFromDisk(userDataDir);
+    const gitProfile = seededProfiles.find(
+      (profile) => profile?.repoSettings?.provider === "git",
+    );
+    expect(gitProfile).toBeDefined();
+
+    gitProfile.repoSettings.version = "1.0";
+    gitProfile.repoSettings.pat = legacyPat;
+    await fs.writeFile(
+      getProfilesPath(userDataDir),
+      JSON.stringify(seededProfiles, null, 2),
+      "utf8",
+    );
+
+    const secondLaunch = await launchIntegrationApp(userDataDir);
+    secondApp = secondLaunch.app;
+    const secondPage = secondLaunch.page;
+
+    await apiGetProfiles(secondPage);
+
+    const migratedRawProfilesContent = await fs.readFile(
+      getProfilesPath(userDataDir),
+      {
+        encoding: "utf8",
+      },
+    );
+    const migratedProfiles = JSON.parse(migratedRawProfilesContent) as any[];
+    const migratedGitProfile = migratedProfiles.find(
+      (profile) => profile?.repoSettings?.provider === "git",
+    );
+
+    expect(migratedGitProfile).toBeDefined();
+    expect(migratedGitProfile.repoSettings.version).toBe("2.0");
+    expect(migratedGitProfile.repoSettings.pat).not.toBe(legacyPat);
+    expect(migratedRawProfilesContent.includes(legacyPat)).toBe(false);
+  } finally {
+    await closeAppIfOpen(firstApp);
+    await closeAppIfOpen(secondApp);
     await cleanupUserDataDir(userDataDir);
   }
 });

@@ -24,6 +24,7 @@ export class GitAdapter {
   async init(repoPath: string): Promise<void> {
     this.repoPath = repoPath;
     this.git = simpleGit(repoPath);
+    await this.sanitizeOriginUrlIfNeeded();
     logger.debug("GitAdapter initialized", { repoPath });
   }
 
@@ -34,16 +35,17 @@ export class GitAdapter {
     pat?: string,
   ): Promise<void> {
     try {
-      logger.info("Cloning repository", { remoteUrl, localPath, branch });
+      logger.info("Cloning repository", { localPath, branch });
 
       let authUrl = remoteUrl;
       if (pat && remoteUrl.startsWith("https://")) {
-        authUrl = remoteUrl.replace("https://", `https://${pat}@`);
+        authUrl = this.injectPatIntoUrl(remoteUrl, pat);
       }
 
       await simpleGit().clone(authUrl, localPath, ["--branch", branch]);
 
       await this.init(localPath);
+      await this.clearAuth();
 
       logger.info("Repository cloned successfully");
     } catch (error: any) {
@@ -99,11 +101,9 @@ export class GitAdapter {
     try {
       logger.info("Pulling from remote");
 
-      if (pat) {
-        await this.configureAuth(pat);
-      }
-
-      await this.git!.pull();
+      await this.runWithTemporaryAuth(pat, async () => {
+        await this.git!.pull();
+      });
       logger.info("Pull completed successfully");
     } catch (error: any) {
       logger.error("Failed to pull", { error });
@@ -151,11 +151,9 @@ export class GitAdapter {
     try {
       logger.info("Pushing to remote");
 
-      if (pat) {
-        await this.configureAuth(pat);
-      }
-
-      await this.git!.push();
+      await this.runWithTemporaryAuth(pat, async () => {
+        await this.git!.push();
+      });
       logger.info("Push completed successfully");
     } catch (error: any) {
       logger.error("Failed to push", { error });
@@ -369,8 +367,108 @@ export class GitAdapter {
     }
   }
 
-  private async configureAuth(_pat: string): Promise<void> {
-    await this.git!.addConfig("credential.helper", "store");
+  private async runWithTemporaryAuth(
+    pat: string | undefined,
+    operation: () => Promise<void>,
+  ): Promise<void> {
+    let operationError: unknown = null;
+
+    if (pat) {
+      await this.configureAuth(pat);
+    }
+
+    try {
+      await operation();
+    } catch (error) {
+      operationError = error;
+    }
+
+    if (pat) {
+      try {
+        await this.clearAuth();
+      } catch (error) {
+        logger.error("Failed to clear temporary Git credentials", { error });
+        if (!operationError) {
+          throw error;
+        }
+      }
+    }
+
+    if (operationError) {
+      throw operationError;
+    }
+  }
+
+  private async sanitizeOriginUrlIfNeeded(): Promise<void> {
+    try {
+      await this.clearAuth();
+    } catch (error) {
+      logger.debug("Skipping remote URL credential sanitization", { error });
+    }
+  }
+
+  private async configureAuth(pat: string): Promise<void> {
+    if (!pat) {
+      return;
+    }
+
+    const remoteUrl = (await this.git!.remote(["get-url", "origin"]))?.trim();
+    if (!remoteUrl || !remoteUrl.startsWith("https://")) {
+      return;
+    }
+
+    const sanitizedUrl = this.stripCredentialsFromUrl(remoteUrl);
+    const authUrl = this.injectPatIntoUrl(sanitizedUrl, pat);
+    await this.git!.remote(["set-url", "origin", authUrl]);
+  }
+
+  private async clearAuth(): Promise<void> {
+    const remoteUrl = (await this.git!.remote(["get-url", "origin"]))?.trim();
+    if (!remoteUrl) {
+      return;
+    }
+
+    const sanitizedUrl = this.stripCredentialsFromUrl(remoteUrl);
+    if (sanitizedUrl !== remoteUrl) {
+      await this.git!.remote(["set-url", "origin", sanitizedUrl]);
+    }
+  }
+
+  private injectPatIntoUrl(remoteUrl: string, pat: string): string {
+    try {
+      const parsed = new URL(remoteUrl);
+      if (parsed.protocol !== "https:") {
+        return remoteUrl;
+      }
+
+      parsed.username = pat;
+      parsed.password = "";
+      return parsed.toString();
+    } catch {
+      return remoteUrl.replace(
+        "https://",
+        `https://${encodeURIComponent(pat)}@`,
+      );
+    }
+  }
+
+  private stripCredentialsFromUrl(remoteUrl: string): string {
+    if (!remoteUrl.startsWith("https://")) {
+      return remoteUrl;
+    }
+
+    try {
+      const parsed = new URL(remoteUrl);
+      if (!parsed.username && !parsed.password) {
+        return remoteUrl;
+      }
+
+      parsed.username = "";
+      parsed.password = "";
+      return parsed.toString();
+    } catch {
+      return remoteUrl.replace(/^https:\/\/[^@/]+@/u, "https://");
+    }
   }
 
   private ensureInitialized(): void {

@@ -24,6 +24,7 @@ describe("GitAdapter", () => {
       fetch: jest.fn(),
       addRemote: jest.fn(),
       addConfig: jest.fn(),
+      remote: jest.fn(),
     } as any;
 
     (simpleGit as jest.Mock).mockReturnValue(mockGit);
@@ -43,11 +44,43 @@ describe("GitAdapter", () => {
       await gitAdapter.init("/path/to/repo");
       expect(simpleGit).toHaveBeenCalledWith("/path/to/repo");
     });
+
+    it("sanitizes embedded credentials from origin URL", async () => {
+      let currentRemoteUrl = "https://ghp_legacy@github.com/user/repo.git";
+      (mockGit.remote as any).mockImplementation(async (args: string[]) => {
+        if (args[0] === "get-url") {
+          return currentRemoteUrl;
+        }
+        if (args[0] === "set-url") {
+          currentRemoteUrl = args[2];
+          return "";
+        }
+        return "";
+      });
+
+      await gitAdapter.init("/path/to/repo");
+
+      expect(currentRemoteUrl).toBe("https://github.com/user/repo.git");
+    });
   });
 
   describe("clone", () => {
     it("should clone repository with HTTPS and PAT", async () => {
-      mockGit.clone.mockResolvedValue(undefined as any);
+      let currentRemoteUrl = "";
+      (mockGit.remote as any).mockImplementation(async (args: string[]) => {
+        if (args[0] === "get-url") {
+          return currentRemoteUrl;
+        }
+        if (args[0] === "set-url") {
+          currentRemoteUrl = args[2];
+          return "";
+        }
+        return "";
+      });
+      (mockGit.clone as any).mockImplementation(async (remoteUrl: string) => {
+        currentRemoteUrl = remoteUrl;
+        return undefined as any;
+      });
 
       await gitAdapter.clone(
         "https://github.com/user/repo.git",
@@ -61,6 +94,7 @@ describe("GitAdapter", () => {
         "/path/to/local",
         ["--branch", "main"],
       );
+      expect(currentRemoteUrl).toBe("https://github.com/user/repo.git");
     });
 
     it("should clone repository with SSH", async () => {
@@ -113,6 +147,17 @@ describe("GitAdapter", () => {
 
   describe("pull", () => {
     it("should pull from remote with PAT", async () => {
+      let currentRemoteUrl = "https://github.com/user/repo.git";
+      (mockGit.remote as any).mockImplementation(async (args: string[]) => {
+        if (args[0] === "get-url") {
+          return currentRemoteUrl;
+        }
+        if (args[0] === "set-url") {
+          currentRemoteUrl = args[2];
+          return "";
+        }
+        return "";
+      });
       await gitAdapter.init("/repo");
 
       mockGit.pull.mockResolvedValue({
@@ -123,6 +168,7 @@ describe("GitAdapter", () => {
       await gitAdapter.pull("ghp_token123");
 
       expect(mockGit.pull).toHaveBeenCalled();
+      expect(currentRemoteUrl).toBe("https://github.com/user/repo.git");
     });
 
     it("should pull from remote without PAT", async () => {
@@ -155,10 +201,42 @@ describe("GitAdapter", () => {
         code: ApiErrorCode.GIT_CONFLICT,
       });
     });
+
+    it("cleans temporary auth after pull failure", async () => {
+      let currentRemoteUrl = "https://github.com/user/repo.git";
+      (mockGit.remote as any).mockImplementation(async (args: string[]) => {
+        if (args[0] === "get-url") {
+          return currentRemoteUrl;
+        }
+        if (args[0] === "set-url") {
+          currentRemoteUrl = args[2];
+          return "";
+        }
+        return "";
+      });
+      await gitAdapter.init("/repo");
+      mockGit.pull.mockRejectedValue(new Error("Network error"));
+
+      await expect(gitAdapter.pull("ghp_token123")).rejects.toMatchObject({
+        code: ApiErrorCode.GIT_PULL_FAILED,
+      });
+      expect(currentRemoteUrl).toBe("https://github.com/user/repo.git");
+    });
   });
 
   describe("push", () => {
     it("should push to remote with PAT", async () => {
+      let currentRemoteUrl = "https://github.com/user/repo.git";
+      (mockGit.remote as any).mockImplementation(async (args: string[]) => {
+        if (args[0] === "get-url") {
+          return currentRemoteUrl;
+        }
+        if (args[0] === "set-url") {
+          currentRemoteUrl = args[2];
+          return "";
+        }
+        return "";
+      });
       await gitAdapter.init("/repo");
 
       mockGit.push.mockResolvedValue(undefined as any);
@@ -166,6 +244,7 @@ describe("GitAdapter", () => {
       await gitAdapter.push("ghp_token123");
 
       expect(mockGit.push).toHaveBeenCalled();
+      expect(currentRemoteUrl).toBe("https://github.com/user/repo.git");
     });
 
     it("should push to remote without PAT", async () => {
@@ -185,6 +264,27 @@ describe("GitAdapter", () => {
       await expect(gitAdapter.push()).rejects.toMatchObject({
         code: ApiErrorCode.GIT_AUTH_FAILED,
       });
+    });
+
+    it("cleans temporary auth after push failure", async () => {
+      let currentRemoteUrl = "https://github.com/user/repo.git";
+      (mockGit.remote as any).mockImplementation(async (args: string[]) => {
+        if (args[0] === "get-url") {
+          return currentRemoteUrl;
+        }
+        if (args[0] === "set-url") {
+          currentRemoteUrl = args[2];
+          return "";
+        }
+        return "";
+      });
+      await gitAdapter.init("/repo");
+      mockGit.push.mockRejectedValue(new Error("Push failed"));
+
+      await expect(gitAdapter.push("ghp_token123")).rejects.toMatchObject({
+        code: ApiErrorCode.GIT_PUSH_FAILED,
+      });
+      expect(currentRemoteUrl).toBe("https://github.com/user/repo.git");
     });
   });
 

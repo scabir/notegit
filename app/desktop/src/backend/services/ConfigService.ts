@@ -26,6 +26,18 @@ import {
   findUniqueFolderName,
 } from "../utils/profileHelpers";
 
+const LEGACY_CREDENTIALS_VERSION = "1.0";
+const CURRENT_CREDENTIALS_VERSION = "2.0";
+
+type PersistedRepoSettings = RepoSettings & {
+  version?: string | null;
+};
+
+interface DecryptedRepoSettingsResult {
+  settings: RepoSettings;
+  requiresMigration: boolean;
+}
+
 export class ConfigService {
   private configDir: string;
   private appSettingsPath: string;
@@ -48,13 +60,17 @@ export class ConfigService {
     this.favoritesPath = path.join(this.configDir, "favorites.json");
   }
 
-  private normalizeRepoSettings(raw: any): RepoSettings {
+  private normalizeRepoSettings(raw: any): PersistedRepoSettings {
     const provider: RepoProviderType =
       raw?.provider === REPO_PROVIDERS.s3
         ? REPO_PROVIDERS.s3
         : raw?.provider === REPO_PROVIDERS.local
           ? REPO_PROVIDERS.local
           : REPO_PROVIDERS.git;
+    const version =
+      raw?.version === null || typeof raw?.version === "string"
+        ? raw.version
+        : undefined;
     if (provider === REPO_PROVIDERS.s3) {
       return {
         provider: REPO_PROVIDERS.s3,
@@ -65,6 +81,7 @@ export class ConfigService {
         accessKeyId: raw?.accessKeyId || "",
         secretAccessKey: raw?.secretAccessKey || "",
         sessionToken: raw?.sessionToken || "",
+        version,
       };
     }
 
@@ -72,6 +89,7 @@ export class ConfigService {
       return {
         provider: REPO_PROVIDERS.local,
         localPath: raw?.localPath || "",
+        version,
       };
     }
 
@@ -82,42 +100,113 @@ export class ConfigService {
       localPath: raw?.localPath || "",
       pat: raw?.pat || "",
       authMethod: raw?.authMethod || AuthMethod.PAT,
+      version,
     };
   }
 
-  private decryptRepoSettings(settings: RepoSettings): RepoSettings {
+  private resolveCredentialsVersion(version?: string | null): string {
+    if (typeof version !== "string" || !version.trim()) {
+      return LEGACY_CREDENTIALS_VERSION;
+    }
+    return version;
+  }
+
+  private decryptCredential(
+    value: string,
+    credentialsVersion: string,
+  ): { value: string; requiresMigration: boolean } {
+    if (!value) {
+      return {
+        value: "",
+        requiresMigration: credentialsVersion !== CURRENT_CREDENTIALS_VERSION,
+      };
+    }
+
+    if (credentialsVersion === CURRENT_CREDENTIALS_VERSION) {
+      return {
+        value: this.cryptoAdapter.decrypt(value),
+        requiresMigration: false,
+      };
+    }
+
+    try {
+      return {
+        value: this.cryptoAdapter.decrypt(value),
+        requiresMigration: true,
+      };
+    } catch {
+      return {
+        value,
+        requiresMigration: true,
+      };
+    }
+  }
+
+  private decryptRepoSettings(
+    settings: PersistedRepoSettings,
+  ): DecryptedRepoSettingsResult {
+    const credentialsVersion = this.resolveCredentialsVersion(settings.version);
+
     if (settings.provider === REPO_PROVIDERS.s3) {
-      const decrypted: S3RepoSettings = { ...settings };
-      if (decrypted.accessKeyId) {
-        decrypted.accessKeyId = this.cryptoAdapter.decrypt(
-          decrypted.accessKeyId,
-        );
-      }
-      if (decrypted.secretAccessKey) {
-        decrypted.secretAccessKey = this.cryptoAdapter.decrypt(
-          decrypted.secretAccessKey,
-        );
-      }
-      if (decrypted.sessionToken) {
-        decrypted.sessionToken = this.cryptoAdapter.decrypt(
-          decrypted.sessionToken,
-        );
-      }
-      return decrypted;
+      const accessKeyId = this.decryptCredential(
+        settings.accessKeyId,
+        credentialsVersion,
+      );
+      const secretAccessKey = this.decryptCredential(
+        settings.secretAccessKey,
+        credentialsVersion,
+      );
+      const sessionToken = this.decryptCredential(
+        settings.sessionToken || "",
+        credentialsVersion,
+      );
+
+      return {
+        settings: {
+          provider: REPO_PROVIDERS.s3,
+          bucket: settings.bucket,
+          region: settings.region,
+          prefix: settings.prefix || "",
+          localPath: settings.localPath,
+          accessKeyId: accessKeyId.value,
+          secretAccessKey: secretAccessKey.value,
+          sessionToken: sessionToken.value,
+        },
+        requiresMigration:
+          credentialsVersion !== CURRENT_CREDENTIALS_VERSION ||
+          accessKeyId.requiresMigration ||
+          secretAccessKey.requiresMigration ||
+          sessionToken.requiresMigration,
+      };
     }
 
     if (settings.provider === REPO_PROVIDERS.local) {
-      return settings;
+      return {
+        settings: {
+          provider: REPO_PROVIDERS.local,
+          localPath: settings.localPath,
+        },
+        requiresMigration: credentialsVersion !== CURRENT_CREDENTIALS_VERSION,
+      };
     }
 
-    const decrypted: GitRepoSettings = { ...settings };
-    if (decrypted.pat) {
-      decrypted.pat = this.cryptoAdapter.decrypt(decrypted.pat);
-    }
-    return decrypted;
+    const pat = this.decryptCredential(settings.pat, credentialsVersion);
+    return {
+      settings: {
+        provider: REPO_PROVIDERS.git,
+        remoteUrl: settings.remoteUrl,
+        branch: settings.branch,
+        localPath: settings.localPath,
+        pat: pat.value,
+        authMethod: settings.authMethod,
+      },
+      requiresMigration:
+        credentialsVersion !== CURRENT_CREDENTIALS_VERSION ||
+        pat.requiresMigration,
+    };
   }
 
-  private encryptRepoSettings(settings: RepoSettings): RepoSettings {
+  private encryptRepoSettings(settings: RepoSettings): PersistedRepoSettings {
     if (settings.provider === REPO_PROVIDERS.s3) {
       const encrypted: S3RepoSettings = { ...settings };
       if (encrypted.accessKeyId) {
@@ -135,18 +224,27 @@ export class ConfigService {
           encrypted.sessionToken,
         );
       }
-      return encrypted;
+      return {
+        ...encrypted,
+        version: CURRENT_CREDENTIALS_VERSION,
+      };
     }
 
     if (settings.provider === REPO_PROVIDERS.local) {
-      return settings;
+      return {
+        ...settings,
+        version: CURRENT_CREDENTIALS_VERSION,
+      };
     }
 
     const encrypted: GitRepoSettings = { ...settings };
     if (encrypted.pat) {
       encrypted.pat = this.cryptoAdapter.encrypt(encrypted.pat);
     }
-    return encrypted;
+    return {
+      ...encrypted,
+      version: CURRENT_CREDENTIALS_VERSION,
+    };
   }
 
   async ensureConfigDir(): Promise<void> {
@@ -253,8 +351,21 @@ export class ConfigService {
         const settings = this.normalizeRepoSettings(rawSettings);
         const decrypted = this.decryptRepoSettings(settings);
 
+        if (decrypted.requiresMigration) {
+          await this.ensureConfigDir();
+          await this.fsAdapter.writeFile(
+            this.repoSettingsPath,
+            JSON.stringify(
+              this.encryptRepoSettings(decrypted.settings),
+              null,
+              2,
+            ),
+          );
+          logger.info("Migrated legacy repo settings credentials");
+        }
+
         logger.debug("Loaded repo settings");
-        return decrypted;
+        return decrypted.settings;
       }
     } catch (error) {
       logger.error("Failed to load repo settings", { error });
@@ -340,15 +451,23 @@ export class ConfigService {
       if (await this.fsAdapter.exists(this.profilesPath)) {
         const content = await this.fsAdapter.readFile(this.profilesPath);
         const profiles = JSON.parse(content);
+        let requiresMigration = false;
         const hydrated = profiles.map((profile: Profile) => {
           const normalizedSettings = this.normalizeRepoSettings(
             profile.repoSettings,
           );
+          const decrypted = this.decryptRepoSettings(normalizedSettings);
+          requiresMigration = requiresMigration || decrypted.requiresMigration;
           return {
             ...profile,
-            repoSettings: this.decryptRepoSettings(normalizedSettings),
+            repoSettings: decrypted.settings,
           };
         });
+
+        if (requiresMigration) {
+          await this.saveProfiles(hydrated);
+          logger.info("Migrated legacy profile credentials");
+        }
 
         logger.debug("Loaded profiles", { count: profiles.length });
         return hydrated;
@@ -604,7 +723,8 @@ export class ConfigService {
         const content = await this.fsAdapter.readFile(this.repoSettingsPath);
         const rawSettings = JSON.parse(content);
         const normalizedSettings = this.normalizeRepoSettings(rawSettings);
-        const repoSettings = this.decryptRepoSettings(normalizedSettings);
+        const decrypted = this.decryptRepoSettings(normalizedSettings);
+        const repoSettings = decrypted.settings;
 
         let profileName = "Default Profile";
 
