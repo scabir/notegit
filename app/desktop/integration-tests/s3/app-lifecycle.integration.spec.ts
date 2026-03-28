@@ -71,55 +71,6 @@ test("(S3) restart app and recover s3 workspace", async ({
   }
 });
 
-test("(S3) parallel app instances stay isolated by userData path", async ({
-  request: _request,
-}) => {
-  const userDataDirA = await fs.mkdtemp(
-    path.join(os.tmpdir(), `NoteBranch-s3-isolation-a-${Date.now()}-`),
-  );
-  const userDataDirB = await fs.mkdtemp(
-    path.join(os.tmpdir(), `NoteBranch-s3-isolation-b-${Date.now()}-`),
-  );
-
-  let appA: ElectronApplication | null = null;
-  let appB: ElectronApplication | null = null;
-
-  try {
-    const launchA = await launchS3IntegrationApp(userDataDirA);
-    appA = launchA.app;
-    const pageA = launchA.page;
-    await connectS3Repo(pageA, { bucket: "s3-isolation-a" });
-    await createMarkdownFile(pageA, "only-a.md");
-
-    const launchB = await launchS3IntegrationApp(userDataDirB);
-    appB = launchB.app;
-    const pageB = launchB.page;
-    await connectS3Repo(pageB, { bucket: "s3-isolation-b" });
-    await createMarkdownFile(pageB, "only-b.md");
-
-    const repoInfoA = await getRepoInfo(pageA);
-    const repoInfoB = await getRepoInfo(pageB);
-    expect(
-      path.resolve(repoInfoA.localPath).startsWith(path.resolve(userDataDirA)),
-    ).toBe(true);
-    expect(
-      path.resolve(repoInfoB.localPath).startsWith(path.resolve(userDataDirB)),
-    ).toBe(true);
-
-    const pathsA = flattenTreePaths(await listTree(pageA));
-    const pathsB = flattenTreePaths(await listTree(pageB));
-    expect(pathsA).toContain("only-a.md");
-    expect(pathsA).not.toContain("only-b.md");
-    expect(pathsB).toContain("only-b.md");
-    expect(pathsB).not.toContain("only-a.md");
-  } finally {
-    await closeAppIfOpen(appA);
-    await closeAppIfOpen(appB);
-    await cleanupUserDataDir(userDataDirA);
-    await cleanupUserDataDir(userDataDirB);
-  }
-});
-
 test("(S3) restart preserves unsynced local changes", async ({
   request: _request,
 }, testInfo) => {

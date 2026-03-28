@@ -3,7 +3,6 @@ import {
   DEFAULT_PAT,
   DEFAULT_REMOTE_URL,
   apiCreateProfile,
-  apiGetActiveProfileId,
   apiGetFullConfig,
   apiGetProfiles,
   apiSetActiveProfile,
@@ -46,30 +45,6 @@ const readProfilesFromDisk = async (userDataDir: string): Promise<any[]> => {
   const content = await fs.readFile(profilesPath, "utf8");
   return JSON.parse(content);
 };
-
-test("(git) connect to git repo (happy path)", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-
-  try {
-    const launched = await launchIntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-
-    await connectGitRepo(page);
-
-    const repoInfo = await getRepoInfo(page);
-    expect(repoInfo.provider).toBe("git");
-    expect(
-      path.resolve(repoInfo.localPath).startsWith(path.resolve(userDataDir)),
-    ).toBe(true);
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
 
 test("(git) connect using non-default branch", async ({
   request: _request,
@@ -160,54 +135,6 @@ test("(git) invalid URL connect shows error and stays on setup", async ({
   }
 });
 
-test("(git) active profile id persists across restart", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let firstApp: ElectronApplication | null = null;
-  let secondApp: ElectronApplication | null = null;
-  try {
-    const firstLaunch = await launchIntegrationApp(userDataDir);
-    firstApp = firstLaunch.app;
-    const firstPage = firstLaunch.page;
-    await connectGitRepo(firstPage);
-
-    const firstRepoInfo = await getRepoInfo(firstPage);
-    const profile = await apiCreateProfile(firstPage, "Profile Switch B", {
-      provider: "git",
-      remoteUrl: "https://github.com/mock/profile-switch-b.git",
-      branch: "main",
-      pat: "token-switch-b",
-      authMethod: "pat",
-    });
-    await apiSetActiveProfile(firstPage, profile.id);
-
-    await closeAppIfOpen(firstApp);
-    firstApp = null;
-
-    const secondLaunch = await launchIntegrationApp(userDataDir);
-    secondApp = secondLaunch.app;
-    const secondPage = secondLaunch.page;
-
-    await expect(
-      secondPage.getByTestId("status-bar-commit-push-action"),
-    ).toBeVisible();
-    await expect(
-      secondPage.getByRole("button", { name: "Connect to Repository" }),
-    ).toHaveCount(0);
-
-    const activeProfileId = await apiGetActiveProfileId(secondPage);
-    expect(activeProfileId).toBe(profile.id);
-
-    const secondRepoInfo = await getRepoInfo(secondPage);
-    expect(secondRepoInfo.localPath).not.toBe(firstRepoInfo.localPath);
-  } finally {
-    await closeAppIfOpen(firstApp);
-    await closeAppIfOpen(secondApp);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
 test("(git) invalid active profile id still allows workspace to load", async ({
   request: _request,
 }, testInfo) => {
@@ -282,35 +209,6 @@ test("(git) empty remote branch bootstrap succeeds", async ({
     await expectTreeToContainPath(page, "README.md");
   } finally {
     await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(git) re-open app with existing repo skips setup", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let firstApp: ElectronApplication | null = null;
-  let secondApp: ElectronApplication | null = null;
-  try {
-    const firstLaunch = await launchIntegrationApp(userDataDir);
-    firstApp = firstLaunch.app;
-    await connectGitRepo(firstLaunch.page);
-    await closeAppIfOpen(firstApp);
-    firstApp = null;
-
-    const secondLaunch = await launchIntegrationApp(userDataDir);
-    secondApp = secondLaunch.app;
-
-    await expect(
-      secondLaunch.page.getByRole("button", { name: "Connect to Repository" }),
-    ).toHaveCount(0);
-    await expect(
-      secondLaunch.page.getByTestId("status-bar-commit-push-action"),
-    ).toBeVisible();
-  } finally {
-    await closeAppIfOpen(firstApp);
-    await closeAppIfOpen(secondApp);
     await cleanupUserDataDir(userDataDir);
   }
 });

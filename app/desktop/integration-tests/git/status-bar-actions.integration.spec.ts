@@ -53,6 +53,7 @@ test("(git) create file, edit content, commit and push", async ({
         return status.ahead;
       })
       .toBe(0);
+    await expect(page.getByTestId("status-bar-push-action")).toBeDisabled();
 
     const repoInfo = await getRepoInfo(page);
     await fs.access(path.join(repoInfo.localPath, "integration-note.md"));
@@ -177,49 +178,6 @@ test("(git) auto-generated commit message truncates with 'and N more'", async ({
   }
 });
 
-test("(git) save then commit+push ends in synced status", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-  try {
-    const launched = await launchIntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-    await connectGitRepo(page);
-
-    await createMarkdownFile(page, "sync-state.md");
-    await appendToCurrentEditor(page, "\ncontent\n");
-    await saveCurrentFile(page);
-    await commitAndPushAll(page);
-
-    const status = await getRepoStatus(page);
-    expect(status.ahead).toBe(0);
-    expect(status.hasUncommitted).toBe(false);
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(git) push button is disabled when no pending commits", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-  try {
-    const launched = await launchIntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-    await connectGitRepo(page);
-
-    await expect(page.getByTestId("status-bar-push-action")).toBeDisabled();
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
 test("(git) push button enables after commit and disables after push", async ({
   request: _request,
 }, testInfo) => {
@@ -262,6 +220,7 @@ test("(git) pull button enabled when behind and disabled after pull", async ({
     await connectGitRepo(page);
 
     await expect(page.getByTestId("status-bar-pull-action")).toBeEnabled();
+    await expect(page.getByTestId("status-bar-push-action")).toBeDisabled();
     await clickPull(page);
     await expectSavedStatus(page);
     await expect(page.getByTestId("status-bar-pull-action")).toBeDisabled();
@@ -500,27 +459,6 @@ test("(git) commit failure is surfaced and app stays responsive", async ({
 
     const status = await getRepoStatus(page);
     expect(status.hasUncommitted).toBe(true);
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(git) push remains disabled when repo is only behind", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-  try {
-    const launched = await launchIntegrationApp(userDataDir, {
-      env: { NOTEBRANCH_MOCK_GIT_INITIAL_BEHIND: "2" },
-    });
-    app = launched.app;
-    const page = launched.page;
-    await connectGitRepo(page);
-
-    await expect(page.getByTestId("status-bar-pull-action")).toBeEnabled();
-    await expect(page.getByTestId("status-bar-push-action")).toBeDisabled();
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);

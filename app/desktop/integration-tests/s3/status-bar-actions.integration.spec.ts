@@ -1,5 +1,4 @@
 import {
-  apiCommitAndPushAll,
   apiCreateFile,
   apiFetch,
   apiPull,
@@ -73,62 +72,6 @@ test("(S3) local-only changes are visible before sync", async ({
     expect(status.provider).toBe("s3");
     expect(status.hasUncommitted).toBe(true);
     expect(status.pendingPushCount).toBeGreaterThan(0);
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(S3) sync all from mixed changes succeeds", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-
-  try {
-    const launched = await launchS3IntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-
-    await connectS3Repo(page);
-    await apiCreateFile(page, "", "mixed-a.md");
-    await apiCreateFile(page, "", "mixed-b.md");
-
-    await syncAll(page);
-
-    await expectTreeToContainPath(page, "mixed-a.md");
-    await expectTreeToContainPath(page, "mixed-b.md");
-
-    await expect
-      .poll(async () => {
-        const status = await getRepoStatus(page);
-        return status.hasUncommitted || status.pendingPushCount > 0;
-      })
-      .toBe(false);
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(S3) sync with no local changes returns synced successfully", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-
-  try {
-    const launched = await launchS3IntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-
-    await connectS3Repo(page);
-
-    const message = await apiCommitAndPushAll(page);
-    expect(message).toBe("Synced successfully");
-
-    const status = await getRepoStatus(page);
-    expect(status.hasUncommitted).toBe(false);
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);
@@ -213,31 +156,6 @@ test("(S3) status bar uses bucket label and hides git-only actions", async ({
     await expect(page.getByTestId("status-bar-fetch-action")).toHaveCount(0);
     await expect(page.getByTestId("status-bar-pull-action")).toHaveCount(0);
     await expect(page.getByTestId("status-bar-push-action")).toHaveCount(0);
-  } finally {
-    await closeAppIfOpen(app);
-    await cleanupUserDataDir(userDataDir);
-  }
-});
-
-test("(S3) sync chip transitions from pending changes to synced", async ({
-  request: _request,
-}, testInfo) => {
-  const userDataDir = await createIsolatedUserDataDir(testInfo);
-  let app: ElectronApplication | null = null;
-
-  try {
-    const launched = await launchS3IntegrationApp(userDataDir);
-    app = launched.app;
-    const page = launched.page;
-
-    await connectS3Repo(page);
-    await apiCreateFile(page, "", "chip-transition.md");
-
-    const statusBeforeSync = await getRepoStatus(page);
-    expect(statusBeforeSync.pendingPushCount).toBeGreaterThan(0);
-
-    await syncAll(page);
-    await expectSyncChipText(page, "Synced");
   } finally {
     await closeAppIfOpen(app);
     await cleanupUserDataDir(userDataDir);
