@@ -788,6 +788,116 @@ describe("S3RepoProvider", () => {
     expect(callModes).toEqual(["pull", "sync"]);
   });
 
+  it("resolves queued sync callers only after their requested mode runs", async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
+    const callModes: Array<"pull" | "sync"> = [];
+    let hasReleaseFirstSync = false;
+    let hasReleaseThirdSync = false;
+    let releaseFirstSync: () => void = () => {
+      throw new Error("Expected first sync release callback");
+    };
+    let releaseThirdSync: () => void = () => {
+      throw new Error("Expected third queued sync to start");
+    };
+
+    jest
+      .spyOn(provider as any, "performSync")
+      .mockImplementation(async (mode: unknown) => {
+        callModes.push(mode as "pull" | "sync");
+        if (callModes.length === 1) {
+          await new Promise<void>((resolve) => {
+            releaseFirstSync = resolve;
+            hasReleaseFirstSync = true;
+          });
+          return;
+        }
+        if (callModes.length === 3) {
+          await new Promise<void>((resolve) => {
+            releaseThirdSync = resolve;
+            hasReleaseThirdSync = true;
+          });
+        }
+      });
+
+    const firstSync = (provider as any).sync("pull");
+
+    while (!hasReleaseFirstSync) {
+      await Promise.resolve();
+    }
+
+    const secondSync = (provider as any).sync("sync");
+    const thirdSync = (provider as any).sync("pull");
+
+    let secondResolved = false;
+    let thirdResolved = false;
+    void secondSync.then(() => {
+      secondResolved = true;
+    });
+    void thirdSync.then(() => {
+      thirdResolved = true;
+    });
+
+    if (!hasReleaseFirstSync) {
+      throw new Error("Expected first sync release callback");
+    }
+    releaseFirstSync();
+    await secondSync;
+
+    expect(secondResolved).toBe(true);
+    expect(thirdResolved).toBe(false);
+    expect(callModes).toEqual(["pull", "sync", "pull"]);
+
+    if (!hasReleaseThirdSync) {
+      throw new Error("Expected third queued sync to start");
+    }
+    releaseThirdSync();
+
+    await thirdSync;
+    await firstSync;
+    expect(thirdResolved).toBe(true);
+  });
+
+  it("waits on the captured sync completion promise reference", async () => {
+    const provider = new S3RepoProvider(createAdapter() as any);
+    provider.configure({ ...baseSettings, localPath: "/tmp/NoteBranch-s3" });
+    let hasResolveCompletion = false;
+    let resolveCompletion: () => void = () => {
+      throw new Error("Expected sync completion promise resolver");
+    };
+    const completionPromise = new Promise<void>((resolve) => {
+      resolveCompletion = resolve;
+      hasResolveCompletion = true;
+    });
+    let readCount = 0;
+
+    Object.defineProperty(provider as any, "syncCompletionPromise", {
+      configurable: true,
+      get: () => {
+        readCount += 1;
+        return readCount === 1 ? completionPromise : null;
+      },
+      set: jest.fn(),
+    });
+
+    let waitResolved = false;
+    const waitPromise = (provider as any)
+      .waitForSyncCycleCompletion()
+      .then(() => {
+        waitResolved = true;
+      });
+
+    await Promise.resolve();
+    expect(waitResolved).toBe(false);
+
+    if (!hasResolveCompletion) {
+      throw new Error("Expected sync completion promise resolver");
+    }
+    resolveCompletion();
+    await waitPromise;
+    expect(waitResolved).toBe(true);
+  });
+
   it("collects remote info while ignoring folders and metadata paths", async () => {
     const s3Adapter = createAdapter({
       listObjects: jest.fn().mockResolvedValue([

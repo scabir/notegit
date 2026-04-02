@@ -46,6 +46,12 @@ type RemoteFileInfo = {
   lastModifiedMs: number;
 };
 
+type PendingSyncRequest = {
+  mode: SyncMode;
+  resolve: () => void;
+  reject: (error: unknown) => void;
+};
+
 export class S3RepoProvider implements RepoProvider {
   readonly type = REPO_PROVIDERS.s3;
   private readonly conflictSuffix = "s3-conflict";
@@ -59,8 +65,7 @@ export class S3RepoProvider implements RepoProvider {
   private lastSyncTime: Date | null = null;
   private syncInProgress = false;
   private pendingSyncTimer: NodeJS.Timeout | null = null;
-  private pendingSyncRequested = false;
-  private pendingSyncMode: SyncMode | null = null;
+  private pendingSyncRequests: PendingSyncRequest[] = [];
   private syncCompletionPromise: Promise<void> | null = null;
   private resolveSyncCompletion: (() => void) | null = null;
   private rejectSyncCompletion: ((error: unknown) => void) | null = null;
@@ -204,14 +209,14 @@ export class S3RepoProvider implements RepoProvider {
 
   private async sync(mode: SyncMode = "sync"): Promise<void> {
     if (this.syncInProgress) {
-      this.queuePendingSync(mode);
-      await this.waitForSyncCycleCompletion();
+      await this.queuePendingSync(mode);
       return;
     }
 
     this.syncInProgress = true;
     this.beginSyncCycle();
     let currentMode: SyncMode = mode;
+    let activeQueuedRequest: PendingSyncRequest | null = null;
     let syncError: unknown = null;
 
     try {
@@ -219,21 +224,26 @@ export class S3RepoProvider implements RepoProvider {
       while (continueSync) {
         await this.performSync(currentMode);
 
-        if (!this.pendingSyncRequested) {
+        if (activeQueuedRequest) {
+          activeQueuedRequest.resolve();
+          activeQueuedRequest = null;
+        }
+
+        const nextRequest = this.pendingSyncRequests.shift();
+        if (!nextRequest) {
           continueSync = false;
           continue;
         }
 
-        currentMode = this.pendingSyncMode || currentMode;
-        this.pendingSyncRequested = false;
-        this.pendingSyncMode = null;
+        activeQueuedRequest = nextRequest;
+        currentMode = nextRequest.mode;
       }
     } catch (error) {
       syncError = error;
+      activeQueuedRequest?.reject(error);
+      this.rejectPendingSyncRequests(error);
       throw error;
     } finally {
-      this.pendingSyncRequested = false;
-      this.pendingSyncMode = null;
       this.syncInProgress = false;
       this.endSyncCycle(syncError);
     }
@@ -268,10 +278,17 @@ export class S3RepoProvider implements RepoProvider {
     logger.info(`S3 ${mode} completed`, { updatedAt: this.lastSyncTime });
   }
 
-  private queuePendingSync(mode: SyncMode): void {
-    this.pendingSyncRequested = true;
-    this.pendingSyncMode =
-      this.pendingSyncMode === "sync" || mode === "sync" ? "sync" : "pull";
+  private queuePendingSync(mode: SyncMode): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.pendingSyncRequests.push({ mode, resolve, reject });
+    });
+  }
+
+  private rejectPendingSyncRequests(error: unknown): void {
+    const pendingRequests = this.pendingSyncRequests.splice(0);
+    for (const request of pendingRequests) {
+      request.reject(error);
+    }
   }
 
   private beginSyncCycle(): void {
@@ -298,10 +315,11 @@ export class S3RepoProvider implements RepoProvider {
   }
 
   private async waitForSyncCycleCompletion(): Promise<void> {
-    if (!this.syncCompletionPromise) {
+    const promise = this.syncCompletionPromise;
+    if (!promise) {
       return;
     }
-    await this.syncCompletionPromise;
+    await promise;
   }
 
   private async requestSync(): Promise<void> {
