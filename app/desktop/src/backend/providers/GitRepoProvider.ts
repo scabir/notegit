@@ -161,14 +161,24 @@ export class GitRepoProvider implements RepoProvider {
     await this.performPullThenPush();
   }
 
-  startAutoSync(_intervalMs?: number): void {
+  startAutoSync(intervalMs?: number): void {
+    const effectiveIntervalMs =
+      typeof intervalMs === "number" &&
+      Number.isFinite(intervalMs) &&
+      intervalMs > 0
+        ? intervalMs
+        : this.AUTO_SYNC_INTERVAL;
+
     if (this.autoSyncTimer) {
-      logger.debug("Git auto-sync timer already running");
-      return;
+      logger.debug("Restarting git auto-sync timer", {
+        intervalMs: effectiveIntervalMs,
+      });
+      clearInterval(this.autoSyncTimer);
+      this.autoSyncTimer = null;
     }
 
     logger.info("Starting git auto-sync timer", {
-      intervalMs: this.AUTO_SYNC_INTERVAL,
+      intervalMs: effectiveIntervalMs,
     });
 
     this.autoSyncTimer = setInterval(async () => {
@@ -177,7 +187,7 @@ export class GitRepoProvider implements RepoProvider {
       } catch (error) {
         logger.debug("Git auto-sync attempt failed, will retry", { error });
       }
-    }, this.AUTO_SYNC_INTERVAL);
+    }, effectiveIntervalMs);
   }
 
   stopAutoSync(): void {

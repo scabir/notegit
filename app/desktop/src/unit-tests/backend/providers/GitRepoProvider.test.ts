@@ -196,7 +196,7 @@ describe("GitRepoProvider", () => {
     expect(gitAdapter.push).toHaveBeenCalledWith(baseSettings.pat);
   });
 
-  it("starts and stops the auto-sync timer", () => {
+  it("restarts the auto-sync timer when startAutoSync is called again", () => {
     jest.useFakeTimers();
 
     const { provider } = createProvider();
@@ -204,16 +204,33 @@ describe("GitRepoProvider", () => {
     const clearIntervalSpy = jest.spyOn(global, "clearInterval");
 
     provider.startAutoSync();
+    const firstTimer = (provider as any).autoSyncTimer;
     provider.startAutoSync();
 
-    expect(setIntervalSpy).toHaveBeenCalledTimes(1);
+    expect(setIntervalSpy).toHaveBeenCalledTimes(2);
+    expect(clearIntervalSpy).toHaveBeenCalledWith(firstTimer);
+    expect((provider as any).autoSyncTimer).not.toBe(firstTimer);
 
     provider.stopAutoSync();
 
-    expect(clearIntervalSpy).toHaveBeenCalled();
+    expect(clearIntervalSpy).toHaveBeenCalledTimes(2);
 
     setIntervalSpy.mockRestore();
     clearIntervalSpy.mockRestore();
+    jest.useRealTimers();
+  });
+
+  it("uses the provided interval when starting auto-sync", () => {
+    jest.useFakeTimers();
+
+    const { provider } = createProvider();
+    const setIntervalSpy = jest.spyOn(global, "setInterval");
+
+    provider.startAutoSync(45000);
+
+    expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 45000);
+
+    setIntervalSpy.mockRestore();
     jest.useRealTimers();
   });
 
