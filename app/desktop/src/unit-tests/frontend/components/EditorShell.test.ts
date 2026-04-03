@@ -768,7 +768,7 @@ describe("EditorShell", () => {
     });
 
     await act(async () => {
-      jest.advanceTimersByTime(300000);
+      jest.advanceTimersByTime(30000);
       await flushPromises();
     });
     expect(
@@ -796,6 +796,50 @@ describe("EditorShell", () => {
     expect(
       renderer!.root.findByProps({ "data-testid": "markdown-editor" }).children,
     ).toContain("updated content");
+  });
+
+  it("uses configured autosave interval from app settings", async () => {
+    (global as any).window.NoteBranchApi.config.getFull = jest
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        data: {
+          ...baseConfig,
+          appSettings: {
+            ...baseConfig.appSettings,
+            autoSaveIntervalSec: 7,
+          },
+        },
+      });
+
+    const renderer = await renderEditorShell();
+
+    await act(async () => {
+      findButton(renderer!, "SelectMarkdown").props.onClick();
+      await flushPromises();
+    });
+
+    act(() => {
+      findButton(renderer!, "MarkdownChange").props.onClick();
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(6999);
+      await flushPromises();
+    });
+
+    expect(
+      (global as any).window.NoteBranchApi.files.save,
+    ).not.toHaveBeenCalledWith("notes/doc.md", "updated content");
+
+    await act(async () => {
+      jest.advanceTimersByTime(1);
+      await flushPromises();
+    });
+
+    expect(
+      (global as any).window.NoteBranchApi.files.save,
+    ).toHaveBeenCalledWith("notes/doc.md", "updated content");
   });
 
   it("handles git commit-and-push edge cases", async () => {

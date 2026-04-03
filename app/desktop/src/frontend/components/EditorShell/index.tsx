@@ -43,6 +43,7 @@ import { buildHeaderTitle } from "./utils";
 import type { EditorShellProps } from "./types";
 
 const MAX_NAV_HISTORY = 100;
+const DEFAULT_AUTOSAVE_INTERVAL_SEC = 30;
 type TreePanelState = "open" | "closed";
 type TreePanelAction = "toggle";
 
@@ -376,6 +377,13 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   }, []);
 
   useEffect(() => {
+    const configuredInterval = appSettings?.autoSaveIntervalSec;
+    const autoSaveIntervalSec =
+      typeof configuredInterval === "number" && configuredInterval > 0
+        ? configuredInterval
+        : DEFAULT_AUTOSAVE_INTERVAL_SEC;
+    const autoSaveDelayMs = autoSaveIntervalSec * 1000;
+
     if (hasUnsavedChanges && selectedFile && editorContent) {
       if (autosaveTimerRef.current) {
         clearTimeout(autosaveTimerRef.current);
@@ -383,7 +391,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
 
       autosaveTimerRef.current = setTimeout(() => {
         handleSaveFile(editorContent, true);
-      }, 300000); // 5 minutes
+      }, autoSaveDelayMs);
       unrefTimeout(autosaveTimerRef.current);
     }
 
@@ -392,7 +400,13 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         clearTimeout(autosaveTimerRef.current);
       }
     };
-  }, [hasUnsavedChanges, selectedFile, editorContent, handleSaveFile]);
+  }, [
+    hasUnsavedChanges,
+    selectedFile,
+    editorContent,
+    handleSaveFile,
+    appSettings?.autoSaveIntervalSec,
+  ]);
 
   // Save on app close
   useEffect(() => {
