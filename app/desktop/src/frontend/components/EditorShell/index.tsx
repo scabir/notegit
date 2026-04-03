@@ -34,6 +34,7 @@ import {
   editorPaneSx,
 } from "./styles";
 import {
+  DEFAULT_AUTOSAVE_INTERVAL_SEC,
   SIDEBAR_COLLAPSED_WIDTH,
   SIDEBAR_DEFAULT_WIDTH,
   SIDEBAR_MAX_WIDTH,
@@ -43,7 +44,6 @@ import { buildHeaderTitle } from "./utils";
 import type { EditorShellProps } from "./types";
 
 const MAX_NAV_HISTORY = 100;
-const DEFAULT_AUTOSAVE_INTERVAL_SEC = 30;
 type TreePanelState = "open" | "closed";
 type TreePanelAction = "toggle";
 

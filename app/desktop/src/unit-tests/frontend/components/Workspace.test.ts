@@ -3,7 +3,10 @@ import TestRenderer, { act } from "react-test-renderer";
 import { EditorShell } from "../../../frontend/components/EditorShell";
 import type { RepoStatus } from "../../../shared/types";
 import { FileType, REPO_PROVIDERS } from "../../../shared/types";
-import { SIDEBAR_COLLAPSED_WIDTH } from "../../../frontend/components/EditorShell/constants";
+import {
+  DEFAULT_AUTOSAVE_INTERVAL_SEC,
+  SIDEBAR_COLLAPSED_WIDTH,
+} from "../../../frontend/components/EditorShell/constants";
 
 const FileTreeViewMock = jest.fn((_props: any) => null);
 const MarkdownEditorMock = jest.fn((_props: any) => null);
@@ -910,7 +913,7 @@ describe("EditorShell", () => {
       markdownProps.onChange("autosave", true);
     });
     act(() => {
-      jest.advanceTimersByTime(300000);
+      jest.advanceTimersByTime(DEFAULT_AUTOSAVE_INTERVAL_SEC * 1000);
     });
 
     const beforeUnloadHandler = (
