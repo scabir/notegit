@@ -49,6 +49,21 @@ export class RepoService {
     this.filesService = filesService;
   }
 
+  resetActiveRepo(): void {
+    if (this.activeProvider) {
+      try {
+        this.activeProvider.stopAutoSync();
+      } catch (error) {
+        logger.warn("Failed to stop auto-sync while resetting repository", {
+          error,
+        });
+      }
+    }
+
+    this.activeProvider = null;
+    this.activeSettings = null;
+  }
+
   async openOrClone(settings: RepoSettings): Promise<OpenOrCloneRepoResponse> {
     return await this.openRepo(settings, {
       updateConfig: true,
@@ -344,7 +359,7 @@ export class RepoService {
   }
 
   destroy(): void {
-    this.stopAutoPush();
+    this.resetActiveRepo();
   }
 
   async refreshAutoSyncSettings(): Promise<void> {

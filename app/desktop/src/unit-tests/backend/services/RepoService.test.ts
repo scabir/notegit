@@ -513,6 +513,43 @@ describe("RepoService", () => {
     ).resolves.toBeUndefined();
   });
 
+  it("resetActiveRepo clears cached provider and reloads from current profile settings", async () => {
+    const { repoService, gitProvider, s3Provider, mockConfigService } =
+      createRepoService();
+
+    await repoService.openOrClone({
+      provider: REPO_PROVIDERS.git,
+      remoteUrl: "https://github.com/user/repo.git",
+      branch: "main",
+      localPath: "/repo",
+      pat: "token",
+      authMethod: "pat",
+    } as any);
+
+    mockConfigService.getRepoSettings = jest.fn().mockResolvedValue({
+      provider: REPO_PROVIDERS.s3,
+      localPath: "/repo-s3",
+      bucket: "notes-bucket",
+      region: "us-east-1",
+      prefix: "",
+      accessKeyId: "access-key",
+      secretAccessKey: "secret-key",
+      sessionToken: "",
+    });
+
+    repoService.resetActiveRepo();
+    await repoService.getStatus();
+
+    expect(gitProvider.stopAutoSync).toHaveBeenCalled();
+    expect(s3Provider.configure).toHaveBeenCalledWith(
+      expect.objectContaining({
+        provider: REPO_PROVIDERS.s3,
+        localPath: "/repo-s3",
+      }),
+    );
+    expect(s3Provider.getStatus).toHaveBeenCalled();
+  });
+
   it("stops auto sync when destroyed", async () => {
     const { repoService, gitProvider } = createRepoService();
 

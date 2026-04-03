@@ -30,6 +30,11 @@ export class SearchService {
     logger.info("Search service repo path set", { repoPath });
   }
 
+  reset(): void {
+    this.repoPath = null;
+    logger.info("Search service repo path reset");
+  }
+
   private createError(
     code: ApiErrorCode,
     message: string,

@@ -10,6 +10,8 @@ import {
 import { ConfigService } from "../services/ConfigService";
 import { RepoService } from "../services/RepoService";
 import { GitAdapter } from "../adapters/GitAdapter";
+import type { FilesService } from "../services/FilesService";
+import type { SearchService } from "../services/SearchService";
 import { logger } from "../utils/logger";
 import {
   BackendTranslate,
@@ -17,12 +19,18 @@ import {
 } from "../i18n/backendTranslator";
 import { localizeApiError } from "../i18n/localizeApiError";
 
+interface ProfileSwitchServices {
+  filesService?: Pick<FilesService, "reset">;
+  searchService?: Pick<SearchService, "reset" | "setRepoPath">;
+}
+
 export function registerConfigHandlers(
   ipcMain: IpcMain,
   configService: ConfigService,
   repoService: RepoService,
   gitAdapter: GitAdapter,
   translate: BackendTranslate = createFallbackBackendTranslator(),
+  profileSwitchServices: ProfileSwitchServices = {},
 ): void {
   const t = (
     key: string,
@@ -364,6 +372,27 @@ export function registerConfigHandlers(
     async (_event, profileId: string): Promise<ApiResponse<void>> => {
       try {
         await configService.setActiveProfileId(profileId);
+        repoService.resetActiveRepo?.();
+        profileSwitchServices.filesService?.reset();
+        profileSwitchServices.searchService?.reset();
+
+        try {
+          const repoSettings = await configService.getRepoSettings();
+          if (repoSettings?.localPath) {
+            profileSwitchServices.searchService?.setRepoPath(
+              repoSettings.localPath,
+            );
+          }
+        } catch (error) {
+          logger.warn(
+            "Failed to refresh search repo path after profile switch",
+            {
+              error,
+              profileId,
+            },
+          );
+        }
+
         return {
           ok: true,
         };

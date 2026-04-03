@@ -320,6 +320,15 @@ describe("SearchService", () => {
         code: ApiErrorCode.REPO_NOT_INITIALIZED,
       });
     });
+
+    it("throws after reset until a new repo path is configured", async () => {
+      searchService.setRepoPath("/test/repo");
+      searchService.reset();
+
+      await expect(searchService.search("test")).rejects.toMatchObject({
+        code: ApiErrorCode.REPO_NOT_INITIALIZED,
+      });
+    });
   });
 
   // Note: Additional SearchService tests would require complex file system mocking

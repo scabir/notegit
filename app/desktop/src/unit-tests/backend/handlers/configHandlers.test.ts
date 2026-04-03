@@ -363,6 +363,50 @@ describe("configHandlers", () => {
     expect(configService.setActiveProfileId).toHaveBeenCalledWith("p1");
   });
 
+  it("resets stale services and refreshes search path after setActiveProfile", async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      reset: jest.fn(),
+    };
+    const searchService = {
+      reset: jest.fn(),
+      setRepoPath: jest.fn(),
+    };
+    const configService = {
+      setActiveProfileId: jest.fn().mockResolvedValue(undefined),
+      getRepoSettings: jest.fn().mockResolvedValue({
+        provider: REPO_PROVIDERS.git,
+        remoteUrl: "url",
+        branch: "main",
+        localPath: "/profiles/new",
+        pat: "token",
+        authMethod: "pat",
+      }),
+    } as any;
+    const repoService = {
+      resetActiveRepo: jest.fn(),
+    } as any;
+    const gitAdapter = {} as any;
+
+    registerConfigHandlers(
+      ipcMain,
+      configService,
+      repoService,
+      gitAdapter,
+      undefined,
+      { filesService, searchService },
+    );
+
+    const response = await handlers["config:setActiveProfile"](null, "p2");
+
+    expect(response.ok).toBe(true);
+    expect(configService.setActiveProfileId).toHaveBeenCalledWith("p2");
+    expect(repoService.resetActiveRepo).toHaveBeenCalled();
+    expect(filesService.reset).toHaveBeenCalled();
+    expect(searchService.reset).toHaveBeenCalled();
+    expect(searchService.setRepoPath).toHaveBeenCalledWith("/profiles/new");
+  });
+
   it("returns error when deleteProfile fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
     const configService = {
@@ -381,18 +425,38 @@ describe("configHandlers", () => {
 
   it("returns error when setActiveProfile fails", async () => {
     const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      reset: jest.fn(),
+    };
+    const searchService = {
+      reset: jest.fn(),
+      setRepoPath: jest.fn(),
+    };
     const configService = {
       setActiveProfileId: jest.fn().mockRejectedValue(new Error("set failed")),
     } as any;
-    const repoService = {} as any;
+    const repoService = {
+      resetActiveRepo: jest.fn(),
+    } as any;
     const gitAdapter = {} as any;
 
-    registerConfigHandlers(ipcMain, configService, repoService, gitAdapter);
+    registerConfigHandlers(
+      ipcMain,
+      configService,
+      repoService,
+      gitAdapter,
+      undefined,
+      { filesService, searchService },
+    );
 
     const response = await handlers["config:setActiveProfile"](null, "p1");
 
     expect(response.ok).toBe(false);
     expect(response.error?.message).toBe("Failed to set active profile");
+    expect(repoService.resetActiveRepo).not.toHaveBeenCalled();
+    expect(filesService.reset).not.toHaveBeenCalled();
+    expect(searchService.reset).not.toHaveBeenCalled();
+    expect(searchService.setRepoPath).not.toHaveBeenCalled();
   });
 
   it("returns error for updateAppSettings failure", async () => {

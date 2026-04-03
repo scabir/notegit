@@ -29,6 +29,11 @@ export class FilesService {
     this.gitAdapter = gitAdapter;
   }
 
+  reset(): void {
+    this.repoPath = null;
+    this.repoProvider = null;
+  }
+
   async init(): Promise<void> {
     const repoSettings = await this.configService.getRepoSettings();
     if (repoSettings?.localPath) {

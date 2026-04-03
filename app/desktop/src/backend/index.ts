@@ -128,6 +128,7 @@ export async function createBackend(ipcMain: IpcMain): Promise<void> {
     repoService,
     gitAdapter,
     translate,
+    { filesService, searchService },
   );
   registerRepoHandlers(ipcMain, repoService, translate);
   registerFilesHandlers(ipcMain, filesService, repoService, translate);
