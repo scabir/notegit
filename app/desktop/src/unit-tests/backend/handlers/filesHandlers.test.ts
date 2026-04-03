@@ -1,5 +1,9 @@
 import { registerFilesHandlers } from "../../../backend/handlers/filesHandlers";
-import { COMMIT_AND_PUSH_RESULTS, REPO_PROVIDERS } from "../../../shared/types";
+import {
+  ApiErrorCode,
+  COMMIT_AND_PUSH_RESULTS,
+  REPO_PROVIDERS,
+} from "../../../shared/types";
 
 describe("filesHandlers", () => {
   const createIpcMain = () => {
@@ -29,6 +33,59 @@ describe("filesHandlers", () => {
     expect(response.ok).toBe(true);
     expect(filesService.deletePath).toHaveBeenCalledWith("note.md");
     expect(repoService.queueS3Delete).toHaveBeenCalledWith("note.md");
+  });
+
+  it("rejects non-string path input for files:read", async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      readFile: jest.fn(),
+    } as any;
+    const repoService = {} as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const response = await handlers["files:read"](null, 123);
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.code).toBe(ApiErrorCode.VALIDATION_ERROR);
+    expect(filesService.readFile).not.toHaveBeenCalled();
+  });
+
+  it("rejects non-boolean isAutosave for files:saveWithGitWorkflow", async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      saveWithGitWorkflow: jest.fn(),
+    } as any;
+    const repoService = {} as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const response = await handlers["files:saveWithGitWorkflow"](
+      null,
+      "note.md",
+      "body",
+      "yes",
+    );
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.code).toBe(ApiErrorCode.VALIDATION_ERROR);
+    expect(filesService.saveWithGitWorkflow).not.toHaveBeenCalled();
+  });
+
+  it("rejects overly long file names for files:create", async () => {
+    const { ipcMain, handlers } = createIpcMain();
+    const filesService = {
+      createFile: jest.fn(),
+    } as any;
+    const repoService = {} as any;
+
+    registerFilesHandlers(ipcMain, filesService, repoService);
+
+    const response = await handlers["files:create"](null, "", "a".repeat(256));
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.code).toBe(ApiErrorCode.VALIDATION_ERROR);
+    expect(filesService.createFile).not.toHaveBeenCalled();
   });
 
   it("returns ok for rename even when s3 queueing fails", async () => {

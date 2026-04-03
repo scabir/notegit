@@ -11,6 +11,19 @@ import {
   createFallbackBackendTranslator,
 } from "../i18n/backendTranslator";
 import { localizeApiError } from "../i18n/localizeApiError";
+import {
+  assertOptionalBoolean,
+  assertOptionalInteger,
+  assertOptionalPlainObject,
+  assertOptionalStringArray,
+  assertString,
+} from "../utils/inputValidation";
+
+const MAX_IPC_SEARCH_QUERY_LENGTH = 5000;
+const MAX_IPC_SEARCH_REPLACEMENT_LENGTH = 100000;
+const MAX_IPC_SEARCH_FILE_PATH_LENGTH = 4096;
+const MAX_IPC_SEARCH_REPLACE_PATH_COUNT = 5000;
+const MAX_IPC_SEARCH_RESULTS_LIMIT = 500;
 
 export function registerSearchHandlers(
   ipcMain: IpcMain,
@@ -31,7 +44,19 @@ export function registerSearchHandlers(
       options?: { maxResults?: number },
     ): Promise<ApiResponse<any>> => {
       try {
-        const results = await searchService.search(query, options);
+        const validatedQuery = assertString(query, "query", {
+          maxLength: MAX_IPC_SEARCH_QUERY_LENGTH,
+        });
+        const rawOptions = assertOptionalPlainObject(options, "options");
+        const validatedMaxResults = assertOptionalInteger(
+          rawOptions?.maxResults,
+          "options.maxResults",
+          { min: 1, max: MAX_IPC_SEARCH_RESULTS_LIMIT },
+        );
+
+        const results = await searchService.search(validatedQuery, {
+          maxResults: validatedMaxResults,
+        });
         return {
           ok: true,
           data: results,
@@ -61,7 +86,23 @@ export function registerSearchHandlers(
       options?: { caseSensitive?: boolean; useRegex?: boolean },
     ): Promise<ApiResponse<RepoWideSearchResult[]>> => {
       try {
-        const results = await searchService.searchRepoWide(query, options);
+        const validatedQuery = assertString(query, "query", {
+          maxLength: MAX_IPC_SEARCH_QUERY_LENGTH,
+        });
+        const rawOptions = assertOptionalPlainObject(options, "options");
+        const caseSensitive = assertOptionalBoolean(
+          rawOptions?.caseSensitive,
+          "options.caseSensitive",
+        );
+        const useRegex = assertOptionalBoolean(
+          rawOptions?.useRegex,
+          "options.useRegex",
+        );
+
+        const results = await searchService.searchRepoWide(validatedQuery, {
+          caseSensitive,
+          useRegex,
+        });
         return { ok: true, data: results };
       } catch (error: any) {
         logger.error("Failed to perform repo-wide search", { query, error });
@@ -97,10 +138,38 @@ export function registerSearchHandlers(
       },
     ): Promise<ApiResponse<ReplaceResult>> => {
       try {
+        const validatedQuery = assertString(query, "query", {
+          maxLength: MAX_IPC_SEARCH_QUERY_LENGTH,
+        });
+        const validatedReplacement = assertString(replacement, "replacement", {
+          maxLength: MAX_IPC_SEARCH_REPLACEMENT_LENGTH,
+        });
+        const rawOptions = assertOptionalPlainObject(options, "options");
+        const caseSensitive = assertOptionalBoolean(
+          rawOptions?.caseSensitive,
+          "options.caseSensitive",
+        );
+        const useRegex = assertOptionalBoolean(
+          rawOptions?.useRegex,
+          "options.useRegex",
+        );
+        const filePaths = assertOptionalStringArray(
+          rawOptions?.filePaths,
+          "options.filePaths",
+          {
+            maxItems: MAX_IPC_SEARCH_REPLACE_PATH_COUNT,
+            itemMaxLength: MAX_IPC_SEARCH_FILE_PATH_LENGTH,
+          },
+        );
+
         const result = await searchService.replaceInRepo(
-          query,
-          replacement,
-          options,
+          validatedQuery,
+          validatedReplacement,
+          {
+            caseSensitive,
+            useRegex,
+            filePaths,
+          },
         );
         return { ok: true, data: result };
       } catch (error: any) {

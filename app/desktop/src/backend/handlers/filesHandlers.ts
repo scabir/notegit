@@ -16,6 +16,12 @@ import {
   createFallbackBackendTranslator,
 } from "../i18n/backendTranslator";
 import { localizeApiError } from "../i18n/localizeApiError";
+import { assertBoolean, assertString } from "../utils/inputValidation";
+
+const MAX_IPC_PATH_LENGTH = 4096;
+const MAX_IPC_NAME_LENGTH = 255;
+const MAX_IPC_COMMIT_MESSAGE_LENGTH = 1000;
+const MAX_IPC_CONTENT_LENGTH = 5_000_000;
 
 export function registerFilesHandlers(
   ipcMain: IpcMain,
@@ -58,7 +64,11 @@ export function registerFilesHandlers(
     "files:read",
     async (_event, path: string): Promise<ApiResponse<FileContent>> => {
       try {
-        const content = await filesService.readFile(path);
+        const validatedPath = assertString(path, "path", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+        const content = await filesService.readFile(validatedPath);
         return {
           ok: true,
           data: content,
@@ -87,9 +97,20 @@ export function registerFilesHandlers(
       content: string,
     ): Promise<ApiResponse<void>> => {
       try {
-        await filesService.saveFile(path, content);
-        void repoService.queueS3Upload(path).catch((error) => {
-          logger.warn("Failed to queue S3 upload operation", { path, error });
+        const validatedPath = assertString(path, "path", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+        const validatedContent = assertString(content, "content", {
+          maxLength: MAX_IPC_CONTENT_LENGTH,
+        });
+
+        await filesService.saveFile(validatedPath, validatedContent);
+        void repoService.queueS3Upload(validatedPath).catch((error) => {
+          logger.warn("Failed to queue S3 upload operation", {
+            path: validatedPath,
+            error,
+          });
         });
         return {
           ok: true,
@@ -125,10 +146,19 @@ export function registerFilesHandlers(
       }>
     > => {
       try {
+        const validatedPath = assertString(path, "path", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+        const validatedContent = assertString(content, "content", {
+          maxLength: MAX_IPC_CONTENT_LENGTH,
+        });
+        const validatedIsAutosave = assertBoolean(isAutosave, "isAutosave");
+
         const result = await filesService.saveWithGitWorkflow(
-          path,
-          content,
-          isAutosave,
+          validatedPath,
+          validatedContent,
+          validatedIsAutosave,
         );
         return {
           ok: true,
@@ -163,7 +193,16 @@ export function registerFilesHandlers(
       message: string,
     ): Promise<ApiResponse<void>> => {
       try {
-        await filesService.commitFile(path, message);
+        const validatedPath = assertString(path, "path", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+        const validatedMessage = assertString(message, "message", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_COMMIT_MESSAGE_LENGTH,
+        });
+
+        await filesService.commitFile(validatedPath, validatedMessage);
         return {
           ok: true,
         };
@@ -187,7 +226,11 @@ export function registerFilesHandlers(
     "files:commitAll",
     async (_event, message: string): Promise<ApiResponse<void>> => {
       try {
-        await filesService.commitAll(message);
+        const validatedMessage = assertString(message, "message", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_COMMIT_MESSAGE_LENGTH,
+        });
+        await filesService.commitAll(validatedMessage);
         return {
           ok: true,
         };
@@ -344,7 +387,15 @@ export function registerFilesHandlers(
       name: string,
     ): Promise<ApiResponse<void>> => {
       try {
-        await filesService.createFile(parentPath, name);
+        const validatedParentPath = assertString(parentPath, "parentPath", {
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+        const validatedName = assertString(name, "name", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_NAME_LENGTH,
+        });
+
+        await filesService.createFile(validatedParentPath, validatedName);
         return {
           ok: true,
         };
@@ -372,7 +423,15 @@ export function registerFilesHandlers(
       name: string,
     ): Promise<ApiResponse<void>> => {
       try {
-        await filesService.createFolder(parentPath, name);
+        const validatedParentPath = assertString(parentPath, "parentPath", {
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+        const validatedName = assertString(name, "name", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_NAME_LENGTH,
+        });
+
+        await filesService.createFolder(validatedParentPath, validatedName);
         return {
           ok: true,
         };
@@ -401,9 +460,17 @@ export function registerFilesHandlers(
     "files:delete",
     async (_event, path: string): Promise<ApiResponse<void>> => {
       try {
-        await filesService.deletePath(path);
-        void repoService.queueS3Delete(path).catch((error) => {
-          logger.warn("Failed to queue S3 delete operation", { path, error });
+        const validatedPath = assertString(path, "path", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+
+        await filesService.deletePath(validatedPath);
+        void repoService.queueS3Delete(validatedPath).catch((error) => {
+          logger.warn("Failed to queue S3 delete operation", {
+            path: validatedPath,
+            error,
+          });
         });
         return {
           ok: true,
@@ -432,14 +499,25 @@ export function registerFilesHandlers(
       newPath: string,
     ): Promise<ApiResponse<void>> => {
       try {
-        await filesService.renamePath(oldPath, newPath);
-        void repoService.queueS3Move(oldPath, newPath).catch((error) => {
-          logger.warn("Failed to queue S3 move operation", {
-            oldPath,
-            newPath,
-            error,
-          });
+        const validatedOldPath = assertString(oldPath, "oldPath", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
         });
+        const validatedNewPath = assertString(newPath, "newPath", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+
+        await filesService.renamePath(validatedOldPath, validatedNewPath);
+        void repoService
+          .queueS3Move(validatedOldPath, validatedNewPath)
+          .catch((error) => {
+            logger.warn("Failed to queue S3 move operation", {
+              oldPath: validatedOldPath,
+              newPath: validatedNewPath,
+              error,
+            });
+          });
         return {
           ok: true,
         };
@@ -467,7 +545,16 @@ export function registerFilesHandlers(
       destPath: string,
     ): Promise<ApiResponse<void>> => {
       try {
-        await filesService.saveFileAs(repoPath, destPath);
+        const validatedRepoPath = assertString(repoPath, "repoPath", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+        const validatedDestPath = assertString(destPath, "destPath", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+
+        await filesService.saveFileAs(validatedRepoPath, validatedDestPath);
         return {
           ok: true,
         };
@@ -491,7 +578,12 @@ export function registerFilesHandlers(
     "files:duplicate",
     async (_event, repoPath: string): Promise<ApiResponse<string>> => {
       try {
-        const duplicatedPath = await filesService.duplicateFile(repoPath);
+        const validatedRepoPath = assertString(repoPath, "repoPath", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+        const duplicatedPath =
+          await filesService.duplicateFile(validatedRepoPath);
         return {
           ok: true,
           data: duplicatedPath,
@@ -525,7 +617,16 @@ export function registerFilesHandlers(
       targetPath: string,
     ): Promise<ApiResponse<void>> => {
       try {
-        await filesService.importFile(sourcePath, targetPath);
+        const validatedSourcePath = assertString(sourcePath, "sourcePath", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+        const validatedTargetPath = assertString(targetPath, "targetPath", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PATH_LENGTH,
+        });
+
+        await filesService.importFile(validatedSourcePath, validatedTargetPath);
         return {
           ok: true,
         };

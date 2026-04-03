@@ -6,6 +6,8 @@ import {
   RepoSettings,
   Profile,
   ApiErrorCode,
+  REPO_PROVIDERS,
+  AuthMethod,
 } from "../../shared/types";
 import { ConfigService } from "../services/ConfigService";
 import { RepoService } from "../services/RepoService";
@@ -18,11 +20,206 @@ import {
   createFallbackBackendTranslator,
 } from "../i18n/backendTranslator";
 import { localizeApiError } from "../i18n/localizeApiError";
+import {
+  assertBoolean,
+  assertInteger,
+  assertOneOf,
+  assertPlainObject,
+  assertString,
+  assertStringArray,
+} from "../utils/inputValidation";
 
 interface ProfileSwitchServices {
   filesService?: Pick<FilesService, "reset">;
   searchService?: Pick<SearchService, "reset" | "setRepoPath">;
 }
+
+const MAX_IPC_PROFILE_NAME_LENGTH = 120;
+const MAX_IPC_PROFILE_ID_LENGTH = 256;
+const MAX_IPC_PATH_LENGTH = 4096;
+const MAX_IPC_URL_LENGTH = 4096;
+const MAX_IPC_TOKEN_LENGTH = 10000;
+const MAX_IPC_REGION_LENGTH = 128;
+const MAX_IPC_BUCKET_LENGTH = 256;
+const MAX_IPC_PREFIX_LENGTH = 1024;
+const MAX_IPC_FAVORITES_COUNT = 5000;
+
+const REPO_PROVIDER_VALUES = Object.values(REPO_PROVIDERS);
+const AUTH_METHOD_VALUES = Object.values(AuthMethod);
+const THEME_VALUES = ["light", "dark", "system"] as const;
+
+const validateRepoSettingsInput = (
+  value: unknown,
+  field: string,
+  options: { requireProvider?: boolean } = {},
+): Partial<RepoSettings> => {
+  const settings = assertPlainObject(value, field);
+  const { requireProvider = false } = options;
+
+  if (requireProvider || settings.provider !== undefined) {
+    assertOneOf(settings.provider, `${field}.provider`, REPO_PROVIDER_VALUES, {
+      allowEmpty: false,
+    });
+  }
+
+  if (settings.localPath !== undefined) {
+    assertString(settings.localPath, `${field}.localPath`, {
+      allowEmpty: false,
+      maxLength: MAX_IPC_PATH_LENGTH,
+    });
+  }
+
+  if (settings.remoteUrl !== undefined) {
+    assertString(settings.remoteUrl, `${field}.remoteUrl`, {
+      allowEmpty: false,
+      maxLength: MAX_IPC_URL_LENGTH,
+    });
+  }
+
+  if (settings.branch !== undefined) {
+    assertString(settings.branch, `${field}.branch`, {
+      allowEmpty: false,
+      maxLength: 256,
+    });
+  }
+
+  if (settings.pat !== undefined) {
+    assertString(settings.pat, `${field}.pat`, {
+      maxLength: MAX_IPC_TOKEN_LENGTH,
+    });
+  }
+
+  if (settings.authMethod !== undefined) {
+    assertOneOf(
+      settings.authMethod,
+      `${field}.authMethod`,
+      AUTH_METHOD_VALUES,
+      {
+        allowEmpty: false,
+      },
+    );
+  }
+
+  if (settings.bucket !== undefined) {
+    assertString(settings.bucket, `${field}.bucket`, {
+      allowEmpty: false,
+      maxLength: MAX_IPC_BUCKET_LENGTH,
+    });
+  }
+
+  if (settings.region !== undefined) {
+    assertString(settings.region, `${field}.region`, {
+      allowEmpty: false,
+      maxLength: MAX_IPC_REGION_LENGTH,
+    });
+  }
+
+  if (settings.prefix !== undefined) {
+    assertString(settings.prefix, `${field}.prefix`, {
+      maxLength: MAX_IPC_PREFIX_LENGTH,
+    });
+  }
+
+  if (settings.accessKeyId !== undefined) {
+    assertString(settings.accessKeyId, `${field}.accessKeyId`, {
+      maxLength: MAX_IPC_TOKEN_LENGTH,
+    });
+  }
+
+  if (settings.secretAccessKey !== undefined) {
+    assertString(settings.secretAccessKey, `${field}.secretAccessKey`, {
+      maxLength: MAX_IPC_TOKEN_LENGTH,
+    });
+  }
+
+  if (settings.sessionToken !== undefined) {
+    assertString(settings.sessionToken, `${field}.sessionToken`, {
+      maxLength: MAX_IPC_TOKEN_LENGTH,
+    });
+  }
+
+  return settings as Partial<RepoSettings>;
+};
+
+const validateAppSettingsInput = (value: unknown): Partial<AppSettings> => {
+  const settings = assertPlainObject(value, "settings");
+
+  if (settings.language !== undefined) {
+    assertString(settings.language, "settings.language", {
+      allowEmpty: false,
+      maxLength: 32,
+    });
+  }
+
+  if (settings.autoSaveEnabled !== undefined) {
+    assertBoolean(settings.autoSaveEnabled, "settings.autoSaveEnabled");
+  }
+
+  if (settings.autoSaveIntervalSec !== undefined) {
+    assertInteger(
+      settings.autoSaveIntervalSec,
+      "settings.autoSaveIntervalSec",
+      {
+        min: 1,
+        max: 86400,
+      },
+    );
+  }
+
+  if (settings.s3AutoSyncEnabled !== undefined) {
+    assertBoolean(settings.s3AutoSyncEnabled, "settings.s3AutoSyncEnabled");
+  }
+
+  if (settings.s3AutoSyncIntervalSec !== undefined) {
+    assertInteger(
+      settings.s3AutoSyncIntervalSec,
+      "settings.s3AutoSyncIntervalSec",
+      {
+        min: 1,
+        max: 86400,
+      },
+    );
+  }
+
+  if (settings.theme !== undefined) {
+    assertOneOf(settings.theme, "settings.theme", THEME_VALUES, {
+      allowEmpty: false,
+    });
+  }
+
+  if (settings.editorPrefs !== undefined) {
+    const editorPrefs = assertPlainObject(
+      settings.editorPrefs,
+      "settings.editorPrefs",
+    );
+    if (editorPrefs.fontSize !== undefined) {
+      assertInteger(editorPrefs.fontSize, "settings.editorPrefs.fontSize", {
+        min: 8,
+        max: 72,
+      });
+    }
+    if (editorPrefs.lineNumbers !== undefined) {
+      assertBoolean(
+        editorPrefs.lineNumbers,
+        "settings.editorPrefs.lineNumbers",
+      );
+    }
+    if (editorPrefs.tabSize !== undefined) {
+      assertInteger(editorPrefs.tabSize, "settings.editorPrefs.tabSize", {
+        min: 1,
+        max: 12,
+      });
+    }
+    if (editorPrefs.showPreview !== undefined) {
+      assertBoolean(
+        editorPrefs.showPreview,
+        "settings.editorPrefs.showPreview",
+      );
+    }
+  }
+
+  return settings as Partial<AppSettings>;
+};
 
 export function registerConfigHandlers(
   ipcMain: IpcMain,
@@ -71,7 +268,8 @@ export function registerConfigHandlers(
       settings: Partial<AppSettings>,
     ): Promise<ApiResponse<void>> => {
       try {
-        await configService.updateAppSettings(settings);
+        const validatedSettings = validateAppSettingsInput(settings);
+        await configService.updateAppSettings(validatedSettings);
         try {
           await repoService.refreshAutoSyncSettings();
         } catch (error) {
@@ -84,14 +282,16 @@ export function registerConfigHandlers(
         logger.error("Failed to update app settings", { error });
         return {
           ok: false,
-          error: {
-            code: ApiErrorCode.UNKNOWN_ERROR,
-            message: await t(
-              "config.errors.failedUpdateAppSettings",
-              "Failed to update app settings",
-            ),
-            details: error,
-          },
+          error: error.code
+            ? await localizeApiError(error, translate)
+            : {
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: await t(
+                  "config.errors.failedUpdateAppSettings",
+                  "Failed to update app settings",
+                ),
+                details: error,
+              },
         };
       }
     },
@@ -101,7 +301,12 @@ export function registerConfigHandlers(
     "config:updateRepoSettings",
     async (_event, settings: RepoSettings): Promise<ApiResponse<void>> => {
       try {
-        await configService.updateRepoSettings(settings);
+        const validatedSettings = validateRepoSettingsInput(
+          settings,
+          "settings",
+          { requireProvider: true },
+        ) as RepoSettings;
+        await configService.updateRepoSettings(validatedSettings);
         return {
           ok: true,
         };
@@ -199,7 +404,11 @@ export function registerConfigHandlers(
     "config:updateFavorites",
     async (_event, favorites: string[]): Promise<ApiResponse<void>> => {
       try {
-        await configService.updateFavorites(favorites);
+        const validatedFavorites = assertStringArray(favorites, "favorites", {
+          maxItems: MAX_IPC_FAVORITES_COUNT,
+          itemMaxLength: MAX_IPC_PATH_LENGTH,
+        });
+        await configService.updateFavorites(validatedFavorites);
         return {
           ok: true,
         };
@@ -207,14 +416,16 @@ export function registerConfigHandlers(
         logger.error("Failed to update favorites", { error });
         return {
           ok: false,
-          error: {
-            code: ApiErrorCode.UNKNOWN_ERROR,
-            message: await t(
-              "config.errors.failedSaveFavorites",
-              "Failed to save favorites",
-            ),
-            details: error,
-          },
+          error: error.code
+            ? await localizeApiError(error, translate)
+            : {
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: await t(
+                  "config.errors.failedSaveFavorites",
+                  "Failed to save favorites",
+                ),
+                details: error,
+              },
         };
       }
     },
@@ -280,7 +491,19 @@ export function registerConfigHandlers(
       repoSettings: Partial<RepoSettings>,
     ): Promise<ApiResponse<Profile>> => {
       try {
-        const profile = await configService.createProfile(name, repoSettings);
+        const validatedName = assertString(name, "name", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PROFILE_NAME_LENGTH,
+        });
+        const validatedRepoSettings = validateRepoSettingsInput(
+          repoSettings,
+          "repoSettings",
+        );
+
+        const profile = await configService.createProfile(
+          validatedName,
+          validatedRepoSettings,
+        );
 
         logger.info("Profile created, preparing repository", {
           profileId: profile.id,
@@ -346,7 +569,11 @@ export function registerConfigHandlers(
     "config:deleteProfile",
     async (_event, profileId: string): Promise<ApiResponse<void>> => {
       try {
-        await configService.deleteProfile(profileId);
+        const validatedProfileId = assertString(profileId, "profileId", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PROFILE_ID_LENGTH,
+        });
+        await configService.deleteProfile(validatedProfileId);
         return {
           ok: true,
         };
@@ -354,14 +581,16 @@ export function registerConfigHandlers(
         logger.error("Failed to delete profile", { error });
         return {
           ok: false,
-          error: {
-            code: ApiErrorCode.UNKNOWN_ERROR,
-            message: await t(
-              "config.errors.failedDeleteProfile",
-              "Failed to delete profile",
-            ),
-            details: error,
-          },
+          error: error.code
+            ? await localizeApiError(error, translate)
+            : {
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: await t(
+                  "config.errors.failedDeleteProfile",
+                  "Failed to delete profile",
+                ),
+                details: error,
+              },
         };
       }
     },
@@ -371,7 +600,11 @@ export function registerConfigHandlers(
     "config:setActiveProfile",
     async (_event, profileId: string): Promise<ApiResponse<void>> => {
       try {
-        await configService.setActiveProfileId(profileId);
+        const validatedProfileId = assertString(profileId, "profileId", {
+          allowEmpty: false,
+          maxLength: MAX_IPC_PROFILE_ID_LENGTH,
+        });
+        await configService.setActiveProfileId(validatedProfileId);
         repoService.resetActiveRepo?.();
         profileSwitchServices.filesService?.reset();
         profileSwitchServices.searchService?.reset();
@@ -388,7 +621,7 @@ export function registerConfigHandlers(
             "Failed to refresh search repo path after profile switch",
             {
               error,
-              profileId,
+              profileId: validatedProfileId,
             },
           );
         }
@@ -400,14 +633,16 @@ export function registerConfigHandlers(
         logger.error("Failed to set active profile", { error });
         return {
           ok: false,
-          error: {
-            code: ApiErrorCode.UNKNOWN_ERROR,
-            message: await t(
-              "config.errors.failedSetActiveProfile",
-              "Failed to set active profile",
-            ),
-            details: error,
-          },
+          error: error.code
+            ? await localizeApiError(error, translate)
+            : {
+                code: ApiErrorCode.UNKNOWN_ERROR,
+                message: await t(
+                  "config.errors.failedSetActiveProfile",
+                  "Failed to set active profile",
+                ),
+                details: error,
+              },
         };
       }
     },

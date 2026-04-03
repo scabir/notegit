@@ -31,6 +31,42 @@ describe("searchHandlers", () => {
     expect(response.data).toEqual([{ filePath: "notes/a.md" }]);
   });
 
+  it("rejects non-string query input", async () => {
+    const searchService = {
+      search: jest.fn(),
+      searchRepoWide: jest.fn(),
+      replaceInRepo: jest.fn(),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerSearchHandlers(ipcMain, searchService);
+
+    const response = await handlers["search:query"](null, 123);
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.code).toBe(ApiErrorCode.VALIDATION_ERROR);
+    expect(searchService.search).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid maxResults input", async () => {
+    const searchService = {
+      search: jest.fn(),
+      searchRepoWide: jest.fn(),
+      replaceInRepo: jest.fn(),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerSearchHandlers(ipcMain, searchService);
+
+    const response = await handlers["search:query"](null, "test", {
+      maxResults: 0,
+    });
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.code).toBe(ApiErrorCode.VALIDATION_ERROR);
+    expect(searchService.search).not.toHaveBeenCalled();
+  });
+
   it("returns repo-wide search results", async () => {
     const searchService = {
       search: jest.fn(),
@@ -72,6 +108,25 @@ describe("searchHandlers", () => {
 
     expect(response.ok).toBe(true);
     expect(response.data?.filesProcessed).toBe(1);
+  });
+
+  it("rejects non-string file paths in replace options", async () => {
+    const searchService = {
+      search: jest.fn(),
+      searchRepoWide: jest.fn(),
+      replaceInRepo: jest.fn(),
+    } as any;
+
+    const { ipcMain, handlers } = createIpcMain();
+    registerSearchHandlers(ipcMain, searchService);
+
+    const response = await handlers["search:replaceInRepo"](null, "a", "b", {
+      filePaths: ["ok.md", 123],
+    });
+
+    expect(response.ok).toBe(false);
+    expect(response.error?.code).toBe(ApiErrorCode.VALIDATION_ERROR);
+    expect(searchService.replaceInRepo).not.toHaveBeenCalled();
   });
 
   it("returns error when search fails", async () => {
