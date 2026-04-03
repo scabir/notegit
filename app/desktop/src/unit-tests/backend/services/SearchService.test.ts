@@ -84,7 +84,37 @@ describe("SearchService", () => {
       expect(results).toEqual([]);
     });
 
-    it("supports regex fallback when regex is invalid", async () => {
+    it("supports safe regex patterns when regex mode is enabled", async () => {
+      const files: Record<string, string> = {
+        "/test/repo/notes/a.md": "hello hillo hullo",
+      };
+      const dirs: Record<string, string[]> = {
+        "/test/repo": ["notes"],
+        "/test/repo/notes": ["a.md"],
+      };
+
+      mockFsAdapter.readdir.mockImplementation(
+        async (dir: string) => dirs[dir] || [],
+      );
+      mockFsAdapter.stat.mockImplementation(
+        async (fullPath: string) =>
+          ({
+            isDirectory: () => Boolean(dirs[fullPath]),
+          }) as any,
+      );
+      mockFsAdapter.readFile.mockImplementation(
+        async (filePath: string) => files[filePath],
+      );
+
+      const results = await searchService.searchRepoWide("h.llo", {
+        useRegex: true,
+      });
+
+      expect(results).toHaveLength(1);
+      expect(results[0].matches).toHaveLength(3);
+    });
+
+    it("rejects invalid regex patterns when regex mode is enabled", async () => {
       const files: Record<string, string> = {
         "/test/repo/notes/a.md": "Has [ bracket",
       };
@@ -106,12 +136,25 @@ describe("SearchService", () => {
         async (filePath: string) => files[filePath],
       );
 
-      const results = await searchService.searchRepoWide("[", {
-        useRegex: true,
+      await expect(
+        searchService.searchRepoWide("[", {
+          useRegex: true,
+        }),
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.VALIDATION_ERROR,
       });
+      expect(mockFsAdapter.readFile).not.toHaveBeenCalled();
+    });
 
-      expect(results).toHaveLength(1);
-      expect(results[0].matches[0].lineContent).toContain("[");
+    it("rejects unsafe regex patterns that can trigger catastrophic backtracking", async () => {
+      await expect(
+        searchService.searchRepoWide("(a+)+$", {
+          useRegex: true,
+        }),
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.VALIDATION_ERROR,
+      });
+      expect(mockFsAdapter.readFile).not.toHaveBeenCalled();
     });
 
     it("continues when individual files cannot be read", async () => {
@@ -230,20 +273,19 @@ describe("SearchService", () => {
       expect(mockFsAdapter.writeFile).toHaveBeenCalledTimes(2);
     });
 
-    it("falls back to plain text replacement when the regex is invalid", async () => {
+    it("rejects invalid regex replacement patterns when regex mode is enabled", async () => {
       mockFsAdapter.readFile.mockResolvedValue("a[b a[b");
       mockFsAdapter.writeFile.mockResolvedValue();
 
-      const result = await searchService.replaceInRepo("[b", "X", {
-        useRegex: true,
-        filePaths: ["test.md"],
+      await expect(
+        searchService.replaceInRepo("[b", "X", {
+          useRegex: true,
+          filePaths: ["test.md"],
+        }),
+      ).rejects.toMatchObject({
+        code: ApiErrorCode.VALIDATION_ERROR,
       });
-
-      expect(result.totalReplacements).toBe(2);
-      expect(mockFsAdapter.writeFile).toHaveBeenCalledWith(
-        "/test/repo/test.md",
-        "aX aX",
-      );
+      expect(mockFsAdapter.writeFile).not.toHaveBeenCalled();
     });
 
     it("throws when markdown file discovery fails before replacement starts", async () => {

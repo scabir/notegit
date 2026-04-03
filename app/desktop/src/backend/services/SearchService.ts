@@ -216,6 +216,7 @@ export class SearchService {
     const results: RepoWideSearchResult[] = [];
     const caseSensitive = options?.caseSensitive || false;
     const useRegex = options?.useRegex || false;
+    const regex = useRegex ? this.createSafeRegex(query, caseSensitive) : null;
 
     try {
       const files = await this.getAllMarkdownFiles(this.repoPath!);
@@ -235,6 +236,7 @@ export class SearchService {
               query,
               caseSensitive,
               useRegex,
+              regex,
             );
 
             for (const match of matches) {
@@ -276,6 +278,9 @@ export class SearchService {
 
       return results;
     } catch (error: any) {
+      if (error?.code === ApiErrorCode.VALIDATION_ERROR) {
+        throw error;
+      }
       logger.error("Repo-wide search failed", { error });
       throw this.createError(
         ApiErrorCode.UNKNOWN_ERROR,
@@ -304,6 +309,7 @@ export class SearchService {
 
     const caseSensitive = options?.caseSensitive || false;
     const useRegex = options?.useRegex || false;
+    const regex = useRegex ? this.createSafeRegex(query, caseSensitive) : null;
     let filesToProcess: string[] = [];
 
     try {
@@ -333,6 +339,7 @@ export class SearchService {
             replacement,
             caseSensitive,
             useRegex,
+            regex,
           );
 
           if (newContent !== content) {
@@ -344,6 +351,7 @@ export class SearchService {
               query,
               caseSensitive,
               useRegex,
+              regex,
             );
             result.totalReplacements += matches.length;
 
@@ -449,23 +457,22 @@ export class SearchService {
     query: string,
     caseSensitive: boolean,
     useRegex: boolean,
+    regex: RegExp | null = null,
   ): { start: number; end: number }[] {
     const matches: { start: number; end: number }[] = [];
 
     if (useRegex) {
-      try {
-        const flags = caseSensitive ? "g" : "gi";
-        const regex = new RegExp(query, flags);
-        let match;
+      if (!regex) {
+        return matches;
+      }
+      regex.lastIndex = 0;
+      let match: RegExpExecArray | null;
 
-        while ((match = regex.exec(line)) !== null) {
-          matches.push({
-            start: match.index,
-            end: match.index + match[0].length,
-          });
-        }
-      } catch (error) {
-        return this.findMatchesInLine(line, query, caseSensitive, false);
+      while ((match = regex.exec(line)) !== null) {
+        matches.push({
+          start: match.index,
+          end: match.index + match[0].length,
+        });
       }
     } else {
       const searchLine = caseSensitive ? line : line.toLowerCase();
@@ -489,23 +496,22 @@ export class SearchService {
     query: string,
     caseSensitive: boolean,
     useRegex: boolean,
+    regex: RegExp | null = null,
   ): { start: number; end: number }[] {
     const matches: { start: number; end: number }[] = [];
 
     if (useRegex) {
-      try {
-        const flags = caseSensitive ? "g" : "gi";
-        const regex = new RegExp(query, flags);
-        let match;
+      if (!regex) {
+        return matches;
+      }
+      regex.lastIndex = 0;
+      let match: RegExpExecArray | null;
 
-        while ((match = regex.exec(content)) !== null) {
-          matches.push({
-            start: match.index,
-            end: match.index + match[0].length,
-          });
-        }
-      } catch (error) {
-        return this.findMatchesInContent(content, query, caseSensitive, false);
+      while ((match = regex.exec(content)) !== null) {
+        matches.push({
+          start: match.index,
+          end: match.index + match[0].length,
+        });
       }
     } else {
       const searchContent = caseSensitive ? content : content.toLowerCase();
@@ -530,21 +536,14 @@ export class SearchService {
     replacement: string,
     caseSensitive: boolean,
     useRegex: boolean,
+    regex: RegExp | null = null,
   ): string {
     if (useRegex) {
-      try {
-        const flags = caseSensitive ? "g" : "gi";
-        const regex = new RegExp(query, flags);
-        return content.replace(regex, replacement);
-      } catch (error) {
-        return this.replaceInContent(
-          content,
-          query,
-          replacement,
-          caseSensitive,
-          false,
-        );
+      if (!regex) {
+        return content;
       }
+      regex.lastIndex = 0;
+      return content.replace(regex, replacement);
     } else {
       if (caseSensitive) {
         return content.split(query).join(replacement);
@@ -556,6 +555,90 @@ export class SearchService {
         return content.replace(regex, replacement);
       }
     }
+  }
+
+  private createSafeRegex(query: string, caseSensitive: boolean): RegExp {
+    if (this.hasNestedQuantifiedGroup(query)) {
+      throw this.createError(
+        ApiErrorCode.VALIDATION_ERROR,
+        "Unsafe regex pattern rejected",
+        { query, reason: "nestedQuantifiedGroup" },
+      );
+    }
+
+    const flags = caseSensitive ? "g" : "gi";
+    try {
+      return new RegExp(query, flags);
+    } catch (error: any) {
+      throw this.createError(
+        ApiErrorCode.VALIDATION_ERROR,
+        `Invalid regex pattern: ${error?.message || query}`,
+        { query, error },
+      );
+    }
+  }
+
+  private hasNestedQuantifiedGroup(pattern: string): boolean {
+    const quantifierChars = new Set(["+", "*", "?", "{"]);
+    const stack: Array<{ hasInnerQuantifier: boolean }> = [];
+    let escaped = false;
+    let inCharClass = false;
+
+    for (let i = 0; i < pattern.length; i++) {
+      const char = pattern[i];
+
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+
+      if (char === "\\") {
+        escaped = true;
+        continue;
+      }
+
+      if (inCharClass) {
+        if (char === "]") {
+          inCharClass = false;
+        }
+        continue;
+      }
+
+      if (char === "[") {
+        inCharClass = true;
+        continue;
+      }
+
+      if (char === "(") {
+        stack.push({ hasInnerQuantifier: false });
+        continue;
+      }
+
+      if (char === ")") {
+        const currentGroup = stack.pop();
+        if (!currentGroup) {
+          continue;
+        }
+
+        const next = pattern[i + 1];
+        const groupIsQuantified =
+          typeof next === "string" && quantifierChars.has(next);
+        if (currentGroup.hasInnerQuantifier && groupIsQuantified) {
+          return true;
+        }
+
+        if (stack.length > 0 && groupIsQuantified) {
+          stack[stack.length - 1].hasInnerQuantifier = true;
+        }
+        continue;
+      }
+
+      if (quantifierChars.has(char) && stack.length > 0) {
+        stack[stack.length - 1].hasInnerQuantifier = true;
+      }
+    }
+
+    return false;
   }
 }
 
