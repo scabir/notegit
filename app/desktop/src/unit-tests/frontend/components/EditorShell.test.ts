@@ -1265,6 +1265,53 @@ describe("EditorShell", () => {
     ).toContain("notes/text.txt content");
   });
 
+  it("keeps the latest file selection when reads resolve out of order", async () => {
+    let resolveMarkdownRead: ((value: any) => void) | null = null;
+    let resolveTextRead: ((value: any) => void) | null = null;
+
+    (global as any).window.NoteBranchApi.files.read = jest
+      .fn()
+      .mockImplementation((filePath: string) => {
+        return new Promise((resolve) => {
+          if (filePath === "notes/doc.md") {
+            resolveMarkdownRead = resolve;
+            return;
+          }
+
+          if (filePath === "notes/text.txt") {
+            resolveTextRead = resolve;
+            return;
+          }
+
+          resolve(buildFileResponse(FileType.MARKDOWN, filePath));
+        });
+      });
+
+    const renderer = await renderEditorShell();
+
+    await act(async () => {
+      findButton(renderer, "SelectMarkdown").props.onClick();
+      findButton(renderer, "SelectText").props.onClick();
+      await flushPromises();
+    });
+
+    await act(async () => {
+      resolveTextRead?.(buildFileResponse(FileType.TEXT, "notes/text.txt"));
+      await flushPromises();
+    });
+
+    await act(async () => {
+      resolveMarkdownRead?.(
+        buildFileResponse(FileType.MARKDOWN, "notes/doc.md"),
+      );
+      await flushPromises();
+    });
+
+    expect(
+      renderer.root.findByProps({ "data-testid": "text-editor" }).children,
+    ).toContain("notes/text.txt content");
+  });
+
   it("handles commit callbacks and dialog close handlers", async () => {
     const renderer = await renderEditorShell();
 

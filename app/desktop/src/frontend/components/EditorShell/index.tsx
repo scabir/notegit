@@ -107,6 +107,7 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
   const lastExpandedSidebarWidthRef = React.useRef(SIDEBAR_DEFAULT_WIDTH);
 
   const fileContentCacheRef = React.useRef<Map<string, string>>(new Map());
+  const openRequestIdRef = React.useRef(0);
   const shortcutHelperRef = React.useRef<ShortcutHelperHandle | null>(null);
   const navigationEntriesRef = React.useRef<string[]>([]);
   const navigationIndexRef = React.useRef(-1);
@@ -442,12 +443,17 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
         fileContentCacheRef.current.set(selectedFile, editorContent);
       }
 
+      const requestId = ++openRequestIdRef.current;
       setSelectedFile(path);
 
       try {
         const cachedContent = fileContentCacheRef.current.get(path);
 
         const response = await window.NoteBranchApi.files.read(path);
+        if (requestId !== openRequestIdRef.current) {
+          return;
+        }
+
         if (response.ok && response.data) {
           if (cachedContent !== undefined) {
             setFileContent({
@@ -469,6 +475,9 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
           );
         }
       } catch (error) {
+        if (requestId !== openRequestIdRef.current) {
+          return;
+        }
         setTransientStatus("error", message("failedReadFile"), 5000);
       }
     },
