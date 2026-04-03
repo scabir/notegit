@@ -798,6 +798,118 @@ describe("EditorShell", () => {
     ).toContain("updated content");
   });
 
+  it("does not mark reopened cached files as dirty when cache matches disk", async () => {
+    const fileStore: Record<string, string> = {
+      "notes/doc.md": "notes/doc.md content",
+      "notes/text.txt": "notes/text.txt content",
+    };
+
+    (global as any).window.NoteBranchApi.files.read = jest
+      .fn()
+      .mockImplementation(async (filePath: string) => {
+        if (filePath.endsWith(".txt")) {
+          return {
+            ok: true,
+            data: {
+              path: filePath,
+              content: fileStore[filePath],
+              type: FileType.TEXT,
+              size: 10,
+              lastModified: new Date("2024-01-01T00:00:00Z"),
+            },
+          };
+        }
+
+        return {
+          ok: true,
+          data: {
+            path: filePath,
+            content: fileStore[filePath],
+            type: FileType.MARKDOWN,
+            size: 10,
+            lastModified: new Date("2024-01-01T00:00:00Z"),
+          },
+        };
+      });
+    (global as any).window.NoteBranchApi.files.save = jest
+      .fn()
+      .mockImplementation(async (filePath: string, content: string) => {
+        fileStore[filePath] = content;
+        return { ok: true };
+      });
+
+    const renderer = await renderEditorShell();
+
+    await act(async () => {
+      findButton(renderer!, "SelectMarkdown").props.onClick();
+      await flushPromises();
+    });
+
+    act(() => {
+      findButton(renderer!, "MarkdownChange").props.onClick();
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(30000);
+      await flushPromises();
+    });
+    expect(
+      (global as any).window.NoteBranchApi.files.save,
+    ).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      findButton(renderer!, "SelectText").props.onClick();
+      await flushPromises();
+    });
+    await act(async () => {
+      findButton(renderer!, "SelectMarkdown").props.onClick();
+      await flushPromises();
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(30000);
+      await flushPromises();
+    });
+
+    expect(
+      (global as any).window.NoteBranchApi.files.save,
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      renderer!.root.findByProps({ "data-testid": "markdown-editor" }).children,
+    ).toContain("updated content");
+  });
+
+  it("marks reopened cached files as dirty when cache differs from disk", async () => {
+    const renderer = await renderEditorShell();
+
+    await act(async () => {
+      findButton(renderer!, "SelectMarkdown").props.onClick();
+      await flushPromises();
+    });
+
+    act(() => {
+      findButton(renderer!, "MarkdownChange").props.onClick();
+    });
+
+    await act(async () => {
+      findButton(renderer!, "SelectText").props.onClick();
+      await flushPromises();
+    });
+    await act(async () => {
+      findButton(renderer!, "SelectMarkdown").props.onClick();
+      await flushPromises();
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(30000);
+      await flushPromises();
+    });
+
+    expect(
+      (global as any).window.NoteBranchApi.files.save,
+    ).toHaveBeenCalledWith("notes/doc.md", "updated content");
+  });
+
   it("prevents unload synchronously and triggers save without awaiting completion", async () => {
     let resolveSave: (value: { ok: boolean }) => void = () => {};
     let capturedSaveResolver = false;

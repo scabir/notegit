@@ -447,29 +447,26 @@ export function EditorShell({ onThemeChange }: EditorShellProps) {
       try {
         const cachedContent = fileContentCacheRef.current.get(path);
 
-        if (cachedContent !== undefined) {
-          const response = await window.NoteBranchApi.files.read(path);
-          if (response.ok && response.data) {
+        const response = await window.NoteBranchApi.files.read(path);
+        if (response.ok && response.data) {
+          if (cachedContent !== undefined) {
             setFileContent({
               ...response.data,
               content: cachedContent,
             });
             setEditorContent(cachedContent);
-            setHasUnsavedChanges(true);
-          }
-        } else {
-          const response = await window.NoteBranchApi.files.read(path);
-          if (response.ok && response.data) {
+            setHasUnsavedChanges(cachedContent !== response.data.content);
+          } else {
             setFileContent(response.data);
             setEditorContent(response.data.content);
             setHasUnsavedChanges(false);
-          } else {
-            setTransientStatus(
-              "error",
-              response.error?.message || message("failedReadFile"),
-              5000,
-            );
           }
+        } else {
+          setTransientStatus(
+            "error",
+            response.error?.message || message("failedReadFile"),
+            5000,
+          );
         }
       } catch (error) {
         setTransientStatus("error", message("failedReadFile"), 5000);
